@@ -260,6 +260,16 @@
           "at": "2026-11-04T15:11:28Z",
           "by": "codex",
           "text": "La persona pide una vault nueva para el piloto. Creada en /home/aserrano/Obsidian/DailyDigest con .obsidian, Digest/Semanal, Revisiones, Briefs y bienvenida, sin sobrescribir archivos existentes. Configuración local actualizada y validada. El destinatario del piloto permanece fuera de Git. No se ha enviado correo."
+        },
+        {
+          "at": "2026-11-04T15:14:04Z",
+          "by": "codex",
+          "text": "Configuración local del piloto completada con URL interna de OpenCode (sin importar claves), ruta absoluta de Kanvas, datos en build/pilot/data y la nueva vault. Se usa provisionalmente la misma cuenta para remitente y destinatario. Doctor real confirma configuración, datos, Obsidian y kanvas check de ambos proyectos. Se preparó gdrive:DailyDigest mediante rclone mkdir fuera de doctor; doctor confirma después Drive. Pendientes solo credenciales LLM/SMTP y Tailscale ausente; no hay envío ni contenido subido."
+        },
+        {
+          "at": "2026-11-04T15:14:04Z",
+          "by": "codex",
+          "text": "Question: Para terminar la comprobación real, configura QWEN_API_KEY, NAN_API_KEY y SMTP_PASSWORD en el entorno de Codex o en CREDENTIALS_DIRECTORY/secrets.env, y confirma cuándo estén disponibles. También falta instalar/configurar Tailscale para la aceptación prevista. No envíes claves por el chat."
         }
       ]
     },
