@@ -300,6 +300,16 @@
           "at": "2026-11-04T15:34:39Z",
           "by": "codex",
           "text": "SMTP verificado correctamente con la cuenta actualizada del piloto: autenticación correcta y NOOP confirmado. No se ha enviado correo. Las credenciales y la dirección permanecen en configuración privada. Para completar CB-06 queda Tailscale y documentar sus comprobaciones."
+        },
+        {
+          "at": "2026-11-04T15:37:57Z",
+          "by": "codex",
+          "text": "Preparación de Tailscale autorizada por la persona. Equipo confirmado Rocky Linux 9.8. Consultadas instrucciones oficiales RHEL 9. Tailscale ausente; sudo fuera del sandbox requiere TTY y contraseña de administrador incluso con TTY. La instalación debe ejecutarla la persona en su terminal; no se ha instalado ni modificado el servicio."
+        },
+        {
+          "at": "2026-11-04T15:37:57Z",
+          "by": "codex",
+          "text": "Question: Ejecuta en tu terminal los comandos oficiales para añadir el repositorio RHEL 9, instalar tailscale, activar tailscaled y ejecutar sudo tailscale up. Completa el inicio de sesión desde el enlace que muestre y avisa cuando termine. No compartas la contraseña sudo."
         }
       ]
     },
