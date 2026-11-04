@@ -245,6 +245,21 @@
           "at": "2026-11-04T15:03:03Z",
           "by": "codex",
           "text": "Question: benchmark y VCD ya pasan la comprobación de tableros. ¿Usamos /home/aserrano/ObsidianVault como vault? ¿Qué dirección de correo debe recibir los informes? No envíes contraseñas ni claves."
+        },
+        {
+          "at": "2026-11-04T15:09:29Z",
+          "by": "codex",
+          "text": "La persona ha indicado el destinatario de correo para el piloto. Se ha guardado exclusivamente en config.yaml local, ignorado por Git; no se publica la dirección en este tablero. No se ha enviado correo ni se ha supuesto que esa cuenta sea también remitente. Pendientes: vault, cuenta remitente y credenciales por entorno."
+        },
+        {
+          "at": "2026-11-04T15:09:29Z",
+          "by": "codex",
+          "text": "Question: ¿Usamos /home/aserrano/ObsidianVault como vault y la misma cuenta del destinatario para enviar por Gmail SMTP? La contraseña de aplicación debe configurarse como SMTP_PASSWORD fuera del chat."
+        },
+        {
+          "at": "2026-11-04T15:11:28Z",
+          "by": "codex",
+          "text": "La persona pide una vault nueva para el piloto. Creada en /home/aserrano/Obsidian/DailyDigest con .obsidian, Digest/Semanal, Revisiones, Briefs y bienvenida, sin sobrescribir archivos existentes. Configuración local actualizada y validada. El destinatario del piloto permanece fuera de Git. No se ha enviado correo."
         }
       ]
     },
