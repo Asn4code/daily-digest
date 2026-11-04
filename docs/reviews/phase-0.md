@@ -55,8 +55,13 @@ Los FR completos de captura, entrega, LLM y revisión humana corresponden a fase
 
 Comprobaciones que solo puedes hacer tú:
 
-- [ ] digest doctor pasa en el equipo de Rocky con los dos proyectos piloto
-- [ ] Los hallazgos de la verificación de contratos están en docs/DECISIONS.md
-- [ ] Las preguntas Q-01, Q-06 y Q-07 tienen respuesta
+Comprobaciones marcadas por Codex a petición de la persona, basadas en el resultado
+de `doctor` que ha ejecutado y compartido, los hallazgos documentados y las
+respuestas confirmadas durante la conversación. La aprobación final permanece
+reservada a la persona.
+
+- [x] digest doctor pasa en el equipo de Rocky con los dos proyectos piloto
+- [x] Los hallazgos de la verificación de contratos están en docs/DECISIONS.md
+- [x] Las preguntas Q-01, Q-06 y Q-07 tienen respuesta
 
 - [ ] Apruebo la fase
