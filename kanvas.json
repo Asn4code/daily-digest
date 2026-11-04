@@ -398,6 +398,16 @@
           "at": "2026-11-04T16:56:00Z",
           "by": "codex",
           "text": "A petición expresa de la persona, marcadas las tres comprobaciones de la ficha con evidencia: doctor ejecutado y compartido por ella pasa completo; hallazgos documentados; preguntas requeridas respondidas y confirmadas. Añadida atribución de la actualización a Codex. Se deja sin marcar únicamente Apruebo la fase; no se atribuye firma final a la persona."
+        },
+        {
+          "at": "2026-11-04T16:57:31Z",
+          "by": "codex",
+          "text": "Firma humana confirmada en phase-0.md. Puerta normal APROBADA (0). Variante --host exigida por CB-07 falla únicamente porque doctor-host busca /etc/daily-digest/config.yaml y la configuración del piloto sigue en config.yaml local. Se intentó instalarla con permisos 600 y propietario de la persona; sudo con TTY fuera del sandbox exige contraseña. No se ha relajado gates.toml ni cerrado CB-07."
+        },
+        {
+          "at": "2026-11-04T16:57:31Z",
+          "by": "codex",
+          "text": "Question: Ejecuta en tu terminal sudo install -d -m 755 /etc/daily-digest y sudo install -m 600 -o aserrano -g aserrano config.yaml /etc/daily-digest/config.yaml desde este repositorio. Avísame para repetir --host y completar el cierre. La firma está confirmada; no tienes que volver a firmar."
         }
       ]
     },

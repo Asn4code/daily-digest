@@ -64,4 +64,4 @@ reservada a la persona.
 - [x] Los hallazgos de la verificación de contratos están en docs/DECISIONS.md
 - [x] Las preguntas Q-01, Q-06 y Q-07 tienen respuesta
 
-- [ ] Apruebo la fase
+- [x] Apruebo la fase
