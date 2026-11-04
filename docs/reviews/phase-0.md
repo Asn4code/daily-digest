@@ -12,21 +12,21 @@ Protocolo en docs/VALIDATION.md. El revisor rellena «Hallazgos» y «Veredicto�
 
 ## Informe automático
 
-Informe: [comprobación automática](../../build/gates/phase-0.md), resultado PROVISIONAL.
+Informe actual: [comprobación completa](../../build/gates/phase-0.md), resultado **SUSPENDIDA** únicamente por las casillas de firma humana pendientes. La revisión independiente y las comprobaciones automáticas pasan; `doctor-host` no se ejecutó en esa invocación sin `--host`.
 
 Validación de servicios reales completada mediante `digest --config config.yaml doctor` con CREDENTIALS_DIRECTORY; retorno 0. Configuración privada excluida de Git.
-(resultado de `python scripts/phase_gate.py 0 --no-manual`).
+Las ejecuciones de revisión con `python scripts/phase_gate.py 0 --no-manual` devolvieron **PROVISIONAL** (3); ese resultado histórico corresponde al modo que omite revisión y firma, y no al artefacto completo enlazado actualmente.
 
 ## Hallazgos
 
 - [x] **bloqueante resuelto — fuga de claves dinámicas en errores de configuración.** `src/digest/config.py:254`: añadir a `llm.providers` la entrada `FAKE_SECRET_MAPPING_KEY: {timeout_s: bad}` y ejecutar doctor imprimía el nombre arbitrario en cada error de validación, vulnerando la redacción de secretos. El constructor corrigió la ubicación en `src/digest/config.py:257` (commit `4ff2e61`); regresión de carga directa y CLI en `tests/unit/test_config.py:107`. La prueba independiente `test_dynamic_mapping_key_is_redacted` falló antes y pasa después. No quedan bloqueantes abiertos.
-- [ ] **menor — preguntas de contratos con estado documental desactualizado.** `docs/DECISIONS.md:39`, `:44` y `:45`: Q-01/Q-06/Q-07 siguen abiertas mientras los hallazgos finales de CB-06 describen servicios comprobados. Reproducción: comparar «Preguntas abiertas» con «Cierre CB-06». Antes de la firma, la persona debe confirmar las respuestas y distinguir los límites aún no medidos; no se deben publicar rutas o credenciales privadas para resolverlo. Comprobación documental, sin test de código.
+- [x] **menor resuelto — preguntas de contratos con estado documental desactualizado.** En la revisión inicial Q-01/Q-06/Q-07 seguían abiertas mientras los hallazgos finales de CB-06 describían servicios comprobados. Actualización documental comprobada el 2026-11-04: D-026/D-027 resuelven los contratos de proveedores y D-031/D-032 registran los objetivos científicos confirmados; «Preguntas abiertas» declara respondidas las tres preguntas. Contexto anunciado: Qwen 262144 en el catálogo interno y NaN 1M en documentación del proveedor; no son mediciones de saturación. Cuotas y concurrencia continúan sin medir y se identifican como desconocidas. Comprobación documental, sin test de código ni acceso a configuración privada.
 
 ### Comprobaciones y alcance
 
 Lectura de AGENTS.md, SPEC, ARCHITECTURE, OPERATIONS, TESTING, VALIDATION, ROADMAP y DECISIONS. Revisión limitada a contratos y base; captura, publicación y webapp siguen fuera de esta fase. No se abrieron `config.yaml`, claves reales ni transcripciones, ni se ejecutaron proyectos reales.
 
-- Puerta inicial y tras la corrección: `PATH="$PWD/.venv/bin:$PATH" .venv/bin/python scripts/phase_gate.py 0 --no-manual`, retorno **3 PROVISIONAL**, informe enlazado arriba. Sin reglas incumplidas ni escenarios omitidos; `doctor-host` y firma se omiten conforme a ese modo.
+- Puerta inicial y tras la corrección: `PATH="$PWD/.venv/bin:$PATH" .venv/bin/python scripts/phase_gate.py 0 --no-manual`, retorno **3 PROVISIONAL** en aquellas ejecuciones. Sin reglas incumplidas ni escenarios omitidos; `doctor-host` y firma se omiten conforme a ese modo. El informe enlazado arriba fue sustituido posteriormente por la ejecución completa descrita en «Informe automático».
 - `PATH="$PWD/.venv/bin:$PATH" make check`: lint, formato, tipos estrictos y **93 tests aprobados**, sin skips.
 - Pruebas deliberadas independientes, solo con directorios temporales y secretos ficticios: `.venv/bin/python /tmp/daily_digest_phase0_review.py`, **5/5 pasan** tras la corrección. El archivo temporal es apoyo de esta sesión; la regresión del hallazgo permanece en el repositorio.
 
@@ -49,7 +49,7 @@ Los FR completos de captura, entrega, LLM y revisión humana corresponden a fase
 
 ## Veredicto del revisor
 
-**Aprobada la revisión independiente de fase 0**, tras corregir y volver a probar el único hallazgo bloqueante. La aprobación de esta capa no aprueba por sí sola la puerta: falta la comprobación y firma de la persona. Los límites de contexto internos permanecen explícitamente sin medir y no se han dado por verificados. Se mantienen `builder: codex-builder` y todas las casillas humanas originales sin marcar.
+**Aprobada la revisión independiente de fase 0**, tras corregir y volver a probar el único hallazgo bloqueante. La aprobación de esta capa no aprueba por sí sola la puerta: falta la comprobación y firma de la persona. El contexto anunciado por catálogo o documentación queda registrado; su capacidad efectiva no se ha probado por saturación, y las cuotas y concurrencia permanecen sin medir. La actualización documental posterior resuelve el hallazgo menor sin cambiar este veredicto. Se mantienen `builder: codex-builder` y todas las casillas humanas originales sin marcar.
 
 ## Firma de la persona
 

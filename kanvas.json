@@ -378,6 +378,11 @@
           "at": "2026-11-04T16:22:32Z",
           "by": "codex",
           "text": "Question: Las preguntas de la fase 0 están respondidas. Revisa docs/reviews/phase-0.md y marca personalmente las tres comprobaciones de Firma y Apruebo la fase. Después avisa para ejecutar la puerta completa y cerrar CB-07."
+        },
+        {
+          "at": "2026-11-04T16:30:31Z",
+          "by": "codex",
+          "text": "Revisor independiente actualiza phase-0.md tras la resolución de las preguntas: hallazgo menor documental marcado resuelto, contratos enlazados a decisiones y límites anunciados diferenciados de pruebas de saturación. Artefacto completo actual descrito como suspendido solo por firma; estado automático histórico provisional aclarado. Casillas humanas intactas."
         }
       ]
     },
