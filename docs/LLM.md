@@ -1,6 +1,6 @@
 # Modelos, prompts y validación
 
-Dos proveedores con API compatible con OpenAI: **Qwen3.6** interno y **NaN** externo. El código decide qué se envía; el modelo redacta; el validador decide qué se publica.
+Dos proveedores con API compatible con OpenAI: **Qwen/Qwen3.8-27B** interno (configuración inicial D-024) y **NaN** externo (`deepseek-v4-flash` inicialmente). El código decide qué se envía; el modelo redacta; el validador decide qué se publica.
 
 ## 1. Enrutado
 

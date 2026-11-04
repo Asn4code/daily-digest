@@ -1,0 +1,74 @@
+timezone: Europe/Madrid
+
+schedule:
+  daily: "20:00"
+  weekly: "Sat 10:00"
+  capture_every_hours: 2
+  max_generation_minutes: 60
+
+paths:
+  data_dir: /var/lib/daily-digest
+  obsidian_vault: /home/USER/Obsidian/Vault
+  obsidian_digest_dir: Digest
+  obsidian_reviews_dir: Revisiones
+  obsidian_briefs_dir: Briefs        # fase 6
+
+projects:
+  - id: proj-a
+    name: "Proyecto A"
+    root: /home/USER/proyectos/proj-a
+    objective: "Objetivo científico en una frase"
+    priority: 1
+    external_allowed: true
+    kanvas: kanvas.json
+    include: ["**/*.md", "**/*.rst", "docs/**", "results/**", "figures/**", "notebooks/**/*.ipynb", "logs/**"]
+    exclude: ["**/*.xtc", "**/*.dcd", "**/*.nc", "**/*.mrc", "data/raw/**", ".venv/**", "**/.env", "**/*.key"]
+    figures: ["figures/**/*.png", "results/**/*.png", "results/**/*.svg", "results/**/*.pdf"]
+    metrics:
+      - label: "Docking"
+        pattern: "results/**/scores.csv"
+        columns: [rmsd, score]
+    runs:
+      slurm: { enabled: true, user: USER }
+      logs: ["logs/**/*.log", ".snakemake/log/*.log", ".nextflow.log"]
+    agent_sessions: []          # fase 2, ver EVIDENCE.md
+
+limits:
+  max_file_bytes: 2000000
+  max_excerpt_chars: 4000
+  max_diff_chars_per_file: 6000
+  max_project_package_chars: 200000
+  capture_timeout_seconds: 300
+
+llm:
+  providers:
+    internal: { base_url: "https://QWEN_HOST/v1", model: "Qwen/Qwen3.8-27B", api_key_env: QWEN_API_KEY, timeout_s: 180 }
+    nan:      { base_url: "https://api.nan.builders/v1", model: "deepseek-v4-flash", api_key_env: NAN_API_KEY, timeout_s: 300 }
+  routing:                       # orden = preferencia; el segundo es el respaldo
+    extract:    [internal, nan]
+    conceptual: [nan, internal]
+    plan:       [nan, internal]
+    weekly:     [nan, internal]
+    contrast:   [nan, internal]
+
+email:
+  smtp_host: smtp.gmail.com
+  smtp_port: 587
+  username: USER@gmail.com
+  password_env: SMTP_PASSWORD
+  from: USER@gmail.com
+  to: USER@gmail.com
+
+drive:
+  remote: "gdrive:DailyDigest"
+  backups_keep_days: 30
+
+web:
+  bind: 127.0.0.1
+  port: 8090
+  public_base_url: "https://HOST.TAILNET.ts.net"
+  allowed_tailscale_login: USER@gmail.com    # si la cabecera de Tailscale está presente, debe coincidir
+
+kanvas:
+  cli: kanvas                    # o ruta a kanvas.py
+  write_enabled: false

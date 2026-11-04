@@ -1,0 +1,1 @@
+"""Bounded, deterministic infrastructure helpers."""

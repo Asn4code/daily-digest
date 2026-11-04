@@ -5,6 +5,9 @@ from typing import Annotated, NoReturn
 
 import typer
 
+from digest.config import ConfigError, load_config
+from digest.doctor import diagnose
+
 app = typer.Typer(help="Informes con evidencias y revisión personal.", no_args_is_help=True)
 
 
@@ -26,9 +29,20 @@ def main(
 
 
 @app.command()
-def doctor() -> None:
-    """Comprobar configuración y servicios (pendiente: CB-06)."""
-    pending("doctor")
+def doctor(
+    ctx: typer.Context,
+    offline: Annotated[bool, typer.Option(help="Validar rutas sin procesos ni red.")] = False,
+) -> None:
+    """Comprobar configuración, rutas y servicios sin enviar informes."""
+    try:
+        config = load_config(ctx.obj or Path("config.yaml"))
+    except ConfigError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=2) from None
+    checks = diagnose(config, offline=offline)
+    for check in checks:
+        typer.echo(f"{check.status}: {check.name}: {check.detail}")
+    raise typer.Exit(code=int(any(check.status == "error" for check in checks)))
 
 
 @app.command()

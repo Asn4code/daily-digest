@@ -30,8 +30,9 @@ Servicio personal que, al final de cada día (o cuando lo pidas), reúne lo que 
 
 ## Empezar
 
-Estado de implementación: esqueleto de CB-01. La ayuda de la CLI está disponible;
-los comandos operativos terminan con código 1 y un aviso de funcionalidad pendiente.
+Estado de implementación: CB-01 a CB-05 completadas; `doctor` en desarrollo en CB-06.
+La ayuda de la CLI y `doctor --offline` están disponibles; los demás comandos
+operativos terminan con código 1 y un aviso de funcionalidad pendiente.
 Todavía no se capturan proyectos ni se generan o entregan informes.
 
 ```bash
@@ -43,5 +44,51 @@ python scripts/phase_gate.py 0 --no-manual        # estado de la puerta de la fa
 
 Tras `make setup`, usa `.venv/bin/digest --help` o activa el entorno con
 `source .venv/bin/activate`. `make check` ejecuta lint, formato, tipos estrictos y
-tests. `make fixtures` requiere el generador previsto en CB-05 y falla de forma
-explícita mientras no esté implementado. La instalación necesita acceso a PyPI.
+tests. `make fixtures` genera los tres proyectos sintéticos en un directorio temporal
+nuevo y su configuración en `tests/fixtures/config.yaml`. La instalación necesita
+acceso a PyPI; los tests de integración requieren rclone y sockets de localhost.
+
+## Configurar y añadir proyectos
+
+Copia `config.example.yaml` a `config.yaml` (excluido de Git) y ajusta las rutas
+absolutas y los servicios. `projects` es una lista ampliable: añade una entrada
+por proyecto, con un `id` único y estable, nombre, raíz y objetivo. Puedes empezar
+con `projects: []`. Por ejemplo:
+
+```yaml
+projects:
+  - id: docking
+    name: Docking
+    root: /home/USER/proyectos/docking
+    objective: Comparar los controles con los candidatos
+    include: ["docs/**", "results/**"]
+  - id: estructuras
+    name: Estructuras
+    root: /home/USER/proyectos/estructuras
+    objective: Revisar la calidad de los modelos
+    include: ["docs/**", "results/**"]
+```
+
+La configuración rechaza campos desconocidos, tipos incorrectos, IDs repetidos,
+puertos y límites inválidos, y referencias a proveedores no declarados. Solo
+contiene nombres de variables para las credenciales; no pegues claves. Los valores
+del proveedor interno y las credenciales siguen pendientes de CB-06: validar el
+YAML no significa que los servicios estén disponibles. La carga de configuración
+no crea directorios ni accede a los proyectos o proveedores.
+
+
+Para diagnosticar sin red ni procesos externos:
+
+```bash
+.venv/bin/digest --config config.yaml doctor --offline
+```
+
+El modo online comprueba Kanvas, hace peticiones LLM con datos sintéticos,
+autentica SMTP sin enviar correo y consulta Drive y Tailscale. Un resultado offline
+no acredita disponibilidad de esos servicios. Las credenciales se leen del entorno
+o de `$CREDENTIALS_DIRECTORY/secrets.env`; no se importan desde OpenCode.
+
+Puedes elegir los modelos editando `llm.providers.<nombre>.model` y el orden de
+proveedores por tarea en `llm.routing`. Inicialmente se usa el Qwen interno para
+extracción y DeepSeek de NaN para síntesis, plan, semanal y contraste, con respaldo
+mutuo. La edición de modelos desde la webapp está propuesta en WA-06.

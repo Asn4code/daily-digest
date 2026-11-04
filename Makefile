@@ -14,5 +14,4 @@ check:
 	$(BIN)/python -m pytest
 
 fixtures:
-	@test -f tests/fixtures/make_projects.py || { echo 'Generador de fixtures pendiente de CB-05.'; exit 1; }
 	$(BIN)/python tests/fixtures/make_projects.py

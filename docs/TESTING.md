@@ -77,3 +77,43 @@ Cada fila es al menos un test (`tests/e2e/` salvo indicación). El nombre de la 
 ## 5. Antes del piloto
 
 Además de `make check`, ejecutar `digest doctor` y un `digest run --preview` contra los dos proyectos reales en el equipo de Rocky, y revisar a mano el informe junto a las fuentes.
+
+## 6. Regeneración y dobles implementados (CB-05)
+
+```bash
+make fixtures
+.venv/bin/digest --config tests/fixtures/config.yaml doctor --offline
+make check
+```
+
+El generador crea un directorio nuevo bajo `/tmp/daily-digest-fixtures-*` y escribe
+la configuración generada en `tests/fixtures/config.yaml` (excluida de Git por sus
+rutas locales). No sustituye directorios existentes ni elimina ejecuciones
+anteriores. `--destination /ruta/nueva` permite elegir un destino nuevo.
+
+Kanvas se carga exclusivamente de `third_party/kanvas/kanvas.py`, con hash
+verificado contra `97e93ad3e62fdfcb3448b3b1d71efd755eeeef42` y licencia MIT adjunta.
+El generador invoca `add-group`, `propose`, `start`, `note`, `finish` y `check`;
+solo durante esta construcción simula las decisiones humanas mediante el modelo
+de Kanvas. Los commits tienen autor y fechas fijos. `history/<proyecto>/` guarda
+el tablero en `doing` y las métricas iniciales; el árbol final contiene las
+transiciones a `done` o `review` y las métricas actualizadas. Los tests comprueban
+que dos generaciones producen los mismos contenidos y hashes de commits.
+
+`tests/fixtures/doubles.py` ofrece:
+
+- `FakeLLM.generate(package)`: extracción JSON con IDs y cifras del paquete;
+  modos `good`, `liar`, `down` y `broken_json`. El paquete incluye `result_id` y
+  `evidence`, cuyos elementos contienen `id`, `excerpt` y opcionalmente `numbers`.
+- `FakeSacct.run(args)`: dos jobs fijos, completado y fallido.
+- `FrozenClock.now()` y `advance(delta)`: reloj UTC inyectable.
+- `LocalSMTP`: servidor aiosmtpd en `127.0.0.1` con puerto efímero, captura de
+  mensajes y desconexión tras almacenar DATA antes de confirmar al cliente.
+- `LocalDrive`: rclone contra `:local:`, sin configuración ni credenciales de nube,
+  con `copy --immutable` y remoto inexistente para simular indisponibilidad.
+
+La suite requiere `rclone` en el PATH del sistema y permiso para abrir sockets de
+localhost. Un sandbox que prohíba esos sockets no puede ejecutar los dos tests
+SMTP: deben correr fuera de ese sandbox; no se omiten automáticamente. El
+archivo `.xtc` es disperso de 3 GB, sin reservar esos 3 GB físicamente. El árbol
+`proj-fail/no-access` tiene permisos `000`; los tests los restauran al limpiar.

@@ -38,7 +38,7 @@ def test_command_help(command: str) -> None:
     assert runner.invoke(app, [command, "--help"]).exit_code == 0
 
 
-@pytest.mark.parametrize("args", COMMANDS)
+@pytest.mark.parametrize("args", [args for args in COMMANDS if args[0] != "doctor"])
 def test_unimplemented_commands_fail_without_writing(
     args: list[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

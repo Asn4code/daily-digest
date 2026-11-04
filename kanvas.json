@@ -35,7 +35,7 @@
     {
       "id": "CB-01",
       "title": "Esqueleto del repositorio",
-      "state": "review",
+      "state": "done",
       "group": "CB",
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
@@ -66,59 +66,160 @@
     {
       "id": "CB-02",
       "title": "Configuración validada",
-      "state": "proposed",
+      "state": "done",
       "group": "CB",
       "deps": ["CB-01"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Modelos pydantic para toda la configuración de ARCHITECTURE.md §5, `config.example.yaml` y carga con errores claros (campo, motivo).\n\nTerminado cuando: una configuración inválida falla con mensaje legible y la de ejemplo valida; tests unitarios."
+      "desc": "Modelos pydantic para toda la configuración de ARCHITECTURE.md §5, `config.example.yaml` y carga con errores claros (campo, motivo).\n\nTerminado cuando: una configuración inválida falla con mensaje legible y la de ejemplo valida; tests unitarios.",
+      "notes": [
+        {
+          "at": "2026-11-04T11:30:00Z",
+          "by": "codex",
+          "text": "Plan: modelos estrictos para la configuración documentada, YAML seguro y errores sin valores sensibles; ejemplo y tests de límites y referencias."
+        },
+        {
+          "at": "2026-11-04T11:33:30Z",
+          "by": "codex",
+          "text": "La configuración documentada valida con modelos estrictos; se pueden añadir proyectos mediante entradas con ID único o empezar sin proyectos. Se rechazan campos desconocidos, tipos incorrectos, límites y referencias inválidas. Las claves se mantienen fuera de la configuración y de los errores. Ejemplo y guía en README.\nVerificado con make check: lint, formato, mypy estricto y 47 tests pasan. Las dependencias Pydantic y PyYAML se instalaron desde la caché local por falta de red.\nComprobar: copiar config.example.yaml a config.yaml y añadir las rutas y objetivos reales. Los servicios y modelos se verificarán en CB-06."
+        }
+      ]
     },
     {
       "id": "CB-03",
       "title": "Esquema SQLite y migraciones",
-      "state": "proposed",
+      "state": "done",
       "group": "CB",
       "deps": ["CB-01"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "`0001_init.sql` tal como ARCHITECTURE.md §3, aplicador de migraciones idempotente, conexión con WAL y foreign_keys.\n\nTerminado cuando: crear la base dos veces no falla, `meta.schema_version` = 1 y hay tests de restricciones (CHECK, UNIQUE)."
+      "desc": "`0001_init.sql` tal como ARCHITECTURE.md §3, aplicador de migraciones idempotente, conexión con WAL y foreign_keys.\n\nTerminado cuando: crear la base dos veces no falla, `meta.schema_version` = 1 y hay tests de restricciones (CHECK, UNIQUE).",
+      "notes": [
+        {
+          "at": "2026-11-04T11:33:30Z",
+          "by": "codex",
+          "text": "Plan: implementar exactamente 0001_init.sql publicado, migraciones transaccionales e idempotentes y conexión WAL con claves foráneas; probar restricciones y recuperación ante error."
+        },
+        {
+          "at": "2026-11-04T11:35:18Z",
+          "by": "codex",
+          "text": "La base SQLite aplica exactamente el esquema publicado, activa WAL y claves foráneas, conserva datos al reabrir y revierte migraciones fallidas. make check pasa: 51 tests, lint, formato y mypy. Tests de CHECK, UNIQUE, claves foráneas, versión futura y rollback. No se ha cambiado el esquema publicado."
+        }
+      ]
     },
     {
       "id": "CB-04",
       "title": "Utilidades seguras de lectura y procesos",
-      "state": "proposed",
+      "state": "done",
       "group": "CB",
       "deps": ["CB-01"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "`util.fs.safe_path` (resuelve symlinks, raíz permitida, exclusiones, tamaño máximo, detección de cambios durante la lectura) y `util.proc.run` (lista de argumentos, timeout, entorno mínimo con GIT_OPTIONAL_LOCKS=0, sin shell).\n\nTerminado cuando: pasan los escenarios T08 y T09 de TESTING.md y un test prohíbe `shell=True`, `os.system` y `getoutput` en todo `src/`."
+      "desc": "`util.fs.safe_path` (resuelve symlinks, raíz permitida, exclusiones, tamaño máximo, detección de cambios durante la lectura) y `util.proc.run` (lista de argumentos, timeout, entorno mínimo con GIT_OPTIONAL_LOCKS=0, sin shell).\n\nTerminado cuando: pasan los escenarios T08 y T09 de TESTING.md y un test prohíbe `shell=True`, `os.system` y `getoutput` en todo `src/`.",
+      "notes": [
+        {
+          "at": "2026-11-04T11:35:18Z",
+          "by": "codex",
+          "text": "Plan: rutas confinadas, exclusiones obligatorias, lectura acotada y detección de cambios; procesos sin shell con entorno mínimo, timeout y Git sin bloqueos opcionales. Tests T07/T08/T09/T10 y reglas de procesos."
+        },
+        {
+          "at": "2026-11-04T11:37:09Z",
+          "by": "codex",
+          "text": "La lectura de proyectos queda confinada y acotada: rechaza traversal, enlaces externos, secretos, trayectorias, archivos grandes y archivos no regulares; descarta cambios durante la lectura. Los procesos usan argumentos literales, timeout, entorno mínimo y GIT_OPTIONAL_LOCKS=0, sin shell.\nmake check pasa: 71 tests, lint, formato y mypy estricto. Incluye T07, T08, T09, T10, sustitución por enlace entre validación y apertura, límites exactos y detección estática de procesos prohibidos. Contratos documentados en EVIDENCE.md."
+        }
+      ]
     },
     {
       "id": "CB-05",
       "title": "Proyectos sintéticos de prueba",
-      "state": "proposed",
+      "state": "done",
       "group": "CB",
       "deps": ["CB-01"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "`make fixtures` crea proj-ok, proj-fail y proj-ambiguous como describe TESTING.md §1, con kanvas.py vendorizado (commit 97e93ad) para tableros reales, y los dobles de §2 (FakeLLM, FakeSacct, SMTP local, remoto rclone local).\n\nTerminado cuando: los fixtures se regeneran de forma determinista y `tests/fixtures/config.yaml` valida."
+      "desc": "`make fixtures` crea proj-ok, proj-fail y proj-ambiguous como describe TESTING.md §1, con kanvas.py vendorizado (commit 97e93ad) para tableros reales, y los dobles de §2 (FakeLLM, FakeSacct, SMTP local, remoto rclone local).\n\nTerminado cuando: los fixtures se regeneran de forma determinista y `tests/fixtures/config.yaml` valida.",
+      "notes": [
+        {
+          "at": "2026-11-04T11:37:58Z",
+          "by": "codex",
+          "text": "Plan: localizar y verificar el Kanvas fijado en 97e93ad antes de generar tableros sintéticos; después crear fixtures y dobles deterministas sin servicios reales."
+        },
+        {
+          "at": "2026-11-04T11:38:47Z",
+          "by": "codex",
+          "text": "Pendiente de obtener y verificar kanvas.py del commit 97e93ad. La copia instalada declara 0.4.0, pero no hay prueba de procedencia de ese commit; GitHub no resuelve desde esta sesión. No se ha sustituido el requisito por la versión instalada."
+        },
+        {
+          "at": "2026-11-04T11:42:07Z",
+          "by": "codex",
+          "text": "Plan: obtener la fuente Kanvas 97e93ad para continuar con fixtures; dependencia externa pendiente."
+        },
+        {
+          "at": "2026-11-04T11:42:07Z",
+          "by": "codex",
+          "text": "Question: ¿Dónde está la copia de Kanvas del commit 97e93ad, o puedes descargar su repositorio desde tu terminal para que verifique y use esa versión en los fixtures?"
+        },
+        {
+          "at": "2026-11-04T13:28:14Z",
+          "by": "codex",
+          "text": "La persona ha clonado /tmp/kanvas-source. Verificado el commit completo 97e93ad3e62fdfcb3448b3b1d71efd755eeeef42; se usará esa fuente exacta y su licencia para los fixtures."
+        },
+        {
+          "at": "2026-11-04T13:36:23Z",
+          "by": "codex",
+          "text": "make fixtures genera los tres proyectos sintéticos, con Kanvas del commit 97e93ad verificado por hash, dos commits fechados, transiciones reales, métricas antes/después, figuras, notebook antiguo, enlace externo, trayectoria dispersa de 3 GB y directorio inaccesible. Incluye FakeLLM, FakeSacct, reloj, SMTP local y Drive local inmutable.\nVerificación: la persona ejecutó make check fuera del sandbox y confirmó 91 tests pasando, lint, formato y mypy. Dentro del sandbox pasan 89 tests; los dos SMTP requieren sockets de localhost, prohibidos aquí. make fixtures y doctor --offline pasan. La puerta 0 pasa archivos, reglas, comandos offline y T08/T09; sigue suspendida por CB-06 pendiente (y CB-05 aún doing al ejecutar la comprobación previa).\nComprobar: seguir TESTING.md §6 para regenerar. Las configuraciones y árboles temporales generados no se incluyen en Git. No se modifica ningún proyecto real."
+        }
+      ]
     },
     {
       "id": "CB-06",
       "title": "Verificar contratos externos",
-      "state": "proposed",
+      "state": "doing",
       "group": "CB",
       "deps": ["CB-02", "CB-04"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "`digest doctor`: comprueba rutas, `kanvas check` en cada proyecto, Qwen3.6 y NaN con una petición sintética (modelo, salida estructurada, latencia), SMTP, rclone (`lsd`) y Tailscale (`serve status`). No modifica nada.\n\nTerminado cuando: en el equipo de Rocky, doctor pasa con los dos proyectos piloto y los hallazgos (versiones, límites, modelos de NaN, salida de `kanvas status --json`) están en DECISIONS.md. Requiere respuestas a Q-01, Q-06, Q-07."
+      "desc": "`digest doctor`: comprueba rutas, `kanvas check` en cada proyecto, Qwen3.6 y NaN con una petición sintética (modelo, salida estructurada, latencia), SMTP, rclone (`lsd`) y Tailscale (`serve status`). No modifica nada.\n\nTerminado cuando: en el equipo de Rocky, doctor pasa con los dos proyectos piloto y los hallazgos (versiones, límites, modelos de NaN, salida de `kanvas status --json`) están en DECISIONS.md. Requiere respuestas a Q-01, Q-06, Q-07.",
+      "notes": [
+        {
+          "at": "2026-11-04T11:33:04Z",
+          "by": "codex",
+          "text": "OpenCode configura el proveedor interno con Qwen/Qwen3.8-27B, distinto de Qwen3.6 documentado. NaN usa https://api.nan.builders/v1 con varios modelos. Son valores locales declarados, todavía sin verificación contra los servicios. Se ha preguntado qué modelos usar antes de adaptar el diseño; no se han copiado credenciales."
+        },
+        {
+          "at": "2026-11-04T11:35:18Z",
+          "by": "codex",
+          "text": "La persona delega elegir los modelos apropiados por tarea y pide poder cambiarlos mediante varios canales, incluida la webapp. El YAML admite aliases de proveedor/modelo con routing por tarea. La interfaz queda propuesta en fase 3; no se asume que ningún modelo sea superior sin evaluación."
+        },
+        {
+          "at": "2026-11-04T11:38:47Z",
+          "by": "codex",
+          "text": "Plan: doctor de solo lectura con diagnóstico offline y comprobaciones sintéticas de proveedores; registrar capacidades declaradas frente a las verificadas. La aceptación real quedará pendiente de red, credenciales por entorno y proyectos piloto."
+        },
+        {
+          "at": "2026-11-04T11:42:00Z",
+          "by": "codex",
+          "text": "Implementado doctor con modo offline sin procesos/red y modo online de diagnóstico: Kanvas, petición LLM sintética, SMTP sin enviar correo, rclone lsd y Tailscale. Modelos iniciales elegidos según OpenCode y documentación oficial; configuración editable y WA-06 propuesta para webapp.\nmake check pasa completo: 81 tests, lint, formato y mypy. No se han probado servicios reales: falta red en la sesión, rutas de proyectos piloto y vault, y credenciales en entorno o CREDENTIALS_DIRECTORY. No se han copiado claves de OpenCode.\nLa puerta 0 sigue SUSPENDIDA: faltan fixtures de CB-05 y por ello doctor-offline contra tests/fixtures/config.yaml; CB-06 no está aceptada. Las reglas estáticas y escenarios T08/T09 pasan. Git add sigue bloqueado por .git de solo lectura."
+        },
+        {
+          "at": "2026-11-04T13:36:23Z",
+          "by": "codex",
+          "text": "Plan: completar los contratos reales tras cerrar fixtures; comprobar qué configuración de entorno está disponible sin leer ni mostrar secretos."
+        },
+        {
+          "at": "2026-11-04T13:36:45Z",
+          "by": "codex",
+          "text": "Question: Para verificar los servicios reales, ¿qué dos proyectos piloto (ruta y objetivo), vault de Obsidian, cuenta de correo y remoto rclone usamos? No hay config.yaml ni credenciales de proveedores disponibles en el entorno de esta sesión; las claves deben configurarse por variables de entorno o CREDENTIALS_DIRECTORY, nunca enviarse en el chat."
+        }
+      ]
     },
     {
       "id": "CB-07",
       "title": "Puerta de fase 0",
-      "state": "proposed",
+      "state": "todo",
       "group": "CB",
       "deps": ["CB-01", "CB-02", "CB-03", "CB-04", "CB-05", "CB-06"],
+      "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
       "desc": "Validar que la fase 0 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 0 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-0.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 0` da APROBADA (con `--host` en el equipo de Rocky) y el informe build/gates/phase-0.md va en la nota de cierre."
@@ -472,6 +573,16 @@
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
       "desc": "Validar que la fase 6 está bien construida (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 6 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-6.md.\n2. Revisor independiente: prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 6` da APROBADA y el informe build/gates/phase-6.md va en la nota de cierre."
+    },
+    {
+      "id": "WA-06",
+      "title": "Configurar modelos por tarea desde la webapp",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["WA-01", "CB-02"],
+      "at": "2026-11-04T11:35:18Z",
+      "by": "codex",
+      "desc": "Permitir cambiar proveedor y modelo para extracción, síntesis, plan, semanal y contraste desde la webapp, además del YAML. Mantener secretos fuera de formularios y registros; validar cambios, respetar external_allowed y aplicar una configuración consistente por trabajo. Petición explícita de la persona durante la fase 0. Terminado cuando los cambios persisten, se pueden revertir y tienen tests de autorización, CSRF y validación."
     }
   ]
 }

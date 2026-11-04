@@ -327,8 +327,8 @@ limits:
 
 llm:
   providers:
-    internal: { base_url: "https://QWEN_HOST/v1", model: "qwen3.6", api_key_env: QWEN_API_KEY, timeout_s: 180 }
-    nan:      { base_url: "VER_NAN_DOCS", model: "POR_DEFINIR", api_key_env: NAN_API_KEY, timeout_s: 300 }
+    internal: { base_url: "https://QWEN_HOST/v1", model: "Qwen/Qwen3.8-27B", api_key_env: QWEN_API_KEY, timeout_s: 180 }
+    nan:      { base_url: "https://api.nan.builders/v1", model: "deepseek-v4-flash", api_key_env: NAN_API_KEY, timeout_s: 300 }
   routing:                       # orden = preferencia; el segundo es el respaldo
     extract:    [internal, nan]
     conceptual: [nan, internal]
@@ -359,7 +359,7 @@ kanvas:
   write_enabled: false
 ```
 
-Los valores `VER_NAN_DOCS` y `POR_DEFINIR` se fijan en la fase 0 (ver `DECISIONS.md`).
+La elección inicial de modelos está en D-024 (`DECISIONS.md`); la URL interna y las capacidades reales se verifican en CB-06. Cada entrada de `llm.routing` puede cambiar su orden de proveedores desde el YAML. La edición desde la webapp está prevista en WA-06.
 
 ## 6. Representación común del informe
 

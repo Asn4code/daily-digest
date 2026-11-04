@@ -80,3 +80,24 @@ La relevancia de un resultado (para el resultado propuesto a revisar) combina: p
 ## 5. Paquete para el modelo
 
 Para cada resultado se construye un paquete con sus evidencias (ID, tipo, localizador, hora, extracto) dentro de `<evidence id="ev_…">…</evidence>`. El paquete por proyecto no supera `limits.max_project_package_chars`; si se supera, se priorizan notas de cierre, métricas y diffs pequeños, y lo recortado se anota en la cobertura.
+
+## 6. Utilidades de lectura (fase 0)
+
+`safe_path(root, relative, exclude=(), max_bytes=2000000)` devuelve una ruta de
+archivo regular validada. Rechaza rutas absolutas y componentes `..`, enlaces fuera
+de la raíz, exclusiones obligatorias y configuradas, y archivos demasiado grandes.
+Las exclusiones se aplican al nombre solicitado y al destino del enlace.
+
+Los recolectores deben leer con `read_bounded` (mismos argumentos), que abre en solo
+lectura mediante descriptores sin seguir enlaces tras validar, acota los bytes y
+compara identidad, tamaño, mtime y ctime antes y después. Devuelve bytes o `ReadError`
+con un motivo estable (`excluded`, `outside_root`, `too_large`, `not_regular`,
+`unreadable`, `changed_during_read`). Las exclusiones obligatorias no se desactivan
+con `exclude: []`.
+
+`digest.util.proc.run(args, timeout=..., cwd=...)` exige una lista de argumentos y
+un timeout positivo y finito. Devuelve código de salida, stdout y stderr; un timeout
+o fallo de arranque produce `ProcessError` sin argumentos ni salida capturada.
+No hereda el entorno del usuario ni sus credenciales: usa el PATH del sistema,
+locale UTF-8 y Git sin bloqueos opcionales, prompts ni configuración global. Para
+herramientas instaladas fuera del PATH del sistema, configura una ruta absoluta.
