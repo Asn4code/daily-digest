@@ -353,6 +353,11 @@
           "at": "2026-11-04T15:55:21Z",
           "by": "codex",
           "text": "La persona pide resolver las preguntas abiertas. Movidas Q-06/Q-07 a contratos comprobados (D-026/D-027), Q-08 a SMTP elegido y verificado (D-028), y Q-11 a la selección inicial ya delegada (D-029). Se mantienen explícitos límites desconocidos y calidad de contraste pendiente del piloto. Se separan preguntas actuales de las correspondientes a fases posteriores. No se marca la firma humana."
+        },
+        {
+          "at": "2026-11-04T16:00:02Z",
+          "by": "codex",
+          "text": "La persona acepta los horarios (D-030/Q-02) y rechaza como vagas las formulaciones iniciales de objetivos, sin aceptar Q-01. Retiradas del config local para no tratarlas como objetivos aprobados. Lectura acotada y de solo lectura de documentación y tableros para proponer objetivos duraderos: respuesta mutacional frente a ruido en benchmark y flujo sequence-to-hit trazable en VCD. No se cambian fuentes ni archivos en los proyectos."
         }
       ]
     },

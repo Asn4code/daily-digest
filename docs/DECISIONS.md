@@ -37,12 +37,13 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 | D-028 | 2026-11-04 | Q-08: Gmail por SMTP con contraseña de aplicación; cuenta del piloto en configuración privada | Elegido y configurado durante la conversación; autenticación y NOOP verificados sin enviar correo |
 | D-029 | 2026-11-04 | Q-11: contraste inicialmente con NaN y respaldo interno, editable por configuración; comparar su utilidad durante el piloto | Elección inicial delegada por la persona y registrada en D-024; no implica que la calidad del contraste ya esté evaluada |
 
+| D-030 | 2026-11-04 | Q-02: diario a las 20:00 y semanal el sábado a las 10:00, Europe/Madrid | Horarios aceptados expresamente por la persona; disponibilidad continua del equipo no confirmada |
+
 ## Preguntas abiertas
 
-Resolver por fase: Q-01 y Q-02 ahora; Q-03 a Q-05 antes de sus recolectores; acceso móvil Q-09 antes de validar la webapp; Q-12 en CP-08 y Q-13/Q-14 en extensiones. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
+Resolver por fase: Q-01 ahora; Q-03 a Q-05 antes de sus recolectores; acceso móvil Q-09 antes de validar la webapp; Q-12 en CP-08 y Q-13/Q-14 en extensiones. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
 
-- [ ] Q-01 Confirmación humana de los objetivos provisionales de benchmark y VCD en config.yaml. Las rutas de ambos proyectos y la nueva vault ya están elegidas y verificadas.
-- [ ] Q-02 Horas: diario a las 20:00 y semanal el sábado a las 10:00 (`Europe/Madrid`), ¿encajan? ¿El equipo está encendido a esas horas?
+- [ ] Q-01 Definir la finalidad científica o de producto de benchmark y VCD. La persona considera vagas las primeras descripciones de actividades; retiradas del borrador local y pendientes de una formulación más precisa. Rutas y vault verificadas.
 - [ ] Q-03 Métricas y archivos de resultados importantes en cada proyecto (RMSD, pLDDT, puntuaciones…), con sus rutas y columnas.
 - [ ] Q-04 ¿Trabajo en clúster? ¿Slurm accesible desde el equipo (`sacct`)? ¿Snakemake, Nextflow o scripts propios?
 - [ ] Q-05 Sesiones de agentes: ¿qué herramientas usas y dónde guardan sus transcripciones? ¿Incluirlas?
