@@ -42,13 +42,14 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 | D-031 | 2026-11-04 | Q-01: Benchmark busca determinar hasta qué punto los predictores capturan los cambios estructurales y fisicoquímicos causados por mutaciones, distinguiendo la señal real de la variabilidad experimental, dinámica y entre predicciones, para delimitar qué conclusiones sobre su respuesta mutacional están respaldadas. | Objetivo confirmado por la persona; campañas y tareas son medios para responder esta pregunta |
 | D-032 | 2026-11-04 | Q-01: VCD busca construir y validar una plataforma reproducible que permita pasar de una secuencia proteica a candidatos de cribado virtual priorizados, integrando modelado, cavidades, docking y dinámica molecular, con evidencia y controles que permitan juzgar la fiabilidad de cada etapa. | Objetivo confirmado por la persona; incluye utilidad científica y trazabilidad, además de desarrollo de software |
 
+| D-033 | 2026-11-04 | Q-03: incluir Markdown e informes generados, además de tablas y figuras; inventario inicial en PILOT_SOURCES.md | Petición expresa de la persona; patrones y columnas se concretarán en CP-03/CP-04 con procedencia, límites y deduplicación |
+| D-034 | 2026-11-04 | Q-05: incluir sesiones relevantes de Codex, OpenCode y Hermes en fase 2; no se indican otras herramientas | Aceptado por la persona; ubicaciones y formatos se verificarán antes del recolector, con extractos acotados y exclusión de secretos |
+
 ## Preguntas abiertas
 
-Resolver por fase: Q-03 a Q-05 antes de sus recolectores; acceso móvil Q-09 antes de validar la webapp; Q-12 en CP-08 y Q-13/Q-14 en extensiones. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
+Resolver por fase: Q-04 antes del recolector de ejecuciones; acceso móvil Q-09 antes de validar la webapp; Q-12 en CP-08 y Q-13/Q-14 en extensiones. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
 
-- [ ] Q-03 Métricas y archivos de resultados importantes en cada proyecto (RMSD, pLDDT, puntuaciones…), con sus rutas y columnas.
-- [ ] Q-04 ¿Trabajo en clúster? ¿Slurm accesible desde el equipo (`sacct`)? ¿Snakemake, Nextflow o scripts propios?
-- [ ] Q-05 Sesiones de agentes: ¿qué herramientas usas y dónde guardan sus transcripciones? ¿Incluirlas?
+- [ ] Q-04 Concretar por proyecto logs y acceso al clúster en CP-05. La persona acepta seguir lo documentado; VCD documenta SGE y Nextflow, sin confirmar aún el planificador de Benchmark ni disponibilidad de sacct. Slurm no se habilita por suposición.
 - [ ] Q-09 Equipo conectado a Tailscale y MagicDNS verificados. Falta confirmar instalación y uso desde el móvil y desde la red habitual antes de validar la webapp.
 - [ ] Q-10 Remoto gdrive:DailyDigest preparado y verificado. Falta confirmar si pertenece a la cuenta personal o del centro.
 - [ ] Q-12 PDF: WeasyPrint o Chromium sin interfaz (decidir en CP-08 según fidelidad del render).

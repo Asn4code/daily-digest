@@ -363,6 +363,11 @@
           "at": "2026-11-04T16:04:24Z",
           "by": "codex",
           "text": "La persona confirma los objetivos científicos y de producto propuestos tras leer documentación: Q-01 resuelta en D-031/D-032, y config.yaml local actualizado con ambos objetivos. Q-02 también resuelta; Q-03/Q-04/Q-05 quedan para definir cobertura de captura. La firma de fase sigue sin marcar."
+        },
+        {
+          "at": "2026-11-04T16:21:23Z",
+          "by": "codex",
+          "text": "Aceptadas Q-03 (Markdown e informes generados además de métricas/figuras) y Q-05 (sesiones relevantes de Codex, OpenCode y Hermes, sin otras herramientas indicadas). Inventario inicial acotado de fuentes en PILOT_SOURCES.md, sin ejecutar ni escribir en proyectos. Q-04 queda concretada como verificación por proyecto en CP-05: VCD documenta SGE/Nextflow; no se presupone Slurm ni planificador idéntico en Benchmark."
         }
       ]
     },
