@@ -1,0 +1,47 @@
+# daily-digest
+
+Servicio personal que, al final de cada día (o cuando lo pidas), reúne lo que has hecho en tus proyectos, te envía un correo con lo esencial y te deja en una webapp el informe completo y un resultado para revisar explicándolo con tus palabras. Los sábados genera un informe semanal más largo. Todo se copia en Obsidian y en tu Google Drive.
+
+## Qué hace
+
+- **Recoge evidencias** de Kanvas, Git, documentación, figuras, métricas y ejecuciones (Slurm, Snakemake, Nextflow), en solo lectura.
+- **Genera informes** con Qwen3.6 (interno) y NaN (externo), con cada afirmación enlazada a sus evidencias.
+- **Entrega** un correo esencial, el informe completo en la webapp, una copia en Obsidian y una copia remota continua en Google Drive.
+- **Revisión activa:** propone un resultado al día; lo explicas con tus palabras y el sistema contrasta tu explicación con las evidencias. Nunca marca nada como comprendido por ti.
+- **Extensiones:** detecta resultados revisados que dan para un protocolo, material docente o una sección de métodos, y prepara un paquete de contexto para generarlos con otras herramientas.
+
+## Documentación
+
+| Documento | Contenido |
+| --- | --- |
+| [AGENTS.md](AGENTS.md) | Reglas para agentes de código: invariantes, stack, flujo con Kanvas |
+| [docs/SPEC.md](docs/SPEC.md) | Requisitos funcionales y criterios de aceptación |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Módulos, esquema SQLite, configuración |
+| [docs/EVIDENCE.md](docs/EVIDENCE.md) | Fuentes de evidencia y contrato de los recolectores |
+| [docs/LLM.md](docs/LLM.md) | Enrutado de modelos, prompts, esquemas y validador |
+| [docs/WEBAPP.md](docs/WEBAPP.md) | Pantallas, rutas, revisión y seguridad |
+| [docs/EXTENSIONS.md](docs/EXTENSIONS.md) | Extensiones: dónde vive la información, paquete de contexto, contrato y cómo generar contenido fuera |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Despliegue en Rocky Linux 9: systemd, Tailscale, rclone, correo |
+| [docs/TESTING.md](docs/TESTING.md) | Fixtures, dobles y escenarios obligatorios |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Fases y criterios de aceptación |
+| [docs/VALIDATION.md](docs/VALIDATION.md) | Puertas de fase: comprobación automática, revisión independiente y firma |
+| [docs/gates.toml](docs/gates.toml) | Qué exige la puerta de cada fase (lo lee `scripts/phase_gate.py`) |
+| [docs/DECISIONS.md](docs/DECISIONS.md) | Decisiones y preguntas abiertas |
+
+## Empezar
+
+Estado de implementación: esqueleto de CB-01. La ayuda de la CLI está disponible;
+los comandos operativos terminan con código 1 y un aviso de funcionalidad pendiente.
+Todavía no se capturan proyectos ni se generan o entregan informes.
+
+```bash
+kanvas init                                        # tablero y skill para agentes
+kanvas batch --file docs/backlog.kanvas.json       # backlog inicial como propuestas
+make setup && make check
+python scripts/phase_gate.py 0 --no-manual        # estado de la puerta de la fase actual
+```
+
+Tras `make setup`, usa `.venv/bin/digest --help` o activa el entorno con
+`source .venv/bin/activate`. `make check` ejecuta lint, formato, tipos estrictos y
+tests. `make fixtures` requiere el generador previsto en CB-05 y falla de forma
+explícita mientras no esté implementado. La instalación necesita acceso a PyPI.

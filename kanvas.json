@@ -1,0 +1,477 @@
+{
+  "kanvas": 1,
+  "title": "daily-digest",
+  "groups": [
+    {
+      "id": "CB",
+      "name": "Contratos y base"
+    },
+    {
+      "id": "CP",
+      "name": "Captura"
+    },
+    {
+      "id": "IN",
+      "name": "Informe"
+    },
+    {
+      "id": "WA",
+      "name": "Webapp"
+    },
+    {
+      "id": "OP",
+      "name": "Operación"
+    },
+    {
+      "id": "PL",
+      "name": "Piloto"
+    },
+    {
+      "id": "EX",
+      "name": "Extensiones"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "CB-01",
+      "title": "Esqueleto del repositorio",
+      "state": "review",
+      "group": "CB",
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Repositorio listo para trabajar con agentes: pyproject (Python 3.11, src/digest), Makefile con setup, check y fixtures, ruff, mypy estricto, pytest, y CLI `digest --help` con los subcomandos de ARCHITECTURE.md §2 como esqueletos.\n\nTerminado cuando: `make setup && make check` pasa en un venv limpio con Python 3.11.",
+      "notes": [
+        {
+          "at": "2026-11-04T11:21:50Z",
+          "by": "codex",
+          "text": "Plan: crear el paquete Python 3.11, CLI documentada como esqueleto, Makefile y controles ruff/mypy/pytest; verificar instalación limpia y registrar en Git."
+        },
+        {
+          "at": "2026-11-04T11:23:39Z",
+          "by": "codex",
+          "text": "Base Python 3.11 y CLI creadas, con los comandos documentados y avisos explícitos para operaciones aún no implementadas. Makefile con setup/check/fixtures, configuración de ruff y mypy estricto, README y decisión D-022.\nVerificación: 27 tests pasan con Python 3.11 usando dependencias de la caché local; ruff 0.15.10 pasa lint y formato. No se ha completado make setup ni make check: la sesión no resuelve PyPI y no tiene mypy disponible. No se ha cerrado la tarea.\nGit: origin configurado, pero git add falla porque .git está montado en solo lectura; tampoco se resuelve github.com. No hay commit ni push. Para completar: ejecutar make setup && make check con acceso a PyPI, y permitir escritura en .git para registrar y subir los archivos."
+        },
+        {
+          "at": "2026-11-04T11:25:34Z",
+          "by": "codex",
+          "text": "Plan: corregir el aislamiento del test usando tmp_path y monkeypatch de pytest; ejecutar make check con las dependencias instaladas."
+        },
+        {
+          "at": "2026-11-04T11:25:46Z",
+          "by": "codex",
+          "text": "La base Python y la ayuda de todos los comandos previstos funcionan. Los comandos pendientes fallan explícitamente sin generar archivos. El test de aislamiento usa ahora tmp_path y monkeypatch de pytest, compatible con Typer 0.27.3 instalado.\nVerificado: make check pasa completo (ruff lint y formato, mypy estricto, 27 tests) en Python 3.11.13. La comprobación anterior con dependencias de caché no detectaba la incompatibilidad de CliRunner.\nRevisión humana: ejecutar make check y .venv/bin/digest --help. La generación de fixtures queda prevista en CB-05; no se ha implementado funcionalidad de fases posteriores. El commit y push siguen pendientes por la restricción de escritura en .git de esta sesión."
+        }
+      ]
+    },
+    {
+      "id": "CB-02",
+      "title": "Configuración validada",
+      "state": "proposed",
+      "group": "CB",
+      "deps": ["CB-01"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Modelos pydantic para toda la configuración de ARCHITECTURE.md §5, `config.example.yaml` y carga con errores claros (campo, motivo).\n\nTerminado cuando: una configuración inválida falla con mensaje legible y la de ejemplo valida; tests unitarios."
+    },
+    {
+      "id": "CB-03",
+      "title": "Esquema SQLite y migraciones",
+      "state": "proposed",
+      "group": "CB",
+      "deps": ["CB-01"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "`0001_init.sql` tal como ARCHITECTURE.md §3, aplicador de migraciones idempotente, conexión con WAL y foreign_keys.\n\nTerminado cuando: crear la base dos veces no falla, `meta.schema_version` = 1 y hay tests de restricciones (CHECK, UNIQUE)."
+    },
+    {
+      "id": "CB-04",
+      "title": "Utilidades seguras de lectura y procesos",
+      "state": "proposed",
+      "group": "CB",
+      "deps": ["CB-01"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "`util.fs.safe_path` (resuelve symlinks, raíz permitida, exclusiones, tamaño máximo, detección de cambios durante la lectura) y `util.proc.run` (lista de argumentos, timeout, entorno mínimo con GIT_OPTIONAL_LOCKS=0, sin shell).\n\nTerminado cuando: pasan los escenarios T08 y T09 de TESTING.md y un test prohíbe `shell=True`, `os.system` y `getoutput` en todo `src/`."
+    },
+    {
+      "id": "CB-05",
+      "title": "Proyectos sintéticos de prueba",
+      "state": "proposed",
+      "group": "CB",
+      "deps": ["CB-01"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "`make fixtures` crea proj-ok, proj-fail y proj-ambiguous como describe TESTING.md §1, con kanvas.py vendorizado (commit 97e93ad) para tableros reales, y los dobles de §2 (FakeLLM, FakeSacct, SMTP local, remoto rclone local).\n\nTerminado cuando: los fixtures se regeneran de forma determinista y `tests/fixtures/config.yaml` valida."
+    },
+    {
+      "id": "CB-06",
+      "title": "Verificar contratos externos",
+      "state": "proposed",
+      "group": "CB",
+      "deps": ["CB-02", "CB-04"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "`digest doctor`: comprueba rutas, `kanvas check` en cada proyecto, Qwen3.6 y NaN con una petición sintética (modelo, salida estructurada, latencia), SMTP, rclone (`lsd`) y Tailscale (`serve status`). No modifica nada.\n\nTerminado cuando: en el equipo de Rocky, doctor pasa con los dos proyectos piloto y los hallazgos (versiones, límites, modelos de NaN, salida de `kanvas status --json`) están en DECISIONS.md. Requiere respuestas a Q-01, Q-06, Q-07."
+    },
+    {
+      "id": "CB-07",
+      "title": "Puerta de fase 0",
+      "state": "proposed",
+      "group": "CB",
+      "deps": ["CB-01", "CB-02", "CB-03", "CB-04", "CB-05", "CB-06"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Validar que la fase 0 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 0 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-0.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 0` da APROBADA (con `--host` en el equipo de Rocky) y el informe build/gates/phase-0.md va en la nota de cierre."
+    },
+    {
+      "id": "CP-01",
+      "title": "Recolector de Kanvas",
+      "state": "proposed",
+      "group": "CP",
+      "deps": ["CB-03", "CB-04", "CB-05", "CB-07"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Lee kanvas.json tras `kanvas check`, compara con la captura anterior y genera evidencias task_transition, task_note y task_question con hora de evento desde las notas (EVIDENCE.md, Kanvas). Esquema distinto de 1 → fuente omitida con aviso.\n\nTerminado cuando: con proj-ok aparecen las transiciones y notas esperadas una sola vez; pasan T05 y T06."
+    },
+    {
+      "id": "CP-02",
+      "title": "Recolector de Git",
+      "state": "proposed",
+      "group": "CP",
+      "deps": ["CB-03", "CB-04", "CB-05", "CB-07"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Commits del intervalo, diff por archivo truncado, cambios preparados y sin preparar, archivos nuevos filtrados (EVIDENCE.md, Git).\n\nTerminado cuando: los commits fechados de proj-ok aparecen en el intervalo correcto, los binarios se listan sin contenido y no se escribe nada en .git (T30)."
+    },
+    {
+      "id": "CP-03",
+      "title": "Recolectores de documentación y figuras",
+      "state": "proposed",
+      "group": "CP",
+      "deps": ["CB-03", "CB-04", "CB-05", "CB-07"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "doc_change con diff contra la captura anterior; figure con miniatura PNG, SVG rasterizado y procedencia (commit o log).\n\nTerminado cuando: el SVG de proj-ok solo existe como PNG en el registro, el .xtc grande se excluye sin leerse (T10) y un archivo que cambia durante la lectura se descarta (T07)."
+    },
+    {
+      "id": "CP-04",
+      "title": "Recolector de métricas",
+      "state": "proposed",
+      "group": "CP",
+      "deps": ["CB-03", "CB-04", "CB-05", "CB-07"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Lectores por patrón para CSV, TSV y JSON con columnas declaradas; estadísticos por código y cambio frente a la versión anterior (EVIDENCE.md, Métricas).\n\nTerminado cuando: el cambio de results/scores.csv en proj-ok produce una evidencia metric con valores correctos verificados por test."
+    },
+    {
+      "id": "CP-05",
+      "title": "Recolector de ejecuciones",
+      "state": "proposed",
+      "group": "CP",
+      "deps": ["CB-03", "CB-04", "CB-05", "CB-07"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Jobs de Slurm vía `sacct` (campos de EVIDENCE.md) y logs de Snakemake, Nextflow o scripts propios: estado, duración, errores y últimas líneas.\n\nTerminado cuando: con FakeSacct aparecen un run completado y un run_error; el error de logs/run.log de proj-ok se recoge."
+    },
+    {
+      "id": "CP-06",
+      "title": "Resultados e intervalos",
+      "state": "proposed",
+      "group": "CP",
+      "deps": ["CP-01", "CP-02"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Agrupación de evidencias en resultados (EVIDENCE.md §4) y semántica de intervalos diario, avance y semanal, incluida la recuperación de días pendientes (ARCHITECTURE.md §4).\n\nTerminado cuando: cada tarea en review o done es un resultado con sus commits y figuras; lo que no tiene tarea aparece como «fuera del tablero»; tests de intervalos con reloj fijo."
+    },
+    {
+      "id": "CP-07",
+      "title": "Informe mecánico y digest run",
+      "state": "proposed",
+      "group": "CP",
+      "deps": ["CP-06", "CP-03", "CP-04", "CP-05"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Representación común del informe (report/model.py), informe mecánico sin LLM con todo lo hecho y la cobertura, renders Markdown y HTML, y `digest run [--now] [--preview] [--no-send]`.\n\nTerminado cuando: `digest run --now --no-send` contra los fixtures produce un informe con todos los resultados, cobertura incompleta visible para proj-fail, y pasan T01 y T11."
+    },
+    {
+      "id": "CP-08",
+      "title": "Correo esencial y copia en Obsidian y Drive",
+      "state": "proposed",
+      "group": "CP",
+      "deps": ["CP-07"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Correo esencial (SPEC FR-20 a FR-22) en HTML y texto con todas las tareas hechas, figuras CID y Message-ID estable; escritura atómica en la vault; subida del informe (Markdown y PDF) a Drive con `rclone copy --immutable`; tabla delivery.\n\nTerminado cuando: con el SMTP local y el remoto local llegan el correo y los archivos; pasa T02; el correo se lee bien en móvil (revisión manual de una captura)."
+    },
+    {
+      "id": "CP-09",
+      "title": "Puerta de fase 1",
+      "state": "proposed",
+      "group": "CP",
+      "deps": ["CP-01", "CP-02", "CP-03", "CP-04", "CP-05", "CP-06", "CP-07", "CP-08"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Validar que la fase 1 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 1 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-1.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 1` da APROBADA y el informe build/gates/phase-1.md va en la nota de cierre."
+    },
+    {
+      "id": "IN-01",
+      "title": "Cliente LLM y enrutado con respaldo",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["CB-06", "CP-09"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Cliente OpenAI-compatible con httpx, salida estructurada cuando exista, enrutado por tarea con respaldo y registro en llm_call (LLM.md §1-2).\n\nTerminado cuando: con FakeLLM pasan T15 y T16, y el registro llm_call contiene proveedor, modelo y versión de prompt."
+    },
+    {
+      "id": "IN-02",
+      "title": "Esquemas, prompts y validador",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["IN-01", "CP-06"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Esquemas pydantic de LLM.md §4, prompts versionados (extract, conceptual, plan, weekly, contrast) y validador de §5 con un reintento de reparación.\n\nTerminado cuando: pasan T12, T13 y T17; ninguna afirmación con ID o cifra inventada llega al informe."
+    },
+    {
+      "id": "IN-03",
+      "title": "Informe diario multinivel",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["IN-02", "CP-07"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Builder que combina extracción por resultado (Qwen3.6), síntesis conceptual y plan 1-2 (NaN) con las secciones de SPEC FR-16; secciones mecánicas como respaldo.\n\nTerminado cuando: contra los fixtures con FakeLLM(good) sale el informe completo de siete secciones, cada afirmación con evidencias, y el plan respeta límites y orígenes."
+    },
+    {
+      "id": "IN-04",
+      "title": "Recolectores de notebooks, estructuras y sesiones de agentes",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["CP-06", "CP-09"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "notebook_change con nbformat sin ejecutar, structure con metadatos de PDB y mmCIF, agent_session desde los directorios configurados (EVIDENCE.md, fase 2).\n\nTerminado cuando: los nuevos tipos aparecen en el informe con cobertura; las rutas de transcripciones están confirmadas (Q-05)."
+    },
+    {
+      "id": "IN-05",
+      "title": "Informe semanal",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["IN-03"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Informe semanal de SPEC FR-18 construido desde las evidencias de 7 días, revisiones y planes aceptados; correo, Obsidian y Drive; `digest run --weekly`.\n\nTerminado cuando: pasa T18 y el semanal de fixtures incluye avance por proyecto, todas las tareas, revisiones, patrones, figuras clave y propuesta de semana."
+    },
+    {
+      "id": "IN-06",
+      "title": "Puerta de fase 2",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["IN-01", "IN-02", "IN-03", "IN-04", "IN-05"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Validar que la fase 2 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 2 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-2.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 2` da APROBADA y el informe build/gates/phase-2.md va en la nota de cierre."
+    },
+    {
+      "id": "WA-01",
+      "title": "Webapp base: Hoy, detalle e historial",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["IN-03", "IN-06"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "FastAPI con las rutas de lectura de WEBAPP.md §1 (Hoy, detalle, Semana, Historial), diseño adaptable, PWA, modo oscuro, cabeceras de seguridad, CSRF y comprobación de la cabecera de Tailscale.\n\nTerminado cuando: el enlace del correo abre el informe en móvil y escritorio (capturas en la nota de cierre); pasan T14, T19 y T20."
+    },
+    {
+      "id": "WA-02",
+      "title": "Revisión activa y contraste",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["WA-01"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Selección del resultado propuesto, modos completo, breve y mínimo, explicación automática oculta hasta enviar, contraste encolado, decisión humana, ficha de Obsidian y respaldo con `estado: lista` (WEBAPP.md §2 y §5).\n\nTerminado cuando: pasan T21, T25 y T26; ningún camino marca un resultado como cerrado sin acción humana."
+    },
+    {
+      "id": "WA-03",
+      "title": "Plan editable y dudas al plan",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["WA-02"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Pantalla Plan: editar y aceptar misión y calentamientos; las dudas de las revisiones entran con origin = review en el plan siguiente.\n\nTerminado cuando: un plan editado se guarda en plan_item.edited_text, aparece en Obsidian y Drive y alimenta el siguiente informe."
+    },
+    {
+      "id": "WA-04",
+      "title": "Pantalla Generar y cola de trabajos",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["WA-01"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Tabla job, `digest worker` con bloqueo, pantalla Generar (generar ahora, avance, semanal, reintentar canal) y estados por canal.\n\nTerminado cuando: pasan T03 y T04; desde el móvil se lanza un informe y llega el correo."
+    },
+    {
+      "id": "WA-05",
+      "title": "Puerta de fase 3",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["WA-01", "WA-02", "WA-03", "WA-04"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Validar que la fase 3 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 3 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-3.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 3` da APROBADA y el informe build/gates/phase-3.md va en la nota de cierre."
+    },
+    {
+      "id": "OP-01",
+      "title": "Unidades systemd y despliegue",
+      "state": "proposed",
+      "group": "OP",
+      "deps": ["WA-04", "CP-08", "WA-05"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Unidades de OPERATIONS.md §2 en deploy/systemd con el bloque de endurecimiento, temporizadores diario, semanal, captura y copia, y guía de instalación probada en el equipo de Rocky.\n\nTerminado cuando: tras reiniciar el equipo los servicios arrancan, `systemctl list-timers 'digest-*'` muestra los cuatro temporizadores y el servicio no puede escribir en un proyecto (prueba manual con un archivo de control)."
+    },
+    {
+      "id": "OP-02",
+      "title": "Acceso con Tailscale",
+      "state": "proposed",
+      "group": "OP",
+      "deps": ["OP-01"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "`tailscale serve` hacia 127.0.0.1:8090, `web.public_base_url` configurada y enlaces del correo funcionando desde el móvil.\n\nTerminado cuando: el enlace de un correo real abre la webapp en el móvil con la app de Tailscale; desde un equipo fuera de la tailnet no hay acceso. Requiere Q-09."
+    },
+    {
+      "id": "OP-03",
+      "title": "Copia remota completa, entregas y reintentos",
+      "state": "proposed",
+      "group": "OP",
+      "deps": ["CP-08", "WA-02", "WA-05"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Copia continua en Drive de informes, figuras, revisiones, plan aceptado e indice.md (SPEC FR-50 a FR-52); reintento solo del canal pendiente; estado incierto del correo sin reenvío.\n\nTerminado cuando: pasan T22, T23, T24 y T27."
+    },
+    {
+      "id": "OP-04",
+      "title": "Copias de SQLite y restauración",
+      "state": "proposed",
+      "group": "OP",
+      "deps": ["OP-03"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "`digest backup` con la API de copia de SQLite, subida a Drive, poda de backups con más de 30 días, y `digest restore`.\n\nTerminado cuando: pasan T28 y T29; restauración probada una vez en el equipo de Rocky con la copia de Drive."
+    },
+    {
+      "id": "OP-05",
+      "title": "Puerta de fase 4",
+      "state": "proposed",
+      "group": "OP",
+      "deps": ["OP-01", "OP-02", "OP-03", "OP-04"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Validar que la fase 4 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 4 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-4.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 4` da APROBADA (con `--host` en el equipo de Rocky) y el informe build/gates/phase-4.md va en la nota de cierre."
+    },
+    {
+      "id": "PL-01",
+      "title": "Piloto de 7 a 10 jornadas",
+      "state": "proposed",
+      "group": "PL",
+      "deps": ["OP-01", "OP-02", "OP-04", "IN-05", "WA-03", "OP-05"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Uso real con los dos proyectos piloto durante 7 a 10 jornadas, incluido al menos un sábado. Cada día: comparar una muestra del informe con las fuentes y anotar omisiones, afirmaciones sin respaldo y tareas poco ejecutables.\n\nTerminado cuando: hay notas diarias en esta tarea y los datos de ROADMAP.md fase 5 (tiempos, noches con revisión, pendientes) están recogidos."
+    },
+    {
+      "id": "PL-02",
+      "title": "Evaluación y ajustes",
+      "state": "proposed",
+      "group": "PL",
+      "deps": ["PL-01"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Evaluación del piloto: qué funcionó, qué ajustar (longitud, reparto Qwen3.6/NaN, relevancia de resultados), decisión sobre escribir propuestas en Kanvas y lista priorizada de ajustes como nuevas propuestas.\n\nTerminado cuando: la evaluación está en DECISIONS.md y los ajustes están propuestos en el tablero."
+    },
+    {
+      "id": "PL-03",
+      "title": "Puerta de fase 5",
+      "state": "proposed",
+      "group": "PL",
+      "deps": ["PL-01", "PL-02"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Validar que la fase 5 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 5 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-5.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 5` da APROBADA y el informe build/gates/phase-5.md va en la nota de cierre."
+    },
+    {
+      "id": "EX-01",
+      "title": "Registro de extensiones y oportunidades",
+      "state": "proposed",
+      "group": "EX",
+      "deps": ["PL-03"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Contrato Extension de EXTENSIONS.md §4, registro de extensiones internas y por entry points (`daily_digest.extensions`), migración 0002 (opportunity, brief, brief_result) y `digest extensions`.\n\nTerminado cuando: pasa T35 con una extensión de prueba instalada como paquete externo y `digest extensions` la lista con sus capacidades."
+    },
+    {
+      "id": "EX-02",
+      "title": "Paquete de contexto y digest brief",
+      "state": "proposed",
+      "group": "EX",
+      "deps": ["EX-01"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Constructor y validador del paquete (EXTENSIONS.md §3): manifest, context.json, context.md, instructions.md y figuras; solo resultados closed_by_human; copia a Obsidian (Briefs/) y Drive (DailyDigest/briefs/); `digest brief TIPO RESULT_ID [--zip]`.\n\nTerminado cuando: pasan T31 y T32."
+    },
+    {
+      "id": "EX-03",
+      "title": "Extensiones de protocolo y docencia",
+      "state": "proposed",
+      "group": "EX",
+      "deps": ["EX-02"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Extensiones `protocol` y `teaching` con reglas de detección (EXTENSIONS.md §5) e instructions.md pensadas para el generador: público, estructura, citar IDs de evidencia, separar observación e interpretación, incluir límites y dudas.\n\nTerminado cuando: con fixtures, cada una detecta su oportunidad y crea un brief válido; un brief de cada tipo de un resultado real se adjunta en la nota de cierre para que la persona lo pruebe en su herramienta (Q-13, Q-14)."
+    },
+    {
+      "id": "EX-04",
+      "title": "Oportunidades en el semanal y en la webapp",
+      "state": "proposed",
+      "group": "EX",
+      "deps": ["EX-03"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Sección «Oportunidades» del informe semanal (máximo 3), pantalla Oportunidades y Brief en la webapp (WEBAPP.md): aceptar, descartar, crear brief, descargar zip, anotar dónde quedó el contenido generado.\n\nTerminado cuando: pasa T33 y el flujo completo se hace desde el móvil."
+    },
+    {
+      "id": "EX-05",
+      "title": "Servidor MCP de solo lectura",
+      "state": "proposed",
+      "group": "EX",
+      "deps": ["EX-02"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "`digest mcp` por stdio con herramientas de solo lectura: search_results, get_result, get_evidence, list_reviews, list_opportunities, get_brief. Respeta external_allowed y exclusiones.\n\nTerminado cuando: pasa T34 y un asistente (por ejemplo Claude Code) consulta el registro y prepara un borrador a partir de un resultado real."
+    },
+    {
+      "id": "EX-06",
+      "title": "Extensiones de métodos y reunión de grupo",
+      "state": "proposed",
+      "group": "EX",
+      "deps": ["EX-03"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Extensiones `methods` (varios resultados cerrados de un proyecto) y `group_meeting` (semana con resultados cerrados y decisiones), con sus instructions.md.\n\nTerminado cuando: con fixtures cada una crea un brief válido; prioridad según Q-13 (se puede posponer)."
+    },
+    {
+      "id": "EX-07",
+      "title": "Puerta de fase 6",
+      "state": "proposed",
+      "group": "EX",
+      "deps": ["EX-01", "EX-02", "EX-03", "EX-04", "EX-05", "EX-06"],
+      "at": "2026-11-04T11:20:37Z",
+      "by": "codex",
+      "desc": "Validar que la fase 6 está bien construida (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 6 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-6.md.\n2. Revisor independiente: prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 6` da APROBADA y el informe build/gates/phase-6.md va en la nota de cierre."
+    }
+  ]
+}

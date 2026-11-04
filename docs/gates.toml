@@ -1,0 +1,262 @@
+# Puertas de fase: lo que scripts/phase_gate.py comprueba automáticamente.
+# El protocolo completo (revisión independiente y firma humana) está en docs/VALIDATION.md.
+#
+# Cada puerta de la fase N comprueba también los archivos y tests de las fases anteriores (regresión),
+# salvo que se pase --no-regression.
+
+version = 1
+report_dir = "build/gates"
+reviews_dir = "docs/reviews"
+kanvas_board = "kanvas.json"
+gate_task_prefix = "Puerta de fase"
+
+# ---------------------------------------------------------------- comunes a todas las fases
+
+[[common.commands]]
+name = "ruff"
+run = ["ruff", "check", "src", "tests"]
+
+[[common.commands]]
+name = "ruff-format"
+run = ["ruff", "format", "--check", "src", "tests"]
+
+[[common.commands]]
+name = "mypy"
+run = ["mypy", "src"]
+
+# Reglas prohibidas en el código. Una línea concreta se puede exceptuar con el comentario
+# «gate: allow <id> <motivo>»; el revisor independiente debe justificar cada excepción.
+
+[[common.forbidden]]
+id = "no-shell-true"
+pattern = 'shell\s*=\s*True'
+paths = ["src"]
+why = "Invariante 2: nunca shell=True"
+
+[[common.forbidden]]
+id = "no-os-system"
+pattern = '\bos\.(system|popen)\s*\('
+paths = ["src"]
+why = "Invariante 2: sin shell"
+
+[[common.forbidden]]
+id = "no-getoutput"
+pattern = 'subprocess\.(getoutput|getstatusoutput)'
+paths = ["src"]
+why = "Invariante 2: sin shell"
+
+[[common.forbidden]]
+id = "no-subprocess-outside-proc"
+pattern = '\bsubprocess\.(run|Popen|call|check_output|check_call)\b'
+paths = ["src"]
+exclude = ["src/digest/util/proc.py"]
+why = "Todos los procesos pasan por util.proc.run"
+
+[[common.forbidden]]
+id = "no-rclone-destructive"
+pattern = '''["'](sync|move|moveto|purge|rmdirs|deletefile|cleanup)["']'''
+paths = ["src/digest/publish"]
+why = "Invariante 10: Drive no borra ni sobrescribe"
+
+[[common.forbidden]]
+id = "no-autoescape-off"
+pattern = 'autoescape\s*=\s*False'
+paths = ["src"]
+why = "Invariante 11: HTML siempre escapado"
+
+[[common.forbidden]]
+id = "no-jinja-safe"
+pattern = '\|\s*safe\b'
+paths = ["src/digest/web/templates", "src/digest/report/templates"]
+why = "Invariante 11: |safe solo con HTML ya saneado por nh3, con excepción justificada"
+
+[[common.forbidden]]
+id = "no-cdn"
+pattern = 'https?://(unpkg\.com|cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com|fonts\.googleapis\.com)'
+paths = ["src"]
+why = "Invariante 11: sin recursos de terceros"
+
+[[common.forbidden]]
+id = "no-eval"
+pattern = '\b(eval|exec)\s*\('
+paths = ["src"]
+why = "Invariante 3: nunca ejecutar contenido"
+
+[[common.forbidden]]
+id = "no-pickle-yaml-load"
+pattern = '\b(pickle\.loads?|yaml\.load)\s*\('
+paths = ["src"]
+why = "Deserialización insegura; usar yaml.safe_load y JSON"
+
+[[common.forbidden]]
+id = "no-hardcoded-secret"
+pattern = '''(?i)(api[_-]?key|password|secret|token)\s*[=:]\s*["'][^"'\s]{12,}["']'''
+paths = ["src", "deploy", "config.example.yaml"]
+why = "Invariante 9: secretos fuera del repositorio"
+
+# ---------------------------------------------------------------- fase 0
+
+[phases.0]
+name = "Contratos y base"
+kanvas_group = "CB"
+files = [
+  "pyproject.toml", "Makefile", "config.example.yaml",
+  "src/digest/cli.py", "src/digest/config.py",
+  "src/digest/db/migrations/0001_init.sql",
+  "src/digest/util/fs.py", "src/digest/util/proc.py",
+  "tests/fixtures/make_projects.py", "tests/fixtures/config.yaml",
+]
+tests = ["T08", "T09"]
+manual = [
+  "digest doctor pasa en el equipo de Rocky con los dos proyectos piloto",
+  "Los hallazgos de la verificación de contratos están en docs/DECISIONS.md",
+  "Las preguntas Q-01, Q-06 y Q-07 tienen respuesta",
+]
+
+[[phases.0.commands]]
+name = "cli-help"
+run = ["digest", "--help"]
+expect_stdout = ["doctor", "capture", "run", "worker", "web"]
+
+[[phases.0.commands]]
+name = "doctor-offline"
+run = ["digest", "--config", "tests/fixtures/config.yaml", "doctor", "--offline"]
+
+[[phases.0.commands]]
+name = "doctor-host"
+run = ["digest", "--config", "/etc/daily-digest/config.yaml", "doctor"]
+host_only = true
+
+# ---------------------------------------------------------------- fase 1
+
+[phases.1]
+name = "Captura, registro e informe mecánico"
+kanvas_group = "CP"
+files = [
+  "src/digest/collectors/kanvas.py", "src/digest/collectors/git.py",
+  "src/digest/collectors/docs.py", "src/digest/collectors/figures.py",
+  "src/digest/collectors/metrics.py", "src/digest/collectors/runs.py",
+  "src/digest/results.py", "src/digest/intervals.py",
+  "src/digest/report/model.py", "src/digest/report/mechanical.py",
+  "src/digest/publish/email.py", "src/digest/publish/obsidian.py", "src/digest/publish/drive.py",
+]
+tests = ["T01", "T02", "T05", "T06", "T07", "T10", "T11", "T30"]
+manual = [
+  "El correo del informe mecánico se lee bien en el móvil",
+  "El informe mecánico de un proyecto real coincide con lo que recuerdas del día (sin omisiones graves)",
+  "La copia del informe aparece en la carpeta de Drive y en Obsidian sin tocar otras notas",
+]
+
+[[phases.1.commands]]
+name = "run-fixtures"
+run = ["digest", "--config", "tests/fixtures/config.yaml", "run", "--now", "--no-send"]
+
+# ---------------------------------------------------------------- fase 2
+
+[phases.2]
+name = "Informe multinivel con LLM"
+kanvas_group = "IN"
+files = [
+  "src/digest/llm/client.py", "src/digest/llm/router.py",
+  "src/digest/llm/schemas.py", "src/digest/llm/validator.py",
+  "src/digest/llm/prompts/extract.md", "src/digest/llm/prompts/conceptual.md",
+  "src/digest/llm/prompts/plan.md", "src/digest/llm/prompts/weekly.md",
+  "src/digest/llm/prompts/contrast.md", "src/digest/report/builder.py",
+]
+tests = ["T12", "T13", "T15", "T16", "T17", "T18"]
+manual = [
+  "En una muestra de 5 afirmaciones de un informe real, todas se sostienen al abrir sus evidencias",
+  "El plan de mañana es ejecutable: cada tarea tiene acción y criterio de finalización claros",
+  "El informe semanal de prueba aporta algo que no estaba en los diarios",
+]
+
+[[phases.2.commands]]
+name = "run-fixtures-llm-fake"
+run = ["digest", "--config", "tests/fixtures/config.yaml", "run", "--now", "--no-send"]
+
+# ---------------------------------------------------------------- fase 3
+
+[phases.3]
+name = "Webapp y revisión activa"
+kanvas_group = "WA"
+files = [
+  "src/digest/web/app.py", "src/digest/web/static/manifest.webmanifest",
+  "src/digest/review/select.py", "src/digest/review/contrast.py", "src/digest/worker.py",
+]
+tests = ["T03", "T04", "T14", "T19", "T20", "T21", "T25", "T26"]
+manual = [
+  "El enlace de un correo abre el informe en el móvil y en el ordenador",
+  "Una revisión completa desde el móvil lleva unos 5 minutos y el contraste es útil",
+  "Desde el móvil se lanza un informe con Generar y llega el correo",
+]
+
+# ---------------------------------------------------------------- fase 4
+
+[phases.4]
+name = "Operación"
+kanvas_group = "OP"
+files = [
+  "deploy/systemd/digest-worker.service", "deploy/systemd/digest-web.service",
+  "deploy/systemd/digest-enqueue@.service", "deploy/systemd/digest-daily.timer",
+  "deploy/systemd/digest-weekly.timer", "deploy/systemd/digest-capture.timer",
+  "deploy/systemd/digest-backup.timer",
+]
+tests = ["T22", "T23", "T24", "T27", "T28", "T29"]
+manual = [
+  "Tras reiniciar el equipo, los servicios arrancan y los cuatro temporizadores aparecen en systemctl list-timers",
+  "Con el servicio en marcha, un intento de escribir en un proyecto falla (prueba del archivo de control)",
+  "El sábado llegó el informe semanal sin intervención",
+  "Restauración probada desde la copia de Drive",
+]
+
+[[phases.4.commands]]
+name = "systemd-verify"
+run = ["systemd-analyze", "verify", "deploy/systemd/digest-worker.service", "deploy/systemd/digest-web.service"]
+host_only = true
+
+[[phases.4.commands]]
+name = "systemd-security-worker"
+run = ["systemd-analyze", "security", "--threshold=5.0", "digest-worker.service"]
+host_only = true
+
+[[phases.4.commands]]
+name = "systemd-security-web"
+run = ["systemd-analyze", "security", "--threshold=5.0", "digest-web.service"]
+host_only = true
+
+# ---------------------------------------------------------------- fase 5
+
+[phases.5]
+name = "Piloto"
+kanvas_group = "PL"
+files = []
+tests = []
+manual = [
+  "El piloto duró al menos 7 jornadas e incluyó un sábado",
+  "Están recogidos los tiempos de lectura y revisión, las noches con revisión y los pendientes por antigüedad",
+  "La evaluación y los ajustes priorizados están en docs/DECISIONS.md y propuestos en el tablero",
+]
+
+# ---------------------------------------------------------------- fase 6
+
+[phases.6]
+name = "Extensiones"
+kanvas_group = "EX"
+files = [
+  "src/digest/db/migrations/0002_extensions.sql",
+  "src/digest/extensions/registry.py", "src/digest/extensions/pack.py",
+  "src/digest/extensions/protocol/extension.py", "src/digest/extensions/protocol/instructions.md",
+  "src/digest/extensions/teaching/extension.py", "src/digest/extensions/teaching/instructions.md",
+  "src/digest/mcp/server.py",
+]
+tests = ["T31", "T32", "T33", "T34", "T35"]
+manual = [
+  "Un brief de protocolo de un resultado real, pasado a la herramienta elegida, da un protocolo que compartirías tras retocarlo",
+  "Un brief de docencia de un resultado real da material que usarías en una clase o seminario",
+  "Las oportunidades del informe semanal son pertinentes y no añaden ruido",
+]
+
+[[phases.6.commands]]
+name = "extensions-list"
+run = ["digest", "--config", "tests/fixtures/config.yaml", "extensions"]
+expect_stdout = ["protocol", "teaching"]
