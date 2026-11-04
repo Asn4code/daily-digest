@@ -254,6 +254,8 @@ def load_config(path: Path) -> Config:
             loc = error["loc"]
             if error["type"] == "extra_forbidden":
                 loc = loc[:-1]
+            if len(loc) > 2 and loc[:2] == ("llm", "providers"):
+                loc = (*loc[:2], "<proveedor>", *loc[3:])
             field = ".".join(str(part) for part in loc) or "configuración"
             reason = "campo desconocido" if error["type"] == "extra_forbidden" else error["msg"]
             errors.append(f"{field}: {reason}")

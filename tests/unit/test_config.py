@@ -102,3 +102,27 @@ def test_provider_endpoint_rejects_secrets_and_invalid_urls(url: str, tmp_path: 
         load_config(path)
     assert "base_url" in str(error.value)
     assert "private" not in str(error.value)
+
+
+@pytest.mark.parametrize("through_cli", [False, True])
+def test_dynamic_provider_keys_are_redacted(tmp_path: Path, through_cli: bool) -> None:
+    from typer.testing import CliRunner
+
+    from digest.cli import app
+
+    data = load_config(EXAMPLE).model_dump(by_alias=True)
+    secret = "FAKE_SECRET_MAPPING_KEY"
+    data["llm"]["providers"][secret] = {"timeout_s": "bad"}
+    path = tmp_path / "config.yaml"
+    path.write_text(yaml.safe_dump(data))
+    if through_cli:
+        result = CliRunner().invoke(app, ["--config", str(path), "doctor", "--offline"])
+        assert result.exit_code == 2
+        output = result.output
+    else:
+        with pytest.raises(ConfigError) as error:
+            load_config(path)
+        output = str(error.value)
+    assert secret not in output
+    assert "llm.providers.<proveedor>" in output
+    assert "timeout_s" in output
