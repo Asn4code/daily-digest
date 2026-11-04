@@ -280,6 +280,16 @@
           "at": "2026-11-04T15:25:50Z",
           "by": "codex",
           "text": "Question: Ejecuta .venv/bin/python scripts/set_smtp_password.py en tu terminal e introduce allí la contraseña de aplicación de Gmail, sin enviarla al chat. Avísame al terminar para comprobar SMTP. Tailscale sigue pendiente."
+        },
+        {
+          "at": "2026-11-04T15:28:02Z",
+          "by": "codex",
+          "text": "Comprobación SMTP tras guardar la contraseña: conexión y TLS correctos; AUTH LOGIN devuelve 535 (autenticación rechazada). Se comprobó también fuera del sandbox. No se ha enviado correo ni mostrado el secreto. Los dos LLM y Drive siguen pasando. Se necesita una contraseña de aplicación válida para la cuenta remitente configurada."
+        },
+        {
+          "at": "2026-11-04T15:28:02Z",
+          "by": "codex",
+          "text": "Question: Gmail rechaza la credencial con código 535. Genera una contraseña de aplicación de Google para la cuenta del piloto y vuelve a guardarla con .venv/bin/python scripts/set_smtp_password.py. No envíes el valor por el chat."
         }
       ]
     },
