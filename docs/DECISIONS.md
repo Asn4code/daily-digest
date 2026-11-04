@@ -39,11 +39,13 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-030 | 2026-11-04 | Q-02: diario a las 20:00 y semanal el sábado a las 10:00, Europe/Madrid | Horarios aceptados expresamente por la persona; disponibilidad continua del equipo no confirmada |
 
+| D-031 | 2026-11-04 | Q-01: Benchmark busca determinar hasta qué punto los predictores capturan los cambios estructurales y fisicoquímicos causados por mutaciones, distinguiendo la señal real de la variabilidad experimental, dinámica y entre predicciones, para delimitar qué conclusiones sobre su respuesta mutacional están respaldadas. | Objetivo confirmado por la persona; campañas y tareas son medios para responder esta pregunta |
+| D-032 | 2026-11-04 | Q-01: VCD busca construir y validar una plataforma reproducible que permita pasar de una secuencia proteica a candidatos de cribado virtual priorizados, integrando modelado, cavidades, docking y dinámica molecular, con evidencia y controles que permitan juzgar la fiabilidad de cada etapa. | Objetivo confirmado por la persona; incluye utilidad científica y trazabilidad, además de desarrollo de software |
+
 ## Preguntas abiertas
 
-Resolver por fase: Q-01 ahora; Q-03 a Q-05 antes de sus recolectores; acceso móvil Q-09 antes de validar la webapp; Q-12 en CP-08 y Q-13/Q-14 en extensiones. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
+Resolver por fase: Q-03 a Q-05 antes de sus recolectores; acceso móvil Q-09 antes de validar la webapp; Q-12 en CP-08 y Q-13/Q-14 en extensiones. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
 
-- [ ] Q-01 Definir la finalidad científica o de producto de benchmark y VCD. La persona considera vagas las primeras descripciones de actividades; retiradas del borrador local y pendientes de una formulación más precisa. Rutas y vault verificadas.
 - [ ] Q-03 Métricas y archivos de resultados importantes en cada proyecto (RMSD, pLDDT, puntuaciones…), con sus rutas y columnas.
 - [ ] Q-04 ¿Trabajo en clúster? ¿Slurm accesible desde el equipo (`sacct`)? ¿Snakemake, Nextflow o scripts propios?
 - [ ] Q-05 Sesiones de agentes: ¿qué herramientas usas y dónde guardan sus transcripciones? ¿Incluirlas?

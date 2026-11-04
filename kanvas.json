@@ -358,6 +358,11 @@
           "at": "2026-11-04T16:00:02Z",
           "by": "codex",
           "text": "La persona acepta los horarios (D-030/Q-02) y rechaza como vagas las formulaciones iniciales de objetivos, sin aceptar Q-01. Retiradas del config local para no tratarlas como objetivos aprobados. Lectura acotada y de solo lectura de documentación y tableros para proponer objetivos duraderos: respuesta mutacional frente a ruido en benchmark y flujo sequence-to-hit trazable en VCD. No se cambian fuentes ni archivos en los proyectos."
+        },
+        {
+          "at": "2026-11-04T16:04:24Z",
+          "by": "codex",
+          "text": "La persona confirma los objetivos científicos y de producto propuestos tras leer documentación: Q-01 resuelta en D-031/D-032, y config.yaml local actualizado con ambos objetivos. Q-02 también resuelta; Q-03/Q-04/Q-05 quedan para definir cobertura de captura. La firma de fase sigue sin marcar."
         }
       ]
     },
