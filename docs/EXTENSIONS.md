@@ -134,6 +134,12 @@ Lo que una extensión **no puede** hacer: escribir en el registro salvo a travé
 | `methods` | Borrador de sección de métodos | Varios resultados cerrados de un proyecto con figuras y parámetros | Artículo, informe de proyecto |
 | `group-meeting` | Guion de presentación de avances | Semana con resultados cerrados y decisiones | Reunión de grupo |
 
+Prioridad inicial acordada (Q-13, D-040): protocolos reproducibles para la persona
+y colaboradores, primero; métodos para artículos, después. Docencia y reuniones
+se priorizarán según necesidades, conservando las extensiones previstas. Los
+protocolos se orientan inicialmente a Markdown con pasos, parámetros, controles,
+criterios de éxito y problemas conocidos.
+
 Las oportunidades se proponen en el informe semanal (sección «Oportunidades», máximo 3) y en la pantalla Oportunidades de la webapp. También se puede pedir un brief de cualquier resultado cerrado desde su pantalla de detalle o con `digest brief <tipo> <result_id>`.
 
 ## 6. Cómo se genera el contenido fuera

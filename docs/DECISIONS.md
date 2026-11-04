@@ -50,13 +50,24 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-037 | 2026-11-04 | Q-14: usar Qwen y los modelos de NaN por defecto para generar contenido externamente desde los briefs; permitir solicitar generación o reelaboración con Claude o Codex | Preferencia expresa de la persona. Proveedor/modelo y herramienta son elecciones separadas; daily-digest prepara el contexto y la generación permanece fuera del núcleo. Rehacer conserva el original y el texto humano |
 
+| D-038 | 2026-11-04 | Q-04: recoger logs, trazas e informes locales de las ejecuciones; SGE documentado en Benchmark y VCD, con Nextflow y ejecución local según la etapa. Consultas remotas posteriores solo de lectura; Slurm desactivado | Propuesta aceptada por la persona. La documentación identifica qsub vía samwise en Benchmark y perfiles SGE en VCD; disponibilidad y rutas exactas se verificarán en CP-05 sin ejecutar contenido de proyectos |
+| D-039 | 2026-11-04 | Q-12: WeasyPrint como motor de PDF desde las plantillas HTML/CSS del servicio | Propuesta aceptada por la persona; instalación y validación de tablas largas, figuras, caracteres y paginación en CP-08. La versión se fijará tras comprobar compatibilidad; Chromium no es un respaldo automático |
+| D-040 | 2026-11-04 | Q-13: priorizar briefs de protocolos reproducibles para la persona y colaboradores, en Markdown con pasos, parámetros, controles, criterios de éxito y problemas conocidos; después métodos para artículos | Propuesta aceptada por la persona. Docencia y reuniones se priorizarán según necesidades; se conserva el alcance de extensiones y se permite ajustar el orden de EX-03/EX-06 previsto en ROADMAP |
+
 ## Preguntas abiertas
 
-Las preguntas necesarias para la firma de fase 0 (Q-01, Q-06 y Q-07) ya tienen respuesta. Quedan Q-04 antes del recolector de ejecuciones, Q-12 en CP-08 y Q-13 en extensiones. El acceso móvil a la futura webapp requiere una prueba posterior, aunque Tailscale ya está instalado. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
+Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La firma
+humana de la fase 0 sigue pendiente. Quedan verificaciones de implementación:
 
-- [ ] Q-04 Concretar por proyecto logs y acceso al clúster en CP-05. La persona acepta seguir lo documentado; VCD documenta SGE y Nextflow, sin confirmar aún el planificador de Benchmark ni disponibilidad de sacct. Slurm no se habilita por suposición.
-- [ ] Q-12 PDF: WeasyPrint o Chromium sin interfaz (decidir en CP-08 según fidelidad del render).
-- [ ] Q-13 Extensiones: ¿qué tipo de brief primero (protocolo, docencia, métodos, reunión de grupo)? ¿Para qué público y en qué formato acostumbras a compartirlos?
+- CP-05: rutas y formatos de logs por proyecto y disponibilidad del acceso de solo lectura a SGE.
+- CP-08: instalar y validar WeasyPrint con informes representativos.
+- Fase 2: verificar ubicaciones y formatos de sesiones de los agentes.
+- Fase 3: probar el acceso móvil a la webapp con Tailscale.
+- Fase 6: concretar cada brief y aplicar la prioridad protocolos → métodos,
+  manteniendo las demás extensiones previstas.
+
+Estas verificaciones no se consideran realizadas por haber elegido una opción.
+Los límites operativos de proveedores que no se anuncian siguen sin darse por medidos.
 
 ## Hallazgos de verificación
 
