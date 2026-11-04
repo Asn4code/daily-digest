@@ -295,6 +295,11 @@
           "at": "2026-11-04T15:33:56Z",
           "by": "codex",
           "text": "La persona cambia la cuenta de correo del piloto. Actualizados usuario SMTP, remitente y destinatario exclusivamente en config.yaml local, fuera de Git. La contraseña de aplicación debe corresponder a la nueva cuenta; no se ha enviado correo."
+        },
+        {
+          "at": "2026-11-04T15:34:39Z",
+          "by": "codex",
+          "text": "SMTP verificado correctamente con la cuenta actualizada del piloto: autenticación correcta y NOOP confirmado. No se ha enviado correo. Las credenciales y la dirección permanecen en configuración privada. Para completar CB-06 queda Tailscale y documentar sus comprobaciones."
         }
       ]
     },
