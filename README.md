@@ -30,7 +30,7 @@ Servicio personal que, al final de cada día (o cuando lo pidas), reúne lo que 
 
 ## Empezar
 
-Estado de implementación: CB-01 a CB-05 completadas; `doctor` en desarrollo en CB-06.
+Estado de implementación: CB-01 a CB-06 completadas; puerta de fase 0 en revisión.
 La ayuda de la CLI y `doctor --offline` están disponibles; los demás comandos
 operativos terminan con código 1 y un aviso de funcionalidad pendiente.
 Todavía no se capturan proyectos ni se generan o entregan informes.
@@ -72,7 +72,7 @@ projects:
 La configuración rechaza campos desconocidos, tipos incorrectos, IDs repetidos,
 puertos y límites inválidos, y referencias a proveedores no declarados. Solo
 contiene nombres de variables para las credenciales; no pegues claves. Los valores
-del proveedor interno y las credenciales siguen pendientes de CB-06: validar el
+del proveedor interno y las credenciales deben configurarse para cada instalación: validar el
 YAML no significa que los servicios estén disponibles. La carga de configuración
 no crea directorios ni accede a los proyectos o proveedores.
 

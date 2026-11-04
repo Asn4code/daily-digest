@@ -36,13 +36,13 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 Responder antes o durante la fase 0. Al resolver una, moverla a la tabla de arriba como decisión.
 
-- [ ] Q-01 Dos proyectos piloto: rutas, objetivo de cada uno, ruta de la vault de Obsidian.
+- [ ] Q-01 Confirmación humana de los objetivos provisionales de benchmark y VCD en config.yaml. Las rutas de ambos proyectos y la nueva vault ya están elegidas y verificadas.
 - [ ] Q-02 Horas: diario a las 20:00 y semanal el sábado a las 10:00 (`Europe/Madrid`), ¿encajan? ¿El equipo está encendido a esas horas?
 - [ ] Q-03 Métricas y archivos de resultados importantes en cada proyecto (RMSD, pLDDT, puntuaciones…), con sus rutas y columnas.
 - [ ] Q-04 ¿Trabajo en clúster? ¿Slurm accesible desde el equipo (`sacct`)? ¿Snakemake, Nextflow o scripts propios?
 - [ ] Q-05 Sesiones de agentes: ¿qué herramientas usas y dónde guardan sus transcripciones? ¿Incluirlas?
-- [ ] Q-06 Qwen3.6: URL, ID de modelo, contexto máximo, salida estructurada, límites.
-- [ ] Q-07 NaN: URL de la API (ver https://nan.builders/docs), modelos para síntesis diaria y para el semanal, contexto, salida estructurada, límites.
+- [ ] Q-06 Revisión humana del contrato Qwen interno: URL en configuración privada; Qwen/Qwen3.8-27B, contexto anunciado 262144 por /models, JSON Schema verificado. La concurrencia y los límites de uso no están anunciados ni medidos.
+- [ ] Q-07 Revisión humana del contrato NaN: https://api.nan.builders/v1, deepseek-v4-flash seleccionado para síntesis, plan, semanal y contraste; catálogo y JSON Schema verificados. Contexto 1M según documentación enlazada abajo; cuotas y concurrencia según cuenta/proveedor, sin prueba de saturación.
 - [ ] Q-08 Correo: Gmail por SMTP con contraseña de aplicación o Gmail API.
 - [ ] Q-09 Tailscale en el móvil y en la red del centro; si no es posible, túnel publicado con inicio de sesión.
 - [ ] Q-10 Drive: cuenta personal o del centro; nombre de la carpeta raíz (propuesta: `DailyDigest`).
@@ -66,3 +66,6 @@ Rellenar en CB-06 con lo comprobado (versiones, salidas reales, límites).
 | 2026-11-04 | Drive piloto | Preparada la carpeta gdrive:DailyDigest con rclone mkdir como operación de configuración separada; después doctor confirma rclone lsd sin errores. No se han subido informes ni enviado correos. |
 | 2026-11-04 | Pendientes CB-06 | Doctor no puede verificar los LLM ni SMTP por ausencia de credenciales en entorno/CREDENTIALS_DIRECTORY; Tailscale no está instalado. La fase sigue abierta y requiere además revisión independiente y firma humana. |
 | 2026-11-04 | Proveedores CB-06 | Con autorización de la persona se reutilizaron las credenciales existentes de OpenCode/Hermes, sin mostrarlas ni incluirlas en Git. Guardadas en el directorio privado de credenciales del piloto; doctor las lee por CREDENTIALS_DIRECTORY. Qwen interno y deepseek-v4-flash devolvieron correctamente el JSON sintético validado. Pendientes SMTP y Tailscale. |
+| 2026-11-04 | Tailscale CB-06 | Tailscale 1.104.5 instalado por la persona; BackendState=Running, equipo Online y MagicDNS activo. serve status responde sin configuración Serve; publicar la webapp se hará cuando esté implementada. No se ha activado Funnel. |
+| 2026-11-04 | Cierre CB-06 | Doctor completo contra los dos proyectos piloto pasa: YAML, datos, vault, ambos kanvas check, JSON sintético validado por ambos LLM, autenticación SMTP sin envío, Drive y Tailscale. Límites de contexto internos no publicados en OpenCode: siguen sin verificación empírica; no se han dado por medidos. |
+| 2026-11-04 | Catálogos LLM CB-06 | GET /models devuelve HTTP 200 en ambos proveedores. El catálogo interno identifica Qwen/Qwen3.8-27B con max_model_len=262144; el catálogo NaN incluye deepseek-v4-flash sin límite de contexto en esa respuesta. El 1M de NaN sigue siendo un valor documentado por el proveedor, no una prueba de saturación. |

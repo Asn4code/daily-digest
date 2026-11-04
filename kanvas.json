@@ -174,7 +174,7 @@
     {
       "id": "CB-06",
       "title": "Verificar contratos externos",
-      "state": "doing",
+      "state": "done",
       "group": "CB",
       "deps": ["CB-02", "CB-04"],
       "at": "2026-11-04T11:20:37Z",
@@ -310,19 +310,46 @@
           "at": "2026-11-04T15:37:57Z",
           "by": "codex",
           "text": "Question: Ejecuta en tu terminal los comandos oficiales para añadir el repositorio RHEL 9, instalar tailscale, activar tailscaled y ejecutar sudo tailscale up. Completa el inicio de sesión desde el enlace que muestre y avisa cuando termine. No compartas la contraseña sudo."
+        },
+        {
+          "at": "2026-11-04T15:40:32Z",
+          "by": "codex",
+          "text": "Tailscale instalado y autenticado por la persona. Verificado BackendState Running, Online y MagicDNS activo. Doctor real completo retorna 0: todos los servicios pasan, incluidos SMTP y ambos LLM. Serve aún sin configurar, previsto con la webapp. No se ha enviado correo. Límites de contexto internos no declarados en OpenCode, no se asumen medidos."
+        },
+        {
+          "at": "2026-11-04T15:40:32Z",
+          "by": "codex",
+          "text": "Doctor completo pasa con benchmark y VCD, vault del piloto, Qwen y NaN con JSON sintético validado, SMTP autenticado sin envío, Drive y Tailscale conectado. make check: 91 tests, lint, formato y mypy. Hallazgos en DECISIONS.md. La puerta automática previa solo falla por esta tarea aún doing. Comprobar personalmente la configuración del piloto; los límites de contexto internos no están medidos."
         }
       ]
     },
     {
       "id": "CB-07",
       "title": "Puerta de fase 0",
-      "state": "todo",
+      "state": "doing",
       "group": "CB",
       "deps": ["CB-01", "CB-02", "CB-03", "CB-04", "CB-05", "CB-06"],
       "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Validar que la fase 0 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 0 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-0.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 0` da APROBADA (con `--host` en el equipo de Rocky) y el informe build/gates/phase-0.md va en la nota de cierre."
+      "desc": "Validar que la fase 0 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 0 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-0.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 0` da APROBADA (con `--host` en el equipo de Rocky) y el informe build/gates/phase-0.md va en la nota de cierre.",
+      "notes": [
+        {
+          "at": "2026-11-04T15:40:32Z",
+          "by": "codex",
+          "text": "Plan: ejecutar puerta automática, preparar ficha y revisión independiente sin contexto de construcción. No marcar firma humana ni comenzar fase 1 hasta aprobación."
+        },
+        {
+          "at": "2026-11-04T15:43:57Z",
+          "by": "codex",
+          "text": "Puerta automática PROVISIONAL (3), 93 tests pasan en make check. Revisión independiente sin contexto detectó fuga de nombres dinámicos de proveedores en errores; corregida en 4ff2e61 y revalidada por el revisor. El revisor no encuentra otros bloqueantes y prepara ficha. Quedan firma humana y comprobaciones Q-01/Q-06/Q-07 detalladas en DECISIONS.md; no se inicia fase 1."
+        },
+        {
+          "at": "2026-11-04T15:44:33Z",
+          "by": "codex",
+          "text": "Question: La revisión independiente está aprobada y la puerta automática pasa. Revisa docs/reviews/phase-0.md y marca personalmente las comprobaciones de Firma, incluida la revisión de Q-01/Q-06/Q-07 en DECISIONS.md y Apruebo la fase. Avísame para ejecutar la puerta completa y cerrar CB-07. No se iniciará fase 1 hasta esa firma."
+        }
+      ]
     },
     {
       "id": "CP-01",
