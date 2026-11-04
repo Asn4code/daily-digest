@@ -239,3 +239,25 @@ Ajustar contextos de archivo con `semanage fcontext` y `restorecon`; nunca `sete
 | La webapp no abre desde el móvil | `tailscale serve status`; app de Tailscale activa en el móvil; `systemctl status digest-web` |
 | Cobertura incompleta | Sección «Evidencias y cobertura» del informe; `digest doctor` |
 | Drive sin subir | `rclone lsd gdrive:`; token caducado → `rclone config reconnect gdrive:` |
+
+### Credenciales del piloto local
+
+Las credenciales locales se guardan fuera del repositorio, en
+`~/.config/daily-digest/credentials/secrets.env`, con permisos `600` y directorio
+`700`. La aplicación las lee mediante `CREDENTIALS_DIRECTORY`. No las copies a
+`config.yaml`, al tablero ni a mensajes.
+
+Para guardar o cambiar la contraseña de aplicación de Gmail sin mostrarla en
+pantalla ni incluirla en el historial de comandos:
+
+```bash
+.venv/bin/python scripts/set_smtp_password.py
+```
+
+El asistente conserva las otras claves del archivo. Para comprobar los servicios
+sin enviar correo:
+
+```bash
+CREDENTIALS_DIRECTORY="$HOME/.config/daily-digest/credentials" \
+  .venv/bin/digest --config config.yaml doctor
+```

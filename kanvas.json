@@ -270,6 +270,16 @@
           "at": "2026-11-04T15:14:04Z",
           "by": "codex",
           "text": "Question: Para terminar la comprobación real, configura QWEN_API_KEY, NAN_API_KEY y SMTP_PASSWORD en el entorno de Codex o en CREDENTIALS_DIRECTORY/secrets.env, y confirma cuándo estén disponibles. También falta instalar/configurar Tailscale para la aceptación prevista. No envíes claves por el chat."
+        },
+        {
+          "at": "2026-11-04T15:25:50Z",
+          "by": "codex",
+          "text": "Claves existentes recuperadas con autorización de OpenCode y Hermes, sin exponer valores. Archivo de credenciales fuera del repo con permisos 600 y directorio 700. Doctor real pasa ambos LLM (JSON sintético validado), proyectos, vault y Drive. Añadido scripts/set_smtp_password.py: entrada oculta y conservación de otras claves. Comprobadas creación, permisos y sustitución con valores sintéticos. Pendientes contraseña de aplicación SMTP y Tailscale."
+        },
+        {
+          "at": "2026-11-04T15:25:50Z",
+          "by": "codex",
+          "text": "Question: Ejecuta .venv/bin/python scripts/set_smtp_password.py en tu terminal e introduce allí la contraseña de aplicación de Gmail, sin enviarla al chat. Avísame al terminar para comprobar SMTP. Tailscale sigue pendiente."
         }
       ]
     },
