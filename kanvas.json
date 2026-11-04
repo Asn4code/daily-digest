@@ -235,6 +235,16 @@
           "at": "2026-11-04T15:01:10Z",
           "by": "codex",
           "text": "Question: ¿Cuál es el objetivo de rd-prefilter, la ruta de tu vault de Obsidian y la cuenta de correo? ¿Los tableros Kanvas están en otra ubicación? No hay kanvas.json en las dos raíces indicadas."
+        },
+        {
+          "at": "2026-11-04T15:03:03Z",
+          "by": "codex",
+          "text": "La persona propone /bioit/aserrano/benchmark y /home/aserrano/VCD como alternativas. Ambos existen, tienen kanvas.json con esquema 1 y pasan kanvas check con la copia verificada. Se comprobó contenido del tablero idéntico antes y después. Se eligen para el borrador local; objetivos provisionales inferidos de títulos del tablero. Se conservan los demás campos locales. Los proyectos rd-prefilter y plm_signal_detection podrán añadirse después."
+        },
+        {
+          "at": "2026-11-04T15:03:03Z",
+          "by": "codex",
+          "text": "Question: benchmark y VCD ya pasan la comprobación de tableros. ¿Usamos /home/aserrano/ObsidianVault como vault? ¿Qué dirección de correo debe recibir los informes? No envíes contraseñas ni claves."
         }
       ]
     },
