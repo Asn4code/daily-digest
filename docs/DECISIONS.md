@@ -45,13 +45,14 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 | D-033 | 2026-11-04 | Q-03: incluir Markdown e informes generados, además de tablas y figuras; inventario inicial en PILOT_SOURCES.md | Petición expresa de la persona; patrones y columnas se concretarán en CP-03/CP-04 con procedencia, límites y deduplicación |
 | D-034 | 2026-11-04 | Q-05: incluir sesiones relevantes de Codex, OpenCode y Hermes en fase 2; no se indican otras herramientas | Aceptado por la persona; ubicaciones y formatos se verificarán antes del recolector, con extractos acotados y exclusión de secretos |
 
+| D-035 | 2026-11-04 | Q-09: acceso móvil mediante Tailscale; la persona confirma que ya lo tiene instalado en el móvil | El equipo del servicio está conectado y MagicDNS verificado; la prueba de acceso móvil a informes se hará cuando exista la webapp, sin darla por realizada ahora |
+| D-036 | 2026-11-04 | Q-10: usar el Drive personal de la persona, remoto gdrive: y carpeta DailyDigest | Confirmación expresa de la persona; carpeta preparada y acceso de lectura verificado por doctor |
+
 ## Preguntas abiertas
 
-Resolver por fase: Q-04 antes del recolector de ejecuciones; acceso móvil Q-09 antes de validar la webapp; Q-12 en CP-08 y Q-13/Q-14 en extensiones. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
+Las preguntas necesarias para la firma de fase 0 (Q-01, Q-06 y Q-07) ya tienen respuesta. Quedan Q-04 antes del recolector de ejecuciones, Q-12 en CP-08 y Q-13/Q-14 en extensiones. El acceso móvil a la futura webapp requiere una prueba posterior, aunque Tailscale ya está instalado. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
 
 - [ ] Q-04 Concretar por proyecto logs y acceso al clúster en CP-05. La persona acepta seguir lo documentado; VCD documenta SGE y Nextflow, sin confirmar aún el planificador de Benchmark ni disponibilidad de sacct. Slurm no se habilita por suposición.
-- [ ] Q-09 Equipo conectado a Tailscale y MagicDNS verificados. Falta confirmar instalación y uso desde el móvil y desde la red habitual antes de validar la webapp.
-- [ ] Q-10 Remoto gdrive:DailyDigest preparado y verificado. Falta confirmar si pertenece a la cuenta personal o del centro.
 - [ ] Q-12 PDF: WeasyPrint o Chromium sin interfaz (decidir en CP-08 según fidelidad del render).
 - [ ] Q-13 Extensiones: ¿qué tipo de brief primero (protocolo, docencia, métodos, reunión de grupo)? ¿Para qué público y en qué formato acostumbras a compartirlos?
 - [ ] Q-14 ¿Con qué herramienta generarás el contenido a partir de los briefs (Claude, un agente con una skill propia, otra)? ¿Hace falta el servidor MCP o basta con los paquetes?

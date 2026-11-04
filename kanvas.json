@@ -368,6 +368,16 @@
           "at": "2026-11-04T16:21:23Z",
           "by": "codex",
           "text": "Aceptadas Q-03 (Markdown e informes generados además de métricas/figuras) y Q-05 (sesiones relevantes de Codex, OpenCode y Hermes, sin otras herramientas indicadas). Inventario inicial acotado de fuentes en PILOT_SOURCES.md, sin ejecutar ni escribir en proyectos. Q-04 queda concretada como verificación por proyecto en CP-05: VCD documenta SGE/Nextflow; no se presupone Slurm ni planificador idéntico en Benchmark."
+        },
+        {
+          "at": "2026-11-04T16:22:32Z",
+          "by": "codex",
+          "text": "La persona confirma Tailscale instalado en el móvil (Q-09, D-035) y que gdrive es su cuenta personal (Q-10, D-036). Se mantiene la carpeta DailyDigest. Preguntas requeridas para firma de fase 0 respondidas; restantes Q-04/Q-12/Q-13/Q-14 corresponden a recolectores, PDF y extensiones. El acceso móvil a informes no se da por probado antes de existir la webapp."
+        },
+        {
+          "at": "2026-11-04T16:22:32Z",
+          "by": "codex",
+          "text": "Question: Las preguntas de la fase 0 están respondidas. Revisa docs/reviews/phase-0.md y marca personalmente las tres comprobaciones de Firma y Apruebo la fase. Después avisa para ejecutar la puerta completa y cerrar CB-07."
         }
       ]
     },
