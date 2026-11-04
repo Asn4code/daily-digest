@@ -290,6 +290,11 @@
           "at": "2026-11-04T15:28:02Z",
           "by": "codex",
           "text": "Question: Gmail rechaza la credencial con código 535. Genera una contraseña de aplicación de Google para la cuenta del piloto y vuelve a guardarla con .venv/bin/python scripts/set_smtp_password.py. No envíes el valor por el chat."
+        },
+        {
+          "at": "2026-11-04T15:33:56Z",
+          "by": "codex",
+          "text": "La persona cambia la cuenta de correo del piloto. Actualizados usuario SMTP, remitente y destinatario exclusivamente en config.yaml local, fuera de Git. La contraseña de aplicación debe corresponder a la nueva cuenta; no se ha enviado correo."
         }
       ]
     },
