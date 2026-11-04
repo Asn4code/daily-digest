@@ -210,6 +210,16 @@
           "at": "2026-11-04T13:36:45Z",
           "by": "codex",
           "text": "Question: Para verificar los servicios reales, ¿qué dos proyectos piloto (ruta y objetivo), vault de Obsidian, cuenta de correo y remoto rclone usamos? No hay config.yaml ni credenciales de proveedores disponibles en el entorno de esta sesión; las claves deben configurarse por variables de entorno o CREDENTIALS_DIRECTORY, nunca enviarse en el chat."
+        },
+        {
+          "at": "2026-11-04T14:59:21Z",
+          "by": "codex",
+          "text": "Tras reabrir con red habilitada, make check pasa dentro de esta sesión: 91 tests incluidos los SMTP locales, lint, formato y mypy. rclone está instalado y listremotes muestra gdrive:. Tailscale no está instalado. No existe config.yaml ni están disponibles QWEN_API_KEY, NAN_API_KEY, SMTP_PASSWORD o CREDENTIALS_DIRECTORY. No se han probado todavía los servicios reales."
+        },
+        {
+          "at": "2026-11-04T14:59:21Z",
+          "by": "codex",
+          "text": "Question: ¿Qué dos proyectos piloto (ruta y objetivo), vault de Obsidian y cuenta de correo usamos? Está disponible el remoto gdrive:. Las claves deben configurarse por entorno o CREDENTIALS_DIRECTORY, no enviarse en el chat."
         }
       ]
     },
