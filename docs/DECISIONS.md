@@ -32,21 +32,22 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 | D-024 | 2026-11-04 | Elección inicial delegada por la persona: Qwen/Qwen3.8-27B interno para extracción, deepseek-v4-flash de NaN para síntesis, plan, semanal y contraste, con respaldo mutuo; modelos y routing editables en YAML, interfaz prevista en WA-06 | El Qwen coincide con OpenCode; NaN recomienda DeepSeek para razonamiento general. Es una selección provisional, no una comparación empírica; capacidades, credenciales y conectividad pendientes de CB-06 |
 | D-025 | 2026-11-04 | Fixtures en directorios temporales nuevos, Kanvas vendorizado del commit fijado y aiosmtpd como dependencia de desarrollo | Construcción reproducible sin modificar proyectos reales; aiosmtpd implementa el doble SMTP exigido en TESTING.md, incluida la desconexión tras DATA |
 
+| D-026 | 2026-11-04 | Q-06: Qwen interno Qwen/Qwen3.8-27B, URL en configuración privada, contexto anunciado 262144 en /models y salida JSON Schema probada | Verificado contra el servicio; límites de concurrencia y cuotas no anunciados, sin prueba de saturación. No se inventan límites operativos |
+| D-027 | 2026-11-04 | Q-07: NaN en https://api.nan.builders/v1 con deepseek-v4-flash para síntesis, plan, semanal y contraste; catálogo y salida JSON Schema probados | Selección delegada por la persona en D-024; contexto 1M documentado por NaN. Cuotas y concurrencia dependen del proveedor y la cuenta, sin prueba de saturación |
+| D-028 | 2026-11-04 | Q-08: Gmail por SMTP con contraseña de aplicación; cuenta del piloto en configuración privada | Elegido y configurado durante la conversación; autenticación y NOOP verificados sin enviar correo |
+| D-029 | 2026-11-04 | Q-11: contraste inicialmente con NaN y respaldo interno, editable por configuración; comparar su utilidad durante el piloto | Elección inicial delegada por la persona y registrada en D-024; no implica que la calidad del contraste ya esté evaluada |
+
 ## Preguntas abiertas
 
-Responder antes o durante la fase 0. Al resolver una, moverla a la tabla de arriba como decisión.
+Resolver por fase: Q-01 y Q-02 ahora; Q-03 a Q-05 antes de sus recolectores; acceso móvil Q-09 antes de validar la webapp; Q-12 en CP-08 y Q-13/Q-14 en extensiones. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
 
 - [ ] Q-01 Confirmación humana de los objetivos provisionales de benchmark y VCD en config.yaml. Las rutas de ambos proyectos y la nueva vault ya están elegidas y verificadas.
 - [ ] Q-02 Horas: diario a las 20:00 y semanal el sábado a las 10:00 (`Europe/Madrid`), ¿encajan? ¿El equipo está encendido a esas horas?
 - [ ] Q-03 Métricas y archivos de resultados importantes en cada proyecto (RMSD, pLDDT, puntuaciones…), con sus rutas y columnas.
 - [ ] Q-04 ¿Trabajo en clúster? ¿Slurm accesible desde el equipo (`sacct`)? ¿Snakemake, Nextflow o scripts propios?
 - [ ] Q-05 Sesiones de agentes: ¿qué herramientas usas y dónde guardan sus transcripciones? ¿Incluirlas?
-- [ ] Q-06 Revisión humana del contrato Qwen interno: URL en configuración privada; Qwen/Qwen3.8-27B, contexto anunciado 262144 por /models, JSON Schema verificado. La concurrencia y los límites de uso no están anunciados ni medidos.
-- [ ] Q-07 Revisión humana del contrato NaN: https://api.nan.builders/v1, deepseek-v4-flash seleccionado para síntesis, plan, semanal y contraste; catálogo y JSON Schema verificados. Contexto 1M según documentación enlazada abajo; cuotas y concurrencia según cuenta/proveedor, sin prueba de saturación.
-- [ ] Q-08 Correo: Gmail por SMTP con contraseña de aplicación o Gmail API.
-- [ ] Q-09 Tailscale en el móvil y en la red del centro; si no es posible, túnel publicado con inicio de sesión.
-- [ ] Q-10 Drive: cuenta personal o del centro; nombre de la carpeta raíz (propuesta: `DailyDigest`).
-- [ ] Q-11 ¿Contraste de explicaciones con NaN o con Qwen3.6? (se compara en el piloto).
+- [ ] Q-09 Equipo conectado a Tailscale y MagicDNS verificados. Falta confirmar instalación y uso desde el móvil y desde la red habitual antes de validar la webapp.
+- [ ] Q-10 Remoto gdrive:DailyDigest preparado y verificado. Falta confirmar si pertenece a la cuenta personal o del centro.
 - [ ] Q-12 PDF: WeasyPrint o Chromium sin interfaz (decidir en CP-08 según fidelidad del render).
 - [ ] Q-13 Extensiones: ¿qué tipo de brief primero (protocolo, docencia, métodos, reunión de grupo)? ¿Para qué público y en qué formato acostumbras a compartirlos?
 - [ ] Q-14 ¿Con qué herramienta generarás el contenido a partir de los briefs (Claude, un agente con una skill propia, otra)? ¿Hace falta el servidor MCP o basta con los paquetes?

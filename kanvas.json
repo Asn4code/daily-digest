@@ -348,6 +348,11 @@
           "at": "2026-11-04T15:44:33Z",
           "by": "codex",
           "text": "Question: La revisión independiente está aprobada y la puerta automática pasa. Revisa docs/reviews/phase-0.md y marca personalmente las comprobaciones de Firma, incluida la revisión de Q-01/Q-06/Q-07 en DECISIONS.md y Apruebo la fase. Avísame para ejecutar la puerta completa y cerrar CB-07. No se iniciará fase 1 hasta esa firma."
+        },
+        {
+          "at": "2026-11-04T15:55:21Z",
+          "by": "codex",
+          "text": "La persona pide resolver las preguntas abiertas. Movidas Q-06/Q-07 a contratos comprobados (D-026/D-027), Q-08 a SMTP elegido y verificado (D-028), y Q-11 a la selección inicial ya delegada (D-029). Se mantienen explícitos límites desconocidos y calidad de contraste pendiente del piloto. Se separan preguntas actuales de las correspondientes a fases posteriores. No se marca la firma humana."
         }
       ]
     },
