@@ -220,6 +220,21 @@
           "at": "2026-11-04T14:59:21Z",
           "by": "codex",
           "text": "Question: ¿Qué dos proyectos piloto (ruta y objetivo), vault de Obsidian y cuenta de correo usamos? Está disponible el remoto gdrive:. Las claves deben configurarse por entorno o CREDENTIALS_DIRECTORY, no enviarse en el chat."
+        },
+        {
+          "at": "2026-11-04T15:00:02Z",
+          "by": "codex",
+          "text": "La persona propone /bioit/aserrano/rd-prefilter y plm_signal_detection como proyectos piloto. Se verifican sus rutas y tableros en modo de solo lectura; quedan por confirmar objetivos, vault y correo."
+        },
+        {
+          "at": "2026-11-04T15:01:10Z",
+          "by": "codex",
+          "text": "Confirmadas por la persona y existentes las rutas /bioit/aserrano/rd-prefilter y /bioit/aserrano/plm_signal_detection. Preparado config.yaml local, ignorado por Git, sin claves. Objetivo PLM derivado del README; objetivo RD Prefilter pendiente. No hay kanvas.json en las raíces y no se han escrito archivos en los proyectos. No se activan Slurm ni métricas de ejemplo sin verificarlas. Faltan vault, correo y configuración efectiva de servicios."
+        },
+        {
+          "at": "2026-11-04T15:01:10Z",
+          "by": "codex",
+          "text": "Question: ¿Cuál es el objetivo de rd-prefilter, la ruta de tu vault de Obsidian y la cuenta de correo? ¿Los tableros Kanvas están en otra ubicación? No hay kanvas.json en las dos raíces indicadas."
         }
       ]
     },
