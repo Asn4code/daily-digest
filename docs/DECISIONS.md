@@ -48,14 +48,15 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 | D-035 | 2026-11-04 | Q-09: acceso móvil mediante Tailscale; la persona confirma que ya lo tiene instalado en el móvil | El equipo del servicio está conectado y MagicDNS verificado; la prueba de acceso móvil a informes se hará cuando exista la webapp, sin darla por realizada ahora |
 | D-036 | 2026-11-04 | Q-10: usar el Drive personal de la persona, remoto gdrive: y carpeta DailyDigest | Confirmación expresa de la persona; carpeta preparada y acceso de lectura verificado por doctor |
 
+| D-037 | 2026-11-04 | Q-14: usar Qwen y los modelos de NaN por defecto para generar contenido externamente desde los briefs; permitir solicitar generación o reelaboración con Claude o Codex | Preferencia expresa de la persona. Proveedor/modelo y herramienta son elecciones separadas; daily-digest prepara el contexto y la generación permanece fuera del núcleo. Rehacer conserva el original y el texto humano |
+
 ## Preguntas abiertas
 
-Las preguntas necesarias para la firma de fase 0 (Q-01, Q-06 y Q-07) ya tienen respuesta. Quedan Q-04 antes del recolector de ejecuciones, Q-12 en CP-08 y Q-13/Q-14 en extensiones. El acceso móvil a la futura webapp requiere una prueba posterior, aunque Tailscale ya está instalado. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
+Las preguntas necesarias para la firma de fase 0 (Q-01, Q-06 y Q-07) ya tienen respuesta. Quedan Q-04 antes del recolector de ejecuciones, Q-12 en CP-08 y Q-13 en extensiones. El acceso móvil a la futura webapp requiere una prueba posterior, aunque Tailscale ya está instalado. Al resolver una, moverla a la tabla de arriba como decisión. Q-06/Q-07 se resuelven con los contratos comprobados, manteniendo explícitos los límites desconocidos.
 
 - [ ] Q-04 Concretar por proyecto logs y acceso al clúster en CP-05. La persona acepta seguir lo documentado; VCD documenta SGE y Nextflow, sin confirmar aún el planificador de Benchmark ni disponibilidad de sacct. Slurm no se habilita por suposición.
 - [ ] Q-12 PDF: WeasyPrint o Chromium sin interfaz (decidir en CP-08 según fidelidad del render).
 - [ ] Q-13 Extensiones: ¿qué tipo de brief primero (protocolo, docencia, métodos, reunión de grupo)? ¿Para qué público y en qué formato acostumbras a compartirlos?
-- [ ] Q-14 ¿Con qué herramienta generarás el contenido a partir de los briefs (Claude, un agente con una skill propia, otra)? ¿Hace falta el servidor MCP o basta con los paquetes?
 
 ## Hallazgos de verificación
 

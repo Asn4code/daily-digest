@@ -383,6 +383,11 @@
           "at": "2026-11-04T16:30:31Z",
           "by": "codex",
           "text": "Revisor independiente actualiza phase-0.md tras la resolución de las preguntas: hallazgo menor documental marcado resuelto, contratos enlazados a decisiones y límites anunciados diferenciados de pruebas de saturación. Artefacto completo actual descrito como suspendido solo por firma; estado automático histórico provisional aclarado. Casillas humanas intactas."
+        },
+        {
+          "at": "2026-11-04T16:52:10Z",
+          "by": "codex",
+          "text": "La persona concreta Q-14: Qwen y NaN como modelos por defecto para contenido externo desde briefs, con opción de solicitar generación/reelaboración con Claude o Codex. Registrado D-037 y EXTENSIONS.md, manteniendo generación fuera del núcleo y versiones previas. Q-04/Q-12/Q-13 siguen pendientes de aceptar las propuestas; esta respuesta concreta solo Q-14."
         }
       ]
     },

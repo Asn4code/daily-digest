@@ -144,6 +144,15 @@ Las oportunidades se proponen en el informe semanal (sección «Oportunidades»,
 | Agente de código (Claude Code, Codex…) | Leer la carpeta del brief; una skill propia puede fijar el formato de salida del grupo |
 | Servidor MCP de solo lectura (fase 6) | El asistente consulta directamente el registro: `search_results`, `get_result`, `get_evidence`, `list_reviews`, `list_opportunities`, `get_brief`. Sin herramientas de escritura |
 
+Preferencia de generación externa (Q-14, D-037): Qwen y los modelos de NaN
+son las opciones por defecto, con elección según la tarea. La persona puede pedir
+que Claude o Codex generen o rehagan el contenido a partir del mismo brief.
+Proveedor/modelo y herramienta son decisiones distintas: el paquete no queda
+ligado a un único asistente. Rehacer produce una versión nueva y conserva el
+original y las aportaciones humanas. Esta preferencia orienta el flujo externo;
+no habilita llamadas de generación de contenido dentro del núcleo ni de las
+extensiones.
+
 El contenido generado vuelve como un archivo normal (Drive, Obsidian o el repositorio que elijas); daily-digest no lo almacena ni lo revisa. Si quieres que quede constancia, enlázalo en la nota de la oportunidad (`brief_used` → URL).
 
 ## 7. Añadir una extensión nueva
