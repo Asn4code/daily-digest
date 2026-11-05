@@ -326,7 +326,7 @@
     {
       "id": "CB-07",
       "title": "Puerta de fase 0",
-      "state": "doing",
+      "state": "review",
       "group": "CB",
       "deps": ["CB-01", "CB-02", "CB-03", "CB-04", "CB-05", "CB-06"],
       "yolo": true,
@@ -408,6 +408,16 @@
           "at": "2026-11-04T16:57:31Z",
           "by": "codex",
           "text": "Question: Ejecuta en tu terminal sudo install -d -m 755 /etc/daily-digest y sudo install -m 600 -o aserrano -g aserrano config.yaml /etc/daily-digest/config.yaml desde este repositorio. Avísame para repetir --host y completar el cierre. La firma está confirmada; no tienes que volver a firmar."
+        },
+        {
+          "at": "2026-11-05T08:38:50Z",
+          "by": "codex",
+          "text": "La persona instaló la configuración privada en /etc/daily-digest/config.yaml. La puerta completa con --host retorna APROBADA (0); pasan doctor-host, revisión y firma. Informe conservado en docs/reviews/phase-0-gate.md y enlazado desde la ficha."
+        },
+        {
+          "at": "2026-11-05T08:38:50Z",
+          "by": "codex",
+          "text": "Fase 0 validada: configuración estricta, SQLite, lectura y procesos seguros, fixtures reproducibles y doctor real contra ambos proyectos y servicios.\nVerificación: scripts/phase_gate.py 0 --host APROBADA (0), con revisión independiente aprobada y firma humana. Último make check completo: 93 tests, lint, formato y mypy pasan.\nEvidencia permanente en docs/reviews/phase-0.md y docs/reviews/phase-0-gate.md. No se ha enviado correo ni modificado proyectos observados.\nLa persona puede aceptar esta tarea en Kanvas. La fase 1 requiere aprobar su cadena de tareas; no se ha iniciado."
         }
       ]
     },

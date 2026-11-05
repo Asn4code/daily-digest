@@ -17,6 +17,22 @@ Informe actual: [comprobación completa](../../build/gates/phase-0.md), resultad
 Validación de servicios reales completada mediante `digest --config config.yaml doctor` con CREDENTIALS_DIRECTORY; retorno 0. Configuración privada excluida de Git.
 Las ejecuciones de revisión con `python scripts/phase_gate.py 0 --no-manual` devolvieron **PROVISIONAL** (3); ese resultado histórico corresponde al modo que omite revisión y firma, y no al artefacto completo enlazado actualmente.
 
+## Cierre de la puerta
+
+Tras la firma de la persona y la instalación de la configuración privada en
+`/etc/daily-digest/config.yaml`, la puerta completa con `--host` devuelve
+**APROBADA (0)**. Pasan también `doctor-host`, revisión independiente y firma.
+Informe conservado en [phase-0-gate.md](phase-0-gate.md).
+
+Comando de comprobación:
+
+```bash
+CREDENTIALS_DIRECTORY="$HOME/.config/daily-digest/credentials" \
+  PATH="$PWD/.venv/bin:$PATH" .venv/bin/python scripts/phase_gate.py 0 --host
+```
+
+Los estados anteriores se conservan como historia de la revisión.
+
 ## Hallazgos
 
 - [x] **bloqueante resuelto — fuga de claves dinámicas en errores de configuración.** `src/digest/config.py:254`: añadir a `llm.providers` la entrada `FAKE_SECRET_MAPPING_KEY: {timeout_s: bad}` y ejecutar doctor imprimía el nombre arbitrario en cada error de validación, vulnerando la redacción de secretos. El constructor corrigió la ubicación en `src/digest/config.py:257` (commit `4ff2e61`); regresión de carga directa y CLI en `tests/unit/test_config.py:107`. La prueba independiente `test_dynamic_mapping_key_is_redacted` falló antes y pasa después. No quedan bloqueantes abiertos.
