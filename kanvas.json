@@ -658,12 +658,24 @@
     {
       "id": "IN-02",
       "title": "Esquemas, prompts y validador",
-      "state": "todo",
+      "state": "done",
       "group": "IN",
       "deps": ["IN-01", "CP-06"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Esquemas pydantic de LLM.md §4, prompts versionados (extract, conceptual, plan, weekly, contrast) y validador de §5 con un reintento de reparación.\n\nTerminado cuando: pasan T12, T13 y T17; ninguna afirmación con ID o cifra inventada llega al informe."
+      "desc": "Esquemas pydantic de LLM.md §4, prompts versionados (extract, conceptual, plan, weekly, contrast) y validador de §5 con un reintento de reparación.\n\nTerminado cuando: pasan T12, T13 y T17; ninguna afirmación con ID o cifra inventada llega al informe.",
+      "notes": [
+        {
+          "at": "2026-11-05T13:09:14Z",
+          "by": "codex",
+          "text": "Plan: esquemas estrictos para salidas LLM, prompts versionados con datos delimitados y validación de IDs, cifras/unidades, límites y tareas de Kanvas. Rechazar salidas inventadas antes de publicar y probar reparación/respaldo."
+        },
+        {
+          "at": "2026-11-05T13:13:37Z",
+          "by": "codex",
+          "text": "Las salidas LLM tienen esquemas estrictos y prompts versionados con evidencias escapadas como datos. El validador rechaza IDs ajenos al paquete, cifras o unidades no respaldadas, HTML, excesos y misiones Kanvas no disponibles. La reparación recibe un código de error seguro. make check: 144 tests pasan, incluidos T12/T13/T17 y casos de unidades y HTML. La comprobación automática no sustituye revisar la interpretación científica."
+        }
+      ]
     },
     {
       "id": "IN-03",

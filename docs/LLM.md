@@ -148,3 +148,25 @@ síntesis de varios proyectos. Una salida inválida admite una reparación por
 proveedor; agotados los candidatos devuelve `None` para usar la sección mecánica.
 Cada intento HTTP registra metadatos en `llm_call`, sin mensajes, cuerpos ni claves.
 La integración de estas llamadas en los informes corresponde a IN-03/IN-05.
+
+## 8. Validación implementada (IN-02)
+
+Los esquemas rechazan campos desconocidos, HTML, valores no finitos y textos o
+listas que exceden sus límites. Los planes y el motivo del candidato de revisión
+incluyen `evidence` para conservar sus referencias, además de los campos de §4.
+El resumen se valida contra el paquete acotado del resultado; las afirmaciones
+individuales se validan contra sus propios IDs citados.
+
+Las cifras se contrastan con los estadísticos calculados o con números literales
+del extracto citado. Una unidad declarada debe aparecer junto al mismo valor;
+no se aceptan conversiones implícitas. Los números dentro de afirmaciones también
+se comprueban, con unidades científicas habituales cuando aparecen. Las acciones,
+criterios y dependencias del plan pueden proponer tiempos futuros: no se presentan
+como mediciones observadas. La comprobación es determinista de referencias y
+cifras; no demuestra por sí sola que la interpretación científica sea correcta.
+
+Los prompts versionados escapan los datos antes de delimitarlos y declaran las
+instrucciones de proyectos como datos. La reparación recibe un código de error
+sin repetir salidas, excepciones ni cuerpos HTTP. Una tarea `done`, `review` o
+bloqueada no se acepta como misión de Kanvas. La pertenencia y los bloqueos se
+obtienen de la captura por el constructor del paquete, no de la respuesta LLM.

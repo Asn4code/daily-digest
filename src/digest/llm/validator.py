@@ -1,6 +1,14 @@
-"""Mandatory evidence-reference validation before mechanical publication."""
+"""Mandatory reference, numeric and plan validation before publication."""
 
-from digest.report.model import Report
+import math
+import re
+from dataclasses import dataclass, field
+from typing import Any
+
+from pydantic import BaseModel
+
+from digest.llm import schemas
+from digest.report.model import EvidenceEntry, Report
 
 
 class ValidationError(ValueError):
@@ -20,3 +28,157 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
     for claim in report.open_threads:
         if not claim.evidence or not set(claim.evidence) <= ids:
             raise ValidationError("Claim has missing or unknown evidence")
+
+
+# LLM output checks are independent of rendering and run again at publication.
+TOKEN = re.compile(r"(?<![\w.])[-+]?(?:\d+(?:[.,]\d+)?|\.\d+)(?:[eE][-+]?\d+)?(?!\w)")
+UNIT = re.compile(
+    r"^\s*(Å|angstrom|nm|pm|μm|µm|um|mm|cm|ns|ps|fs|ms|µs|μs|kcal/mol|kJ/mol|kDa|Da|GB|MB|°C|%|K|s|h|m)(?!\w)"
+)
+
+
+@dataclass
+class EvidencePackage:
+    evidence: dict[str, EvidenceEntry]
+    project_ids: set[str]
+    result_ids: set[str] = field(default_factory=set)
+    task_states: dict[str, str] = field(default_factory=dict)
+    completed_reviews: set[str] = field(default_factory=set)
+    pending_reviews: set[str] = field(default_factory=set)
+
+
+def _numeric_values(value: Any) -> list[float]:
+    if isinstance(value, dict):
+        return [n for v in value.values() for n in _numeric_values(v)]
+    if isinstance(value, list):
+        return [n for v in value for n in _numeric_values(v)]
+    if type(value) in {int, float} and math.isfinite(value):
+        return [float(value)]
+    return []
+
+
+def _present(number: float, unit: str | None, entries: list[EvidenceEntry]) -> bool:
+    if not math.isfinite(number):
+        return False
+    for entry in entries:
+        if unit is None and entry.kind == "metric":
+            if any(
+                math.isclose(number, n, rel_tol=1e-6, abs_tol=0)
+                for n in _numeric_values(entry.meta.get("stats", {}))
+            ):
+                return True
+        excerpt = entry.excerpt.replace("−", "-")
+        for match in TOKEN.finditer(excerpt):
+            value = float(match.group().replace(",", "."))
+            if not math.isclose(number, value, rel_tol=1e-6, abs_tol=0):
+                continue
+            if unit is None:
+                return True
+            tail = excerpt[match.end() :].lstrip()
+            if tail.startswith(unit) and (len(tail) == len(unit) or not tail[len(unit)].isalnum()):
+                return True
+    return False
+
+
+def validate(output: BaseModel, package: EvidencePackage) -> None:
+    """Reject unknown references, unsupported numbers, units, HTML and invalid plans."""
+    allowed = set(package.evidence)
+
+    def entries(refs: list[str]) -> list[EvidenceEntry]:
+        if not refs or not set(refs) <= allowed:
+            raise ValidationError("unknown_evidence")
+        return [package.evidence[ident] for ident in refs]
+
+    def text(value: str, refs: list[str], *, measurements: bool = True) -> None:
+        if re.search(r"<\s*/?\s*[A-Za-z!]", value):
+            raise ValidationError("html_forbidden")
+        if not measurements:
+            return
+        # IDs may contain digits; do not mistake those references for measurements.
+        cleaned = value.replace("−", "-")
+        for ident in sorted(
+            allowed | package.result_ids | set(package.task_states), key=len, reverse=True
+        ):
+            cleaned = cleaned.replace(ident, "")
+        for match in TOKEN.finditer(cleaned):
+            unit = UNIT.match(cleaned[match.end() :])
+            if not _present(
+                float(match.group().replace(",", ".")),
+                unit.group(1) if unit else None,
+                entries(refs),
+            ):
+                raise ValidationError("unsupported_number")
+
+    def visit(value: Any, inherited: list[str]) -> None:
+        if isinstance(value, dict):
+            refs = inherited
+            if "evidence" in value:
+                ref = value["evidence"]
+                refs = ref if isinstance(ref, list) else [ref]
+                entries(refs)
+            if "value" in value and "unit" in value and "evidence" in value:
+                if not _present(value["value"], value["unit"], entries(refs)):
+                    raise ValidationError("unsupported_number_or_unit")
+            for key, item in value.items():
+                if key in {
+                    "evidence",
+                    "value",
+                    "unit",
+                    "result_id",
+                    "project_id",
+                    "kanvas_task_id",
+                    "key_figures",
+                    "completed",
+                    "pending",
+                }:
+                    continue
+                if key in {"action", "done_criterion", "dependency"} and isinstance(item, str):
+                    text(item, refs, measurements=False)
+                else:
+                    visit(item, refs)
+        elif isinstance(value, list):
+            for item in value:
+                visit(item, inherited)
+        elif isinstance(value, str):
+            text(value, inherited)
+
+    data = output.model_dump()
+    visit(data, list(allowed))
+    if isinstance(output, schemas.ResultExtraction) and output.result_id not in package.result_ids:
+        raise ValidationError("unknown_result")
+    if isinstance(output, schemas.DailySynthesis):
+        if any(p.project_id not in package.project_ids for p in output.projects):
+            raise ValidationError("unknown_project")
+        if output.review_candidate and output.review_candidate.result_id not in package.result_ids:
+            raise ValidationError("unknown_review_candidate")
+    if isinstance(output, schemas.TomorrowPlan):
+        if output.mission.kind != "mission" or any(w.kind != "warmup" for w in output.warmups):
+            raise ValidationError("invalid_plan_kind")
+        plan = [output.mission, *output.warmups]
+    elif isinstance(output, schemas.WeeklyReport):
+        if any(p.project_id not in package.project_ids for p in output.projects):
+            raise ValidationError("unknown_project")
+        figures = {eid for eid, e in package.evidence.items() if e.kind == "figure"}
+        picked = set(output.key_figures)
+        if (
+            len(picked) != len(output.key_figures)
+            or not picked <= figures
+            or len(picked) < min(4, len(figures))
+        ):
+            raise ValidationError("invalid_key_figures")
+        if (
+            set(output.review_status.completed) != package.completed_reviews
+            or set(output.review_status.pending) != package.pending_reviews
+        ):
+            raise ValidationError("invalid_review_summary")
+        plan = output.next_week
+    else:
+        plan = []
+    for item in plan:
+        if item.origin == "kanvas":
+            if item.kanvas_task_id not in package.task_states:
+                raise ValidationError("unknown_kanvas_task")
+            if package.task_states[item.kanvas_task_id] in {"done", "review", "blocked"}:
+                raise ValidationError("unavailable_kanvas_task")
+        elif item.kanvas_task_id is not None:
+            raise ValidationError("unexpected_kanvas_task")

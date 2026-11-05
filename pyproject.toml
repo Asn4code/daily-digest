@@ -20,7 +20,7 @@ digest = "digest.cli:app"
 where = ["src"]
 
 [tool.setuptools.package-data]
-digest = ["py.typed", "db/migrations/*.sql", "report/templates/*.html"]
+digest = ["py.typed", "db/migrations/*.sql", "report/templates/*.html", "llm/prompts/*.md"]
 
 [tool.ruff]
 target-version = "py311"

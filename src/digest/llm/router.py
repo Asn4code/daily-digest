@@ -10,6 +10,7 @@ from typing import Any, Literal
 from digest.collectors.base import utc
 from digest.config import Config
 from digest.llm.client import Client, ClientError, Completion
+from digest.llm.validator import ValidationError
 
 Task = Literal["extract", "conceptual", "plan", "weekly", "contrast"]
 
@@ -105,17 +106,27 @@ class Router:
                     )
                     try:
                         value = validate(result.value)
-                    except ValueError:
+                    except ValueError as invalid:
+                        issue = (
+                            str(invalid)
+                            if isinstance(invalid, ValidationError)
+                            else "schema_invalid"
+                        )
                         if log_ids:
                             self.db.execute(
                                 "UPDATE llm_call SET ok=0,error='output_invalid' WHERE id=?",
                                 (log_ids[-1],),
                             )
-                        raise ClientError("output_invalid") from None
+                        raise ClientError("output_invalid:" + issue) from None
                     return Routed(value, name, provider.model, prompt_name, prompt_version)
                 except ClientError as error:
-                    if str(error) not in {"invalid_json", "response_invalid", "output_invalid"}:
+                    if str(error) not in {"invalid_json", "response_invalid"} and not str(
+                        error
+                    ).startswith("output_invalid:"):
                         break
+                    issue = str(error).split(":", 1)[-1]
+                    if not issue.isidentifier() or len(issue) > 80:
+                        issue = "schema_invalid"
                     if repair == 0:
                         # Do not echo untrusted output, exceptions or secret-bearing bodies.
                         conversation += [
@@ -123,7 +134,9 @@ class Router:
                                 "role": "user",
                                 "content": (
                                     "Repara solo la salida: devuelve JSON que cumpla el esquema. "
-                                    "Usa referencias y cifras de las evidencias originales."
+                                    "Usa referencias y cifras de las evidencias originales. "
+                                    + "Error de validación: "
+                                    + issue
                                 ),
                             }
                         ]
