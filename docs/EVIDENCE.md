@@ -231,5 +231,19 @@ La exploración, bytes y texto están acotados; archivos grandes se omiten.
 Ubicaciones verificadas localmente (solo metadatos): Codex en
 `~/.codex/sessions/AAAA/MM/DD/*.jsonl`; OpenCode en
 `~/.local/share/opencode/opencode.db` y Hermes en `~/.hermes/state.db`.
-Las dos últimas son SQLite de gran tamaño, no directorios JSONL. Su adaptación
-está consultada con la persona antes de implementar lectores distintos del diseño.
+Las dos últimas son SQLite de gran tamaño, no directorios JSONL. La persona autorizó expresamente sus lectores acotados (D-045).
+`agent_sessions` admite esas rutas de archivo además de directorios JSONL.
+
+SQLite se abre con `mode=ro&immutable=1`, sin crear journals, WAL o SHM. Se consulta
+la raíz del proyecto y sus subdirectorios, verificando también su ruta resuelta.
+OpenCode selecciona como máximo las 20 sesiones más recientes del proyecto; cada
+lector admite hasta 200 filas, 500 000 pasos de SQLite y el presupuesto de texto.
+La consulta no selecciona prompts de sistema ni configuración de modelos.
+
+La base declarada puede ocupar hasta 2 GB, sin copiarla ni enviarla al modelo;
+es una excepción aprobada al límite de tamaño de archivos textuales. Los bytes
+por celda, caché y trabajo de consulta siguen acotados. Una base que cambia durante
+la lectura se descarta. Si existe un WAL no vacío, se marca `sqlite_wal_not_read`:
+la conexión inmutable no lo consume y no se afirma que incluya sus cambios recientes.
+Los límites de filas, sesiones y texto también quedan en cobertura.
+

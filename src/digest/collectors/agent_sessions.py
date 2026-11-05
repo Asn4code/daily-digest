@@ -1,7 +1,6 @@
 """Read explicitly configured Codex JSONL sessions, excluding tools and secrets."""
 
 import json
-import re
 from datetime import datetime
 from pathlib import Path
 
@@ -15,22 +14,10 @@ from digest.collectors.base import (
 )
 from digest.collectors.files import discover
 from digest.collectors.kanvas import event_time
+from digest.collectors.session_sqlite import collect as collect_sqlite
 from digest.config import ProjectConfig
 from digest.util.fs import ReadError, read_bounded
-
-
-def redact(text: str, secret_values: tuple[str, ...] = ()) -> str:
-    for value in sorted(secret_values, key=len, reverse=True):
-        if value:
-            text = text.replace(value, "[redactado]")
-    text = re.sub(
-        r'(?i)([\w.-]*(?:api[_-]?key|password|secret|token)[\w.-]*["\x27]?\s*[=:]\s*)'
-        r'(?:"[^"\n]*"|\x27[^\x27\n]*\x27|[^\s,;]+)',
-        r"\1[redactado]",
-        text,
-    )
-    text = re.sub(r"(?i)Bearer\s+[A-Za-z0-9_.~+/-]+=*", "Bearer [redactado]", text)
-    return re.sub(r"\b(?:sk-|ghp_|github_pat_)[A-Za-z0-9_-]{12,}", "[redactado]", text)
+from digest.util.redact import redact
 
 
 class AgentSessionsCollector:
@@ -53,6 +40,12 @@ class AgentSessionsCollector:
                     omitted.append(Omission(configured, "outside_root"))
                     continue
             root = root.resolve()
+            if root.is_file():
+                result = collect_sqlite(root, project, ctx, seen)
+                evidence.extend(result.evidence)
+                omitted.extend(result.omitted)
+                identities.update((result.snapshot_payload or {}).get("seen", []))
+                continue
             if not root.is_dir():
                 omitted.append(Omission(configured, "session_directory_missing"))
                 continue
@@ -61,7 +54,7 @@ class AgentSessionsCollector:
                 project.model_copy(update={"root": str(root)}), ctx, ["**/*.jsonl"]
             )
             omitted.extend(scan_errors)
-            for relative in paths:
+            for relative in reversed(paths):
                 name = root / relative
                 count += 1
                 if count > 1000:

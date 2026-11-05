@@ -62,6 +62,8 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-044 | 2026-11-05 | IN-04 incorpora nbformat, ya previsto en el stack, para leer celdas y salidas almacenadas sin ejecución | Se omiten HTML, JavaScript, widgets y salidas binarias; lectura, celdas y texto acotados. PDB/mmCIF se leen como metadatos, sin dependencia científica ejecutable. |
 
+| D-045 | 2026-11-05 | La persona autoriza lectores SQLite acotados para OpenCode y Hermes, filtrados por proyecto | Conexión immutable de solo lectura, consultas fijas, máximo 200 filas y 500 000 pasos, texto acotado y sin copiar las bases. Se admite un archivo SQLite declarado de hasta 2 GB como excepción al tamaño de archivo textual; no se envía la base al modelo. WAL pendiente y cambios durante lectura se muestran como cobertura incompleta. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

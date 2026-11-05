@@ -702,7 +702,7 @@
     {
       "id": "IN-04",
       "title": "Recolectores de notebooks, estructuras y sesiones de agentes",
-      "state": "todo",
+      "state": "done",
       "group": "IN",
       "deps": ["CP-06", "CP-09"],
       "at": "2026-11-04T11:20:37Z",
@@ -728,6 +728,16 @@
           "at": "2026-11-05T13:27:07Z",
           "by": "codex",
           "text": "La persona autoriza expresamente incluir lectores SQLite acotados para OpenCode y Hermes. Se conservará solo lectura, filtro por proyecto y límites de consulta/texto; no se copiarán las bases completas. Retomo esta parte al cerrar IN-05, actualmente en curso."
+        },
+        {
+          "at": "2026-11-05T13:30:04Z",
+          "by": "codex",
+          "text": "Plan: completar la adaptación SQLite expresamente autorizada: conexión immutable de solo lectura, consultas fijas filtradas por proyecto, límites de filas/pasos/texto, redacción de secretos y cobertura explícita si hay WAL pendiente o límites. Probar OpenCode/Hermes con bases sintéticas y comprobar que no cambian."
+        },
+        {
+          "at": "2026-11-05T13:37:54Z",
+          "by": "codex",
+          "text": "El registro incorpora notebooks sin ejecutar, metadatos PDB/mmCIF y sesiones de Codex, OpenCode y Hermes configuradas por proyecto. La persona autorizó SQLite acotado: lectura immutable, límites de consulta y texto, filtro por raíz/subdirectorios y redacción de secretos. Las bases originales y sus sidecars quedan intactos; WAL pendiente y límites se muestran como cobertura parcial. make check: 152 tests pasan, incluyendo T11, aislamiento entre proyectos, credenciales y WAL. Configuración piloto validada offline; ubicaciones reales confirmadas. La puerta automática pasa archivos, reglas, comandos y escenarios; solo esperaba el cierre de esta tarea."
         }
       ]
     },

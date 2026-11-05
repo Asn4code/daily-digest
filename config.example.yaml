@@ -31,7 +31,7 @@ projects:
     runs:
       slurm: { enabled: true, user: USER }
       logs: ["logs/**/*.log", ".snakemake/log/*.log", ".nextflow.log"]
-    agent_sessions: []          # fase 2, ver EVIDENCE.md
+    agent_sessions: []          # directorios Codex JSONL o archivos SQLite OpenCode/Hermes; EVIDENCE.md
 
 limits:
   max_file_bytes: 2000000

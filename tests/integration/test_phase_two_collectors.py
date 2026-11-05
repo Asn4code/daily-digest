@@ -143,3 +143,109 @@ def test_codex_sessions_require_exact_project_and_redact_credentials(tmp_path: P
     assert output.evidence[0].event_at is not None
     ctx.previous_payload = output.snapshot_payload
     assert not AgentSessionsCollector().collect(project, None, ctx).evidence
+
+
+def test_sqlite_agent_readers_are_scoped_redacted_and_do_not_change_databases(
+    tmp_path: Path,
+) -> None:
+    import sqlite3
+
+    root = tmp_path / "project"
+    root.mkdir()
+    histories = tmp_path / "histories"
+    histories.mkdir()
+    paths = []
+    for agent in ["opencode", "hermes"]:
+        path = histories / (agent + ".db")
+        paths.append(str(path))
+        with sqlite3.connect(path) as db:
+            if agent == "opencode":
+                db.executescript(
+                    "CREATE TABLE session(id TEXT,directory TEXT,time_updated INTEGER);"
+                    "CREATE TABLE message(id TEXT,session_id TEXT,data TEXT);"
+                    "CREATE TABLE part(id TEXT,message_id TEXT,session_id TEXT,"
+                    "time_created INTEGER,data TEXT);"
+                )
+                for ident, cwd in [("valid", str(root)), ("other", str(tmp_path / "other"))]:
+                    db.execute("INSERT INTO session VALUES (?,?,?)", (ident, cwd, 1793872800000))
+                    db.execute(
+                        "INSERT INTO message VALUES (?,?,?)",
+                        (ident, ident, json.dumps({"role": "assistant"})),
+                    )
+                    db.execute(
+                        "INSERT INTO part VALUES (?,?,?,?,?)",
+                        (
+                            ident,
+                            ident,
+                            ident,
+                            1793872800000,
+                            json.dumps(
+                                {
+                                    "type": "text",
+                                    "text": "Control verified. password=hidden known-secret",
+                                }
+                            ),
+                        ),
+                    )
+            else:
+                db.executescript(
+                    "CREATE TABLE sessions(id TEXT,cwd TEXT);"
+                    "CREATE TABLE messages(id INTEGER,session_id TEXT,timestamp REAL,"
+                    "role TEXT,content TEXT);"
+                )
+                for number, (ident, cwd) in enumerate(
+                    [("valid", str(root)), ("other", str(tmp_path / "other"))]
+                ):
+                    db.execute("INSERT INTO sessions VALUES (?,?)", (ident, cwd))
+                    db.execute(
+                        "INSERT INTO messages VALUES (?,?,?,?,?)",
+                        (
+                            number,
+                            ident,
+                            1793872800,
+                            "assistant",
+                            "Control verified. password=hidden known-secret",
+                        ),
+                    )
+    project = ProjectConfig(id="test", name="Test", root=str(root), agent_sessions=paths)
+    ctx = CaptureContext(tmp_path / "service", datetime.now(UTC), secrets=("known-secret",))
+    before = _snapshot(histories, include_git=True)
+    output = AgentSessionsCollector().collect(project, None, ctx)
+    assert output.status == "ok" and len(output.evidence) == 2
+    assert {e.meta["agent"] for e in output.evidence} == {"opencode", "hermes"}
+    assert all(e.event_at is not None for e in output.evidence)
+    assert all(
+        "hidden" not in e.excerpt and "known-secret" not in e.excerpt for e in output.evidence
+    )
+    assert all("other" not in e.locator for e in output.evidence)
+    assert _snapshot(histories, include_git=True) == before
+    ctx.previous_payload = output.snapshot_payload
+    assert not AgentSessionsCollector().collect(project, None, ctx).evidence
+
+
+def test_sqlite_wal_is_reported_without_touching_live_sidecars(tmp_path: Path) -> None:
+    import sqlite3
+    from contextlib import closing
+
+    path = tmp_path / "hermes.db"
+    project = ProjectConfig(
+        id="test", name="Test", root=str(tmp_path / "project"), agent_sessions=[str(path)]
+    )
+    Path(project.root).mkdir()
+    with closing(sqlite3.connect(path)) as writer:
+        writer.execute("PRAGMA journal_mode=WAL")
+        writer.executescript(
+            "CREATE TABLE sessions(id TEXT,cwd TEXT);"
+            "CREATE TABLE messages(id INTEGER,session_id TEXT,timestamp REAL,"
+            "role TEXT,content TEXT);"
+        )
+        writer.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+        writer.execute("INSERT INTO sessions VALUES (?,?)", ("new", project.root))
+        writer.commit()
+        before = _snapshot(tmp_path, include_git=True)
+        output = AgentSessionsCollector().collect(
+            project, None, CaptureContext(tmp_path / "service", datetime.now(UTC))
+        )
+        assert output.status == "partial"
+        assert any(x.reason == "sqlite_wal_not_read" for x in output.omitted)
+        assert _snapshot(tmp_path, include_git=True) == before
