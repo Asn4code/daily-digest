@@ -30,7 +30,7 @@ Servicio personal que, al final de cada día (o cuando lo pidas), reúne lo que 
 
 ## Empezar
 
-Estado de implementación: fases 0 y 1 aprobadas; fase 2 en validación humana. Ya funcionan
+Estado de implementación: fases 0 y 1 aprobadas; fase 2 en rediseño de construcción jerárquica (D-047). Ya funcionan
 la captura de solo lectura, el registro SQLite, los informes mecánicos en Markdown,
 HTML y PDF y las entregas independientes a correo, Obsidian y Drive.
 La fase 2 añade extracción y síntesis LLM validadas, plan, semanal y lectura de
@@ -95,6 +95,10 @@ proveedores por tarea en `llm.routing`. Inicialmente se usa el Qwen interno para
 extracción y DeepSeek de NaN para síntesis, plan, semanal y contraste, con respaldo
 mutuo. La edición de modelos desde la webapp está propuesta en WA-06.
 
+
+> La generación actual conserva el respaldo mecánico anterior: todavía no cumple
+> el requisito nuevo de D-047. Las pruebas reales están detenidas mientras se
+> prepara el [flujo jerárquico](docs/HIERARCHICAL_DIGEST.md).
 
 ## Capturar, generar y entregar
 

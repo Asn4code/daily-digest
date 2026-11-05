@@ -766,9 +766,9 @@
     {
       "id": "IN-06",
       "title": "Puerta de fase 2",
-      "state": "doing",
+      "state": "todo",
       "group": "IN",
-      "deps": ["IN-01", "IN-02", "IN-03", "IN-04", "IN-05"],
+      "deps": ["IN-01", "IN-02", "IN-03", "IN-04", "IN-05", "IN-11"],
       "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
@@ -793,6 +793,16 @@
           "at": "2026-11-05T14:20:21Z",
           "by": "codex",
           "text": "Guía reproducible para la revisión humana en docs/reviews/phase-2-pilot.md. Los jobs de reemplazo 7 (diario r3) y 8 (semanal W45 r1) están lanzados sin entrega, serializados por el worker; no se afirma que hayan terminado. La ficha incluye consulta de estado de solo lectura y comprobación de cinco afirmaciones, plan y utilidad del semanal. Firma humana pendiente; no se inicia fase 3."
+        },
+        {
+          "at": "2026-11-05T14:54:18Z",
+          "by": "codex",
+          "text": "La persona rechaza secciones mecánicas como sustituto de salidas no validadas y solicita una estrategia modular/jerárquica (D-047). Se detuvieron los jobs 7/8 sin envío; se conservan auditoría y r3 fallida. La revisión técnica anterior no cubre este nuevo requisito. Diseño concreto en docs/HIERARCHICAL_DIGEST.md, propuesto como IN-07 a IN-11; la puerta espera IN-11. Las propuestas no se han autoaprobado ni implementado. No se solicita la firma de fase 2 con el flujo anterior."
+        },
+        {
+          "at": "2026-11-05T14:55:18Z",
+          "by": "codex",
+          "text": "Puerta de fase 2 suspendida como tarea hasta implementar y revisar el requisito nuevo D-047. Propuesta jerárquica en docs/HIERARCHICAL_DIGEST.md y tareas IN-07 a IN-11; no se pide firma del flujo anterior. Jobs 7/8 detenidos sin envío; auditoría conservada. Retomar la puerta tras la nueva validación independiente."
         }
       ]
     },
@@ -1005,6 +1015,56 @@
       "at": "2026-11-04T11:35:18Z",
       "by": "codex",
       "desc": "Permitir cambiar proveedor y modelo para extracción, síntesis, plan, semanal y contraste desde la webapp, además del YAML. Mantener secretos fuera de formularios y registros; validar cambios, respetar external_allowed y aplicar una configuración consistente por trabajo. Petición explícita de la persona durante la fase 0. Terminado cuando los cambios persisten, se pueden revertir y tienen tests de autorización, CSRF y validación."
+    },
+    {
+      "id": "IN-07",
+      "title": "Diagnóstico de rechazos y publicación sin sustitución mecánica",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["IN-03", "IN-05"],
+      "at": "2026-11-05T14:54:06Z",
+      "by": "codex",
+      "desc": "Aplicar D-047: ninguna sección LLM fallida se convierte en mecánica ni permite entregar o cerrar un digest final incompleto. Registrar etapa, regla y campo rechazados sin secretos; distinguir error de modelo, carencia de fuente y timeout. Mantener el inventario de todos los resultados y el trabajo pendiente. Terminado cuando T16 y pruebas de fallos parciales dejan el informe pendiente sin entrega/cierre, con diagnóstico accionable y sin relajar validadores. Diseño: docs/HIERARCHICAL_DIGEST.md."
+    },
+    {
+      "id": "IN-08",
+      "title": "Hechos normalizados y paquetes pequeños por fuente",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["IN-07"],
+      "at": "2026-11-05T14:54:06Z",
+      "by": "codex",
+      "desc": "Separar hechos deterministas de interpretación LLM y dividir entradas por unidad científica coherente (nota, comparación con control, ejecución o sección documental). Usar contratos pequeños por fuente y conservar IDs, unidades, fechas, limitaciones y external_allowed. Terminado cuando una entrada grande se descompone sin perder controles ni tareas; los ejemplos correctos validan y las cifras/IDs inventados fallan. Diseño: docs/HIERARCHICAL_DIGEST.md."
+    },
+    {
+      "id": "IN-09",
+      "title": "Nodos validados persistidos y generación reanudable",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["IN-08"],
+      "at": "2026-11-05T14:54:06Z",
+      "by": "codex",
+      "desc": "Guardar cada pieza válida de inmediato con hash de entradas y versiones de contrato/prompt/validador; reutilizarla al reiniciar e invalidar solo los descendientes afectados. Reintentos localizados, tiempo por etapa y registros de rechazo separados de la caché válida. Concretar ventanas y nuevos disparos sin omitir ni duplicar evidencias y sin cerrar intervalos incompletos. Proponer cualquier migración publicada antes de implementarla. Terminado cuando interrupción y cambio de una evidencia prueban reutilización e invalidación selectivas, sin sobrescribir texto humano ni escribir en proyectos."
+    },
+    {
+      "id": "IN-10",
+      "title": "Fichas de resultados y balances jerárquicos de diario y semanal",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["IN-09"],
+      "at": "2026-11-05T14:54:06Z",
+      "by": "codex",
+      "desc": "Construir fichas científicas desde hechos válidos, balances independientes frente al objetivo de cada proyecto y después síntesis/plan desde esos balances, sin reenviar todo el corpus. El semanal usa evidencias y fichas de siete días, no prosa de diarios. Propagar referencias originales, límites e información privada por toda la jerarquía. Terminado cuando cada afirmación final llega a su evidencia, todos los resultados aparecen y el plan usa dependencias reales; una pieza fallida bloquea la publicación final pero no el guardado de las independientes."
+    },
+    {
+      "id": "IN-11",
+      "title": "Validación del flujo jerárquico con fallos y proyectos reales",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["IN-10"],
+      "at": "2026-11-05T14:54:06Z",
+      "by": "codex",
+      "desc": "Repetir pruebas de inyección, secretos, cifras/unidades, interrupción/reanudación, grandes entradas, límites, ambos proveedores caídos y ausencia legítima de actividad. Demostrar que ningún fallo se publica como sustituto mecánico y que ninguna tarea se oculta. Revisar el nuevo flujo mediante una sesión independiente y preparar diario/semanal reales para comprobar cinco afirmaciones, plan y balance útil. Terminado cuando la puerta de fase 2 refleja el requisito D-047 y la muestra real permite la revisión humana, sin dar por válida una ejecución solo por pasar tests sintéticos."
     }
   ]
 }

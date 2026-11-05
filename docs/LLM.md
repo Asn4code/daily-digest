@@ -2,6 +2,12 @@
 
 Dos proveedores con API compatible con OpenAI: **Qwen/Qwen3.8-27B** interno (configuración inicial D-024) y **NaN** externo (`deepseek-v4-flash` inicialmente). El código decide qué se envía; el modelo redacta; el validador decide qué se publica.
 
+> **Cambio de requisito D-047:** la persona ha rechazado sustituir secciones no
+> validadas por contenido mecánico. Las referencias a ese respaldo en este
+> documento describen la implementación anterior y deben sustituirse por
+> generación pendiente y reanudable. El rediseño propuesto está en
+> [HIERARCHICAL_DIGEST.md](HIERARCHICAL_DIGEST.md); aún no está implementado.
+
 ## 1. Enrutado
 
 | Tarea (`task`) | Entrada | Preferencia por defecto | Salida (`schemas.py`) |

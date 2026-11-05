@@ -54,3 +54,13 @@ Comprobaciones que solo puedes hacer tú:
 - [ ] El informe semanal de prueba aporta algo que no estaba en los diarios
 
 - [ ] Apruebo la fase
+
+
+## Cambio posterior de requisito (D-047)
+
+Después de esta revisión, la persona rechazó sustituir secciones no validadas por
+contenido mecánico y solicitó una construcción modular y jerárquica. El veredicto
+técnico de arriba se conserva como registro del alcance anterior; no acredita el
+cumplimiento del nuevo requisito. La fase permanece abierta y necesitará revisión
+de la implementación propuesta en [HIERARCHICAL_DIGEST.md](../HIERARCHICAL_DIGEST.md)
+antes de solicitar su firma. Los jobs de validación 7 y 8 se detuvieron sin envío.

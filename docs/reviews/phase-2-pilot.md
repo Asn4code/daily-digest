@@ -1,3 +1,8 @@
+> **Estado actualizado:** los jobs 7 y 8 se detuvieron por la nueva instrucción
+> D-047. Ya no están generando muestras. La fase 2 necesita el rediseño de
+> [HIERARCHICAL_DIGEST.md](../HIERARCHICAL_DIGEST.md) y una nueva revisión antes
+> de solicitar la firma. Las instrucciones de abajo documentan la prueba anterior.
+
 # Validación humana del piloto de fase 2
 
 La revisión técnica independiente está aprobada en [phase-2.md](phase-2.md).

@@ -36,7 +36,7 @@ La persona produce mucho trabajo (propio y de agentes) pero no tiene tiempo de r
 - **FR-12** Disparo manual: botón en la webapp y `digest run` en la terminal.
 - **FR-13** Avance (`--preview`): genera el informe sin cerrar el intervalo ni entregar.
 - **FR-14** Informe semanal: el sábado (por defecto 10:00) cubre los 7 días anteriores, de sábado a viernes. También manual con `digest run --weekly`.
-- **FR-15** No hay prisa: la generación puede tardar hasta `schedule.max_generation_minutes` (60 por defecto). El correo sale al terminar.
+- **FR-15** No hay prisa: la generación puede tardar hasta `schedule.max_generation_minutes` (60 por defecto). El correo sale al terminar con las secciones requeridas validadas; agotar el plazo no autoriza publicar un respaldo mecánico.
 - **FR-16** Contenido del informe diario completo, en este orden:
   1. Lo esencial: hasta 3 hechos con evidencias.
   2. Balance conceptual por proyecto: qué se sabe ahora, qué sigue sin saberse, qué decisión cambia. Se admite «hoy no hay conclusión científica nueva».
@@ -47,7 +47,7 @@ La persona produce mucho trabajo (propio y de agentes) pero no tiene tiempo de r
   7. Evidencias y cobertura: fuentes, intervalos no cubiertos, errores del servicio.
 - **FR-17** Sin actividad verificable, el informe lo dice sin inferir que no se trabajó.
 - **FR-18** Contenido del semanal: avance de cada proyecto frente a su objetivo; todas las tareas de la semana por proyecto y tema; revisiones hechas, pendientes por antigüedad y dudas; patrones (bloqueos repetidos, tareas que reaparecen, trabajo fuera del tablero); 4 a 6 figuras clave; propuesta de 2 o 3 objetivos y una sesión de revisión para la semana siguiente. Se construye desde las evidencias, no desde los diarios.
-- **FR-19** Si fallan los dos proveedores LLM, se publica un informe mecánico (sin LLM) con todo lo hecho y la cobertura.
+- **FR-19** Si fallan los proveedores o una sección no supera la validación, la generación queda pendiente y conserva sus avances válidos; no se sustituye esa sección por contenido mecánico ni se entrega un informe final incompleto. Todos los resultados y los motivos pendientes deben permanecer visibles en el inventario de trabajo. El informe final exige todas las secciones requeridas validadas (D-047; implementación propuesta en `HIERARCHICAL_DIGEST.md`).
 
 ### Correo
 

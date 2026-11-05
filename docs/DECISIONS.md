@@ -66,6 +66,8 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-046 | 2026-11-05 | Ajuste provisional del piloto dentro de la selección delegada en D-024: extracción con NaN primero y Qwen como respaldo; rutas y modelos siguen editables en YAML | La ejecución real tuvo timeouts de 180 s y una respuesta válida de Qwen de ~106 s; NaN respondió en ~13–15 s en la muestra, sin afirmar superioridad científica. No cambia external_allowed ni los proveedores autorizados. Las ejecuciones de validación sin envío se reiniciaron; se conserva su auditoría. |
 
+| D-047 | 2026-11-05 | La persona rechaza sustituir secciones LLM no validadas por contenido mecánico y solicita una estrategia modular y jerárquica | Revisa D-002/D-004/D-012 y FR-19 en lo relativo al respaldo y al plazo: el fallo no autoriza publicar ni cerrar un digest incompleto. Mantiene la comprensión humana separada. Se detienen los jobs de validación 7/8 sin entrega; se conserva su auditoría. Diseño propuesto en HIERARCHICAL_DIGEST.md, implementación y nueva revisión pendientes. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

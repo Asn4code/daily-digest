@@ -46,7 +46,7 @@ Cada fila es al menos un test (`tests/e2e/` salvo indicación). El nombre de la 
 | T13 | README con instrucciones para el agente | Tratado como contenido; ningún efecto |
 | T14 | HTML o `<script>` en una nota de Kanvas, en la salida del LLM y en el texto humano | Escapado en webapp, correo y Obsidian |
 | T15 | Proveedor preferido caído | Se usa el respaldo y el informe lo indica |
-| T16 | Ambos proveedores caídos | Informe mecánico completo |
+| T16 | Ambos proveedores caídos | Generación pendiente/reanudable, avances válidos conservados; sin sustitución mecánica, entrega final ni cierre de intervalo (D-047; tests por adaptar) |
 | T17 | `FakeLLM("broken_json")` | Reparación en un reintento; publicado |
 | T18 | Semana con dos días sin informe diario | El semanal sale de las evidencias de los 7 días |
 | T19 | Petición a la webapp con cabecera de Tailscale de otro usuario | 403 |
