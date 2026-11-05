@@ -560,12 +560,24 @@
     {
       "id": "CP-07",
       "title": "Informe mecánico y digest run",
-      "state": "todo",
+      "state": "done",
       "group": "CP",
       "deps": ["CP-06", "CP-03", "CP-04", "CP-05"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Representación común del informe (report/model.py), informe mecánico sin LLM con todo lo hecho y la cobertura, renders Markdown y HTML, y `digest run [--now] [--preview] [--no-send]`.\n\nTerminado cuando: `digest run --now --no-send` contra los fixtures produce un informe con todos los resultados, cobertura incompleta visible para proj-fail, y pasan T01 y T11."
+      "desc": "Representación común del informe (report/model.py), informe mecánico sin LLM con todo lo hecho y la cobertura, renders Markdown y HTML, y `digest run [--now] [--preview] [--no-send]`.\n\nTerminado cuando: `digest run --now --no-send` contra los fixtures produce un informe con todos los resultados, cobertura incompleta visible para proj-fail, y pasan T01 y T11.",
+      "notes": [
+        {
+          "at": "2026-11-05T12:06:26Z",
+          "by": "codex",
+          "text": "Plan: orquestar capturas por cola y bloqueo único, seleccionar todas las evidencias del intervalo, informe mecánico común validado y renders escapados. digest run encola y --now ejecuta con el mismo worker. Tests de no actividad, cobertura, repetición y solo lectura."
+        },
+        {
+          "at": "2026-11-05T12:15:10Z",
+          "by": "codex",
+          "text": "digest run encola y --now procesa con el worker serializado; captura y registra todas las fuentes, agrupa resultados y genera JSON/Markdown/HTML mecánicos con cobertura y fechas locales. Validador de IDs obligatorio y HTML autoescapado. make check: 121 tests pasan, incluidos T01/T11, cola sin ejecución inmediata, publicación inválida bloqueada, XSS y árboles completos intactos. CLI contra fixtures produce informe; entregas y PDF siguen en CP-08."
+        }
+      ]
     },
     {
       "id": "CP-08",

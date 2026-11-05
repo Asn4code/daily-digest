@@ -200,6 +200,7 @@ def build_projects(destination: Path) -> Path:
                 "objective": "Revisar resultados sintéticos",
                 "include": ["**/*"],
                 "figures": ["figures/*.png", "figures/*.svg"],
+                "runs": {"logs": ["logs/*.log"]},
                 "metrics": [
                     {
                         "label": "Docking",
@@ -211,6 +212,7 @@ def build_projects(destination: Path) -> Path:
         )
     config = load_config(REPOSITORY / "config.example.yaml").model_dump(by_alias=True)
     config.update(projects=projects)
+    config["kanvas"]["cli"] = str(VENDOR)
     config["paths"].update(
         data_dir=str(destination / "data"), obsidian_vault=str(destination / "vault")
     )

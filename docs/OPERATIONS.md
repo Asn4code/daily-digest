@@ -302,3 +302,15 @@ sin enviar correo:
 CREDENTIALS_DIRECTORY="$HOME/.config/daily-digest/credentials" \
   .venv/bin/digest --config config.yaml doctor
 ```
+
+### Worker durante la fase 1
+
+`digest run` encola; `digest run --now --no-send` procesa mediante el mismo worker
+serializado, con un bloqueo de archivo que impide dos capturas simultáneas. Se
+puede procesar un único trabajo pendiente con `digest worker --once`.
+
+El informe mecánico conserva todos los resultados seleccionados y la cobertura,
+sin generar conclusiones ni planes con un modelo. JSON almacena UTC; Markdown y
+HTML muestran Europe/Madrid. Un avance no cierra el intervalo ni crea entregas.
+El informe se valida antes de crear sus archivos, y cada revisión usa una carpeta
+nueva. Un trabajo interrumpido se registra como fallido al recuperar el worker.

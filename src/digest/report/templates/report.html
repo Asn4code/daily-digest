@@ -1,0 +1,26 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'">
+<title>{{ report.id }}</title><style>
+body{font:16px/1.5 system-ui,sans-serif;max-width:72rem;margin:auto;padding:1rem;color:#18212b;background:#fff}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f2f4f6;padding:1rem}img{max-width:100%;height:auto}
+article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px solid #b87500;padding:1rem}
+@media print{body{font-size:10pt}article{break-inside:avoid}pre{font-size:8pt}}
+</style></head><body><h1>Informe {{ report.kind_label }}</h1><p>{{ report.start_at|localtime(report.timezone) }} — {{ report.end_at|localtime(report.timezone) }}</p>
+<h2>Lo esencial</h2><p>Informe mecánico: evidencias verificables, sin síntesis ni plan de un modelo.</p>
+<h2>Balance conceptual</h2><p>Sin síntesis conceptual automática en modo mecánico.</p>
+<h2>Todo lo hecho</h2>
+{% if not report.results %}<p>Sin resultados verificables en este intervalo. Esto no demuestra que no se haya trabajado.</p>{% endif %}
+{% for item in report.results %}<article><h3>{{ item.project }} · {{ item.title }}</h3>
+<p>{{ item.task_id or 'Fuera del tablero' }} · Revisión: {{ item.review_label }}</p>
+<p>Evidencias: {% for eid in item.evidence %}<a href="#{{ eid }}">{{ eid }}</a> {% endfor %}</p>
+{% for figure in item.figures %}<figure><img src="{{ figure.path }}" alt="{{ figure.caption }}"><figcaption>{{ figure.caption }} · {{ figure.evidence }}</figcaption></figure>{% endfor %}
+</article>{% endfor %}
+<h2>Plan de mañana</h2><p>Sin propuesta automática en modo mecánico.</p>
+<h2>Hilos abiertos</h2>{% for claim in report.open_threads %}<p>{{ claim.text }} — {{ claim.evidence|join(', ') }}</p>{% endfor %}
+<h2>Nivel técnico y evidencias</h2>{% for item in report.evidence %}<article id="{{ item.id }}"><h3>{{ item.id }}</h3>
+<p>{{ item.project }} · {{ item.kind }} · {{ item.locator }}</p><p>Hora: {{ (item.event_at or item.observed_at)|localtime(report.timezone) }} ({{ 'evento' if item.time_quality == 'event' else 'observada' }})</p>
+<pre>{{ item.excerpt }}</pre></article>{% endfor %}
+<h2>Cobertura</h2>{% for item in report.coverage %}<section class="coverage"><h3>{{ item.project }} / {{ item.source }}: {{ item.status }}</h3><p>Captura {{ item.snapshot_id }}</p>
+{% for omitted in item.omitted %}<p>{{ omitted.locator }}: {{ omitted.reason }}</p>{% endfor %}</section>{% endfor %}
+</body></html>
