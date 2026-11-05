@@ -60,6 +60,7 @@ class CaptureContext:
     kanvas_command: tuple[str, ...] = ("kanvas",)
     deadline: float | None = None
     related_evidence: list[EvidenceDraft] = field(default_factory=list)
+    secrets: tuple[str, ...] = field(default=(), repr=False)
 
     def remaining(self) -> float:
         if self.deadline is None:

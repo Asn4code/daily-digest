@@ -4,6 +4,7 @@ import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
 
+from digest.collectors.agent_sessions import AgentSessionsCollector
 from digest.collectors.base import (
     CaptureContext,
     Collector,
@@ -16,9 +17,12 @@ from digest.collectors.figures import FiguresCollector
 from digest.collectors.git import GitCollector
 from digest.collectors.kanvas import KanvasCollector
 from digest.collectors.metrics import MetricsCollector
+from digest.collectors.notebooks import NotebooksCollector
 from digest.collectors.runs import RunsCollector
 from digest.collectors.store import persist, previous_payload
+from digest.collectors.structures import StructuresCollector
 from digest.config import Config
+from digest.doctor import _credential
 from digest.results import group_results
 
 
@@ -49,9 +53,16 @@ def capture(
         FiguresCollector(),
         MetricsCollector(),
         RunsCollector(),
+        NotebooksCollector(),
+        StructuresCollector(),
+        AgentSessionsCollector(),
     ]
     for project in projects:
         ctx = CaptureContext(data, instant, config.limits, kanvas_command=(config.kanvas.cli,))
+        if project.agent_sessions:
+            names = [p.api_key_env for p in config.llm.providers.values()]
+            names.append(config.email.password_env)
+            ctx.secrets = tuple(value for name in names if (value := _credential(name)))
         related: list[EvidenceDraft] = []
         for collector in collectors:
             ctx.previous_payload = previous_payload(db, project.id, collector.source)

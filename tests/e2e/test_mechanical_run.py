@@ -45,10 +45,14 @@ def test_T11_old_notebook_is_not_a_new_execution(config: Config) -> None:
     path = Path(execute(config, job, now=now))
     report = json.loads(path.with_suffix(".json").read_text())
     assert all(
-        e["kind"] not in {"run", "run_error", "notebook_change"}
+        e["kind"] not in {"run", "run_error"}
         for e in report["evidence"]
         if "notebook" in e["locator"]
     )
+    notebooks = [e for e in report["evidence"] if e["kind"] == "notebook_change"]
+    assert notebooks
+    assert all(e["time_quality"] == "observed" and e["event_at"] is None for e in notebooks)
+    assert all(e["meta"]["stored_outputs_only"] for e in notebooks)
     with sqlite3.connect(Path(config.paths.data_dir) / "digest.db") as db:
         assert db.execute("SELECT closed FROM interval").fetchone() == (0,)
         assert db.execute("SELECT count(*) FROM delivery").fetchone() == (0,)

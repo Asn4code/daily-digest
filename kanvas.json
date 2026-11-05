@@ -707,7 +707,24 @@
       "deps": ["CP-06", "CP-09"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "notebook_change con nbformat sin ejecutar, structure con metadatos de PDB y mmCIF, agent_session desde los directorios configurados (EVIDENCE.md, fase 2).\n\nTerminado cuando: los nuevos tipos aparecen en el informe con cobertura; las rutas de transcripciones están confirmadas (Q-05)."
+      "desc": "notebook_change con nbformat sin ejecutar, structure con metadatos de PDB y mmCIF, agent_session desde los directorios configurados (EVIDENCE.md, fase 2).\n\nTerminado cuando: los nuevos tipos aparecen en el informe con cobertura; las rutas de transcripciones están confirmadas (Q-05).",
+      "notes": [
+        {
+          "at": "2026-11-05T13:18:51Z",
+          "by": "codex",
+          "text": "Plan: lectura acotada de notebooks sin ejecución, metadatos PDB/mmCIF y sesiones configuradas con asociación explícita al proyecto y redacción de secretos. Verificar ubicaciones y formatos locales sin mostrar contenido de las transcripciones; probar con fixtures."
+        },
+        {
+          "at": "2026-11-05T13:19:46Z",
+          "by": "codex",
+          "text": "Question: OpenCode y Hermes guardan sesiones en bases SQLite grandes, mientras el diseño prevé directorios de transcripciones. AGENTS.md pide preguntar antes de adaptar un formato externo distinto del documentado. ¿Incluir lectores SQLite de solo lectura con consultas acotadas y filtro explícito por proyecto, o limitar esta fase a JSONL de Codex? Continúo las partes independientes de notebooks y estructuras sin adaptar aún SQLite."
+        },
+        {
+          "at": "2026-11-05T13:25:56Z",
+          "by": "codex",
+          "text": "Notebooks, metadatos PDB/mmCIF y sesiones JSONL de Codex implementados y conectados al registro; solo lectura, mensajes filtrados por cwd y secretos redactados. make check: 149 tests pasan. Pendiente respuesta a la consulta sobre lectores SQLite acotados para OpenCode/Hermes; no se ha adaptado ese formato ni se da la tarea por terminada. Continúo IN-05, independiente de esa decisión."
+        }
+      ]
     },
     {
       "id": "IN-05",

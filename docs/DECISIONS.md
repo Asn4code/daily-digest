@@ -60,6 +60,8 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-043 | 2026-11-05 | IN-01 incorpora httpx, previsto en el stack, para HTTP acotado con JSON Schema, timeouts y transporte inyectable; sin proxies heredados ni redirecciones | Pruebas sin proveedores reales; auditoría de metadatos sin cuerpos HTTP. Solo el proveedor llamado internal se considera interno: los restantes respetan external_allowed. |
 
+| D-044 | 2026-11-05 | IN-04 incorpora nbformat, ya previsto en el stack, para leer celdas y salidas almacenadas sin ejecución | Se omiten HTML, JavaScript, widgets y salidas binarias; lectura, celdas y texto acotados. PDB/mmCIF se leen como metadatos, sin dependencia científica ejecutable. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma
@@ -101,3 +103,5 @@ Rellenar en CB-06 con lo comprobado (versiones, salidas reales, límites).
 | 2026-11-05 | Revisión independiente CP-09 | Se reprodujeron y corrigieron ejecución de filtros Git, deduplicación incorrecta tras reapertura de una tarea y pérdida de omisiones persistentes de métricas. El revisor volvió a ejecutar sus reproducciones: corregidas; 132 tests pasan y los árboles de fixtures, incluido el índice Git, permanecen intactos. Ficha de fase 1 aprobada por la sesión independiente; firma humana pendiente. |
 
 | 2026-11-05 | Cierre de fase 1 | La persona confirmó «revisado y aprobado» y marcó las tres comprobaciones humanas y la aprobación de fase. La puerta completa dio APROBADA (código 0). Se mantienen documentadas las limitaciones de cobertura del piloto. La fase 2 está autorizada mediante YOLO hasta IN-06. |
+
+| 2026-11-05 | Formatos de sesiones IN-04 | Codex JSONL contiene session_meta/cwd y response_item/message; comprobados solo nombres de campos. OpenCode usa tablas session/message/part en una base de ~854 MB; Hermes sessions/messages en ~335 MB. No se leyeron mensajes para esta comprobación. Consultada la adaptación SQLite antes de implementarla, según AGENTS.md. |

@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Informes con evidencias y revisión personal de proyectos científicos"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["httpx>=0.28,<1", "typer>=0.12,<1", "pydantic>=2.12,<3", "pyyaml>=6,<7", "pillow>=11,<14", "cairosvg>=2.7,<3", "pypdfium2>=4,<6", "jinja2>=3.1,<4", "markdown-it-py>=3,<5", "nh3>=0.3,<1", "weasyprint>=70,<71"]
+dependencies = ["nbformat>=5.10,<6", "httpx>=0.28,<1", "typer>=0.12,<1", "pydantic>=2.12,<3", "pyyaml>=6,<7", "pillow>=11,<14", "cairosvg>=2.7,<3", "pypdfium2>=4,<6", "jinja2>=3.1,<4", "markdown-it-py>=3,<5", "nh3>=0.3,<1", "weasyprint>=70,<71"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "ruff>=0.6,<1", "mypy>=1.11,<2", "aiosmtpd>=1.4.6,<2"]
@@ -48,4 +48,8 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["weasyprint.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "nbformat.*"
 ignore_missing_imports = true

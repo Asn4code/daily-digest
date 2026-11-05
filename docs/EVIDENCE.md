@@ -204,3 +204,32 @@ ni modificación del esquema SQLite.
 La caché de métricas conserva también las omisiones por valores inválidos o
 columnas ausentes. Repetir una captura idéntica mantiene su cobertura incompleta
 sin duplicar evidencias. Cambiar las columnas declaradas obliga a recalcular.
+
+
+## 13. Recolectores de fase 2
+
+Notebooks: lectura con nbformat, hasta 200 celdas y dentro del presupuesto de texto.
+Se comparan fuentes, contadores y salidas almacenadas de texto; no se ejecuta
+código ni se incluyen salidas HTML/JavaScript o widgets. La evidencia es observada
+y declara que una salida almacenada no demuestra ejecución en el intervalo.
+T11 comprueba esa distinción también cuando se habilita este recolector.
+
+Estructuras: PDB y loops `_atom_site` de mmCIF aportan cadenas, átomos y residuos
+identificados por cadena/número; incluyen heteroátomos si están presentes. Se
+registran metadatos, nunca se importan módulos científicos del proyecto. Los
+formatos no interpretables quedan en cobertura incompleta.
+
+Sesiones: `project.agent_sessions` declara directorios relativos dentro del
+proyecto o raíces absolutas expresamente configuradas. Codex JSONL se reconoce
+por `session_meta`; se incluyen mensajes user/assistant solo cuando el cwd del
+contexto pertenece al proyecto. Un cambio de cwd deja fuera los turnos de otro
+proyecto. No se incluyen system, llamadas a herramientas ni sus salidas. Se
+redactan asignaciones de claves/contraseñas, Bearer, formatos conocidos de tokens
+y las credenciales de proveedores/correo configuradas, sin persistir sus valores.
+La exploración, bytes y texto están acotados; archivos grandes se omiten.
+
+Ubicaciones verificadas localmente (solo metadatos): Codex en
+`~/.codex/sessions/AAAA/MM/DD/*.jsonl`; OpenCode en
+`~/.local/share/opencode/opencode.db` y Hermes en `~/.hermes/state.db`.
+Las dos últimas son SQLite de gran tamaño, no directorios JSONL. Su adaptación
+está consultada con la persona antes de implementar lectores distintos del diseño.
