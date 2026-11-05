@@ -808,6 +808,11 @@
           "at": "2026-11-05T15:23:27Z",
           "by": "codex",
           "text": "La persona ajusta el diseño: diario con profundidad intermedia, niveles distintos para mensaje móvil y vault y crítica científica explícita en el semanal (D-048). No convertir el diario en revisión exhaustiva ni dejarlo en una lista superficial. IN-10/11 revisadas e IN-12 propuesta para contrastar conclusiones previas con evidencia nueva, matices y análisis discriminantes; IN-11 espera IN-12. Todas las vistas mantienen significado, limitaciones y linaje; nunca se sobrescribe texto humano ni se reabre su estado automáticamente. La referencia inicial se separa de novedades, y el procesamiento habitual será incremental. Diseño actualizado, sin afirmar implementación."
+        },
+        {
+          "at": "2026-11-05T15:41:04Z",
+          "by": "codex",
+          "text": "La persona considera razonable que el digest ayude a seguir la evolución de resultados y decidir el próximo foco, y solicita actualizar las tareas. Registrado D-049. Revisadas IN-08/09/10/11/12 y, para sus fases posteriores, WA-03 y PL-02: prioridad argumentada por objetivo/decisión/dependencias/compromisos, misión ejecutable, niveles móvil-vault coherentes y crítica semanal que oriente contrastes concretos. Criterios de utilidad comprobables y elección final humana. Roadmap y diseño sincronizados; no se ha iniciado implementación ni cambiado el estado de aprobación de las propuestas."
         }
       ]
     },
@@ -839,7 +844,7 @@
       "deps": ["WA-02"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Pantalla Plan: editar y aceptar misión y calentamientos; las dudas de las revisiones entran con origin = review en el plan siguiente.\n\nTerminado cuando: un plan editado se guarda en plan_item.edited_text, aparece en Obsidian y Drive y alimenta el siguiente informe."
+      "desc": "Pantalla Plan para elegir el próximo foco con argumentos: mostrar misión y calentamientos con motivo de prioridad, resultado/objetivo al que contribuyen, dependencias y criterio de finalización. Incorporar dudas humanas con origin=review y propuestas de contraste de la crítica semanal, sin aceptar, ejecutar ni cambiar tareas automáticamente. Respetar compromisos y ajustes expresos de la persona; conservar su decisión final.\n\nTerminado cuando se puede aceptar, editar o descartar una propuesta, el texto editado se conserva en plan_item.edited_text y las versiones generadas no lo pisan. El plan aceptado aparece en Obsidian/Drive y alimenta el siguiente informe; una evidencia nueva puede motivar otra propuesta o alerta, sin modificar silenciosamente el plan ya aceptado ni cerrar revisiones. La interfaz móvil permite decidir con la vista breve y abrir la explicación conceptual y las evidencias al necesitarlas. D-049."
     },
     {
       "id": "WA-04",
@@ -929,7 +934,7 @@
       "deps": ["PL-01"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Evaluación del piloto: qué funcionó, qué ajustar (longitud, reparto Qwen3.6/NaN, relevancia de resultados), decisión sobre escribir propuestas en Kanvas y lista priorizada de ajustes como nuevas propuestas.\n\nTerminado cuando: la evaluación está en DECISIONS.md y los ajustes están propuestos en el tablero."
+      "desc": "Evaluar si el digest permite seguir resultados y decidir en qué enfocarse, además de su funcionamiento técnico. Con un registro ligero, comprobar si la persona entiende qué cambió, sus límites y relación con el objetivo; si puede aceptar o ajustar la misión por un motivo claro; y si el semanal detecta matices, dudas o análisis discriminantes útiles. Comparar carga del mensaje móvil y utilidad de los niveles conceptual/técnico de la vault; distinguir coste inicial de referencia y funcionamiento incremental habitual.\n\nRecoger omisiones, afirmaciones no respaldadas, rechazos correctos/falsos del validador, latencia y repeticiones evitables. Valorar relevancia científica y decisiones que desbloquea, no volumen de archivos, commits o informes. Revisar longitud y reparto Qwen/NaN con los mismos ejemplos y preservar restricciones externas. Terminado cuando la evaluación de utilidad y los ajustes priorizados están en DECISIONS.md y propuestos en el tablero; la decisión de escribir propuestas en Kanvas sigue siendo humana."
     },
     {
       "id": "PL-03",
@@ -1039,7 +1044,7 @@
       "deps": ["IN-07"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "Separar hechos deterministas de interpretación LLM y dividir entradas por unidad científica coherente (nota, comparación con control, ejecución o sección documental). Usar contratos pequeños por fuente y conservar IDs, unidades, fechas, limitaciones y external_allowed. Terminado cuando una entrada grande se descompone sin perder controles ni tareas; los ejemplos correctos validan y las cifras/IDs inventados fallan. Diseño: docs/HIERARCHICAL_DIGEST.md."
+      "desc": "Preparar evidencia útil para seguir cada resultado: qué cambió, qué pregunta u objetivo afecta, qué observación lo respalda y qué sigue incierto. Separar hechos calculados por código de interpretaciones LLM; paquetes pequeños por unidad científica coherente, manteniendo comparación y control juntos, IDs, unidades, fechas, cobertura y external_allowed. Distinguir historia observada durante el alta de eventos nuevos. Terminado cuando ejemplos correctos conservan significado y controles, cifras/IDs inventados se rechazan y una entrada grande se divide sin perder ni ocultar resultados. No exigir una llamada LLM por archivo o fragmento. D-047/D-048 y docs/HIERARCHICAL_DIGEST.md."
     },
     {
       "id": "IN-09",
@@ -1049,17 +1054,17 @@
       "deps": ["IN-08"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "Guardar cada pieza válida de inmediato con hash de entradas y versiones de contrato/prompt/validador; reutilizarla al reiniciar e invalidar solo los descendientes afectados. Reintentos localizados, tiempo por etapa y registros de rechazo separados de la caché válida. Concretar ventanas y nuevos disparos sin omitir ni duplicar evidencias y sin cerrar intervalos incompletos. Proponer cualquier migración publicada antes de implementarla. Terminado cuando interrupción y cambio de una evidencia prueban reutilización e invalidación selectivas, sin sobrescribir texto humano ni escribir en proyectos."
+      "desc": "Mantener continuidad del estado de resultados y sus interpretaciones sin rehacer la historia cada día. Guardar cada pieza válida con evidencia y versiones; reutilizarla al reiniciar y actualizar solo las dependencias de cambios nuevos. Separar referencia inicial, novedades y estados humanos; conservar versiones anteriores y planes editados. Reintentos localizados, presupuesto por etapa y caché válida separada de rechazos. Concretar intervalos y disparos consecutivos sin pérdidas, duplicados ni cierre incompleto; presentar cualquier migración publicada antes de implementarla. Terminado cuando una interrupción reutiliza piezas válidas, un cambio actualiza solo su rama y una ejecución sin novedades no repite interpretación LLM salvo invalidación de versión. Sin escritura en proyectos ni sobrescritura humana."
     },
     {
       "id": "IN-10",
-      "title": "Diario incremental con profundidad intermedia y niveles por canal",
+      "title": "Seguimiento diario de resultados y próximo foco, con niveles por canal",
       "state": "proposed",
       "group": "IN",
       "deps": ["IN-09"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "Construir el diario desde fichas y balances incrementales, con interpretación científica proporcionada y todas las tareas del intervalo. El mensaje móvil y la vault serán vistas del mismo contenido validado: entrada breve con significado y limitaciones decisivas; en la vault, orientación, comprensión conceptual y comprobación técnica ampliable. No regenerar historia ni ejecutar crítica semanal completa cada día. Separar la referencia inicial observada de actividad nueva; una señal científica importante sí aparece en el diario sin esperar al semanal. Terminado cuando un cambio real recorre extracción, explicación y ambas vistas sin perder condiciones, evidencia ni resultados; el diario no depende de terminar toda la historia o la crítica semanal. Implementación mínima específica, sin motor genérico de workflows. D-048 y docs/HIERARCHICAL_DIGEST.md."
+      "desc": "El diario debe permitir entender qué cambió, qué se sabe ahora y en qué conviene enfocarse después, en relación con el objetivo de cada proyecto. Construirlo desde fichas y balances incrementales con profundidad científica intermedia. Móvil: hasta tres novedades con significado y limitación decisiva, misión propuesta y hasta dos calentamientos opcionales, con todas las tareas del intervalo en bloque compacto. Vault: orientación breve, explicación conceptual por proyecto/resultado y comprobación técnica ampliable desde el mismo contenido validado.\n\nLa misión debe explicar por qué merece prioridad (valor científico, decisión o trabajo que desbloquea, dudas/controles pendientes, dependencias, Kanvas y compromisos humanos), qué acción concreta propone y cuándo está terminada. Evitar repetir tareas concluidas o inventar ocupación; mantener como contexto un plan aceptado si no hay razón nueva para cambiarlo. La persona conserva la elección y las ediciones. Señales científicas importantes aparecen en el diario sin esperar al semanal. No bloquearlo por analizar toda la historia ni por completar la crítica semanal.\n\nTerminado cuando un cambio real conserva su evidencia y sus condiciones en móvil/vault, la persona puede explicar su significado y la misión es ejecutable con motivo, dependencia y criterio de finalización. No confundir historia del arranque con producción de hoy, volumen de archivos con avance ni validación automática con comprensión humana. D-048/D-049 y docs/HIERARCHICAL_DIGEST.md."
     },
     {
       "id": "IN-11",
@@ -1069,7 +1074,7 @@
       "deps": ["IN-10", "IN-12"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "Validar la construcción jerárquica bajo D-047/D-048: sin sustitución mecánica de fallos; reanudación y caché; diario con profundidad intermedia y correspondencia móvil/vault; referencia inicial separada de actividad nueva. Probar crítica semanal ante evidencia que refuerza, matiza o cuestiona una conclusión previa, ante condiciones no comparables y ante ausencia de cambios materiales, sin fabricar controversia ni alterar estados humanos. Mantener todas las tareas, referencias originales, cifras/unidades y external_allowed. Nueva revisión independiente y muestra real con cinco afirmaciones, plan ejecutable y crítica útil que proponga contrastes concretos. Terminado cuando las vistas concuerdan, la interpretación está marcada, la crítica conserva ambos lados del contraste y la puerta de fase refleja los requisitos vigentes."
+      "desc": "Validar que el digest ayuda a entender la evolución de los resultados y decidir el próximo foco. Mantener D-047: sin secciones fallidas sustituidas por contenido mecánico ni cierre/entrega final incompletos; reanudación, caché, fuentes acotadas, cifras/unidades, referencias y external_allowed. Arranque separado de novedades y todos los resultados visibles.\n\nRecorrer una muestra real desde evidencia a explicación y misión: contrastar cinco afirmaciones, comprobar qué cambió respecto al objetivo del proyecto y justificar por qué la misión propuesta merece prioridad y cómo se termina. Comparar mensaje móvil con vault: misma conclusión, condiciones e incertidumbre, con niveles de orientación, comprensión y comprobación técnica. El diario mantiene profundidad intermedia sin necesitar crítica exhaustiva de la historia.\n\nProbar el semanal ante refuerzo, matiz, cuestionamiento, condiciones no comparables y ausencia de cambio material. Cada crítica conserva conclusión previa y nueva evidencia, deriva consecuencias para decisiones y propone contrastes concretos sin inventar resultados. Conservar estados y texto humanos, propuestas sin aceptación automática y alertas importantes también en el diario. Nueva revisión independiente y comprobación humana de utilidad; no inferirla de que pasen tests sintéticos. Terminado cuando la puerta de fase 2 refleja D-047/D-048/D-049 y la persona puede explicar un resultado, elegir o ajustar el foco y entender por qué una conclusión se mantiene o se revisa."
     },
     {
       "id": "IN-12",
@@ -1079,7 +1084,7 @@
       "deps": ["IN-10"],
       "at": "2026-11-05T15:22:35Z",
       "by": "codex",
-      "desc": "Añadir una etapa científica explícita al semanal: relacionar conclusiones previas versionadas (con fuente, alcance y grado de revisión humana) con evidencias nuevas, incluidas referencias históricas necesarias. Explicar si refuerzan, matizan/restringen, ponen en duda o no permiten decidir; comprobar condiciones, controles, comparabilidad y alternativas antes de hablar de contradicción. Proponer análisis concretos con pregunta, control/datos necesarios, predicciones bajo cada explicación y criterio de decisión, sin ejecutarlos ni inventar resultados. Priorizar las consecuencias en el mensaje móvil y desarrollar razonamiento/evidencias en la vault; no forzar críticas ni repetirlas como nuevas sin evidencia adicional. Preservar texto y estados humanos, también ante resultados antes revisados. Terminado cuando fixtures de conclusión revisada con nueva evidencia, matiz, falsa contradicción por condiciones diferentes y ausencia de cambio se representan con referencias de ambos lados y propuestas verificables. D-048 y docs/HIERARCHICAL_DIGEST.md."
+      "desc": "El semanal ayuda a corregir el rumbo científico: contrastar conclusiones previas versionadas, su alcance y su grado de revisión humana con evidencia nueva. Explicar si esta refuerza, matiza/restringe, pone en duda o no permite decidir; comprobar controles, condiciones, comparabilidad y alternativas antes de hablar de contradicción. Conservar referencias originales de ambos lados, incluidas las históricas pertinentes.\n\nToda propuesta de nuevo análisis debe indicar qué duda resolvería, qué alternativas distinguiría, qué control/datos necesita y qué criterio permitiría tomar una decisión. Sus consecuencias alimentan propuestas del próximo plan, con motivo y dependencias; no ejecutan análisis, crean tareas en los proyectos ni alteran planes aceptados o estados humanos. Móvil: cambios de interpretación y decisiones prioritarios con incertidumbre decisiva. Vault: razonamiento crítico, pruebas y alcance consultables. No fabricar controversias, recomendar genéricamente más análisis ni repetir una alerta como nueva sin evidencia adicional.\n\nTerminado cuando fixtures de refuerzo, matiz, contradicción aparente por condiciones distintas y ausencia de cambio muestran linaje completo y consecuencias concretas para el foco siguiente. La evidencia nueva sobre un resultado ya revisado añade una alerta y otra interpretación sin sobrescribir su explicación ni reabrir automáticamente su estado. D-048/D-049 y docs/HIERARCHICAL_DIGEST.md."
     }
   ]
 }

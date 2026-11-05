@@ -70,6 +70,8 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-048 | 2026-11-05 | La persona pide profundidad intermedia en el diario, distinguir mensaje móvil y vault y añadir una etapa crítica al semanal | Diario con interpretación proporcionada; vault con orientación, explicación conceptual y técnica ampliable; móvil breve sin perder condiciones ni incertidumbre. El semanal contrasta conclusiones previas con evidencia nueva y propone análisis discriminantes cuando proceda. Referencia inicial separada de actividad nueva; sin sobrescribir texto ni reabrir estados humanos automáticamente. Diseño y tareas propuestas, aún no implementados. |
 
+| D-049 | 2026-11-05 | La persona considera razonable orientar el digest al seguimiento cotidiano de resultados y a elegir el próximo foco, y pide actualizar las tareas | Las misiones deben justificar prioridad por valor científico, decisiones o trabajo que desbloquean, incertidumbres, dependencias, Kanvas y compromisos humanos, con acción y criterio de finalización. Móvil/vault conservan significado y límites; el semanal alimenta el foco con críticas y contrastes concretos. La elección final y las ediciones siguen siendo humanas. Actualizadas las propuestas IN-08/09/10/11/12, WA-03 y PL-02. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

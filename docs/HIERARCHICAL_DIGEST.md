@@ -25,6 +25,25 @@ seguridad y trazabilidad, pero no bastaban para demostrar utilidad ni tiempos
 adecuados con los proyectos reales. Cambiar el proveedor no resuelve por sí solo
 estos problemas de construcción.
 
+## Utilidad cotidiana y elección del próximo foco (D-049)
+
+El resultado esperado es que la persona pueda seguir la evolución de un resultado,
+explicar qué se sabe ahora y decidir dónde poner su atención después. Cada diario
+debe relacionar novedades con el objetivo del proyecto, distinguir respaldo e
+incertidumbre y ofrecer una misión ejecutable cuando proceda.
+
+La misión propuesta explica por qué merece prioridad: valor científico, decisión
+o trabajo que desbloquea, control o duda pendiente, dependencias, Kanvas y
+compromisos humanos. Incluye acción y criterio de finalización; hasta dos
+calentamientos son opcionales, sin rellenar el plan por obligación. Un plan aceptado
+se mantiene como contexto si no hay motivo nuevo para cambiarlo. Las propuestas
+no se aceptan automáticamente ni sobrescriben los ajustes de la persona.
+
+La crítica semanal debe tener consecuencias para ese foco: mantener una línea,
+restringir una interpretación, resolver un control antes de continuar o proponer
+un contraste que diferencie explicaciones. Su utilidad se comprueba al revisar
+resultados y elegir o ajustar prioridades, no contando documentos generados.
+
 ## Profundidad, frecuencia y canal: tres decisiones distintas
 
 La jerarquía anterior era demasiado pesada si se interpretaba como una revisión

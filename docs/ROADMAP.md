@@ -1,6 +1,6 @@
 # Hoja de ruta
 
-Siete fases. Desde la fase 1 se puede lanzar un informe a mano y recibir el correo; la webapp llega en la fase 3 y el semanal en la 4. Los IDs entre corchetes son los que asigna Kanvas al importar `docs/backlog.kanvas.json` en un tablero vacío.
+Siete fases. Desde la fase 1 se puede lanzar un informe a mano y recibir el correo; el semanal pertenece a la fase 2, la webapp a la fase 3 y la operación automática a la fase 4. Los IDs entre corchetes son los que asigna Kanvas al importar `docs/backlog.kanvas.json` en un tablero vacío.
 
 Cada fase termina con su **puerta** (protocolo en `VALIDATION.md`, exigencias en `gates.toml`): la comprobación automática, la revisión de un agente distinto del constructor y tu firma. Las primeras tareas de cada fase dependen de la puerta anterior, así que el tablero no deja avanzar sin ella. Los criterios de «Aceptación» de cada fase son los que verifica su puerta.
 
@@ -8,7 +8,7 @@ Cada fase termina con su **puerta** (protocolo en `VALIDATION.md`, exigencias en
 | --- | --- | --- |
 | 0 | Contratos y base (CB) | `digest doctor` confirma proyectos, proveedores, correo, Drive y Tailscale |
 | 1 | Captura (CP) | `digest run` deja en el correo un informe mecánico con todo lo hecho; copia en Obsidian y Drive |
-| 2 | Informe (IN) | Informe de tres niveles validado; plan de mañana; semanal |
+| 2 | Informe (IN) | Seguimiento de resultados y próximo foco; niveles móvil/vault; semanal con contraste crítico, todo validado |
 | 3 | Webapp (WA) | Enlace del correo abre la webapp en móvil y ordenador; revisión activa; botones de generar |
 | 4 | Operación (OP) | Temporizadores, copia remota completa, recuperación |
 | 5 | Piloto (PL) | 7 a 10 jornadas reales, al menos un sábado; ajustes |
@@ -42,14 +42,33 @@ Aceptación: escenarios T01, T02, T05–T11, T30; cambios conocidos aparecen una
 
 ## Fase 2. Informe multinivel con LLM
 
+Base implementada antes del rediseño:
+
 - [IN-01] Cliente LLM y enrutado con respaldo
 - [IN-02] Esquemas, prompts y validador
 - [IN-03] Informe diario multinivel
 - [IN-04] Recolectores de notebooks, estructuras y sesiones de agentes
 - [IN-05] Informe semanal
-- [IN-06] Puerta de fase 2
 
-Aceptación: T12–T18; ninguna referencia inventada se publica; cifras verificables coinciden; inferencias marcadas.
+Propuestas de rediseño D-047/D-048/D-049, aún pendientes de implementación:
+
+- [IN-07] Diagnóstico de rechazos y publicación sin sustitución mecánica
+- [IN-08] Hechos normalizados y paquetes pequeños por fuente
+- [IN-09] Nodos validados persistidos y generación reanudable
+- [IN-10] Seguimiento diario de resultados y próximo foco, con niveles por canal
+- [IN-12] Contraste crítico semanal de conclusiones y evidencia nueva
+- [IN-11] Validación del flujo jerárquico con fallos y proyectos reales
+- [IN-06] Puerta de fase 2: espera la nueva validación
+
+Aceptación: escenarios T12–T18 adaptados al requisito vigente, sin referencias ni
+cifras inventadas, con inferencias marcadas y sin sustituir secciones fallidas por
+contenido mecánico. La persona debe poder explicar qué cambió y cómo afecta al
+objetivo, contrastar evidencias y elegir o ajustar una misión con motivo,
+dependencias y criterio de finalización. El mensaje móvil conserva condiciones e
+incertidumbre; la vault permite profundizar en conceptos y técnica. El semanal
+contrasta conclusiones previas con evidencia nueva y propone análisis que ayuden a
+decidir, sin cambiar texto ni estados humanos. Arranque diferenciado de actividad
+nueva y reutilización incremental comprobada; detalles en HIERARCHICAL_DIGEST.md.
 
 ## Fase 3. Webapp y revisión activa
 

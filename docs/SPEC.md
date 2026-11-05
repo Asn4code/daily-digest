@@ -41,7 +41,7 @@ La persona produce mucho trabajo (propio y de agentes) pero no tiene tiempo de r
   1. Lo esencial: hasta 3 hechos con evidencias.
   2. Balance conceptual por proyecto: qué se sabe ahora, qué sigue sin saberse, qué decisión cambia. Se admite «hoy no hay conclusión científica nueva».
   3. Todo lo hecho: **todos** los resultados del intervalo, sin límite, cada uno con resumen, evidencias, figuras y estado de revisión.
-  4. Plan de mañana: 1 misión y hasta 2 calentamientos (menos de 15 min), cada uno con acción, criterio de finalización, dependencia, motivo y origen (`kanvas`, `model`, `review`).
+  4. Plan de mañana: 1 misión y hasta 2 calentamientos (menos de 15 min), cada uno con acción, criterio de finalización, dependencia, motivo de prioridad y origen (`kanvas`, `model`, `review`). El motivo conecta la propuesta con el objetivo científico, una decisión o bloqueo que resuelve, las dudas/controles pendientes y los compromisos humanos. La persona conserva la elección y las ediciones; no se proponen tareas por rellenar el plan (D-049).
   5. Hilos abiertos: cambios sin confirmar, tareas en `doing`, preguntas `ask` sin responder.
   6. Nivel técnico: análisis ejecutados, parámetros determinantes, controles, fallos y bloqueos.
   7. Evidencias y cobertura: fuentes, intervalos no cubiertos, errores del servicio.
