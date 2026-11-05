@@ -56,6 +56,8 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-041 | 2026-11-05 | Conservar DNS institucional gestionado por NetworkManager en el servidor; Tailscale se configura con accept-dns=false | Sistemas advirtió de posible interferencia con resolución IPA/Kerberos tras sustituir resolv.conf. La persona confirmó restauración de los DNS institucionales; resolución de la incidencia Kerberos y acceso móvil posteriores siguen por verificar. No se desinstala ni se cambia IPA por este ajuste |
 
+| D-042 | 2026-11-05 | CP-03 incorpora Pillow para miniaturas PNG, CairoSVG para rasterizar SVG con recursos externos bloqueados y pypdfium2 para texto y primera página de PDF sin ejecutar contenido | Dependencias necesarias para informes y figuras de los proyectos, sin copiar SVG/PDF originales al registro de figuras. Dimensiones, páginas, bytes y textos acotados. No sustituyen WeasyPrint como generador de PDF en CP-08 |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La firma

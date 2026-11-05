@@ -114,7 +114,13 @@ class GitCollector:
                         output.omitted.append(Omission(name, str(error)))
                     return False
 
-            def diff(name: str, args: list[str], locator: str, event: datetime | None) -> None:
+            def diff(
+                name: str,
+                args: list[str],
+                locator: str,
+                event: datetime | None,
+                blob: str | None = None,
+            ) -> None:
                 value = command(*args, "--no-ext-diff", "--no-textconv", "--no-renames", "--", name)
                 binary = "Binary files " in value or "GIT binary patch" in value
                 excerpt = (
@@ -132,7 +138,7 @@ class GitCollector:
                         excerpt[: ctx.limits.max_excerpt_chars],
                         ctx.observed_at,
                         event,
-                        {"path": name, "binary": binary},
+                        {"path": name, "binary": binary, "git_blob": blob},
                     )
                 )
 
@@ -186,7 +192,13 @@ class GitCollector:
                         if int(size) > ctx.limits.max_file_bytes:
                             output.omitted.append(Omission(name, "too_large"))
                             continue
-                        diff(name, ["show", "--format=", sha], sha + ":" + name, event)
+                        diff(
+                            name,
+                            ["show", "--format=", sha],
+                            sha + ":" + name,
+                            event,
+                            tree.split("\t", 1)[0].split()[2] if tree else None,
+                        )
             # Status is porcelain v1 -z: paths are literal, including whitespace/newlines.
             entries = command(
                 "status", "--porcelain=v1", "-z", "--untracked-files=all", "--no-renames"

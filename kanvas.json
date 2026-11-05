@@ -472,12 +472,24 @@
     {
       "id": "CP-03",
       "title": "Recolectores de documentación y figuras",
-      "state": "todo",
+      "state": "done",
       "group": "CP",
       "deps": ["CB-03", "CB-04", "CB-05", "CB-07"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "doc_change con diff contra la captura anterior; figure con miniatura PNG, SVG rasterizado y procedencia (commit o log).\n\nTerminado cuando: el SVG de proj-ok solo existe como PNG en el registro, el .xtc grande se excluye sin leerse (T10) y un archivo que cambia durante la lectura se descarta (T07)."
+      "desc": "doc_change con diff contra la captura anterior; figure con miniatura PNG, SVG rasterizado y procedencia (commit o log).\n\nTerminado cuando: el SVG de proj-ok solo existe como PNG en el registro, el .xtc grande se excluye sin leerse (T10) y un archivo que cambia durante la lectura se descarta (T07).",
+      "notes": [
+        {
+          "at": "2026-11-05T11:33:37Z",
+          "by": "codex",
+          "text": "Plan: exploración filtrada con límites y timeout, cambios documentales con diff, y miniaturas PNG para PNG/SVG/PDF. Rasterización sin recursos externos y pruebas de exclusiones y cambios durante lectura."
+        },
+        {
+          "at": "2026-11-05T11:37:51Z",
+          "by": "codex",
+          "text": "Recolectores documentales y de figuras implementados: Markdown/texto e informes HTML/PDF con diff y límites; miniaturas PNG desde PNG/SVG/PDF, SVG sin recursos externos y procedencia Git solo con blob coincidente. make check pasa con 108 tests, incluidos T07/T10, HTML sin scripts, rasterización, deduplicación y recursos SVG bloqueados. Dependencias justificadas en D-042; no se ejecuta contenido de los proyectos."
+        }
+      ]
     },
     {
       "id": "CP-04",

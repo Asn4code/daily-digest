@@ -134,3 +134,18 @@ externos quedan como cobertura fallida, no se abren fuera de las raíces permiti
 El historial se limita a 5000 commits por captura y se avisa si se supera; ramas
 nuevas y cambios sin confirmar se registran con hora observada, commits con fecha
 de committer. El árbol de prueba, incluido el índice Git, se compara antes y después.
+
+## 9. Documentos y figuras (fase 1)
+
+La exploración no sigue directorios simbólicos, poda exclusiones y se interrumpe
+por timeout o tras 100000 entradas, dejando cobertura incompleta visible. Los
+Markdown, texto, HTML e informes PDF incluidos generan evidencia `doc_change` con
+diff acotado; HTML se extrae como texto sin scripts, estilos ni recursos externos.
+PDF se lee sin ejecutar contenido, con límites de páginas y texto. El payload
+textual por captura queda acotado por `max_project_package_chars`.
+
+Las figuras PNG/SVG/PDF generan únicamente miniaturas PNG de hasta 1200 px por
+lado. SVG bloquea recursos externos; PDF usa solo la primera página. Se limita
+la carga de imágenes a 16 millones de píxeles. La procedencia de Git solo se
+atribuye si la identidad del blob coincide con los bytes leídos; en otro caso se
+marca `unverified`. No se infiere procedencia de la fecha de modificación.
