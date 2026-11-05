@@ -538,12 +538,24 @@
     {
       "id": "CP-06",
       "title": "Resultados e intervalos",
-      "state": "todo",
+      "state": "done",
       "group": "CP",
       "deps": ["CP-01", "CP-02"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Agrupación de evidencias en resultados (EVIDENCE.md §4) y semántica de intervalos diario, avance y semanal, incluida la recuperación de días pendientes (ARCHITECTURE.md §4).\n\nTerminado cuando: cada tarea en review o done es un resultado con sus commits y figuras; lo que no tiene tarea aparece como «fuera del tablero»; tests de intervalos con reloj fijo."
+      "desc": "Agrupación de evidencias en resultados (EVIDENCE.md §4) y semántica de intervalos diario, avance y semanal, incluida la recuperación de días pendientes (ARCHITECTURE.md §4).\n\nTerminado cuando: cada tarea en review o done es un resultado con sus commits y figuras; lo que no tiene tarea aparece como «fuera del tablero»; tests de intervalos con reloj fijo.",
+      "notes": [
+        {
+          "at": "2026-11-05T12:01:57Z",
+          "by": "codex",
+          "text": "Plan: agrupación estable por tarea o directorio, preservando revisión humana; intervalos diarios/preview/semanales en Europe/Madrid y persistencia UTC. Pruebas de idempotencia, cobertura total, cierre y DST."
+        },
+        {
+          "at": "2026-11-05T12:04:39Z",
+          "by": "codex",
+          "text": "Resultados agrupados por tareas y referencias explícitas; trabajo no asociado visible fuera del tablero, preservando revisiones humanas. Intervalos UTC con calendario Europe/Madrid, avances sin cierre, semanales con DST y recuperación de hasta siete días con evidencia no cubierta. make check: 121 tests pasan, incluidas idempotencia, preservación de closed_by_human, cierre solo tras informe publicado y semana de 169 horas."
+        }
+      ]
     },
     {
       "id": "CP-07",

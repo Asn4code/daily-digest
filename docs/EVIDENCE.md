@@ -172,3 +172,18 @@ absoluto dentro del proyecto. Si sus fechas no incluyen zona horaria, no se
 inventa una; estado, tiempos y exit code originales siguen disponibles en el
 extracto. SGE se cubre inicialmente mediante logs locales existentes; no se
 lanzan jobs ni se hacen consultas SSH implícitas.
+
+## 12. Agrupación e intervalos implementados
+
+Los resultados de tareas aceptadas para revisión o terminadas conservan su ID y
+su estado humano al reagrupar. Commits con ID explícito de tarea, sus diffs,
+figuras con procedencia Git verificada y archivos nombrados explícitamente en
+notas pueden asociarse a esa tarea. Lo que no tiene tarea se agrupa por directorio
+o fuente como «Fuera del tablero». Las tareas aún abiertas quedan disponibles
+como hilos, sin presentarlas como resultados terminados.
+
+Los intervalos se almacenan en UTC y usan medianoches de Europe/Madrid para días
+y semanas, incluido el cambio de horario. Un avance no cierra intervalos; un
+informe solo permite cerrar su intervalo cuando está listo o es mecánico. La
+recuperación propone hasta siete días completos con evidencia no cubierta por
+un diario cerrado. Los estados de revisión humana no se actualizan al publicar.
