@@ -65,8 +65,16 @@ Ninguna en `src/`; `rg -n 'gate: allow' src` no devuelve coincidencias. No se mo
 
 Comprobaciones que solo puedes hacer tú:
 
-- [ ] El correo del informe mecánico se lee bien en el móvil
-- [ ] El informe mecánico de un proyecto real coincide con lo que recuerdas del día (sin omisiones graves)
-- [ ] La copia del informe aparece en la carpeta de Drive y en Obsidian sin tocar otras notas
+- [x] El correo del informe mecánico se lee bien en el móvil
+- [x] El informe mecánico de un proyecto real coincide con lo que recuerdas del día (sin omisiones graves)
+- [x] La copia del informe aparece en la carpeta de Drive y en Obsidian sin tocar otras notas
 
-- [ ] Apruebo la fase
+- [x] Apruebo la fase
+
+
+## Cierre de la puerta
+
+La persona confirmó «revisado y aprobado» en la conversación y dejó marcadas las
+tres comprobaciones y «Apruebo la fase». La ejecución posterior de
+`python scripts/phase_gate.py 1` dio **APROBADA**, código 0. Resultado completo
+conservado en [phase-1-gate.md](phase-1-gate.md).

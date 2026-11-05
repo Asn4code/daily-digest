@@ -64,7 +64,7 @@ Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase
 humana registradas en `docs/reviews/phase-0.md`. Quedan verificaciones de implementación:
 
 - CP-05: rutas y formatos de logs por proyecto y disponibilidad del acceso de solo lectura a SGE.
-- CP-08: WeasyPrint 70 instalado y probado con informes de fixtures; queda la comprobación humana del correo y el informe real en la puerta de fase 1.
+- CP-08: WeasyPrint 70 probado con fixtures e informe real; comprobaciones humanas de correo y copias aprobadas en la puerta de fase 1.
 - Fase 2: verificar ubicaciones y formatos de sesiones de los agentes.
 - Fase 3: probar el acceso móvil a la webapp con Tailscale.
 - Fase 6: concretar cada brief y aplicar la prioridad protocolos → métodos,
@@ -97,3 +97,5 @@ Rellenar en CB-06 con lo comprobado (versiones, salidas reales, límites).
 | 2026-11-05 | Entregas CP-08 | WeasyPrint 70 compatible con Pango local; PDF de fixtures generado y rasterizado para revisión visual. SMTP local y remoto rclone local prueban 40 tareas, figuras CID, reintentos independientes, estado incierto tras DATA, revisiones y protección de texto humano. Vista del correo a 390 px comprobada con Chromium; no equivale a comprobar un cliente de correo real. |
 
 | 2026-11-05 | Revisión independiente CP-09 | Se reprodujeron y corrigieron ejecución de filtros Git, deduplicación incorrecta tras reapertura de una tarea y pérdida de omisiones persistentes de métricas. El revisor volvió a ejecutar sus reproducciones: corregidas; 132 tests pasan y los árboles de fixtures, incluido el índice Git, permanecen intactos. Ficha de fase 1 aprobada por la sesión independiente; firma humana pendiente. |
+
+| 2026-11-05 | Cierre de fase 1 | La persona confirmó «revisado y aprobado» y marcó las tres comprobaciones humanas y la aprobación de fase. La puerta completa dio APROBADA (código 0). Se mantienen documentadas las limitaciones de cobertura del piloto. La fase 2 está autorizada mediante YOLO hasta IN-06. |

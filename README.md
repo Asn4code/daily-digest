@@ -30,7 +30,7 @@ Servicio personal que, al final de cada día (o cuando lo pidas), reúne lo que 
 
 ## Empezar
 
-Estado de implementación: fase 0 aprobada; fase 1 en validación. Ya funcionan
+Estado de implementación: fases 0 y 1 aprobadas; fase 2 autorizada en Kanvas. Ya funcionan
 la captura de solo lectura, el registro SQLite, los informes mecánicos en Markdown,
 HTML y PDF y las entregas independientes a correo, Obsidian y Drive.
 La síntesis con LLM, la webapp y los servicios systemd pertenecen a fases posteriores.

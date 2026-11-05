@@ -31,12 +31,13 @@ se hayan validado sus resultados científicos. La selección de fuentes candidat
 está en [PILOT_SOURCES.md](../PILOT_SOURCES.md); habrá que acotar las rutas y
 columnas antes de considerar representativa la cobertura de ambos proyectos.
 
-## Comprobaciones humanas pendientes
+## Comprobaciones humanas aprobadas
 
-La firma está en [phase-1.md](phase-1.md), sin marcar por el agente. Comprobar
-el correo en el móvil, contrastar el informe real con el trabajo conocido y
-abrir las copias en Obsidian y Drive. La aprobación de la fase exige que las
-omisiones se consideren aceptables; las pruebas automáticas no deciden eso.
+La persona confirmó «revisado y aprobado» y marcó las comprobaciones de
+[phase-1.md](phase-1.md): correo en el móvil, correspondencia del informe con el
+trabajo conocido y copias en Obsidian y Drive. La puerta completa dio APROBADA.
+Las limitaciones de cobertura descritas arriba se conservan como registro del
+piloto; la aprobación no añade tablas de métricas ni elimina las omisiones.
 
 Informe local: `build/pilot/data/reports/daily/rep_daily_2026-11-05_r1/report.html`.
 Obsidian: `Digest/2026-11-05.md`. Drive: `DailyDigest/reports/daily/rep_daily_2026-11-05_r1/`.

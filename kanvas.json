@@ -604,10 +604,9 @@
     {
       "id": "CP-09",
       "title": "Puerta de fase 1",
-      "state": "doing",
+      "state": "done",
       "group": "CP",
       "deps": ["CP-01", "CP-02", "CP-03", "CP-04", "CP-05", "CP-06", "CP-07", "CP-08"],
-      "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
       "desc": "Validar que la fase 1 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 1 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-1.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 1` da APROBADA y el informe build/gates/phase-1.md va en la nota de cierre.",
@@ -626,13 +625,18 @@
           "at": "2026-11-05T12:51:31Z",
           "by": "codex",
           "text": "Puerta automática PROVISIONAL y revisión independiente aprobada tras corregir R1-R3; make check: 132 tests. Informe piloto rep_daily_2026-11-05_r1 generado y entregado: correo y Obsidian al primer intento; Drive al segundo por fallo 403 de cuota transitorio, sin repetir otros canales. Informe automático permanente en docs/reviews/phase-1-gate.md y comprobaciones/cobertura real en docs/reviews/phase-1-pilot.md. Pendiente firma humana de docs/reviews/phase-1.md: móvil, correspondencia con trabajo real y copias. La cobertura real alcanza scan_limit y presupuesto documental; aún no hay tablas de métricas declaradas. No se aprueba automáticamente esa suficiencia ni se inicia fase 2."
+        },
+        {
+          "at": "2026-11-05T13:02:21Z",
+          "by": "codex",
+          "text": "La fase 1 queda aprobada: captura de solo lectura, registro e informes mecánicos con entregas a correo, Obsidian y Drive. Revisión independiente aprobada, 132 tests verificados y firma humana confirmada con «revisado y aprobado». La puerta completa python scripts/phase_gate.py 1 da APROBADA (código 0), incluidas revisión y firma. Informe permanente: docs/reviews/phase-1-gate.md. Las limitaciones de cobertura del piloto permanecen documentadas en docs/reviews/phase-1-pilot.md. La autorización YOLO de IN-06 permite continuar la fase 2."
         }
       ]
     },
     {
       "id": "IN-01",
       "title": "Cliente LLM y enrutado con respaldo",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["CB-06", "CP-09"],
       "at": "2026-11-04T11:20:37Z",
@@ -642,7 +646,7 @@
     {
       "id": "IN-02",
       "title": "Esquemas, prompts y validador",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["IN-01", "CP-06"],
       "at": "2026-11-04T11:20:37Z",
@@ -652,7 +656,7 @@
     {
       "id": "IN-03",
       "title": "Informe diario multinivel",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["IN-02", "CP-07"],
       "at": "2026-11-04T11:20:37Z",
@@ -662,7 +666,7 @@
     {
       "id": "IN-04",
       "title": "Recolectores de notebooks, estructuras y sesiones de agentes",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["CP-06", "CP-09"],
       "at": "2026-11-04T11:20:37Z",
@@ -672,7 +676,7 @@
     {
       "id": "IN-05",
       "title": "Informe semanal",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["IN-03"],
       "at": "2026-11-04T11:20:37Z",
@@ -682,9 +686,10 @@
     {
       "id": "IN-06",
       "title": "Puerta de fase 2",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["IN-01", "IN-02", "IN-03", "IN-04", "IN-05"],
+      "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
       "desc": "Validar que la fase 2 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 2 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-2.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 2` da APROBADA y el informe build/gates/phase-2.md va en la nota de cierre."

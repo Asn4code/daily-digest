@@ -1,6 +1,6 @@
 # Puerta de fase 1: Captura, registro e informe mecánico
 
-Resultado: **PROVISIONAL** · 2026-11-05T13:37:57+01:00 · regresión sí · host no
+Resultado: **APROBADA** · 2026-11-05T14:01:39+01:00 · regresión sí · host no
 
 | Categoría | Comprobación | Estado |
 | --- | --- | --- |
@@ -53,20 +53,5 @@ Resultado: **PROVISIONAL** · 2026-11-05T13:37:57+01:00 · regresión sí · hos
 | tests | T11 | PASS |
 | tests | T30 | PASS |
 | tablero | CP | PASS |
-| revisión | phase-1.md | SKIP |
-| firma | comprobaciones manuales | SKIP |
-
-## Detalles
-
-### revisión · phase-1.md · SKIP
-
-```text
---no-manual
-```
-
-### firma · comprobaciones manuales · SKIP
-
-```text
---no-manual
-```
-
+| revisión | phase-1.md | PASS |
+| firma | comprobaciones manuales | PASS |
