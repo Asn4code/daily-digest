@@ -119,3 +119,18 @@ preguntas por el prefijo `Question:` del CLI.
 La persistencia usa el esquema publicado y la clave de deduplicación de evidencia;
 repetir una captura no duplica hechos. Los fallos quedan como cobertura y no
 sustituyen el último payload utilizable para comparar la siguiente lectura.
+
+## 8. Capturas Git (fase 1)
+
+Git se ejecuta con rutas literales, paginación desactivada, entorno mínimo,
+`GIT_OPTIONAL_LOCKS=0`, hooks y fsmonitor desactivados, y diffs sin programas
+externos ni textconv. Los binarios se identifican sin incluir su contenido en el
+extracto. Los archivos nuevos pasan por la lectura acotada y las exclusiones;
+los diffs se truncan por archivo y la cobertura registra ese recorte.
+
+Se rechazan repositorios cuyo directorio Git escape de la raíz, tenga includes
+de configuración o almacenes alternativos de objetos. Los worktrees con metadatos
+externos quedan como cobertura fallida, no se abren fuera de las raíces permitidas.
+El historial se limita a 5000 commits por captura y se avisa si se supera; ramas
+nuevas y cambios sin confirmar se registran con hora observada, commits con fecha
+de committer. El árbol de prueba, incluido el índice Git, se compara antes y después.

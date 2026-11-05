@@ -450,12 +450,24 @@
     {
       "id": "CP-02",
       "title": "Recolector de Git",
-      "state": "todo",
+      "state": "done",
       "group": "CP",
       "deps": ["CB-03", "CB-04", "CB-05", "CB-07"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Commits del intervalo, diff por archivo truncado, cambios preparados y sin preparar, archivos nuevos filtrados (EVIDENCE.md, Git).\n\nTerminado cuando: los commits fechados de proj-ok aparecen en el intervalo correcto, los binarios se listan sin contenido y no se escribe nada en .git (T30)."
+      "desc": "Commits del intervalo, diff por archivo truncado, cambios preparados y sin preparar, archivos nuevos filtrados (EVIDENCE.md, Git).\n\nTerminado cuando: los commits fechados de proj-ok aparecen en el intervalo correcto, los binarios se listan sin contenido y no se escribe nada en .git (T30).",
+      "notes": [
+        {
+          "at": "2026-11-05T09:07:48Z",
+          "by": "codex",
+          "text": "Plan: commits fechados, diffs acotados y cambios sin confirmar, con Git sin hooks, fsmonitor, textconv ni diff externo; filtros de rutas y pruebas de árbol intacto."
+        },
+        {
+          "at": "2026-11-05T09:11:24Z",
+          "by": "codex",
+          "text": "Recolector Git implementado: commits fechados, diffs por archivo acotados, binarios sin contenido, cambios preparados/sin preparar/nuevos y ramas. Git sin ejecución de helpers del proyecto. make check: 101 tests pasan, incluido T30 (árbol e índice intactos), nombres literales y rechazo de includes externos. Las omisiones quedan en cobertura. Contrato y límites en EVIDENCE.md §8."
+        }
+      ]
     },
     {
       "id": "CP-03",
