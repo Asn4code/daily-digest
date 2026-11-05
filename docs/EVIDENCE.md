@@ -55,7 +55,11 @@ Reglas para todos los recolectores:
 
 **Kanvas.** El tablero es `kanvas.json` en la raíz del proyecto (Kanvas 0.4.0, rama `cursor/standalone-html-board-6ccb`, commit `97e93ad`). Formato: `{"kanvas": 1, "title", "groups": [{id, name}], "tasks": [{id, title, state, group, deps, yolo, at, by, desc, notes: [{at, by, text}]}]}`. Estados: `proposed`, `todo`, `doing`, `review`, `done`; «bloqueada» se deriva. Las transiciones se detectan comparando capturas; su hora es la de la nota correspondiente si existe (`event`), si no, la de la captura (`observed`). El autor de cada nota (`claude-code`, `codex`, `human`…) se guarda en `meta.by` y se muestra: no se atribuye al usuario trabajo de un agente o colaborador sin evidencia. Antes de implementar, verificar `kanvas status --json`; si existe y basta, preferirlo al parseo directo.
 
-**Git.** Siempre con `GIT_OPTIONAL_LOCKS=0`, `-c core.quotepath=off` y `--no-pager`. Diff truncado a `limits.max_diff_chars_per_file` por archivo; los binarios se listan sin contenido. Los cambios sin confirmar son «hilos abiertos».
+**Git.** Siempre con `GIT_OPTIONAL_LOCKS=0`, `-c core.quotepath=off` y `--no-pager`. Diff truncado a `limits.max_diff_chars_per_file` por archivo; los binarios se listan sin contenido. Los cambios sin confirmar son «hilos abiertos». Se rechazan repositorios con
+configuración `include` o filtros `clean/process` antes de ejecutar Git: incluso
+un diff de solo lectura puede activar esos filtros. Se anula la lectura de archivos
+globales de atributos, exclusiones y orden de diff. El rechazo aparece en cobertura
+como `git_config_filter` o `git_config_include`; no modifica la configuración del proyecto.
 
 **Figuras.** La figura original no se copia entera al registro; se guarda una miniatura PNG y la ruta. Los SVG se rasterizan (nunca se sirven tal cual). Un notebook con salidas antiguas no cuenta como figura del día salvo que su hash sea nuevo.
 
@@ -187,3 +191,16 @@ y semanas, incluido el cambio de horario. Un avance no cierra intervalos; un
 informe solo permite cerrar su intervalo cuando está listo o es mecánico. La
 recuperación propone hasta siete días completos con evidencia no cubierta por
 un diario cerrado. Los estados de revisión humana no se actualizan al publicar.
+
+
+### Identidad de transiciones y cobertura repetida
+
+El snapshot de Kanvas conserva una secuencia de transiciones por tarea. Una
+reapertura y un nuevo cierre producen evidencias distintas aunque el estado final
+y las notas sean iguales a los del primer cierre. Una captura sin cambios no
+incrementa esa secuencia. Es metadato privado del snapshot, sin escritura en Kanvas
+ni modificación del esquema SQLite.
+
+La caché de métricas conserva también las omisiones por valores inválidos o
+columnas ausentes. Repetir una captura idéntica mantiene su cobertura incompleta
+sin duplicar evidencias. Cambiar las columnas declaradas obliga a recalcular.

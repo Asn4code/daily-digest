@@ -64,9 +64,16 @@ class MetricsCollector:
                     )
                     hashed = content_hash(raw)
                     old = previous.get(key, {})
-                    if old.get("hash") == hashed:
+                    if (
+                        old.get("hash") == hashed
+                        and old.get("columns") == metric.columns
+                        and old.get("label") == metric.label
+                        and "omitted" in old
+                    ):
                         payload[key] = old
+                        omitted.extend(Omission(**item) for item in old["omitted"])
                         continue
+                    omission_start = len(omitted)
                     rows = records(raw, Path(name).suffix.lower())
                     stats = {}
                     changes: dict[str, dict[str, float]] = {}
@@ -117,9 +124,18 @@ class MetricsCollector:
                                 changes[column][label] = delta
                             else:
                                 omitted.append(Omission(name + "#" + column, "nonfinite_change"))
+                    payload[key] = {
+                        "hash": hashed,
+                        "stats": stats,
+                        "columns": metric.columns,
+                        "label": metric.label,
+                        "omitted": [
+                            {"locator": item.locator, "reason": item.reason}
+                            for item in omitted[omission_start:]
+                        ],
+                    }
                     if not stats:
                         continue
-                    payload[key] = {"hash": hashed, "stats": stats}
                     content = {
                         "label": metric.label,
                         "path": name,

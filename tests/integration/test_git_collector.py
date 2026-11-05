@@ -74,3 +74,30 @@ def test_external_git_config_is_rejected(tmp_path: Path) -> None:
     )
     assert output.status == "failed"
     assert output.omitted[0].reason == "git_config_include"
+
+
+def test_T30_clean_filter_cannot_execute_during_worktree_capture(tmp_path: Path) -> None:
+    from digest.config import ProjectConfig
+
+    root = tmp_path / "project"
+    root.mkdir()
+    marker = tmp_path / "filter-executed"
+    _git(root, "init", "--initial-branch=main", "--template=")
+    _git(root, "config", "user.name", "Fixture")
+    _git(root, "config", "user.email", "fixture@example.invalid")
+    (root / "file.md").write_text("initial\n")
+    _git(root, "add", "file.md")
+    _git(root, "commit", "-m", "initial")
+    (root / ".gitattributes").write_text("file.md filter=evil\n")
+    _git(root, "config", "filter.evil.clean", f"touch {marker}; cat")
+    (root / "file.md").write_text("modified\n")
+    before = _snapshot(root, include_git=True)
+    result = GitCollector().collect(
+        ProjectConfig(id="test", name="Test", root=str(root)),
+        None,
+        CaptureContext(tmp_path / "service", datetime.now(UTC)),
+    )
+    assert result.status == "failed"
+    assert result.omitted[0].reason == "git_config_filter"
+    assert not marker.exists()
+    assert _snapshot(root, include_git=True) == before

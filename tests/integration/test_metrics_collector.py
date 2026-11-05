@@ -97,3 +97,21 @@ def test_large_finite_values_never_publish_infinity(tmp_path: Path) -> None:
     assert output.evidence[0].meta["stats"]["score"]["mean"] == 1e308
     assert output.evidence[0].meta["stats"]["score"]["median"] == 1e308
     assert "Infinity" not in output.evidence[0].excerpt
+
+
+@pytest.mark.parametrize("content", ["score\n1\nNaN\n", "other\n1\n"])
+def test_unchanged_metric_preserves_incomplete_coverage(tmp_path: Path, content: str) -> None:
+    (tmp_path / "scores.csv").write_text(content)
+    project = ProjectConfig(
+        id="test",
+        name="Test",
+        root=str(tmp_path),
+        metrics=[MetricConfig(label="score", pattern="*.csv", columns=["score"])],
+    )
+    ctx = CaptureContext(tmp_path / "service", datetime.now(UTC))
+    first = MetricsCollector().collect(project, None, ctx)
+    ctx.previous_payload = first.snapshot_payload
+    second = MetricsCollector().collect(project, None, ctx)
+    assert first.status == second.status == "partial"
+    assert first.omitted == second.omitted
+    assert not second.evidence

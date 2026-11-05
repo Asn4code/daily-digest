@@ -2,6 +2,7 @@
 
 import fnmatch
 import os
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -26,8 +27,12 @@ def _repository(root: Path, ctx: CaptureContext) -> Path:
         raise ReadError("external_git_metadata")
     # Include directives and alternate object stores may escape the configured root.
     config = read_bounded(git, "config", max_bytes=ctx.limits.max_file_bytes)
-    if b"[include" in config.lower():
+    if re.search(rb"\[\s*include(?:if)?(?:\s|\.|\])", config, re.IGNORECASE):
         raise ReadError("git_config_include")
+    # Status and worktree diffs may invoke clean/process filters, even with
+    # --no-ext-diff and --no-textconv. Fail closed before any repository command.
+    if re.search(rb"\[\s*filter(?:\s|\.|\])", config, re.IGNORECASE):
+        raise ReadError("git_config_filter")
     for name in ["commondir", "objects/info/alternates"]:
         if (git / name).exists():
             raise ReadError("external_git_metadata")
@@ -71,6 +76,12 @@ class GitCollector:
                 "core.hooksPath=/dev/null",
                 "-c",
                 "core.untrackedCache=false",
+                "-c",
+                "core.attributesFile=/dev/null",
+                "-c",
+                "core.excludesFile=/dev/null",
+                "-c",
+                "diff.orderFile=/dev/null",
             ]
 
             def command(*args: str) -> str:

@@ -136,3 +136,32 @@ def test_question_dates_and_excerpt_limits(tmp_path: Path) -> None:
     with patch("digest.collectors.kanvas.run", return_value=ProcessResult(0, "", "")):
         filtered = KanvasCollector().collect(project, ctx.observed_at - timedelta(hours=1), ctx)
     assert not any(e.kind == "task_question" for e in filtered.evidence)
+
+
+def test_reopened_task_completion_has_a_distinct_evidence_id(tmp_path: Path) -> None:
+    from tests.fixtures.make_projects import _kanvas
+
+    config = load_config(build_projects(tmp_path / "projects"))
+    project = config.projects[0]
+    root = Path(project.root)
+    collector = KanvasCollector()
+    ctx = context(tmp_path)
+    ids = []
+    with closing(connect(tmp_path / "digest.db")) as db:
+        for state in ["done", "doing", "done"]:
+            _kanvas().mutate(
+                str(root / "kanvas.json"),
+                lambda board, state=state: board["tasks"][0].update(state=state),
+            )
+            ctx.observed_at += timedelta(minutes=1)
+            output = collector.collect(project, None, ctx)
+            ident = persist(db, project, "kanvas", output, ctx)
+            ids.append(ident)
+            ctx.previous_payload = previous_payload(db, project.id, "kanvas")
+            assert not collector.collect(project, None, ctx).evidence
+        assert set(ids[0]).isdisjoint(ids[2])
+        rows = db.execute(
+            "SELECT content_hash FROM evidence WHERE kind='task_transition'"
+        ).fetchall()
+        assert len(rows) == 3 and len(set(rows)) == 3
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)

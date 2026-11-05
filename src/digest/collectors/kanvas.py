@@ -74,7 +74,8 @@ class KanvasCollector:
                 raise ValueError("invalid_board")
             previous = (ctx.previous_payload or {}).get("tasks", {})
             evidence = []
-            payload: dict[str, Any] = {"tasks": {}}
+            sequences = dict((ctx.previous_payload or {}).get("transition_sequences", {}))
+            payload: dict[str, Any] = {"tasks": {}, "transition_sequences": sequences}
             for task in tasks:
                 ctx.remaining()
                 ident = task["id"]
@@ -82,7 +83,9 @@ class KanvasCollector:
                 state = task["state"]
                 payload["tasks"][ident] = task
                 if old.get("state") != state:
-                    content = canonical({"id": ident, "state": state})
+                    sequence = sequences.get(ident, 0) + 1
+                    sequences[ident] = sequence
+                    content = canonical({"id": ident, "state": state, "sequence": sequence})
                     evidence.append(
                         EvidenceDraft(
                             "task_transition",

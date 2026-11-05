@@ -604,13 +604,25 @@
     {
       "id": "CP-09",
       "title": "Puerta de fase 1",
-      "state": "todo",
+      "state": "doing",
       "group": "CP",
       "deps": ["CP-01", "CP-02", "CP-03", "CP-04", "CP-05", "CP-06", "CP-07", "CP-08"],
       "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Validar que la fase 1 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 1 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-1.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 1` da APROBADA y el informe build/gates/phase-1.md va en la nota de cierre."
+      "desc": "Validar que la fase 1 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 1 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-1.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 1` da APROBADA y el informe build/gates/phase-1.md va en la nota de cierre.",
+      "notes": [
+        {
+          "at": "2026-11-05T12:32:28Z",
+          "by": "codex",
+          "text": "Plan: ejecutar la puerta automática, solicitar revisión independiente sin contexto de construcción y preparar el informe real y las comprobaciones humanas finales."
+        },
+        {
+          "at": "2026-11-05T12:36:42Z",
+          "by": "codex",
+          "text": "La revisión independiente reprodujo tres problemas: filtros clean de Git ejecutables, finalización repetida tras reapertura omitida por deduplicación y cobertura de métricas incompletas perdida en caché. Corregidos con rechazo previo de filtros, secuencia persistida por transición y omisiones conservadas en el snapshot; sin cambios al esquema SQLite publicado. Añadidas cuatro pruebas de regresión. Se detuvo la captura piloto antes de continuar la validación."
+        }
+      ]
     },
     {
       "id": "IN-01",
