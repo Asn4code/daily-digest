@@ -215,3 +215,13 @@ sin retroceder a un prefijo numérico que cambie el valor. La puntuación final
 no oculta cifras. El orden de revisiones pendientes se compara con la lista
 determinista del paquete, y las hipótesis semanales conservan la etiqueta de
 interpretación y confianza también en Markdown y Obsidian.
+
+
+## 12. Ajuste provisional del piloto
+
+La configuración privada del piloto prioriza NaN en extracción, con Qwen interno
+como respaldo (D-046). La elección inicial era provisional y delegada: en las
+peticiones reales Qwen alcanzó timeouts y su respuesta válida tardó unos 106 s;
+NaN respondió en unos 13–15 s en esa muestra. Esto es una observación de latencia,
+no una comparación de calidad científica. Las rutas siguen editables y los
+proyectos restringidos continúan usando exclusivamente el proveedor interno.

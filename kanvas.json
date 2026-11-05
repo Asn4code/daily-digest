@@ -783,6 +783,11 @@
           "at": "2026-11-05T13:51:44Z",
           "by": "codex",
           "text": "Revisión independiente aprobada tras corregir cuatro hallazgos: redacción común de credenciales en fuentes/contexto/snapshots/wire, validación de cifras con unidades pegadas/compuestas y puntuación, etiqueta y confianza de hipótesis semanales en Markdown, y orden determinista de pendientes. make check: 168 tests; puerta automática PROVISIONAL con controles PASS. Preparando diario y semanal reales sin envío para las tres comprobaciones humanas; no se marca la firma humana."
+        },
+        {
+          "at": "2026-11-05T14:17:46Z",
+          "by": "codex",
+          "text": "La prueba real sin envío mostró timeouts de Qwen y latencia ~106 s en una respuesta válida; NaN respondió en ~13–15 s en la muestra. Aplicado ajuste provisional delegado de D-024: NaN primero para extracción en el YAML privado del piloto, Qwen como respaldo y external_allowed intacto. Jobs de validación 5/6 marcados como reiniciados; se conservan auditoría y revisión fallida r2. Nuevas validaciones sin envío en curso. No se altera la firma humana."
         }
       ]
     },

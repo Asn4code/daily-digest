@@ -64,6 +64,8 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-045 | 2026-11-05 | La persona autoriza lectores SQLite acotados para OpenCode y Hermes, filtrados por proyecto | Conexión immutable de solo lectura, consultas fijas, máximo 200 filas y 500 000 pasos, texto acotado y sin copiar las bases. Se admite un archivo SQLite declarado de hasta 2 GB como excepción al tamaño de archivo textual; no se envía la base al modelo. WAL pendiente y cambios durante lectura se muestran como cobertura incompleta. |
 
+| D-046 | 2026-11-05 | Ajuste provisional del piloto dentro de la selección delegada en D-024: extracción con NaN primero y Qwen como respaldo; rutas y modelos siguen editables en YAML | La ejecución real tuvo timeouts de 180 s y una respuesta válida de Qwen de ~106 s; NaN respondió en ~13–15 s en la muestra, sin afirmar superioridad científica. No cambia external_allowed ni los proveedores autorizados. Las ejecuciones de validación sin envío se reiniciaron; se conserva su auditoría. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma
@@ -109,3 +111,5 @@ Rellenar en CB-06 con lo comprobado (versiones, salidas reales, límites).
 | 2026-11-05 | Formatos de sesiones IN-04 | Codex JSONL contiene session_meta/cwd y response_item/message; comprobados solo nombres de campos. OpenCode usa tablas session/message/part en una base de ~854 MB; Hermes sessions/messages en ~335 MB. No se leyeron mensajes para esta comprobación. Consultada la adaptación SQLite antes de implementarla, según AGENTS.md. |
 
 | 2026-11-05 | Revisión de fase 2 | El revisor reprodujo fugas de secretos desde fuentes/contexto, bypass numéricos con unidades y puntuación, pérdida de etiqueta de interpretación semanal y reordenación de revisiones pendientes. Corregidos mediante frontera común de redacción y regresiones E2E de wire/almacenamiento, comprobación de tokens numéricos completos, marcado explícito y orden validado. Revalidación independiente y puerta en curso. |
+
+| 2026-11-05 | Revalidación de fase 2 | La sesión independiente reejecutó las reproducciones de secretos, cifras/unidades, Markdown y orden de revisiones: corregidas. make check: 168 tests pasan; puerta automática PROVISIONAL y ficha técnica aprobada. Pendientes las tres comprobaciones y firma humanas con diario y semanal reales. |
