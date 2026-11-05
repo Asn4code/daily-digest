@@ -621,6 +621,11 @@
           "at": "2026-11-05T12:36:42Z",
           "by": "codex",
           "text": "La revisión independiente reprodujo tres problemas: filtros clean de Git ejecutables, finalización repetida tras reapertura omitida por deduplicación y cobertura de métricas incompletas perdida en caché. Corregidos con rechazo previo de filtros, secuencia persistida por transición y omisiones conservadas en el snapshot; sin cambios al esquema SQLite publicado. Añadidas cuatro pruebas de regresión. Se detuvo la captura piloto antes de continuar la validación."
+        },
+        {
+          "at": "2026-11-05T12:51:31Z",
+          "by": "codex",
+          "text": "Puerta automática PROVISIONAL y revisión independiente aprobada tras corregir R1-R3; make check: 132 tests. Informe piloto rep_daily_2026-11-05_r1 generado y entregado: correo y Obsidian al primer intento; Drive al segundo por fallo 403 de cuota transitorio, sin repetir otros canales. Informe automático permanente en docs/reviews/phase-1-gate.md y comprobaciones/cobertura real en docs/reviews/phase-1-pilot.md. Pendiente firma humana de docs/reviews/phase-1.md: móvil, correspondencia con trabajo real y copias. La cobertura real alcanza scan_limit y presupuesto documental; aún no hay tablas de métricas declaradas. No se aprueba automáticamente esa suficiencia ni se inicia fase 2."
         }
       ]
     },
