@@ -418,6 +418,11 @@
           "at": "2026-11-05T08:38:50Z",
           "by": "codex",
           "text": "Fase 0 validada: configuración estricta, SQLite, lectura y procesos seguros, fixtures reproducibles y doctor real contra ambos proyectos y servicios.\nVerificación: scripts/phase_gate.py 0 --host APROBADA (0), con revisión independiente aprobada y firma humana. Último make check completo: 93 tests, lint, formato y mypy pasan.\nEvidencia permanente en docs/reviews/phase-0.md y docs/reviews/phase-0-gate.md. No se ha enviado correo ni modificado proyectos observados.\nLa persona puede aceptar esta tarea en Kanvas. La fase 1 requiere aprobar su cadena de tareas; no se ha iniciado."
+        },
+        {
+          "at": "2026-11-05T08:51:16Z",
+          "by": "codex",
+          "text": "Documentada incidencia DNS posterior al cierre: Tailscale sustituyó resolv.conf; sistemas advierte posible impacto en IPA/Kerberos. La persona confirma después DNS institucional restaurado por NetworkManager. D-041 y OPERATIONS.md indican accept-dns=false en el servidor, sin editar IPA ni resolv.conf manualmente; quedan por verificar accesos Kerberos y futuro acceso móvil. Cambios solo documentales, sin alterar firma ni configuración de red."
         }
       ]
     },

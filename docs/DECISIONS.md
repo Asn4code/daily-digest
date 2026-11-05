@@ -54,6 +54,8 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 | D-039 | 2026-11-04 | Q-12: WeasyPrint como motor de PDF desde las plantillas HTML/CSS del servicio | Propuesta aceptada por la persona; instalación y validación de tablas largas, figuras, caracteres y paginación en CP-08. La versión se fijará tras comprobar compatibilidad; Chromium no es un respaldo automático |
 | D-040 | 2026-11-04 | Q-13: priorizar briefs de protocolos reproducibles para la persona y colaboradores, en Markdown con pasos, parámetros, controles, criterios de éxito y problemas conocidos; después métodos para artículos | Propuesta aceptada por la persona. Docencia y reuniones se priorizarán según necesidades; se conserva el alcance de extensiones y se permite ajustar el orden de EX-03/EX-06 previsto en ROADMAP |
 
+| D-041 | 2026-11-05 | Conservar DNS institucional gestionado por NetworkManager en el servidor; Tailscale se configura con accept-dns=false | Sistemas advirtió de posible interferencia con resolución IPA/Kerberos tras sustituir resolv.conf. La persona confirmó restauración de los DNS institucionales; resolución de la incidencia Kerberos y acceso móvil posteriores siguen por verificar. No se desinstala ni se cambia IPA por este ajuste |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La firma
@@ -87,3 +89,4 @@ Rellenar en CB-06 con lo comprobado (versiones, salidas reales, límites).
 | 2026-11-04 | Tailscale CB-06 | Tailscale 1.104.5 instalado por la persona; BackendState=Running, equipo Online y MagicDNS activo. serve status responde sin configuración Serve; publicar la webapp se hará cuando esté implementada. No se ha activado Funnel. |
 | 2026-11-04 | Cierre CB-06 | Doctor completo contra los dos proyectos piloto pasa: YAML, datos, vault, ambos kanvas check, JSON sintético validado por ambos LLM, autenticación SMTP sin envío, Drive y Tailscale. Límites de contexto internos no publicados en OpenCode: siguen sin verificación empírica; no se han dado por medidos. |
 | 2026-11-04 | Catálogos LLM CB-06 | GET /models devuelve HTTP 200 en ambos proveedores. El catálogo interno identifica Qwen/Qwen3.8-27B con max_model_len=262144; el catálogo NaN incluye deepseek-v4-flash sin límite de contexto en esa respuesta. El 1M de NaN sigue siendo un valor documentado por el proveedor, no una prueba de saturación. |
+| 2026-11-05 | DNS del piloto | Comprobado inicialmente resolv.conf generado por Tailscale. Después del ajuste indicado, la persona compartió resolv.conf generado por NetworkManager, búsqueda institucional y tres DNS internos. Procedimiento y límites de la comprobación en OPERATIONS.md, sección DNS institucional e IPA/Kerberos. |

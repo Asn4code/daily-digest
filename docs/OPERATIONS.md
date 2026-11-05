@@ -175,15 +175,56 @@ Desde el móvil: pantalla Generar de la webapp.
 ```bash
 sudo dnf config-manager --add-repo https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo
 sudo dnf install -y tailscale && sudo systemctl enable --now tailscaled
-sudo tailscale up
+sudo tailscale up --accept-dns=false
 sudo tailscale serve --bg 8090
 tailscale serve status        # muestra https://HOST.TAILNET.ts.net
 ```
 
-- Requiere MagicDNS y certificados HTTPS activados en la consola de Tailscale.
+- Para la URL HTTPS de Serve: habilitar los certificados y nombres de MagicDNS en la tailnet. En el servidor del centro se conserva su DNS institucional mediante `--accept-dns=false`; la resolución de nombres de la tailnet desde ese servidor puede requerir configuración adicional acordada con sistemas.
 - En el móvil: app de Tailscale con la misma cuenta.
 - `web.public_base_url` = la URL que muestra `tailscale serve status`.
 - Si Tailscale no es posible en el móvil o en la red del centro: Tailscale Funnel o Cloudflare Tunnel **con inicio de sesión obligatorio delante**; decisión pendiente en `DECISIONS.md`.
+
+### DNS institucional e IPA/Kerberos
+
+En equipos del centro, coordinar Tailscale con sistemas y conservar el DNS
+institucional. Tailscale es una dependencia del acceso remoto previsto para la
+webapp; la captura local y la generación de informes no lo necesitan.
+
+Incidencia del piloto, 5 de noviembre de 2026:
+
+- Tras instalar Tailscale, `/etc/resolv.conf` indicaba que lo generaba Tailscale y
+  usaba sus resolutores `100.100.100.100` y `fd7a:115c:a1e0::53`.
+- Sistemas advirtió de posibles retrasos en la resolución de los servidores IPA
+  y fallos iniciales de Kerberos. Se confirmó el cambio de DNS; no se demostró
+  que explicase todos los fallos de autenticación.
+- Se indicó desactivar la aceptación del DNS de Tailscale en el servidor. La
+  persona compartió después un `resolv.conf` gestionado por NetworkManager,
+  con el dominio de búsqueda institucional y los tres DNS del centro restaurados.
+- Queda comprobar con sistemas los accesos que fallaban. La restauración de DNS
+  por sí sola no acredita que Kerberos esté reparado ni que el futuro acceso
+  móvil a la webapp esté validado.
+
+Para dejar de aceptar el DNS de Tailscale en un equipo ya conectado:
+
+```bash
+sudo tailscale set --accept-dns=false
+cat /etc/resolv.conf
+```
+
+El administrador debe verificar que el gestor de red recupera los resolutores y
+el dominio de búsqueda originales. Si no ocurre, debe restaurarlos mediante el
+gestor de red o su configuración original. No fijar DNS públicos, editar IPA ni
+copiar una configuración DNS de otra máquina para solventarlo. Tampoco editar
+manualmente un `resolv.conf` que gestione otro servicio.
+
+Este ajuste afecta a la aceptación de DNS en ese equipo; no desinstala Tailscale
+ni desactiva por sí solo su conexión. El móvil conserva su configuración propia.
+No habilitar de nuevo `--accept-dns=true` en el servidor sin acordarlo con sistemas.
+Si se retira Tailscale por completo, revisar con sistemas los efectos sobre las
+conexiones remotas y decidir el acceso a la webapp antes de publicarla.
+
+Referencia: [Tailscale y la sustitución de resolv.conf](https://tailscale.com/docs/reference/faq/dns-resolv-conf).
 
 ## 5. Google Drive con rclone
 
