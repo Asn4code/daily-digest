@@ -75,6 +75,12 @@ class Report:
     mechanical: bool = True
     timezone: str = "Europe/Madrid"
 
+    sections: dict[str, dict[str, Any]] = field(default_factory=dict)
+    packages: dict[str, dict[str, Any]] = field(default_factory=dict)
+    model_info: dict[str, dict[str, str]] = field(default_factory=dict)
+    prompt_versions: dict[str, str] = field(default_factory=dict)
+    warnings: list[str] = field(default_factory=list)
+
     @property
     def kind_label(self) -> str:
         return {"daily": "diario", "weekly": "semanal", "preview": "de avance"}[self.kind]

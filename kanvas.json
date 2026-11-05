@@ -680,12 +680,24 @@
     {
       "id": "IN-03",
       "title": "Informe diario multinivel",
-      "state": "todo",
+      "state": "done",
       "group": "IN",
       "deps": ["IN-02", "CP-07"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Builder que combina extracción por resultado (Qwen3.6), síntesis conceptual y plan 1-2 (NaN) con las secciones de SPEC FR-16; secciones mecánicas como respaldo.\n\nTerminado cuando: contra los fixtures con FakeLLM(good) sale el informe completo de siete secciones, cada afirmación con evidencias, y el plan respeta límites y orígenes."
+      "desc": "Builder que combina extracción por resultado (Qwen3.6), síntesis conceptual y plan 1-2 (NaN) con las secciones de SPEC FR-16; secciones mecánicas como respaldo.\n\nTerminado cuando: contra los fixtures con FakeLLM(good) sale el informe completo de siete secciones, cada afirmación con evidencias, y el plan respeta límites y orígenes.",
+      "notes": [
+        {
+          "at": "2026-11-05T13:13:44Z",
+          "by": "codex",
+          "text": "Plan: integrar extracción por resultado, síntesis conceptual y plan en el worker; paquetes acotados y auditables por sección, validación antes de generar y entregar, renderizado Markdown/HTML/correo y degradación mecánica independiente. Probar con modelos falsos sin red."
+        },
+        {
+          "at": "2026-11-05T13:18:44Z",
+          "by": "codex",
+          "text": "El diario combina extracción por resultado, balance conceptual y plan con respaldo mecánico por sección. Conserva todas las tareas, paquetes enviados, proveedores y versiones; valida antes de crear archivos y de entregar. Las propuestas de plan quedan sin aceptar y no cambian revisiones humanas. Markdown, HTML y correo muestran los niveles válidos. make check: 146 tests pasan; el E2E con HTTP falso genera las siete secciones y bloquea referencias alteradas, y la caída total conserva el informe mecánico."
+        }
+      ]
     },
     {
       "id": "IN-04",

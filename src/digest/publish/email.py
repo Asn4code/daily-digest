@@ -42,7 +42,9 @@ def compose(
     plain = [
         "Daily Digest",
         display(report.end_at, report.timezone),
-        "Informe mecánico disponible para revisar.",
+        "Informe mecánico disponible para revisar."
+        if report.mechanical
+        else "Informe con secciones LLM validadas disponible para revisar.",
     ]
     for project, items in groups.items():
         plain.append(project)
@@ -52,7 +54,26 @@ def compose(
         )
     if not report.results:
         plain.append("Sin resultados verificables; esto no demuestra que no se haya trabajado.")
-    plain += ["Plan de mañana: sin propuesta automática en modo mecánico.", warning]
+    synthesis = report.sections.get("conceptual", {})
+    plain.extend(
+        c["text"] + " [" + ", ".join(c["evidence"]) + "]" for c in synthesis.get("highlights", [])
+    )
+    plan = report.sections.get("plan")
+    if plan:
+        plain.append("Plan de mañana")
+        plain.extend(
+            p["action"]
+            + " — Terminado cuando: "
+            + p["done_criterion"]
+            + " — Motivo: "
+            + p["reason"]
+            + " — Origen: "
+            + p["origin"]
+            for p in [plan["mission"], *plan["warmups"]]
+        )
+    else:
+        plain.append("Plan de mañana: sin propuesta automática en modo mecánico.")
+    plain.append(warning)
     if drive_url:
         plain.append("Abrir informe completo en Drive: " + drive_url)
     selected = next(

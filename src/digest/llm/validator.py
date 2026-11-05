@@ -28,6 +28,26 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
     for claim in report.open_threads:
         if not claim.evidence or not set(claim.evidence) <= ids:
             raise ValidationError("Claim has missing or unknown evidence")
+    from digest.report.builder import SCHEMAS, package_scope
+
+    if report.sections.keys() != report.packages.keys():
+        raise ValidationError("Section package mismatch")
+    for key, value in report.sections.items():
+        package = report.packages[key]
+        scope = package_scope(package)
+        if not set(scope.evidence) <= ids:
+            raise ValidationError("Section evidence outside report")
+        originals = {item.id: item for item in report.evidence}
+        for eid, entry in scope.evidence.items():
+            if (
+                entry.excerpt != originals[eid].excerpt
+                or entry.kind != originals[eid].kind
+                or entry.project != originals[eid].project
+                or any(originals[eid].meta.get(k) != v for k, v in entry.meta.items())
+            ):
+                raise ValidationError("Section evidence modified")
+        schema = SCHEMAS[key.split(":", 1)[0]]
+        validate(schema.model_validate(value), scope)
 
 
 # LLM output checks are independent of rendering and run again at publication.

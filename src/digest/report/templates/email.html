@@ -1,12 +1,16 @@
 <!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <body style="font:16px/1.5 Arial,sans-serif;margin:0;padding:16px;color:#18212b;background:#fff;max-width:640px">
 <h1 style="font-size:24px">Daily Digest</h1><p>{{ date }}</p>
-<h2>Lo esencial</h2><p>Informe mecánico disponible para revisar; sin síntesis ni plan automático.</p>
+<h2>Lo esencial</h2>{% if report.sections.get('conceptual') %}
+{% for c in report.sections['conceptual'].highlights %}<p>{{ c.text }} — {{ c.evidence|join(', ') }}</p>{% endfor %}
+{% else %}<p>Informe mecánico disponible para revisar; sin síntesis ni plan automático.</p>{% endif %}
 {% if drive_url %}<p><a href="{{ drive_url }}">Abrir informe completo en Drive</a></p>{% endif %}
 <h2>Todo lo hecho</h2>{% for project,items in groups.items() %}<h3>{{ project }}</h3><ul>
 {% for item in items %}<li>{{ item.task_id or 'Fuera del tablero' }} — {{ item.title }}</li>{% endfor %}</ul>{% endfor %}
 {% if not report.results %}<p>Sin resultados verificables en este intervalo; esto no demuestra que no se haya trabajado.</p>{% endif %}
-<h2>Plan de mañana</h2><p>Sin propuesta automática en modo mecánico.</p>
+<h2>Plan de mañana</h2>{% set plan=report.sections.get('plan') %}{% if plan %}
+{% for p in [plan.mission] + plan.warmups %}<p><strong>{{ p.action }}</strong><br>Terminado cuando: {{ p.done_criterion }}<br>Motivo: {{ p.reason }} · Origen: {{ p.origin }}</p>{% endfor %}
+{% else %}<p>Sin propuesta automática en modo mecánico.</p>{% endif %}
 {% if selected %}<h2>Resultado para revisar</h2><p>{{ selected.title }}</p>{% endif %}
 {% for image in images %}<img src="cid:{{ image.cid }}" alt="{{ image.caption }}" style="max-width:100%;height:auto">{% endfor %}
 <h2>Avisos</h2><p>{{ warning }}</p></body></html>

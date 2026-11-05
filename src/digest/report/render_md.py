@@ -2,6 +2,7 @@
 
 import html
 import re
+from typing import Any
 
 from digest.report.model import Report
 from digest.report.timeutil import display
@@ -12,15 +13,38 @@ def escape(text: str) -> str:
 
 
 def render(report: Report) -> str:
+    synthesis = report.sections.get("conceptual", {})
+    plan = report.sections.get("plan")
+
+    def claims(values: list[dict[str, Any]]) -> str:
+        return "\n".join(
+            escape(str(c["text"])) + " [" + ", ".join(str(e) for e in c["evidence"]) + "]"
+            for c in values
+        )
+
     lines = [
         f"# Informe {report.kind_label}",
         f"{display(report.start_at, report.timezone)} — {display(report.end_at, report.timezone)}",
         "",
         "## Lo esencial",
-        "Informe mecánico: evidencias verificables, sin síntesis ni plan de un modelo.",
+        claims(synthesis.get("highlights", []))
+        or "Informe mecánico: evidencias verificables, sin síntesis ni plan de un modelo.",
         "",
         "## Balance conceptual",
-        "Sin síntesis conceptual automática en modo mecánico.",
+        "\n".join(
+            "### "
+            + escape(p["project_id"])
+            + "\n"
+            + claims(p["known_now"])
+            + "\n"
+            + "\n".join(escape(x) for x in p["still_unknown"])
+            + "\n"
+            + claims(p["decisions_changed"])
+            + "\n"
+            + ("No hay conclusión científica nueva." if p["no_new_conclusion"] else "")
+            for p in synthesis.get("projects", [])
+        )
+        or "Sin síntesis conceptual automática en modo mecánico.",
         "",
         "## Todo lo hecho",
     ]
@@ -38,13 +62,56 @@ def render(report: Report) -> str:
                 "Evidencias: " + ", ".join(item.evidence),
             ]
         )
+        extracted = report.sections.get("extract:" + item.id)
+        if extracted:
+            lines.extend([escape(extracted["summary"]), claims(extracted["facts"])])
+            for interpretation in extracted["interpretations"]:
+                lines.append(
+                    "Interpretación (confianza "
+                    + escape(interpretation["confidence"])
+                    + "): "
+                    + claims([interpretation])
+                )
+            lines.extend(escape(x) for x in extracted["uncertainties"])
+            lines.extend(
+                [
+                    claims(extracted["controls_and_parameters"]),
+                    claims(extracted["failures_or_blockers"]),
+                ]
+            )
+            for number in extracted["numbers"]:
+                lines.append(
+                    escape(number["name"])
+                    + ": "
+                    + str(number["value"])
+                    + " "
+                    + escape(number["unit"] or "")
+                    + " ["
+                    + number["evidence"]
+                    + "]"
+                )
         for figure in item.figures:
             lines.append(f"![{escape(figure.caption)}]({figure.path}) · {figure.evidence}")
     lines.extend(
         [
             "",
             "## Plan de mañana",
-            "Sin propuesta automática en modo mecánico.",
+            "\n".join(
+                escape(item["action"])
+                + " — Terminado cuando: "
+                + escape(item["done_criterion"])
+                + " — Dependencia: "
+                + escape(item["dependency"] or "Ninguna declarada")
+                + " — Motivo: "
+                + escape(item["reason"])
+                + " — Origen: "
+                + escape(item["origin"])
+                + " ["
+                + ", ".join(item["evidence"])
+                + "]"
+                for item in ([plan["mission"], *plan["warmups"]] if plan else [])
+            )
+            or "Sin propuesta automática en modo mecánico.",
             "",
             "## Hilos abiertos",
         ]
@@ -52,6 +119,9 @@ def render(report: Report) -> str:
     lines.extend(
         escape(claim.text) + " [" + ", ".join(claim.evidence) + "]" for claim in report.open_threads
     )
+    for key, extraction in report.sections.items():
+        if key.startswith("extract:"):
+            lines.append(claims(extraction["open_threads"]))
     lines.extend(["", "## Nivel técnico y evidencias"])
     for entry in report.evidence:
         lines.extend(
@@ -71,4 +141,15 @@ def render(report: Report) -> str:
         )
         for omission in source.omitted:
             lines.append("  - " + escape(omission["locator"]) + ": " + escape(omission["reason"]))
+    lines.extend(escape(w) for w in report.warnings)
+    for section, model in report.model_info.items():
+        lines.append(
+            escape(section)
+            + ": "
+            + escape(model["provider"])
+            + " / "
+            + escape(model["model"])
+            + " · prompt "
+            + escape(report.prompt_versions[section])
+        )
     return "\n\n".join(lines) + "\n"

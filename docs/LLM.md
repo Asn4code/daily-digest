@@ -170,3 +170,18 @@ instrucciones de proyectos como datos. La reparación recibe un código de error
 sin repetir salidas, excepciones ni cuerpos HTTP. Una tarea `done`, `review` o
 bloqueada no se acepta como misión de Kanvas. La pertenencia y los bloqueos se
 obtienen de la captura por el constructor del paquete, no de la respuesta LLM.
+
+
+## 9. Construcción del informe (IN-03)
+
+El worker parte del informe mecánico completo y enriquece cada resultado con una
+extracción; después solicita síntesis y plan. Un fallo solo afecta a su sección.
+Los paquetes de cada llamada, los IDs enviados, las versiones y los proveedores
+quedan en el JSON del informe para auditoría. El límite incluye el prompt escapado;
+lo que no cabe se omite con aviso y permanece en el nivel mecánico del informe.
+
+La validación se repite antes de crear archivos y en cada entrega, contrastando
+el paquete de la sección con las evidencias del informe. Markdown, HTML y correo
+muestran las secciones válidas y el respaldo mecánico de las demás. Las propuestas
+de plan se guardan con `accepted=0`; generar no acepta ni edita planes humanos.
+Las dudas humanas se incluyen solo para proyectos presentes en el paquete.

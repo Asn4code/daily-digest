@@ -3,6 +3,7 @@
 import fcntl
 import json
 import sqlite3
+import time
 from collections.abc import Iterator
 from contextlib import closing, contextmanager
 from dataclasses import asdict
@@ -60,6 +61,7 @@ def execute(
 ) -> str | None:
     with lock(config) as db:
         instant = now or datetime.now(UTC)
+        deadline = time.monotonic() + config.schedule.max_generation_minutes * 60
         row = db.execute(
             "SELECT id,kind,params,requested_by FROM job WHERE state='queued' "
             + ("AND id=? " if job_id else "")
@@ -158,6 +160,10 @@ def execute(
             )
             report = build(db, interval, report_id, instant, regenerate=bool(existing))
             report.timezone = config.timezone
+            from digest.llm.router import Router
+            from digest.report.builder import enrich
+
+            enrich(db, config, report, Router(db, config, job_id=ident, deadline=deadline))
             validate_report(report, {item.id for item in report.evidence})
             directory.mkdir(parents=True, exist_ok=False)
             for result in report.results:
@@ -185,12 +191,16 @@ def execute(
                     stream.write(text)
             db.execute(
                 "UPDATE report SET "
-                "status='mechanical',json_path=?,md_path=?,html_path=?,coverage=? WHERE id=?",
+                "status=?,json_path=?,md_path=?,html_path=?,coverage=?,"
+                "model_info=?,prompt_versions=? WHERE id=?",
                 (
+                    "mechanical" if report.mechanical else "ready",
                     str(directory / "report.json"),
                     str(directory / "report.md"),
                     str(directory / "report.html"),
                     canonical([asdict(item) for item in report.coverage]),
+                    canonical(report.model_info),
+                    canonical(report.prompt_versions),
                     report_id,
                 ),
             )
@@ -198,6 +208,23 @@ def execute(
                 "INSERT INTO report_evidence VALUES (?,?)",
                 [(report_id, item.id) for item in report.evidence],
             )
+            if "plan" in report.sections:
+                proposal = report.sections["plan"]
+                for item in [proposal["mission"], *proposal["warmups"]]:
+                    db.execute(
+                        "INSERT INTO plan_item(report_id,kind,action,done_criterion,dependency,"
+                        "reason,origin,kanvas_task_id) VALUES (?,?,?,?,?,?,?,?)",
+                        (
+                            report_id,
+                            item["kind"],
+                            item["action"],
+                            item["done_criterion"],
+                            item["dependency"],
+                            item["reason"],
+                            item["origin"],
+                            item["kanvas_task_id"],
+                        ),
+                    )
             close_interval(db, interval.id, report_id)
             if kind != "preview" and not params.get("no_send"):
                 from digest.publish.deliveries import deliver_report
