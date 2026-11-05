@@ -101,3 +101,21 @@ o fallo de arranque produce `ProcessError` sin argumentos ni salida capturada.
 No hereda el entorno del usuario ni sus credenciales: usa el PATH del sistema,
 locale UTF-8 y Git sin bloqueos opcionales, prompts ni configuración global. Para
 herramientas instaladas fuera del PATH del sistema, configura una ruta absoluta.
+
+## 7. Capturas de Kanvas (fase 1)
+
+El recolector valida con `kanvas check` una copia temporal de los bytes leídos con
+`read_bounded`, fuera del proyecto. Así el proceso de validación no vuelve a abrir
+una ruta del proyecto susceptible de sustitución por enlace. La copia se elimina
+al terminar; los payloads persistidos se guardan como capturas nuevas en data_dir.
+
+Se comparan estados y notas con la última captura utilizable. Las notas llevan
+hora de evento solo si su fecha incluye zona horaria válida; las transiciones de
+estado llevan hora observada porque el formato del tablero no enlaza de forma
+inequívoca cada transición a una nota. No se utiliza la hora de creación de la
+tarea como fecha de finalización. Se conserva el autor de cada nota y se detectan
+preguntas por el prefijo `Question:` del CLI.
+
+La persistencia usa el esquema publicado y la clave de deduplicación de evidencia;
+repetir una captura no duplica hechos. Los fallos quedan como cobertura y no
+sustituyen el último payload utilizable para comparar la siguiente lectura.
