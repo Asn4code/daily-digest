@@ -126,3 +126,41 @@ def test_html_and_schema_excesses_are_rejected(package: EvidencePackage) -> None
             projects=[],
             review_candidate=None,
         )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "RMSD 999kg",
+        "RMSD 999nm",
+        "RMSD 999Å",
+        "RMSD 2.9Å",
+        "RMSD 1.4 kg",
+        "RMSD 1.4 **kg**",
+        "RMSD 1.4 ficticia",
+        "RMSD 999.",
+        "El valor fue 9.9.",
+        "RMSD 999,",
+    ],
+)
+def test_free_text_attached_or_unknown_units_cannot_bypass_numeric_checks(
+    package: EvidencePackage,
+    text: str,
+) -> None:
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(schemas.Claim(text=text, evidence=["ev_control"]), package)
+
+
+@pytest.mark.parametrize(
+    "source,short",
+    [("Energía 1.4 kJ mol^-1", "Energía 1.4 kJ"), ("Densidad 1.4 kg m^-3", "Densidad 1.4 kg")],
+)
+def test_compound_unit_suffix_cannot_be_removed(
+    package: EvidencePackage,
+    source: str,
+    short: str,
+) -> None:
+    package.evidence["ev_control"].excerpt = source
+    validate(schemas.Claim(text=source, evidence=["ev_control"]), package)
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(schemas.Claim(text=short, evidence=["ev_control"]), package)

@@ -14,6 +14,7 @@ from digest.llm.prompts import load, messages
 from digest.llm.router import Router, Task
 from digest.llm.validator import EvidencePackage, validate
 from digest.report.model import EvidenceEntry, Report
+from digest.util.redact import known_secrets, redact, redact_tree
 
 SCHEMAS: dict[str, type[BaseModel]] = {
     "extract": schemas.ResultExtraction,
@@ -53,11 +54,24 @@ def package_scope(payload: dict[str, Any]) -> EvidencePackage:
         set(payload.get("result_ids", [])),
         payload.get("task_states", {}),
         set(payload.get("completed_reviews", [])),
-        set(payload.get("pending_reviews", [])),
+        list(payload.get("pending_reviews", [])),
     )
 
 
 def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Router) -> Report:
+    secrets = known_secrets(config)
+    for item in report.evidence:
+        item.excerpt = redact(item.excerpt, secrets)
+        item.locator = redact(item.locator, secrets)
+        item.meta = redact_tree(item.meta, secrets)
+    for result in report.results:
+        result.title = redact(result.title, secrets)
+        for figure in result.figures:
+            figure.caption = redact(figure.caption, secrets)
+    for coverage in report.coverage:
+        coverage.omitted = redact_tree(coverage.omitted, secrets)
+    for thread in report.open_threads:
+        thread.text = redact(thread.text, secrets)
     tasks = task_context(db, config)
     projects = {p.id: p for p in config.projects}
     evidence = {e.id: e for e in report.evidence}
@@ -82,11 +96,23 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             "project_ids": sorted(project_ids),
             "result_ids": result_ids,
             "task_states": states,
-            "context": context,
+            "context": {
+                **context,
+                "coverage": [
+                    {
+                        "source": c.source,
+                        "status": c.status,
+                        "omission_reasons": sorted({item["reason"] for item in c.omitted}),
+                    }
+                    for c in report.coverage
+                    if c.project in project_ids
+                ],
+            },
             "completed_reviews": context.get("completed_reviews", []),
             "pending_reviews": context.get("pending_reviews", []),
             "evidence": [],
         }
+        payload = redact_tree(payload, secrets)
         prompt = load(task)
         limit = budget * len(project_ids)
         # Large context is omitted explicitly; the mechanical report remains complete.

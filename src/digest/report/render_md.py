@@ -159,7 +159,13 @@ def render(report: Report) -> str:
             ]
         )
         for project in weekly["projects"]:
-            lines.append(claims(project["hypotheses_changed"]))
+            for hypothesis in project["hypotheses_changed"]:
+                lines.append(
+                    "Interpretación (confianza "
+                    + escape(hypothesis["confidence"])
+                    + "): "
+                    + claims([hypothesis])
+                )
     lines.extend(["", "## Nivel técnico y evidencias"])
     for entry in report.evidence:
         lines.extend(

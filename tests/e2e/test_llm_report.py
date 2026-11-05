@@ -233,8 +233,112 @@ def test_T18_weekly_uses_evidence_even_when_daily_report_files_are_missing(
 
     typed = TypeAdapter(Report).validate_json(path.with_suffix(".json").read_bytes())
     validate_report(typed, {e.id for e in typed.evidence})
+    from digest.report.render_md import render
+
+    typed.sections["weekly"]["projects"][0]["hypotheses_changed"] = [
+        {
+            "text": "El control sugiere sesgo",
+            "evidence": [typed.evidence[0].id],
+            "confidence": "low",
+        }
+    ]
+    assert "Interpretación (confianza low): El control sugiere sesgo" in render(typed)
+    assert len(typed.sections["weekly"]["review_status"]["pending"]) > 1
+    typed.sections["weekly"]["review_status"]["pending"].reverse()
+    with pytest.raises(ValidationError, match="invalid_review_summary"):
+        validate_report(typed, {e.id for e in typed.evidence})
     with closing(connect(Path(config.paths.data_dir) / "digest.db")) as db:
         assert deliver_report(db, config, value["id"], channel="obsidian") == {"obsidian": "sent"}
         assert deliver_report(db, config, value["id"], channel="drive") == {"drive": "sent"}
     assert (Path(config.paths.obsidian_vault) / "Digest/Semanal/2026-W45.md").is_file()
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
+
+
+@pytest.mark.parametrize("with_sessions", [False, True])
+@pytest.mark.parametrize(
+    "secret",
+    [
+        "SYNTHETIC_PRIVATE_CREDENTIAL_7391",
+        'SYNTHETIC_PRIVATE_"\\_CREDENTIAL_7391',
+    ],
+)
+def test_secrets_are_removed_from_sources_context_snapshots_and_model_wire(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    secret: str,
+    with_sessions: bool,
+) -> None:
+    config = load_config(build_projects(tmp_path / "projects"))
+    config.projects = config.projects[:1]
+    provider_key = "SYNTHETIC_PROVIDER_KEY_7391"
+    config.email.password_env = "DIGEST_PRIVATE_TEST_PASSWORD"
+    monkeypatch.setenv(config.email.password_env, secret)
+    monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", provider_key)
+    config.projects[0].objective = "Contrastar el control " + secret
+    root = Path(config.projects[0].root)
+    notebook = {
+        "nbformat": 4,
+        "nbformat_minor": 5,
+        "metadata": {},
+        "cells": [
+            {
+                "id": "secret",
+                "cell_type": "code",
+                "metadata": {},
+                "execution_count": None,
+                "source": 'api_key="' + secret + '"',
+                "outputs": [],
+            }
+        ],
+    }
+    (root / "private.ipynb").write_text(json.dumps(notebook))
+    sessions = root / "agent"
+    sessions.mkdir()
+    config.projects[0].agent_sessions = ["agent"] if with_sessions else []
+    (sessions / "session.jsonl").write_text(
+        "\n".join(
+            json.dumps(r)
+            for r in [
+                {"type": "session_meta", "payload": {"cwd": str(root), "id": secret}},
+                {
+                    "type": "response_item",
+                    "payload": {
+                        "type": "message",
+                        "role": "assistant",
+                        "content": [{"type": "output_text", "text": "Control verificado"}],
+                    },
+                },
+            ]
+        )
+    )
+    requests = []
+
+    def respond(request):
+        requests.append(request)
+        return fake_response(request)
+
+    client = Client(transport=httpx.MockTransport(respond))
+    original = Router.__init__
+
+    def setup(self, *args, **kwargs):
+        original(self, *args, **kwargs, client=client)
+
+    with patch.object(Router, "__init__", setup):
+        job = enqueue(config, "daily", params={"no_send": True})
+        path = Path(execute(config, job, now=datetime(2026, 11, 4, 19, tzinfo=UTC)))
+    assert requests
+    for request in requests:
+        content = request.content.decode()
+        forms = [secret]
+        for _ in range(3):
+            forms.append(json.dumps(forms[-1], ensure_ascii=False)[1:-1])
+        assert all(form not in content for form in forms)
+        assert provider_key not in content
+    assert secret not in path.with_suffix(".json").read_text()
+    for snapshot in (Path(config.paths.data_dir) / "snapshots").rglob("*.json"):
+        assert secret not in snapshot.read_text()
+    with closing(connect(Path(config.paths.data_dir) / "digest.db")) as db:
+        assert secret not in repr(
+            db.execute("SELECT locator,excerpt,meta FROM evidence").fetchall()
+        )
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)

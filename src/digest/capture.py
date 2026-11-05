@@ -22,8 +22,8 @@ from digest.collectors.runs import RunsCollector
 from digest.collectors.store import persist, previous_payload
 from digest.collectors.structures import StructuresCollector
 from digest.config import Config
-from digest.doctor import _credential
 from digest.results import group_results
+from digest.util.redact import known_secrets
 
 
 def validate_data_directory(config: Config) -> Path:
@@ -59,10 +59,7 @@ def capture(
     ]
     for project in projects:
         ctx = CaptureContext(data, instant, config.limits, kanvas_command=(config.kanvas.cli,))
-        if project.agent_sessions:
-            names = [p.api_key_env for p in config.llm.providers.values()]
-            names.append(config.email.password_env)
-            ctx.secrets = tuple(value for name in names if (value := _credential(name)))
+        ctx.secrets = known_secrets(config)
         related: list[EvidenceDraft] = []
         for collector in collectors:
             ctx.previous_payload = previous_payload(db, project.id, collector.source)

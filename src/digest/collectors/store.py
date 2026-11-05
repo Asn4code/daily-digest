@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from digest.collectors.base import CaptureContext, CollectorOutput, canonical, content_hash, utc
 from digest.config import ProjectConfig
+from digest.util.redact import redact, redact_tree
 
 
 def previous_payload(db: sqlite3.Connection, project_id: str, source: str) -> dict[str, Any] | None:
@@ -35,7 +36,11 @@ def persist(
     data = ctx.data_dir.resolve()
     if data.is_relative_to(root):
         raise ValueError("Output directory must be outside the observed project")
-    payload = canonical(output.snapshot_payload) if output.snapshot_payload is not None else None
+    payload = (
+        canonical(redact_tree(output.snapshot_payload, ctx.secrets))
+        if output.snapshot_payload is not None
+        else None
+    )
     path: Path | None = None
     if payload is not None:
         directory = data / "snapshots" / project.id
@@ -71,7 +76,7 @@ def persist(
                 content_hash(payload) if payload else None,
                 str(path) if path else None,
                 output.status,
-                canonical([asdict(item) for item in output.omitted]),
+                canonical(redact_tree([asdict(item) for item in output.omitted], ctx.secrets)),
             ),
         )
         ids = []
@@ -89,13 +94,13 @@ def persist(
                     project.id,
                     source,
                     draft.kind,
-                    draft.locator,
+                    redact(draft.locator, ctx.secrets),
                     utc(draft.observed_at),
                     utc(draft.event_at) if draft.event_at else None,
                     "event" if draft.event_at else "observed",
                     hashed,
-                    draft.excerpt[: ctx.limits.max_excerpt_chars],
-                    canonical(draft.meta),
+                    redact(draft.excerpt, ctx.secrets)[: ctx.limits.max_excerpt_chars],
+                    canonical(redact_tree(draft.meta, ctx.secrets)),
                     draft.task_id,
                     cursor.lastrowid,
                 ),

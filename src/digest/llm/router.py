@@ -11,6 +11,7 @@ from digest.collectors.base import utc
 from digest.config import Config
 from digest.llm.client import Client, ClientError, Completion
 from digest.llm.validator import ValidationError
+from digest.util.redact import known_secrets, redact_tree
 
 Task = Literal["extract", "conceptual", "plan", "weekly", "contrast"]
 
@@ -105,7 +106,7 @@ class Router:
                         observer=observe,
                     )
                     try:
-                        value = validate(result.value)
+                        value = validate(redact_tree(result.value, known_secrets(self.config)))
                     except ValueError as invalid:
                         issue = (
                             str(invalid)

@@ -51,10 +51,50 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
 
 
 # LLM output checks are independent of rendering and run again at publication.
-TOKEN = re.compile(r"(?<![\w.])[-+]?(?:\d+(?:[.,]\d+)?|\.\d+)(?:[eE][-+]?\d+)?(?!\w)")
-UNIT = re.compile(
-    r"^\s*(Å|angstrom|nm|pm|μm|µm|um|mm|cm|ns|ps|fs|ms|µs|μs|kcal/mol|kJ/mol|kDa|Da|GB|MB|°C|%|K|s|h|m)(?!\w)"
+TOKEN = re.compile(r"(?<![\w.])[-+]?(?>\d+(?:[.,]\d+)?|\.\d+)(?:[eE][-+]?\d+)?(?!\d)")
+UNIT = re.compile(r"^\s*([%°]?(?:[^\W\d_][^\s,;:()\[\]{}<>]*)|%)")
+CONNECTORS = {
+    "en",
+    "de",
+    "con",
+    "y",
+    "a",
+    "para",
+    "del",
+    "al",
+    "el",
+    "la",
+    "los",
+    "las",
+    "que",
+    "o",
+    "por",
+    "según",
+    "donde",
+    "frente",
+    "vs",
+    "es",
+    "son",
+}
+
+
+COMPOUND_UNIT = re.compile(
+    r"^\s+((?:[YZEPTGMkhdcmuµμnpfa]?)(?:mol|kg|cd|rad|sr|Hz|Pa|Da|m|s|g|K|A|L|l|J|W|N|C|V|Å)"
+    r"(?:\^?[-−+]?\d+|[⁻⁺⁰¹²³⁴⁵⁶⁷⁸⁹]+)?)(?!\w)"
 )
+
+
+def unit_at(text: str) -> str | None:
+    text = text.lstrip().lstrip("\"'")
+    matched = UNIT.match(text)
+    if not matched or matched.group(1).rstrip(".!?\"'").lower() in CONNECTORS:
+        return None
+    parts = [matched.group(1).rstrip(".!?\"'")]
+    tail = text[matched.end() :]
+    while (suffix := COMPOUND_UNIT.match(tail)) is not None:
+        parts.append(suffix.group(1))
+        tail = tail[suffix.end() :]
+    return " ".join(parts)
 
 
 @dataclass
@@ -64,7 +104,7 @@ class EvidencePackage:
     result_ids: set[str] = field(default_factory=set)
     task_states: dict[str, str] = field(default_factory=dict)
     completed_reviews: set[str] = field(default_factory=set)
-    pending_reviews: set[str] = field(default_factory=set)
+    pending_reviews: list[str] = field(default_factory=list)
 
 
 def _numeric_values(value: Any) -> list[float]:
@@ -95,7 +135,7 @@ def _present(number: float, unit: str | None, entries: list[EvidenceEntry]) -> b
             if unit is None:
                 return True
             tail = excerpt[match.end() :].lstrip()
-            if tail.startswith(unit) and (len(tail) == len(unit) or not tail[len(unit)].isalnum()):
+            if unit_at(tail) == " ".join(unit.split()):
                 return True
     return False
 
@@ -116,15 +156,16 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             return
         # IDs may contain digits; do not mistake those references for measurements.
         cleaned = value.replace("−", "-")
+        cleaned = re.sub(r"[`*_]", "", cleaned)
         for ident in sorted(
             allowed | package.result_ids | set(package.task_states), key=len, reverse=True
         ):
             cleaned = cleaned.replace(ident, "")
         for match in TOKEN.finditer(cleaned):
-            unit = UNIT.match(cleaned[match.end() :])
+            unit = unit_at(cleaned[match.end() :])
             if not _present(
                 float(match.group().replace(",", ".")),
-                unit.group(1) if unit else None,
+                unit,
                 entries(refs),
             ):
                 raise ValidationError("unsupported_number")
@@ -188,7 +229,7 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             raise ValidationError("invalid_key_figures")
         if (
             set(output.review_status.completed) != package.completed_reviews
-            or set(output.review_status.pending) != package.pending_reviews
+            or output.review_status.pending != package.pending_reviews
         ):
             raise ValidationError("invalid_review_summary")
         plan = output.next_week

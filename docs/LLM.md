@@ -200,3 +200,18 @@ marcadas como interpretaciones, patrones, figuras disponibles y una propuesta de
 semana con sesión de revisión. El código mantiene todas las tareas del intervalo
 aunque el modelo no las seleccione. Los IDs de revisiones y figuras se contrastan
 con el paquete; el correo y las copias usan los mismos canales inmutables.
+
+
+## 11. Refuerzos de la revisión independiente de fase 2
+
+La redacción de credenciales es común a todas las fuentes al persistir: cubre
+extractos, metadatos, localizadores y snapshots. El constructor sanea también
+evidencias antiguas y contexto antes de serializar paquetes; no depende de que
+haya sesiones de agentes configuradas. Se contemplan valores conocidos y sus
+formas JSON/HTML escapadas. Las respuestas se sanean antes de validarlas.
+
+La comprobación numérica reconoce unidades pegadas y unidades no enumeradas,
+sin retroceder a un prefijo numérico que cambie el valor. La puntuación final
+no oculta cifras. El orden de revisiones pendientes se compara con la lista
+determinista del paquete, y las hipótesis semanales conservan la etiqueta de
+interpretación y confianza también en Markdown y Obsidian.

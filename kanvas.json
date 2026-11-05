@@ -766,13 +766,25 @@
     {
       "id": "IN-06",
       "title": "Puerta de fase 2",
-      "state": "todo",
+      "state": "doing",
       "group": "IN",
       "deps": ["IN-01", "IN-02", "IN-03", "IN-04", "IN-05"],
       "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Validar que la fase 2 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 2 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-2.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 2` da APROBADA y el informe build/gates/phase-2.md va en la nota de cierre."
+      "desc": "Validar que la fase 2 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 2 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-2.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 2` da APROBADA y el informe build/gates/phase-2.md va en la nota de cierre.",
+      "notes": [
+        {
+          "at": "2026-11-05T13:38:03Z",
+          "by": "codex",
+          "text": "Plan: puerta automática completa con regresión, revisión independiente sin contexto de construcción, corrección de hallazgos y preparación de diario/semanal para las tres comprobaciones humanas finales."
+        },
+        {
+          "at": "2026-11-05T13:51:44Z",
+          "by": "codex",
+          "text": "Revisión independiente aprobada tras corregir cuatro hallazgos: redacción común de credenciales en fuentes/contexto/snapshots/wire, validación de cifras con unidades pegadas/compuestas y puntuación, etiqueta y confianza de hipótesis semanales en Markdown, y orden determinista de pendientes. make check: 168 tests; puerta automática PROVISIONAL con controles PASS. Preparando diario y semanal reales sin envío para las tres comprobaciones humanas; no se marca la firma humana."
+        }
+      ]
     },
     {
       "id": "WA-01",
