@@ -149,3 +149,13 @@ lado. SVG bloquea recursos externos; PDF usa solo la primera página. Se limita
 la carga de imágenes a 16 millones de píxeles. La procedencia de Git solo se
 atribuye si la identidad del blob coincide con los bytes leídos; en otro caso se
 marca `unverified`. No se infiere procedencia de la fecha de modificación.
+
+## 10. Métricas declaradas (fase 1)
+
+Los lectores aceptan CSV, TSV y JSON (objeto de una fila o lista de objetos).
+Solo resumen columnas declaradas; los ausentes, booleanos, no numéricos y valores
+no finitos quedan fuera del cálculo con cobertura incompleta visible. Se guardan
+n, media, mediana, mínimo y máximo, además del cambio de cada estadístico frente
+a la captura anterior cuando existe. La aritmética evita publicar infinitos; si
+un cambio no cabe en un float finito se omite con aviso. No se atribuyen unidades
+ni significado científico que no estén declarados en la fuente.

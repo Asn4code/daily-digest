@@ -494,12 +494,24 @@
     {
       "id": "CP-04",
       "title": "Recolector de métricas",
-      "state": "todo",
+      "state": "done",
       "group": "CP",
       "deps": ["CB-03", "CB-04", "CB-05", "CB-07"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Lectores por patrón para CSV, TSV y JSON con columnas declaradas; estadísticos por código y cambio frente a la versión anterior (EVIDENCE.md, Métricas).\n\nTerminado cuando: el cambio de results/scores.csv en proj-ok produce una evidencia metric con valores correctos verificados por test."
+      "desc": "Lectores por patrón para CSV, TSV y JSON con columnas declaradas; estadísticos por código y cambio frente a la versión anterior (EVIDENCE.md, Métricas).\n\nTerminado cuando: el cambio de results/scores.csv en proj-ok produce una evidencia metric con valores correctos verificados por test.",
+      "notes": [
+        {
+          "at": "2026-11-05T11:58:13Z",
+          "by": "codex",
+          "text": "Plan: lectores CSV/TSV/JSON declarados, estadísticos finitos por código y cambios frente a captura previa, con omisiones visibles y pruebas de valores y exclusiones."
+        },
+        {
+          "at": "2026-11-05T12:00:06Z",
+          "by": "codex",
+          "text": "CSV/TSV/JSON declarados producen evidencia metric con estadísticos finitos calculados por código y cambios frente a captura anterior. Valores inválidos y columnas ausentes quedan en cobertura. make check: 114 tests pasan, incluidas las métricas cambiantes de proj-ok y valores extremos sin infinitos publicados."
+        }
+      ]
     },
     {
       "id": "CP-05",
