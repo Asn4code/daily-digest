@@ -133,3 +133,18 @@ Si falla, se reintenta una vez enviando al modelo la lista de errores («repara 
 - `summary_errors` permite que el contraste diga que el resumen automático estaba mal; en ese caso el informe marca el resumen como corregido.
 - Modo `minimal` (una duda o «posponer») no se contrasta: la duda se guarda y pasa al plan.
 - El resultado del contraste se muestra con cada punto enlazado a su evidencia; la decisión siempre es humana.
+
+## 7. Cliente y enrutado implementados (IN-01)
+
+`Client` usa httpx sin proxies heredados ni redirecciones, lee hasta 2 MB de
+respuesta y aplica el timeout del proveedor dentro del plazo global. Reintenta
+hasta dos veces errores de transporte, HTTP 429 y HTTP 5xx; los errores permanentes
+pasan al respaldo. El esquema JSON es explícito; `schema=None` permite proveedores
+configurados sin salida estructurada, sin cambiar capacidades automáticamente.
+
+`Router.generate` exige los IDs de todos los proyectos del paquete. Si alguno
+prohíbe contenido externo, solo admite el proveedor `internal`, también para
+síntesis de varios proyectos. Una salida inválida admite una reparación por
+proveedor; agotados los candidatos devuelve `None` para usar la sección mecánica.
+Cada intento HTTP registra metadatos en `llm_call`, sin mensajes, cuerpos ni claves.
+La integración de estas llamadas en los informes corresponde a IN-03/IN-05.

@@ -636,12 +636,24 @@
     {
       "id": "IN-01",
       "title": "Cliente LLM y enrutado con respaldo",
-      "state": "todo",
+      "state": "done",
       "group": "IN",
       "deps": ["CB-06", "CP-09"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Cliente OpenAI-compatible con httpx, salida estructurada cuando exista, enrutado por tarea con respaldo y registro en llm_call (LLM.md §1-2).\n\nTerminado cuando: con FakeLLM pasan T15 y T16, y el registro llm_call contiene proveedor, modelo y versión de prompt."
+      "desc": "Cliente OpenAI-compatible con httpx, salida estructurada cuando exista, enrutado por tarea con respaldo y registro en llm_call (LLM.md §1-2).\n\nTerminado cuando: con FakeLLM pasan T15 y T16, y el registro llm_call contiene proveedor, modelo y versión de prompt.",
+      "notes": [
+        {
+          "at": "2026-11-05T13:04:05Z",
+          "by": "codex",
+          "text": "Plan: cliente HTTP acotado con JSON Schema y reintentos transitorios, enrutado por tarea con reparación y respaldo, política external_allowed y registro sin contenido sensible en llm_call. Pruebas con transportes HTTP falsos, sin proveedores reales."
+        },
+        {
+          "at": "2026-11-05T13:09:07Z",
+          "by": "codex",
+          "text": "El cliente LLM ya reintenta fallos transitorios, repara una salida inválida y usa respaldo por tarea; si no hay respuesta válida permite la sección mecánica. Los paquetes restringidos no se envían a proveedores externos. Cada intento queda en llm_call con modelo, versión y tokens, sin mensajes ni claves. make check: 136 tests pasan, incluidos T15/T16 con transporte falso y FakeLLM. La conexión con los informes y la validación de afirmaciones se completan en IN-02/03."
+        }
+      ]
     },
     {
       "id": "IN-02",

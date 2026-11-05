@@ -58,6 +58,8 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-042 | 2026-11-05 | CP-03 incorpora Pillow para miniaturas PNG, CairoSVG para rasterizar SVG con recursos externos bloqueados y pypdfium2 para texto y primera página de PDF sin ejecutar contenido | Dependencias necesarias para informes y figuras de los proyectos, sin copiar SVG/PDF originales al registro de figuras. Dimensiones, páginas, bytes y textos acotados. No sustituyen WeasyPrint como generador de PDF en CP-08 |
 
+| D-043 | 2026-11-05 | IN-01 incorpora httpx, previsto en el stack, para HTTP acotado con JSON Schema, timeouts y transporte inyectable; sin proxies heredados ni redirecciones | Pruebas sin proveedores reales; auditoría de metadatos sin cuerpos HTTP. Solo el proveedor llamado internal se considera interno: los restantes respetan external_allowed. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma
