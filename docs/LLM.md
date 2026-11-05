@@ -185,3 +185,18 @@ el paquete de la sección con las evidencias del informe. Markdown, HTML y corre
 muestran las secciones válidas y el respaldo mecánico de las demás. Las propuestas
 de plan se guardan con `accepted=0`; generar no acepta ni edita planes humanos.
 Las dudas humanas se incluyen solo para proyectos presentes en el paquete.
+
+
+## 10. Semanal (IN-05)
+
+`run --weekly` selecciona de nuevo las evidencias de siete días completos; no lee
+los archivos de los diarios. Añade las revisiones cerradas durante el intervalo,
+las pendientes ordenadas por primera observación y los planes aceptados, conservando
+su texto editado. Si hay planes aceptados de varios proyectos, el enrutado aplica
+la política externa de todos los proyectos configurados de forma conservadora.
+
+La salida semanal validada muestra avance frente a objetivos, decisiones, hipótesis
+marcadas como interpretaciones, patrones, figuras disponibles y una propuesta de
+semana con sesión de revisión. El código mantiene todas las tareas del intervalo
+aunque el modelo no las seleccione. Los IDs de revisiones y figuras se contrastan
+con el paquete; el correo y las copias usan los mismos canales inmutables.

@@ -723,18 +723,35 @@
           "at": "2026-11-05T13:25:56Z",
           "by": "codex",
           "text": "Notebooks, metadatos PDB/mmCIF y sesiones JSONL de Codex implementados y conectados al registro; solo lectura, mensajes filtrados por cwd y secretos redactados. make check: 149 tests pasan. Pendiente respuesta a la consulta sobre lectores SQLite acotados para OpenCode/Hermes; no se ha adaptado ese formato ni se da la tarea por terminada. Continúo IN-05, independiente de esa decisión."
+        },
+        {
+          "at": "2026-11-05T13:27:07Z",
+          "by": "codex",
+          "text": "La persona autoriza expresamente incluir lectores SQLite acotados para OpenCode y Hermes. Se conservará solo lectura, filtro por proyecto y límites de consulta/texto; no se copiarán las bases completas. Retomo esta parte al cerrar IN-05, actualmente en curso."
         }
       ]
     },
     {
       "id": "IN-05",
       "title": "Informe semanal",
-      "state": "todo",
+      "state": "done",
       "group": "IN",
       "deps": ["IN-03"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Informe semanal de SPEC FR-18 construido desde las evidencias de 7 días, revisiones y planes aceptados; correo, Obsidian y Drive; `digest run --weekly`.\n\nTerminado cuando: pasa T18 y el semanal de fixtures incluye avance por proyecto, todas las tareas, revisiones, patrones, figuras clave y propuesta de semana."
+      "desc": "Informe semanal de SPEC FR-18 construido desde las evidencias de 7 días, revisiones y planes aceptados; correo, Obsidian y Drive; `digest run --weekly`.\n\nTerminado cuando: pasa T18 y el semanal de fixtures incluye avance por proyecto, todas las tareas, revisiones, patrones, figuras clave y propuesta de semana.",
+      "notes": [
+        {
+          "at": "2026-11-05T13:26:02Z",
+          "by": "codex",
+          "text": "Plan: construir el semanal desde evidencias del intervalo de siete días, revisiones humanas y planes aceptados; validar síntesis, patrones, figuras y objetivos, conservar todas las tareas y entregar con los mismos canales. Probar T18 contra modelos falsos."
+        },
+        {
+          "at": "2026-11-05T13:29:59Z",
+          "by": "codex",
+          "text": "El semanal se construye desde evidencias de siete días, revisiones y planes aceptados, sin depender de los archivos de diarios. Conserva todas las tareas y añade balance, patrones, figuras y propuesta de semana con sesión de revisión; se entrega por los mismos canales. make check: 150 tests pasan. T18 borra los archivos del diario, comprueba revisiones humanas y texto de planes aceptados y publica las copias semanales locales en Obsidian y Drive."
+        }
+      ]
     },
     {
       "id": "IN-06",

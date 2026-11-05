@@ -58,6 +58,13 @@ def compose(
     plain.extend(
         c["text"] + " [" + ", ".join(c["evidence"]) + "]" for c in synthesis.get("highlights", [])
     )
+    weekly = report.sections.get("weekly")
+    if weekly:
+        plain.append("Semana: patrones y propuesta")
+        plain.extend(c["text"] + " [" + ", ".join(c["evidence"]) + "]" for c in weekly["patterns"])
+        plain.extend(
+            p["action"] + " — Terminado cuando: " + p["done_criterion"] for p in weekly["next_week"]
+        )
     plan = report.sections.get("plan")
     if plan:
         plain.append("Plan de mañana")
@@ -71,7 +78,7 @@ def compose(
             + p["origin"]
             for p in [plan["mission"], *plan["warmups"]]
         )
-    else:
+    elif not weekly:
         plain.append("Plan de mañana: sin propuesta automática en modo mecánico.")
     plain.append(warning)
     if drive_url:

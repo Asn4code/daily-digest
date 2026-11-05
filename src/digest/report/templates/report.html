@@ -9,9 +9,19 @@ article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px sol
 </style></head><body><h1>Informe {{ report.kind_label }}</h1><p>{{ report.start_at|localtime(report.timezone) }} — {{ report.end_at|localtime(report.timezone) }}</p>
 {% macro claims(items) %}{% for c in items %}<p>{{ c.text }}
 {% for eid in c.evidence %}<a href="#{{ eid }}">{{ eid }}</a> {% endfor %}</p>{% endfor %}{% endmacro %}
-{% set synthesis=report.sections.get('conceptual', {}) %}{% set plan=report.sections.get('plan') %}
-<h2>Lo esencial</h2>{% if synthesis %}{{ claims(synthesis.highlights) }}{% else %}<p>Informe mecánico: evidencias verificables, sin síntesis ni plan de un modelo.</p>{% endif %}
-<h2>Balance conceptual</h2>{% if synthesis %}{% for p in synthesis.projects %}<h3>{{ p.project_id }}</h3>
+{% set weekly=report.sections.get('weekly') %}{% set synthesis=report.sections.get('conceptual', {}) %}{% set plan=report.sections.get('plan') %}
+<h2>Lo esencial</h2>{% if weekly %}{{ claims(weekly.patterns[:3]) }}{% elif synthesis %}{{ claims(synthesis.highlights) }}{% else %}<p>Informe mecánico: evidencias verificables, sin síntesis ni plan de un modelo.</p>{% endif %}
+{% if weekly %}<h2>Balance de la semana frente a los objetivos</h2>
+{% for p in weekly.projects %}<h3>{{ p.project_id }}</h3>{{ claims(p.progress_vs_objective) }}{{ claims(p.decisions) }}
+{% for c in p.hypotheses_changed %}<p>Interpretación (confianza {{ c.confidence }}): {{ c.text }} — {{ c.evidence|join(', ') }}</p>{% endfor %}{% endfor %}
+<h2>Patrones</h2>{{ claims(weekly.patterns) }}<h2>Revisiones de la semana</h2>
+<p>Cerradas por la persona: {{ weekly.review_status.completed|join(', ') }}</p>
+<p>Pendientes (de mayor a menor antigüedad): {{ weekly.review_status.pending|join(', ') }}</p>{{ claims(weekly.review_status.doubts) }}
+<h2>Figuras clave</h2>{% for eid in weekly.key_figures %}<p><a href="#{{ eid }}">{{ eid }}</a></p>{% else %}<p>No hay figuras disponibles.</p>{% endfor %}
+<h2>Propuesta de semana</h2>{% for item in weekly.next_week %}<article><h3>{{ item.action }}</h3>
+<p>Terminado cuando: {{ item.done_criterion }}</p><p>Dependencia: {{ item.dependency or 'Ninguna declarada' }}</p>
+<p>Motivo: {{ item.reason }} · Origen: {{ item.origin }} · {{ item.evidence|join(', ') }}</p></article>{% endfor %}
+{% endif %}<h2>Balance conceptual</h2>{% if weekly %}<p>Balance semanal mostrado arriba.</p>{% elif synthesis %}{% for p in synthesis.projects %}<h3>{{ p.project_id }}</h3>
 {{ claims(p.known_now) }}{% for doubt in p.still_unknown %}<p>{{ doubt }}</p>{% endfor %}
 {{ claims(p.decisions_changed) }}{% if p.no_new_conclusion %}<p>No hay conclusión científica nueva.</p>{% endif %}
 {% endfor %}{% else %}<p>Sin síntesis conceptual automática en modo mecánico.</p>{% endif %}
@@ -28,7 +38,7 @@ article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px sol
 {% for n in extraction.numbers %}<p>{{ n.name }}: {{ n.value }} {{ n.unit or '' }} — {{ n.evidence }}</p>{% endfor %}
 {% endif %}{% for figure in item.figures %}<figure><img src="{{ figure.path }}" alt="{{ figure.caption }}"><figcaption>{{ figure.caption }} · {{ figure.evidence }}</figcaption></figure>{% endfor %}
 </article>{% endfor %}
-<h2>Plan de mañana</h2>{% if plan %}{% for item in [plan.mission] + plan.warmups %}
+<h2>{{ "Propuesta de semana" if weekly else "Plan de mañana" }}</h2>{% if weekly %}<p>Objetivos y sesión de revisión propuestos arriba.</p>{% elif plan %}{% for item in [plan.mission] + plan.warmups %}
 <article><h3>{{ item.action }}</h3><p>Terminado cuando: {{ item.done_criterion }}</p>
 <p>Dependencia: {{ item.dependency or 'Ninguna declarada' }}</p><p>Motivo: {{ item.reason }}</p>
 <p>Origen: {{ item.origin }} · {{ item.kanvas_task_id or '' }} · {{ item.evidence|join(', ') }}</p></article>

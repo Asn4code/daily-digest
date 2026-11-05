@@ -13,7 +13,23 @@ def escape(text: str) -> str:
 
 
 def render(report: Report) -> str:
+    weekly = report.sections.get("weekly")
     synthesis = report.sections.get("conceptual", {})
+    if weekly:
+        synthesis = {
+            "highlights": weekly["patterns"][:3],
+            "projects": [
+                {
+                    "project_id": p["project_id"],
+                    "known_now": p["progress_vs_objective"],
+                    "still_unknown": [],
+                    "decisions_changed": p["decisions"],
+                    "no_new_conclusion": False,
+                }
+                for p in weekly["projects"]
+            ],
+        }
+
     plan = report.sections.get("plan")
 
     def claims(values: list[dict[str, Any]]) -> str:
@@ -95,7 +111,7 @@ def render(report: Report) -> str:
     lines.extend(
         [
             "",
-            "## Plan de mañana",
+            "## Propuesta de semana" if weekly else "## Plan de mañana",
             "\n".join(
                 escape(item["action"])
                 + " — Terminado cuando: "
@@ -109,7 +125,13 @@ def render(report: Report) -> str:
                 + " ["
                 + ", ".join(item["evidence"])
                 + "]"
-                for item in ([plan["mission"], *plan["warmups"]] if plan else [])
+                for item in (
+                    weekly["next_week"]
+                    if weekly
+                    else [plan["mission"], *plan["warmups"]]
+                    if plan
+                    else []
+                )
             )
             or "Sin propuesta automática en modo mecánico.",
             "",
@@ -122,6 +144,22 @@ def render(report: Report) -> str:
     for key, extraction in report.sections.items():
         if key.startswith("extract:"):
             lines.append(claims(extraction["open_threads"]))
+    if weekly:
+        lines.extend(
+            [
+                "## Revisiones de la semana",
+                "Cerradas por la persona: " + ", ".join(weekly["review_status"]["completed"]),
+                "Pendientes (de mayor a menor antigüedad): "
+                + ", ".join(weekly["review_status"]["pending"]),
+                claims(weekly["review_status"]["doubts"]),
+                "## Patrones",
+                claims(weekly["patterns"]),
+                "## Figuras clave",
+                ", ".join(weekly["key_figures"]) or "No hay figuras disponibles.",
+            ]
+        )
+        for project in weekly["projects"]:
+            lines.append(claims(project["hypotheses_changed"]))
     lines.extend(["", "## Nivel técnico y evidencias"])
     for entry in report.evidence:
         lines.extend(

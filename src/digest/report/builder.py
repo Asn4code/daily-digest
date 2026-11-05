@@ -83,6 +83,8 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             "result_ids": result_ids,
             "task_states": states,
             "context": context,
+            "completed_reviews": context.get("completed_reviews", []),
+            "pending_reviews": context.get("pending_reviews", []),
             "evidence": [],
         }
         prompt = load(task)
@@ -92,6 +94,8 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             report.warnings.append(key + ": contexto supera el límite; sección mecánica.")
             return
         priority = {"task_note": 0, "metric": 1, "task_transition": 2, "run_error": 3, "diff": 4}
+        if task == "weekly":
+            priority["figure"] = 0
         for eid in sorted(set(ids), key=lambda i: priority.get(evidence[i].kind, 5)):
             item = asdict(evidence[eid])
             item["meta"] = {
@@ -171,6 +175,53 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                 "synthesis": report.sections.get("conceptual"),
                 "tasks": {pid: tasks.get(pid, []) for pid in present},
                 "human_doubts": human_doubts,
+            },
+            results,
+        )
+    elif present:
+        marks = ",".join("?" for _ in present)
+        parameters = tuple(sorted(present))
+        completed = sorted(
+            {
+                r[0]
+                for r in db.execute(
+                    "SELECT v.result_id FROM review v JOIN result r ON r.id=v.result_id "
+                    "WHERE v.decision='closed' AND v.decided_at>=? AND v.decided_at<=? "
+                    "AND r.project_id IN (" + marks + ")",
+                    (report.start_at, report.end_at, *parameters),
+                )
+            }
+        )
+        pending = [
+            r[0]
+            for r in db.execute(
+                "SELECT id FROM result WHERE review_state!='closed_by_human' "
+                "AND first_seen_at<=? AND project_id IN (" + marks + ") ORDER BY first_seen_at,id",
+                (report.end_at, *parameters),
+            )
+        ]
+        accepted = [
+            dict(zip(["action", "done_criterion", "edited_text"], row, strict=True))
+            for row in db.execute(
+                "SELECT p.action,p.done_criterion,p.edited_text FROM plan_item p "
+                "JOIN report r ON r.id=p.report_id JOIN interval i ON i.id=r.interval_id "
+                "WHERE p.accepted=1 AND i.end_at>=? AND i.end_at<=? ORDER BY i.end_at,p.id",
+                (report.start_at, report.end_at),
+            )
+        ]
+        # Accepted plans may contain any configured project's human text.
+        # Include every configured project in the privacy scope for this context.
+        weekly_scope = set(projects) if accepted else present
+        call(
+            "weekly",
+            "weekly",
+            list(evidence),
+            weekly_scope,
+            {
+                **context,
+                "completed_reviews": completed,
+                "pending_reviews": pending,
+                "accepted_plans": accepted,
             },
             results,
         )
