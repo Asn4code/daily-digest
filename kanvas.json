@@ -516,12 +516,24 @@
     {
       "id": "CP-05",
       "title": "Recolector de ejecuciones",
-      "state": "todo",
+      "state": "done",
       "group": "CP",
       "deps": ["CB-03", "CB-04", "CB-05", "CB-07"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Jobs de Slurm vía `sacct` (campos de EVIDENCE.md) y logs de Snakemake, Nextflow o scripts propios: estado, duración, errores y últimas líneas.\n\nTerminado cuando: con FakeSacct aparecen un run completado y un run_error; el error de logs/run.log de proj-ok se recoge."
+      "desc": "Jobs de Slurm vía `sacct` (campos de EVIDENCE.md) y logs de Snakemake, Nextflow o scripts propios: estado, duración, errores y últimas líneas.\n\nTerminado cuando: con FakeSacct aparecen un run completado y un run_error; el error de logs/run.log de proj-ok se recoge.",
+      "notes": [
+        {
+          "at": "2026-11-05T12:01:03Z",
+          "by": "codex",
+          "text": "Plan: logs locales acotados con errores y avisos, fechas explícitas y cobertura; sacct solo si se habilita, sin detener otras fuentes. Tests con FakeSacct y logs sintéticos."
+        },
+        {
+          "at": "2026-11-05T12:01:31Z",
+          "by": "codex",
+          "text": "Logs locales y sacct opcional generan evidencias run/run_error con cobertura y deduplicación. Fechas sin zona horaria quedan observadas; solo jobs del proyecto. Fallar sacct conserva logs. make check pasa con 117 tests, incluidos FakeSacct completado/fallido y errores de logs. SGE se recoge mediante logs, sin lanzar trabajos ni SSH implícito."
+        }
+      ]
     },
     {
       "id": "CP-06",

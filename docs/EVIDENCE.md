@@ -159,3 +159,16 @@ n, media, mediana, mínimo y máximo, además del cambio de cada estadístico fr
 a la captura anterior cuando existe. La aritmética evita publicar infinitos; si
 un cambio no cabe en un float finito se omite con aviso. No se atribuyen unidades
 ni significado científico que no estén declarados en la fuente.
+
+## 11. Evidencias de ejecuciones (fase 1)
+
+Los logs declarados se leen con límites y se comparan por hash. Se guardan hasta
+80 líneas finales y el extracto configurado, con cobertura explícita si se recorta.
+Solo una fecha ISO con zona horaria explícita se usa como evento; el resto queda
+como observado. Un error o fallo de contabilidad Slurm no impide recoger los logs.
+
+`sacct` se consulta únicamente si está habilitado. Los jobs deben tener WorkDir
+absoluto dentro del proyecto. Si sus fechas no incluyen zona horaria, no se
+inventa una; estado, tiempos y exit code originales siguen disponibles en el
+extracto. SGE se cubre inicialmente mediante logs locales existentes; no se
+lanzan jobs ni se hacen consultas SSH implícitas.
