@@ -5,7 +5,7 @@ Servicio personal que, al final de cada día (o cuando lo pidas), reúne lo que 
 ## Qué hace
 
 - **Recoge evidencias** de Kanvas, Git, documentación, figuras, métricas y ejecuciones (Slurm, Snakemake, Nextflow), en solo lectura.
-- **Genera informes** con Qwen3.6 (interno) y NaN (externo), con cada afirmación enlazada a sus evidencias.
+- **Genera informes** con Qwen (interno) y NaN (externo), con cada afirmación enlazada a sus evidencias.
 - **Entrega** un correo esencial, el informe completo en la webapp, una copia en Obsidian y una copia remota continua en Google Drive.
 - **Revisión activa:** propone un resultado al día; lo explicas con tus palabras y el sistema contrasta tu explicación con las evidencias. Nunca marca nada como comprendido por ti.
 - **Extensiones:** detecta resultados revisados que dan para un protocolo, material docente o una sección de métodos, y prepara un paquete de contexto para generarlos con otras herramientas.
@@ -30,16 +30,16 @@ Servicio personal que, al final de cada día (o cuando lo pidas), reúne lo que 
 
 ## Empezar
 
-Estado de implementación: CB-01 a CB-06 completadas; puerta de fase 0 en revisión.
-La ayuda de la CLI y `doctor --offline` están disponibles; los demás comandos
-operativos terminan con código 1 y un aviso de funcionalidad pendiente.
-Todavía no se capturan proyectos ni se generan o entregan informes.
+Estado de implementación: fase 0 aprobada; fase 1 en validación. Ya funcionan
+la captura de solo lectura, el registro SQLite, los informes mecánicos en Markdown,
+HTML y PDF y las entregas independientes a correo, Obsidian y Drive.
+La síntesis con LLM, la webapp y los servicios systemd pertenecen a fases posteriores.
 
 ```bash
 kanvas init                                        # tablero y skill para agentes
 kanvas batch --file docs/backlog.kanvas.json       # backlog inicial como propuestas
 make setup && make check
-python scripts/phase_gate.py 0 --no-manual        # estado de la puerta de la fase actual
+python scripts/phase_gate.py 1 --no-manual        # estado de la puerta de la fase actual
 ```
 
 Tras `make setup`, usa `.venv/bin/digest --help` o activa el entorno con
@@ -92,3 +92,18 @@ Puedes elegir los modelos editando `llm.providers.<nombre>.model` y el orden de
 proveedores por tarea en `llm.routing`. Inicialmente se usa el Qwen interno para
 extracción y DeepSeek de NaN para síntesis, plan, semanal y contraste, con respaldo
 mutuo. La edición de modelos desde la webapp está propuesta en WA-06.
+
+
+## Capturar, generar y entregar
+
+```bash
+.venv/bin/digest --config config.yaml capture
+.venv/bin/digest --config config.yaml run --now --no-send
+.venv/bin/digest --config config.yaml run --preview --now
+```
+
+`--no-send` guarda el informe local sin entregarlo; un avance tampoco cierra el
+intervalo. Para entregar un informe ya comprobado, usa `digest deliver --report ID`.
+Sin `--now`, `run` solo encola: `digest worker --once` procesa un trabajo pendiente.
+El envío lee las credenciales del entorno o de `$CREDENTIALS_DIRECTORY/secrets.env`.
+Los reintentos y los estados inciertos se explican en [OPERATIONS.md](docs/OPERATIONS.md).

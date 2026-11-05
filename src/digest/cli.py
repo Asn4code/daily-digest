@@ -144,12 +144,23 @@ def web() -> None:
 
 @app.command()
 def deliver(
+    ctx: typer.Context,
     retry: Annotated[bool, typer.Option()] = False,
     channel: Annotated[str | None, typer.Option()] = None,
     force_uncertain: Annotated[bool, typer.Option()] = False,
+    report: Annotated[str | None, typer.Option("--report")] = None,
 ) -> None:
-    """Reintentar entregas (pendiente: fase 4)."""
-    pending("deliver")
+    """Entregar un informe o reintentar canales pendientes y fallidos."""
+    if not retry and report is None:
+        raise typer.BadParameter("Indica --retry o --report ID")
+    if channel is not None and channel not in {"email", "obsidian", "drive"}:
+        raise typer.BadParameter("Canal desconocido")
+    submit(
+        ctx,
+        "deliver",
+        {"channel": channel, "report": report, "force_uncertain": force_uncertain},
+        now=True,
+    )
 
 
 @app.command()

@@ -60,11 +60,11 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 ## Preguntas abiertas
 
-Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La firma
-humana de la fase 0 sigue pendiente. Quedan verificaciones de implementación:
+Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma
+humana registradas en `docs/reviews/phase-0.md`. Quedan verificaciones de implementación:
 
 - CP-05: rutas y formatos de logs por proyecto y disponibilidad del acceso de solo lectura a SGE.
-- CP-08: instalar y validar WeasyPrint con informes representativos.
+- CP-08: WeasyPrint 70 instalado y probado con informes de fixtures; queda la comprobación humana del correo y el informe real en la puerta de fase 1.
 - Fase 2: verificar ubicaciones y formatos de sesiones de los agentes.
 - Fase 3: probar el acceso móvil a la webapp con Tailscale.
 - Fase 6: concretar cada brief y aplicar la prioridad protocolos → métodos,
@@ -93,3 +93,5 @@ Rellenar en CB-06 con lo comprobado (versiones, salidas reales, límites).
 | 2026-11-04 | Catálogos LLM CB-06 | GET /models devuelve HTTP 200 en ambos proveedores. El catálogo interno identifica Qwen/Qwen3.8-27B con max_model_len=262144; el catálogo NaN incluye deepseek-v4-flash sin límite de contexto en esa respuesta. El 1M de NaN sigue siendo un valor documentado por el proveedor, no una prueba de saturación. |
 | 2026-11-05 | DNS del piloto | Comprobado inicialmente resolv.conf generado por Tailscale. Después del ajuste indicado, la persona compartió resolv.conf generado por NetworkManager, búsqueda institucional y tres DNS internos. Procedimiento y límites de la comprobación en OPERATIONS.md, sección DNS institucional e IPA/Kerberos. |
 | 2026-11-05 | Informe mecánico CP-07 | Captura, cola/worker serializado, agrupación y generación Markdown/HTML probadas contra fixtures sin entregas. Jinja2 (ya previsto en el stack) se incorpora para autoescape; markdown-it-py y nh3 se incorporan para el tratamiento seguro de Markdown en entregas. La validación de IDs de evidencia se ejecuta antes de publicar incluso en modo mecánico; la validación LLM completa sigue en fase 2. |
+
+| 2026-11-05 | Entregas CP-08 | WeasyPrint 70 compatible con Pango local; PDF de fixtures generado y rasterizado para revisión visual. SMTP local y remoto rclone local prueban 40 tareas, figuras CID, reintentos independientes, estado incierto tras DATA, revisiones y protección de texto humano. Vista del correo a 390 px comprobada con Chromium; no equivale a comprobar un cliente de correo real. |

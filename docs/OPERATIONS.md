@@ -314,3 +314,44 @@ sin generar conclusiones ni planes con un modelo. JSON almacena UTC; Markdown y
 HTML muestran Europe/Madrid. Un avance no cierra el intervalo ni crea entregas.
 El informe se valida antes de crear sus archivos, y cada revisión usa una carpeta
 nueva. Un trabajo interrumpido se registra como fallido al recuperar el worker.
+
+
+## Entregas de informes mecánicos (fase 1)
+
+Cada informe validado se entrega de forma independiente a Obsidian, Drive y correo.
+Un fallo de correo no repite una copia de Drive ya completada. Los avances y los
+informes generados con `--no-send` no se entregan automáticamente.
+
+```bash
+digest --config config.yaml deliver --report rep_daily_FECHA_r1
+digest --config config.yaml deliver --retry --channel email
+```
+
+Los comandos de entrega pasan por la cola y el bloqueo del worker. El registro
+`delivery` conserva canal, intentos, estado y un código de error sin secretos.
+Antes de SMTP DATA se guarda el MIME exacto en `data_dir/outbox/ID.eml` y se marca
+`uncertain`. Si no se recibe la confirmación del servidor, no se reenvía solo.
+Comprueba primero el buzón receptor y los registros SMTP; solo después utiliza
+`deliver --report ID --channel email --force-uncertain` si decides repetirlo.
+Los reintentos conservan el Message-ID y los bytes originales del correo.
+
+Las notas generadas van a `Digest/AAAA-MM-DD.md` y las semanales a
+`Digest/Semanal/AAAA-Wss.md`. Una regeneración crea `-r2`, `-r3`, etc.
+Un archivo existente con contenido diferente provoca un fallo de entrega; nunca
+se sustituye. Las figuras rasterizadas se copian junto a la nota y el texto humano
+de `Revisiones/` permanece separado. El procesamiento de fichas humanas llegará
+en la fase de webapp/revisión.
+
+Drive recibe `reports/TIPO/ID/` con JSON, Markdown, HTML, PDF y figuras mediante
+`rclone copy --immutable`. El enlace del correo apunta a esa carpeta privada cuando
+se puede obtener su ID; no crea enlaces públicos. La copia continua de revisiones,
+planes y backups corresponde a la fase de operación.
+
+WeasyPrint 70 genera el PDF desde la plantilla del servicio, con imágenes PNG
+dentro del directorio del informe. El cargador bloquea recursos de red y archivos
+externos. La instalación requiere las bibliotecas nativas de Pango indicadas por
+WeasyPrint; `make check` valida la generación real contra los fixtures.
+
+Las vistas de prueba locales están en `build/previews/email.html`,
+`email-mobile.png` (390 px) y `pdf-page-1.png`; no contienen datos del piloto
+ni sustituyen la comprobación humana del correo en su móvil.

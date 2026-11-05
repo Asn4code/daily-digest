@@ -582,12 +582,24 @@
     {
       "id": "CP-08",
       "title": "Correo esencial y copia en Obsidian y Drive",
-      "state": "todo",
+      "state": "done",
       "group": "CP",
       "deps": ["CP-07"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Correo esencial (SPEC FR-20 a FR-22) en HTML y texto con todas las tareas hechas, figuras CID y Message-ID estable; escritura atómica en la vault; subida del informe (Markdown y PDF) a Drive con `rclone copy --immutable`; tabla delivery.\n\nTerminado cuando: con el SMTP local y el remoto local llegan el correo y los archivos; pasa T02; el correo se lee bien en móvil (revisión manual de una captura)."
+      "desc": "Correo esencial (SPEC FR-20 a FR-22) en HTML y texto con todas las tareas hechas, figuras CID y Message-ID estable; escritura atómica en la vault; subida del informe (Markdown y PDF) a Drive con `rclone copy --immutable`; tabla delivery.\n\nTerminado cuando: con el SMTP local y el remoto local llegan el correo y los archivos; pasa T02; el correo se lee bien en móvil (revisión manual de una captura).",
+      "notes": [
+        {
+          "at": "2026-11-05T12:18:13Z",
+          "by": "codex",
+          "text": "Plan: PDF con recursos locales permitidos, correo esencial multipart con IDs estables y estados inciertos conservadores; Obsidian inmutable y Drive copy --immutable, entregas independientes y pruebas con SMTP y remoto locales."
+        },
+        {
+          "at": "2026-11-05T12:32:22Z",
+          "by": "codex",
+          "text": "El informe mecánico se entrega a correo, Obsidian y Drive por canales independientes, con PDF, figuras CID y protección de revisiones y texto humano. make check: 128 tests pasan, incluidos 40 resultados completos, desconexión tras DATA sin reenvío, fallos parciales, contenido malicioso y copia inmutable. Correo revisado visualmente a 390 px y PDF rasterizado. La puerta automática pasa archivos, reglas, comandos y escenarios; solo queda el estado de esta tarea antes de cerrarla. En CP-09 la persona comprobará el correo en su móvil y las copias del proyecto real."
+        }
+      ]
     },
     {
       "id": "CP-09",

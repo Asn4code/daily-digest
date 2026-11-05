@@ -40,7 +40,11 @@ def test_command_help(command: str) -> None:
 
 @pytest.mark.parametrize(
     "args",
-    [args for args in COMMANDS if args[0] not in {"doctor", "capture", "run", "enqueue", "worker"}],
+    [
+        args
+        for args in COMMANDS
+        if args[0] not in {"doctor", "capture", "run", "enqueue", "worker", "deliver"}
+    ],
 )
 def test_unimplemented_commands_fail_without_writing(
     args: list[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch

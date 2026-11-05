@@ -73,6 +73,31 @@ def execute(
         db.execute("UPDATE job SET state='running',started_at=? WHERE id=?", (utc(instant), ident))
         report_id: str | None = None
         try:
+            if kind == "deliver":
+                from digest.publish.deliveries import deliver_report, retry
+
+                if params.get("report"):
+                    outcomes = {
+                        params["report"]: deliver_report(
+                            db,
+                            config,
+                            params["report"],
+                            channel=params.get("channel"),
+                            force_uncertain=bool(params.get("force_uncertain")),
+                        )
+                    }
+                else:
+                    outcomes = retry(
+                        db,
+                        config,
+                        channel=params.get("channel"),
+                        force_uncertain=bool(params.get("force_uncertain")),
+                    )
+                db.execute(
+                    "UPDATE job SET state='done',finished_at=? WHERE id=?",
+                    (utc(datetime.now(UTC)), ident),
+                )
+                return canonical(outcomes)
             capture(db, config, now=instant, project_id=params.get("project"))
             if kind == "capture":
                 db.execute(
@@ -174,6 +199,10 @@ def execute(
                 [(report_id, item.id) for item in report.evidence],
             )
             close_interval(db, interval.id, report_id)
+            if kind != "preview" and not params.get("no_send"):
+                from digest.publish.deliveries import deliver_report
+
+                params["deliveries"] = deliver_report(db, config, report_id)
             params["report_id"] = report_id
             db.execute(
                 "UPDATE job SET state='done',finished_at=?,params=? WHERE id=?",
