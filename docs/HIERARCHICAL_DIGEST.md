@@ -25,9 +25,62 @@ seguridad y trazabilidad, pero no bastaban para demostrar utilidad ni tiempos
 adecuados con los proyectos reales. Cambiar el proveedor no resuelve por sí solo
 estos problemas de construcción.
 
+## Profundidad, frecuencia y canal: tres decisiones distintas
+
+La jerarquía anterior era demasiado pesada si se interpretaba como una revisión
+científica completa de todo el proyecto cada día. Se conserva como organización
+interna, con trabajo incremental y piezas reutilizables. No implica una llamada
+LLM por archivo ni obliga a la persona a leer todas las etapas.
+
+La persona pide una profundidad intermedia para el diario y distintos niveles
+según el canal. El diario también interpreta; el semanal añade un contraste
+crítico explícito. El mensaje móvil y la vault son vistas del mismo contenido
+validado, con distinta extensión, no informes independientes que puedan discrepar.
+
+| Producto | Mensaje móvil (correo) | Informe en la vault |
+| --- | --- | --- |
+| Diario | Hasta tres novedades con su significado y la incertidumbre decisiva; misión y hasta dos calentamientos; tareas del intervalo en bloque compacto | Lectura inicial breve; explicación conceptual por proyecto de qué cambió, cómo se sabe y por qué importa; resultados, controles, límites, figuras y evidencias ampliables |
+| Semanal | Cambios de conclusión o alertas más relevantes, decisiones propuestas y prioridad de la semana | Balance integrado y etapa crítica: conclusiones previas frente a evidencia nueva, matices/contradicciones, explicaciones alternativas y análisis discriminantes propuestos; inventario y detalle técnico consultables |
+
+En la vault se distinguen tres niveles de lectura:
+
+1. **Orientación:** qué cambió, qué significa y qué merece atención.
+2. **Comprensión conceptual:** razonamiento por proyecto y resultado, controles,
+   alcance e incertidumbre; profundidad suficiente para entender sin releer código.
+3. **Comprobación técnica:** datos, parámetros, extractos, linaje y cobertura.
+
+No se fuerza a recorrerlos de arriba abajo ni se desplazan limitaciones decisivas
+al último nivel. Abreviar para el móvil no puede convertir una interpretación en
+hecho ni eliminar una condición que cambie el significado. Se conserva la lista
+de todas las tareas del intervalo; la lectura rápida corresponde a la entrada,
+no a prometer que cualquier inventario enorme se lee completo en un minuto.
+
+### Arranque y funcionamiento habitual
+
+Los primeros días se construye una referencia inicial de conclusiones, resultados
+y contexto. Ese trabajo puede ser mayor para el sistema, pero el inventario antiguo
+no se presenta como producción de hoy ni obliga a revisar toda la historia. Debe
+separarse el contexto histórico observado al dar de alta un proyecto de los
+cambios con evidencia de evento en el intervalo. Los límites de esa referencia
+inicial quedan visibles, sin inventar antigüedad ni comprensión humana.
+
+Después se procesan los cambios y sus dependencias: resultado cambiado, balance
+afectado y síntesis. No se rehacen fichas ni críticas históricas sin nueva entrada.
+Una alerta científica importante aparece también en el diario; no espera al sábado.
+La revisión extensa y la propuesta de contrastes se desarrollan en el semanal.
+
+La primera implementación debe ser un recorrido vertical pequeño: un cambio real,
+su explicación conceptual, sus dos vistas de canal y un contraste semanal. Se
+amplía tras comprobar utilidad, latencia y aciertos/rechazos. No hace falta un
+motor genérico de workflows ni una llamada de modelo por cada fragmento.
+
 ## Qué se considera terminado
 
-Un informe final contiene todas las secciones requeridas, todos los resultados
+Cada producto tiene su propio contrato de profundidad. El diario no depende de
+terminar la crítica semanal ni de analizar toda la historia. Una carencia que
+impida respaldar una afirmación necesaria del día sí deja pendiente esa pieza.
+
+Un informe final contiene todas sus secciones requeridas, todos los resultados
 del intervalo y un manifiesto que acredita qué validaciones pasó cada pieza.
 Una sección fallida queda pendiente, con motivo y siguiente acción; no se convierte
 en un apartado mecánico ni se disfraza como «no hay conclusión nueva».
@@ -46,16 +99,18 @@ humana: «validado por el sistema» nunca significa «comprendido por la persona
 
 ```mermaid
 flowchart TD
-    A[Captura de evidencias] --> B[Hechos normalizados por fuente]
-    B --> C[Fichas de resultados]
-    C --> D[Balance de cada proyecto]
-    D --> E[Lo esencial del día]
-    D --> F[Plan con tareas y dudas humanas]
-    C --> G[Balance semanal y patrones]
-    E --> H[Control final de integridad]
-    F --> H
-    G --> H
-    H --> I[Informe final y entregas]
+    A[Captura y normalización] --> B[Fichas de resultados cambiados]
+    B --> C[Balance por proyecto]
+    C --> D[Diario con interpretación y plan]
+    B --> E[Contraste científico semanal]
+    P[Conclusiones previas y sus evidencias] --> E
+    E --> F[Semanal con balance y análisis propuestos]
+    D --> VD[Validar diario]
+    F --> VS[Validar semanal]
+    VD --> MD[Vista móvil diaria]
+    VD --> OD[Vault: orientación, conceptos y técnica]
+    VS --> MS[Vista móvil semanal]
+    VS --> OS[Vault: balance, crítica y evidencias]
 ```
 
 Cada flecha exige una entrada validada; los nodos independientes pueden seguir
@@ -68,7 +123,8 @@ avanzando aunque otro esté pendiente. El ensamblado final no salta una dependen
 | Resultado | Hechos relacionados con una tarea o experimento | Qué se hizo, qué respalda, controles, límites y preguntas | Todas las afirmaciones conservan evidencia; distinguir observación e interpretación |
 | Proyecto | Fichas válidas, objetivo científico y contexto previo validado | Qué cambia respecto al objetivo, qué falta y qué decisión permite | No confundir actividad técnica con conclusión científica |
 | Diario y plan | Balances válidos; tareas y dependencias de Kanvas; dudas humanas | Lo esencial y acciones ejecutables | Límites de secciones, dependencias, origen y trazabilidad |
-| Semanal | Evidencias y fichas de siete días, revisiones y planes aceptados | Patrones, cambios de hipótesis, pendientes y objetivos | No resumir diarios ni usar una síntesis previa como única prueba |
+| Crítica semanal | Conclusiones previas con su alcance y soporte; evidencias nuevas y controles | Qué se refuerza, matiza, cuestiona o queda sin resolver; propuesta de análisis discriminante | Comparabilidad, linaje de ambos lados, alternativas y límites; sin modificar estados humanos |
+| Semanal | Fichas de siete días, crítica, revisiones y planes aceptados | Balance conceptual, decisiones, pendientes y objetivos | No resumir diarios ni usar una síntesis previa como única prueba |
 | Ensamblado | Nodos válidos e inventario del intervalo | Informe completo y manifiesto | Ningún resultado oculto; ninguna sección requerida pendiente |
 
 ### Hechos antes de narrativa
@@ -96,6 +152,54 @@ La síntesis global recibe balances breves y validados y un índice completo de
 resultados, no otra copia de todos los diffs. El plan es otra etapa: usa esos
 balances y el grafo determinista de tareas y dependencias, sin releer el repositorio.
 El inventario de todas las tareas lo ensambla el código, no lo selecciona el modelo.
+
+## Etapa crítica semanal: revisar lo que creíamos saber
+
+Se compara la evidencia de la semana con conclusiones identificables y versionadas,
+no solo con lo escrito en los diarios. Las conclusiones de referencia conservan
+fuente, autor, alcance, condiciones, controles y evidencias originales. Se señala
+si fueron propuestas por un agente, extraídas de un documento o revisadas por la
+persona; no se da por aceptada una afirmación antigua solo por estar escrita.
+
+Una conclusión anterior puede requerir evidencias fuera de los siete días: se
+incluyen como referencia histórica y se distinguen de lo nuevo. El inventario de
+trabajo semanal sigue acotado a su intervalo. La selección de referencias respeta
+las rutas y restricciones originales, sin darle al modelo acceso libre al proyecto.
+
+Para cada conclusión afectada, la revisión produce:
+
+- **Qué sosteníamos y con qué alcance**, con sus referencias originales.
+- **Qué evidencia nueva apareció**, con controles, condiciones y limitaciones.
+- **Cómo cambia la lectura:** refuerza, matiza/restringe, pone en duda o no permite
+  decidir; explicar por qué y qué alternativas quedan.
+- **Qué consecuencia tiene:** mantener la interpretación, reformular su alcance,
+  posponer una decisión o proponer un contraste. Son propuestas argumentadas.
+- **Qué análisis ayudaría a discriminar:** pregunta concreta, datos/control
+  necesarios, resultado esperado bajo cada alternativa y criterio de decisión.
+  No son resultados observados ni análisis que el servicio haya ejecutado.
+
+Antes de hablar de contradicción se comprueba si la evidencia realmente pone a
+prueba la conclusión: población/diana, diseño, modelo, controles, condiciones,
+unidades y posible variabilidad. Un conjunto diferente puede cuestionar una
+conclusión general, pero no contradice automáticamente una conclusión expresamente
+limitada a otro ámbito. Se explicita esa relación y no se fuerza una objeción.
+
+No se fabrican novedades ni recomendaciones genéricas como «hacer más análisis».
+Si no hay una revisión material de conclusiones, el semanal lo dice con su alcance
+y cobertura. La entrada breve prioriza los cambios más importantes; el inventario
+completo de conclusiones afectadas permanece consultable en la vault.
+
+**Ejemplo hipotético de Benchmark, no un hallazgo del proyecto:** una interpretación
+atribuye una diferencia a una mutación; un control nuevo muestra variabilidad
+comparable sin esa mutación. El semanal debería identificar qué parte de la
+interpretación queda en duda y proponer un contraste que separe ambas explicaciones,
+sin declarar que el efecto existe o desaparece antes de disponer de ese contraste.
+
+La crítica puede volver sobre un resultado que la persona ya revisó: se añade
+una alerta de nueva evidencia y otra interpretación versionada. No se borra su
+explicación, se reescribe la conclusión humana ni se cambia automáticamente
+`closed_by_human`. Los análisis sugeridos son propuestas para el plan, no ejecución
+de experimentos ni escritura automática en Kanvas de los proyectos.
 
 ## Trazabilidad que sobrevive a la jerarquía
 
@@ -174,12 +278,18 @@ si se añade, sigue controlada dentro del único worker y por límites verificad
    incorrectas, contextos grandes y fragmentos que necesitan controles conjuntos.
 3. Nodos persistidos: interrumpir tras varias piezas, reanudar sin repetir llamadas
    válidas y cambiar una evidencia para invalidar solo la rama afectada.
-4. Fichas, balances y síntesis jerárquica de diario/semanal. Una pieza fallida no
-   impide guardar las independientes, pero bloquea la publicación final.
-5. Nueva revisión independiente y validación real con los dos proyectos: cinco
+4. Diario con profundidad intermedia y vistas móvil/vault desde un contenido
+   común validado. Fichas incrementales y balances por objetivo; no obligar a
+   consumir el detalle técnico ni a terminar la crítica semanal para leer el diario.
+5. Contraste crítico semanal de conclusiones anteriores frente a evidencia nueva,
+   con propuestas de análisis que separen explicaciones y sin alterar estado humano.
+6. Nueva revisión independiente y validación real con los dos proyectos: cinco
    afirmaciones contrastadas, plan ejecutable y balance científico útil. Verificar
    además que todos los resultados siguen visibles y no se transmiten secretos
-   ni contenido privado a un proveedor externo.
+   ni contenido privado a un proveedor externo. Comprobar también que el mensaje
+   móvil conserva las condiciones decisivas del informe de la vault, que el arranque
+   no presenta historia como trabajo nuevo y que el semanal puede matizar o
+   cuestionar una conclusión previa con referencias de ambos lados.
 
 La fase 2 permanece abierta. La aprobación técnica anterior corresponde al flujo
 anterior y no sustituye la revisión de estos cambios.

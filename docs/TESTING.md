@@ -117,3 +117,27 @@ localhost. Un sandbox que prohíba esos sockets no puede ejecutar los dos tests
 SMTP: deben correr fuera de ese sandbox; no se omiten automáticamente. El
 archivo `.xtc` es disperso de 3 GB, sin reservar esos 3 GB físicamente. El árbol
 `proj-fail/no-access` tiene permisos `000`; los tests los restauran al limpiar.
+
+
+## Diseño pendiente D-048: niveles de lectura y contraste científico
+
+Los siguientes casos deben añadirse al implementar IN-10/IN-12/IN-11; no se
+presentan como pruebas que ya pasan:
+
+- Mismo contenido en móvil y vault: el resumen conserva condiciones decisivas,
+  incertidumbre y referencias; la explicación conceptual y el detalle técnico
+  permanecen accesibles sin obligar a leerlos para orientarse.
+- Arranque con numerosas tareas ya terminadas de fecha desconocida: inventario
+  histórico diferenciado, sin presentarlas como trabajo nuevo ni declarar que
+  están comprendidas; las tareas realmente del intervalo siguen visibles.
+- Segunda ejecución sin cambios: reutiliza piezas y no repite análisis LLM;
+  una evidencia nueva invalida solo las dependencias afectadas.
+- Conclusión previa y control nuevo: crítica con referencias antiguas y nuevas,
+  alcance de la conclusión y contraste concreto, sin inventar el resultado.
+- Evidencia nueva bajo condiciones diferentes: explicar si afecta al alcance o
+  si no permite comparar; no declarar automáticamente una contradicción.
+- Ningún cambio material: no fabricar objeciones, novedades ni análisis genéricos.
+- Resultado revisado por la persona que recibe evidencia nueva: conservar su
+  explicación y estado humano, añadir la alerta y una interpretación versionada.
+- Señal importante antes del cierre semanal: aparece en el diario con el grado de
+  certeza disponible, sin esperar a terminar toda la crítica semanal.

@@ -68,6 +68,8 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-047 | 2026-11-05 | La persona rechaza sustituir secciones LLM no validadas por contenido mecánico y solicita una estrategia modular y jerárquica | Revisa D-002/D-004/D-012 y FR-19 en lo relativo al respaldo y al plazo: el fallo no autoriza publicar ni cerrar un digest incompleto. Mantiene la comprensión humana separada. Se detienen los jobs de validación 7/8 sin entrega; se conserva su auditoría. Diseño propuesto en HIERARCHICAL_DIGEST.md, implementación y nueva revisión pendientes. |
 
+| D-048 | 2026-11-05 | La persona pide profundidad intermedia en el diario, distinguir mensaje móvil y vault y añadir una etapa crítica al semanal | Diario con interpretación proporcionada; vault con orientación, explicación conceptual y técnica ampliable; móvil breve sin perder condiciones ni incertidumbre. El semanal contrasta conclusiones previas con evidencia nueva y propone análisis discriminantes cuando proceda. Referencia inicial separada de actividad nueva; sin sobrescribir texto ni reabrir estados humanos automáticamente. Diseño y tareas propuestas, aún no implementados. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

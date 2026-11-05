@@ -803,6 +803,11 @@
           "at": "2026-11-05T14:55:18Z",
           "by": "codex",
           "text": "Puerta de fase 2 suspendida como tarea hasta implementar y revisar el requisito nuevo D-047. Propuesta jerárquica en docs/HIERARCHICAL_DIGEST.md y tareas IN-07 a IN-11; no se pide firma del flujo anterior. Jobs 7/8 detenidos sin envío; auditoría conservada. Retomar la puerta tras la nueva validación independiente."
+        },
+        {
+          "at": "2026-11-05T15:23:27Z",
+          "by": "codex",
+          "text": "La persona ajusta el diseño: diario con profundidad intermedia, niveles distintos para mensaje móvil y vault y crítica científica explícita en el semanal (D-048). No convertir el diario en revisión exhaustiva ni dejarlo en una lista superficial. IN-10/11 revisadas e IN-12 propuesta para contrastar conclusiones previas con evidencia nueva, matices y análisis discriminantes; IN-11 espera IN-12. Todas las vistas mantienen significado, limitaciones y linaje; nunca se sobrescribe texto humano ni se reabre su estado automáticamente. La referencia inicial se separa de novedades, y el procesamiento habitual será incremental. Diseño actualizado, sin afirmar implementación."
         }
       ]
     },
@@ -1048,23 +1053,33 @@
     },
     {
       "id": "IN-10",
-      "title": "Fichas de resultados y balances jerárquicos de diario y semanal",
+      "title": "Diario incremental con profundidad intermedia y niveles por canal",
       "state": "proposed",
       "group": "IN",
       "deps": ["IN-09"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "Construir fichas científicas desde hechos válidos, balances independientes frente al objetivo de cada proyecto y después síntesis/plan desde esos balances, sin reenviar todo el corpus. El semanal usa evidencias y fichas de siete días, no prosa de diarios. Propagar referencias originales, límites e información privada por toda la jerarquía. Terminado cuando cada afirmación final llega a su evidencia, todos los resultados aparecen y el plan usa dependencias reales; una pieza fallida bloquea la publicación final pero no el guardado de las independientes."
+      "desc": "Construir el diario desde fichas y balances incrementales, con interpretación científica proporcionada y todas las tareas del intervalo. El mensaje móvil y la vault serán vistas del mismo contenido validado: entrada breve con significado y limitaciones decisivas; en la vault, orientación, comprensión conceptual y comprobación técnica ampliable. No regenerar historia ni ejecutar crítica semanal completa cada día. Separar la referencia inicial observada de actividad nueva; una señal científica importante sí aparece en el diario sin esperar al semanal. Terminado cuando un cambio real recorre extracción, explicación y ambas vistas sin perder condiciones, evidencia ni resultados; el diario no depende de terminar toda la historia o la crítica semanal. Implementación mínima específica, sin motor genérico de workflows. D-048 y docs/HIERARCHICAL_DIGEST.md."
     },
     {
       "id": "IN-11",
       "title": "Validación del flujo jerárquico con fallos y proyectos reales",
       "state": "proposed",
       "group": "IN",
-      "deps": ["IN-10"],
+      "deps": ["IN-10", "IN-12"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "Repetir pruebas de inyección, secretos, cifras/unidades, interrupción/reanudación, grandes entradas, límites, ambos proveedores caídos y ausencia legítima de actividad. Demostrar que ningún fallo se publica como sustituto mecánico y que ninguna tarea se oculta. Revisar el nuevo flujo mediante una sesión independiente y preparar diario/semanal reales para comprobar cinco afirmaciones, plan y balance útil. Terminado cuando la puerta de fase 2 refleja el requisito D-047 y la muestra real permite la revisión humana, sin dar por válida una ejecución solo por pasar tests sintéticos."
+      "desc": "Validar la construcción jerárquica bajo D-047/D-048: sin sustitución mecánica de fallos; reanudación y caché; diario con profundidad intermedia y correspondencia móvil/vault; referencia inicial separada de actividad nueva. Probar crítica semanal ante evidencia que refuerza, matiza o cuestiona una conclusión previa, ante condiciones no comparables y ante ausencia de cambios materiales, sin fabricar controversia ni alterar estados humanos. Mantener todas las tareas, referencias originales, cifras/unidades y external_allowed. Nueva revisión independiente y muestra real con cinco afirmaciones, plan ejecutable y crítica útil que proponga contrastes concretos. Terminado cuando las vistas concuerdan, la interpretación está marcada, la crítica conserva ambos lados del contraste y la puerta de fase refleja los requisitos vigentes."
+    },
+    {
+      "id": "IN-12",
+      "title": "Contraste crítico semanal de conclusiones y evidencia nueva",
+      "state": "proposed",
+      "group": "IN",
+      "deps": ["IN-10"],
+      "at": "2026-11-05T15:22:35Z",
+      "by": "codex",
+      "desc": "Añadir una etapa científica explícita al semanal: relacionar conclusiones previas versionadas (con fuente, alcance y grado de revisión humana) con evidencias nuevas, incluidas referencias históricas necesarias. Explicar si refuerzan, matizan/restringen, ponen en duda o no permiten decidir; comprobar condiciones, controles, comparabilidad y alternativas antes de hablar de contradicción. Proponer análisis concretos con pregunta, control/datos necesarios, predicciones bajo cada explicación y criterio de decisión, sin ejecutarlos ni inventar resultados. Priorizar las consecuencias en el mensaje móvil y desarrollar razonamiento/evidencias en la vault; no forzar críticas ni repetirlas como nuevas sin evidencia adicional. Preservar texto y estados humanos, también ante resultados antes revisados. Terminado cuando fixtures de conclusión revisada con nueva evidencia, matiz, falsa contradicción por condiciones diferentes y ausencia de cambio se representan con referencias de ambos lados y propuestas verificables. D-048 y docs/HIERARCHICAL_DIGEST.md."
     }
   ]
 }

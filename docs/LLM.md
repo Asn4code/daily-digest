@@ -231,3 +231,19 @@ peticiones reales Qwen alcanzó timeouts y su respuesta válida tardó unos 106 
 NaN respondió en unos 13–15 s en esa muestra. Esto es una observación de latencia,
 no una comparación de calidad científica. Las rutas siguen editables y los
 proyectos restringidos continúan usando exclusivamente el proveedor interno.
+
+
+## 13. Diseño revisado por niveles y crítica semanal (D-048)
+
+La propuesta jerárquica debe servir un diario con interpretación de profundidad
+intermedia y un semanal con contraste científico explícito. La salida común
+validada se presenta en un mensaje móvil breve y en la vault con niveles de
+orientación, comprensión conceptual y comprobación técnica. La versión corta
+conserva las condiciones e incertidumbres que cambian el significado.
+
+La crítica semanal relaciona conclusiones previas con evidencia nueva para
+reforzarlas, matizarlas, cuestionarlas o dejar explícito que no se puede decidir.
+Cada propuesta de análisis explica qué alternativas distinguiría y con qué
+control y criterio. No ejecuta análisis ni modifica texto o estados humanos.
+El diseño y sus casos de aceptación están en HIERARCHICAL_DIGEST.md y en las
+propuestas IN-10, IN-12 e IN-11; todavía no están implementados.
