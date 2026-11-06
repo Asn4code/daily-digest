@@ -1029,17 +1029,29 @@
     {
       "id": "IN-07",
       "title": "Diagnóstico de rechazos y publicación sin sustitución mecánica",
-      "state": "proposed",
+      "state": "done",
       "group": "IN",
       "deps": ["IN-03", "IN-05"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "Aplicar D-047: ninguna sección LLM fallida se convierte en mecánica ni permite entregar o cerrar un digest final incompleto. Registrar etapa, regla y campo rechazados sin secretos; distinguir error de modelo, carencia de fuente y timeout. Mantener el inventario de todos los resultados y el trabajo pendiente. Terminado cuando T16 y pruebas de fallos parciales dejan el informe pendiente sin entrega/cierre, con diagnóstico accionable y sin relajar validadores. Diseño: docs/HIERARCHICAL_DIGEST.md."
+      "desc": "Aplicar D-047: ninguna sección LLM fallida se convierte en mecánica ni permite entregar o cerrar un digest final incompleto. Registrar etapa, regla y campo rechazados sin secretos; distinguir error de modelo, carencia de fuente y timeout. Mantener el inventario de todos los resultados y el trabajo pendiente. Terminado cuando T16 y pruebas de fallos parciales dejan el informe pendiente sin entrega/cierre, con diagnóstico accionable y sin relajar validadores. Diseño: docs/HIERARCHICAL_DIGEST.md.",
+      "notes": [
+        {
+          "at": "2026-11-06T09:22:21Z",
+          "by": "codex",
+          "text": "Plan: derivar secciones requeridas y validar completitud antes de publicar/cerrar/entregar; guardar borrador e inventario pendiente sin cambiar enums SQLite. Registrar errores de validación con regla/campo seguros en auditoría y reparaciones. Adaptar T16 y probar fallos parciales y entrega bloqueada."
+        },
+        {
+          "at": "2026-11-06T09:33:48Z",
+          "by": "codex",
+          "text": "Los informes incompletos quedan como borradores privados con todo el inventario y las secciones válidas; no se entregan ni cierran el intervalo. Los rechazos indican etapa, sección, regla y campo seguros; distingue timeouts, proveedor y validación. Verificado: make check, 183 tests; T16, fallos parciales de las cuatro etapas y nueva comprobación al entregar. La persona podrá revisar un borrador marcado pendiente; la persistencia por nodo y reanudación selectiva siguen en IN-09. Sin cambios de enums SQLite ni formatos de Obsidian/Drive."
+        }
+      ]
     },
     {
       "id": "IN-08",
       "title": "Hechos normalizados y paquetes pequeños por fuente",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["IN-07"],
       "at": "2026-11-05T14:54:06Z",
@@ -1049,7 +1061,7 @@
     {
       "id": "IN-09",
       "title": "Nodos validados persistidos y generación reanudable",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["IN-08"],
       "at": "2026-11-05T14:54:06Z",
@@ -1059,7 +1071,7 @@
     {
       "id": "IN-10",
       "title": "Seguimiento diario de resultados y próximo foco, con niveles por canal",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["IN-09"],
       "at": "2026-11-05T14:54:06Z",
@@ -1069,7 +1081,7 @@
     {
       "id": "IN-11",
       "title": "Validación del flujo jerárquico con fallos y proyectos reales",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["IN-10", "IN-12"],
       "at": "2026-11-05T14:54:06Z",
@@ -1079,7 +1091,7 @@
     {
       "id": "IN-12",
       "title": "Contraste crítico semanal de conclusiones y evidencia nueva",
-      "state": "proposed",
+      "state": "todo",
       "group": "IN",
       "deps": ["IN-10"],
       "at": "2026-11-05T15:22:35Z",

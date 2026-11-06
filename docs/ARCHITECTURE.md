@@ -374,6 +374,7 @@ La elección inicial de modelos está en D-024 (`DECISIONS.md`); la URL interna 
   digest.db
   snapshots/<proyecto>/<fecha>/...
   reports/<kind>/<id>/report.json, report.md, report.html, report.pdf, figures/
+  drafts/<kind>/<id>/draft.json, draft.md, draft.html, figures/  # privado, no entregable (IN-07)
   outbox/                     correos generados (para reconciliar estados inciertos)
   briefs/<id>/                fase 6: manifest.json, context.json, context.md, instructions.md, figures/
   backups/digest-AAAA-MM-DD.db

@@ -1,4 +1,4 @@
-"""Enrich every mechanical result without losing coverage or human state."""
+"""Generate validated sections while retaining every pending inventory item."""
 
 import json
 import sqlite3
@@ -76,6 +76,17 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
     projects = {p.id: p for p in config.projects}
     evidence = {e.id: e for e in report.evidence}
 
+    def mark_pending(key: str, category: str, rule: str) -> None:
+        report.pending[key] = [
+            {
+                "stage": key.split(":", 1)[0],
+                "section": key,
+                "category": category,
+                "rule": rule,
+                "field": "$",
+            }
+        ]
+
     def call(
         task: Task,
         key: str,
@@ -85,6 +96,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         result_ids: list[str],
     ) -> None:
         if not ids or not project_ids:
+            mark_pending(key, "input", "no_evidence")
             return
         budget = config.limits.max_project_package_chars
         scoped_tasks = [t for pid in project_ids for t in tasks.get(pid, [])]
@@ -115,9 +127,9 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         payload = redact_tree(payload, secrets)
         prompt = load(task)
         limit = budget * len(project_ids)
-        # Large context is omitted explicitly; the mechanical report remains complete.
+        # Exceeding a package budget leaves the section pending, never substituted.
         if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
-            report.warnings.append(key + ": contexto supera el límite; sección mecánica.")
+            mark_pending(key, "input", "context_budget_exceeded")
             return
         priority = {"task_note": 0, "metric": 1, "task_transition": 2, "run_error": 3, "diff": 4}
         if task == "weekly":
@@ -136,6 +148,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                     key + ": evidencia omitida por límite de paquete (" + eid + ")."
                 )
         if not payload["evidence"]:
+            mark_pending(key, "input", "evidence_budget_exceeded")
             return
         scope = package_scope(payload)
         schema = SCHEMAS[task]
@@ -145,6 +158,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             validate(parsed, scope)
             return parsed
 
+        before = len(router.issues)
         response = router.generate(
             task,
             project_ids=project_ids,
@@ -153,9 +167,18 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             messages=messages(prompt, payload),
             schema=schema.model_json_schema(),
             validate=check,
+            section=key,
         )
         if response is None:
-            report.warnings.append(key + ": no hubo respuesta válida; sección mecánica.")
+            report.pending[key] = router.issues[before:] or [
+                {
+                    "stage": task,
+                    "section": key,
+                    "category": "provider",
+                    "rule": "no_eligible_provider",
+                    "field": "$",
+                }
+            ]
             return
         report.sections[key] = response.value.model_dump()
         report.packages[key] = payload
@@ -171,6 +194,15 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             {"result_id": result.id, "objective": projects[result.project].objective},
             [result.id],
         )
+    # Downstream synthesis must never turn a partial extraction set into a final story.
+    if any("extract:" + item.id not in report.sections for item in report.results):
+        for key in ["weekly"] if report.kind == "weekly" else ["conceptual", "plan"]:
+            mark_pending(key, "dependency", "extraction_pending")
+        report.mechanical = not bool(report.sections)
+        return report
+    if not evidence:
+        report.mechanical = False
+        return report
     present = {e.project for e in report.evidence}
     results = [r.id for r in report.results]
     context = {
@@ -182,6 +214,10 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
     }
     if report.kind != "weekly":
         call("conceptual", "conceptual", list(evidence), present, context, results)
+        if present and "conceptual" not in report.sections:
+            mark_pending("plan", "dependency", "synthesis_pending")
+            report.mechanical = not bool(report.sections)
+            return report
         human_doubts = [
             {"result_id": r[0], "doubts": json.loads(r[1])}
             for r in db.execute(

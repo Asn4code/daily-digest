@@ -43,8 +43,7 @@ def render(report: Report) -> str:
         f"{display(report.start_at, report.timezone)} — {display(report.end_at, report.timezone)}",
         "",
         "## Lo esencial",
-        claims(synthesis.get("highlights", []))
-        or "Informe mecánico: evidencias verificables, sin síntesis ni plan de un modelo.",
+        claims(synthesis.get("highlights", [])) or "Síntesis pendiente.",
         "",
         "## Balance conceptual",
         "\n".join(
@@ -60,7 +59,7 @@ def render(report: Report) -> str:
             + ("No hay conclusión científica nueva." if p["no_new_conclusion"] else "")
             for p in synthesis.get("projects", [])
         )
-        or "Sin síntesis conceptual automática en modo mecánico.",
+        or "Sin balance conceptual validado.",
         "",
         "## Todo lo hecho",
     ]
@@ -133,7 +132,7 @@ def render(report: Report) -> str:
                     else []
                 )
             )
-            or "Sin propuesta automática en modo mecánico.",
+            or "Sin propuesta validada.",
             "",
             "## Hilos abiertos",
         ]
@@ -196,4 +195,19 @@ def render(report: Report) -> str:
             + " · prompt "
             + escape(report.prompt_versions[section])
         )
+    if report.pending:
+        lines[0] = f"# Borrador pendiente · informe {report.kind_label}"
+        lines[2:2] = [
+            "Generación incompleta. Sin entrega final ni cierre del intervalo.",
+            "## Secciones pendientes",
+            *[
+                escape(key)
+                + ": "
+                + "; ".join(
+                    escape(issue["category"] + "/" + issue["rule"] + " · " + issue["field"])
+                    for issue in issues
+                )
+                for key, issues in sorted(report.pending.items())
+            ],
+        ]
     return "\n\n".join(lines) + "\n"

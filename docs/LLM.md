@@ -2,11 +2,11 @@
 
 Dos proveedores con API compatible con OpenAI: **Qwen/Qwen3.8-27B** interno (configuración inicial D-024) y **NaN** externo (`deepseek-v4-flash` inicialmente). El código decide qué se envía; el modelo redacta; el validador decide qué se publica.
 
-> **Cambio de requisito D-047:** la persona ha rechazado sustituir secciones no
-> validadas por contenido mecánico. Las referencias a ese respaldo en este
-> documento describen la implementación anterior y deben sustituirse por
-> generación pendiente y reanudable. El rediseño propuesto está en
-> [HIERARCHICAL_DIGEST.md](HIERARCHICAL_DIGEST.md); aún no está implementado.
+> **D-047 / IN-07:** una sección no validada queda pendiente; no se sustituye
+> por texto mecánico ni permite entregar o cerrar un informe incompleto. El
+> inventario y las secciones válidas se conservan como borrador privado. La
+> jerarquía completa y la reanudación selectiva de
+> [HIERARCHICAL_DIGEST.md](HIERARCHICAL_DIGEST.md) siguen pendientes de IN-08/09.
 
 ## 1. Enrutado
 
@@ -20,7 +20,7 @@ Dos proveedores con API compatible con OpenAI: **Qwen/Qwen3.8-27B** interno (con
 
 - La configuración (`llm.routing`) asigna proveedores por tarea; `llm.providers` asigna modelo, URL y timeout.
 - **Respaldo:** si el primer proveedor falla (error de red, HTTP ≥ 500, timeout) o devuelve una salida que no valida tras un reintento de reparación, se usa el segundo. El informe indica qué proveedor generó cada sección.
-- Si fallan ambos en `extract`, ese resultado se muestra en forma mecánica. Si fallan en `conceptual` o `plan`, esas secciones se sustituyen por su versión mecánica. El informe nunca deja de publicarse por el modelo.
+- Si fallan ambos proveedores, la sección queda pendiente. Las extracciones independientes pueden continuar; la síntesis espera a todas y el plan espera a la síntesis. No se publica ni entrega el informe final hasta completar las secciones requeridas.
 - `project.external_allowed = false` excluye a NaN para las evidencias de ese proyecto (por defecto `true`).
 - Cada llamada se registra en `llm_call` (proveedor, modelo, prompt y versión, tokens, latencia, error). Nunca se registra el contenido del prompt con secretos; el paquete se guarda en `data_dir/reports/<id>/` para auditoría.
 
@@ -130,7 +130,7 @@ class WeeklyReport(BaseModel):
 5. **Kanvas:** `origin = "kanvas"` exige `kanvas_task_id` existente en la captura; las tareas `done` no se proponen como misión.
 6. **Texto:** sin HTML; longitud máxima por campo.
 
-Si falla, se reintenta una vez enviando al modelo la lista de errores («repara solo esto»). Si vuelve a fallar, se pasa al proveedor de respaldo; si también falla, versión mecánica de esa sección. Las afirmaciones inválidas nunca se publican.
+Si falla, se reintenta una vez enviando al modelo la lista de errores («repara solo esto»). Si vuelve a fallar, se pasa al proveedor de respaldo; si también falla, esa sección queda pendiente y se conserva el borrador. Las afirmaciones inválidas nunca se publican.
 
 ## 6. Contraste de explicaciones
 
@@ -151,7 +151,7 @@ configurados sin salida estructurada, sin cambiar capacidades automáticamente.
 `Router.generate` exige los IDs de todos los proyectos del paquete. Si alguno
 prohíbe contenido externo, solo admite el proveedor `internal`, también para
 síntesis de varios proyectos. Una salida inválida admite una reparación por
-proveedor; agotados los candidatos devuelve `None` para usar la sección mecánica.
+proveedor; agotados los candidatos devuelve `None` y diagnósticos seguros para dejar la sección pendiente.
 Cada intento HTTP registra metadatos en `llm_call`, sin mensajes, cuerpos ni claves.
 La integración de estas llamadas en los informes corresponde a IN-03/IN-05.
 
@@ -172,26 +172,49 @@ como mediciones observadas. La comprobación es determinista de referencias y
 cifras; no demuestra por sí sola que la interpretación científica sea correcta.
 
 Los prompts versionados escapan los datos antes de delimitarlos y declaran las
-instrucciones de proyectos como datos. La reparación recibe un código de error
-sin repetir salidas, excepciones ni cuerpos HTTP. Una tarea `done`, `review` o
+instrucciones de proyectos como datos. La reparación recibe la regla y el campo rechazados,
+sin repetir salidas, valores de entrada, claves desconocidas ni cuerpos HTTP. Una tarea `done`, `review` o
 bloqueada no se acepta como misión de Kanvas. La pertenencia y los bloqueos se
 obtienen de la captura por el constructor del paquete, no de la respuesta LLM.
 
 
 ## 9. Construcción del informe (IN-03)
 
-El worker parte del informe mecánico completo y enriquece cada resultado con una
-extracción; después solicita síntesis y plan. Un fallo solo afecta a su sección.
-Los paquetes de cada llamada, los IDs enviados, las versiones y los proveedores
-quedan en el JSON del informe para auditoría. El límite incluye el prompt escapado;
-lo que no cabe se omite con aviso y permanece en el nivel mecánico del informe.
+El worker parte de un inventario completo de resultados y evidencias. Cada
+extracción se valida por separado; solo cuando todas están disponibles solicita
+la síntesis, y solo con síntesis válida solicita el plan. El semanal también
+espera a las extracciones. Los paquetes, versiones y proveedores de las secciones
+válidas se conservan para auditoría. El límite incluye el prompt escapado; los
+recortes de evidencia se declaran y siguen visibles en el nivel técnico. Un
+contexto que no cabe deja la sección pendiente.
+
+Antes de publicar se derivan las secciones necesarias del inventario: una
+extracción por resultado, síntesis y plan para diario/avance, o síntesis semanal.
+No basta con que alguna sección haya validado ni con `mechanical=false`. Si el
+inventario está vacío pero la captura está ausente o incompleta, también queda
+pendiente: no se interpreta el fallo como ausencia de actividad.
+
+Un intento incompleto guarda `draft.json`, `draft.md`, `draft.html` y figuras en
+`data_dir/drafts/<kind>/<id>/`, con título «Borrador pendiente», motivos y todo el
+inventario. No crea archivos finales, propuestas de plan ni entregas y no cierra
+el intervalo. Se usa el esquema SQLite existente: `report.status=generating`,
+`job.state=failed`, `job.error=report_pending`, y referencia al borrador en
+`job.params`; recuperar el worker conserva estos borradores. La reanudación
+selectiva y persistencia tras cada nodo corresponden a IN-09: este paso conserva
+los avances al terminar el intento, no promete recuperar una llamada interrumpida.
+
+`llm_call.error` conserva un objeto JSON con etapa, sección, categoría, regla y
+campo. Se distinguen timeout del proveedor/plazo global, errores de proveedor y
+rechazos de esquema o de referencias/cifras. Las rutas de campos solo contienen
+nombres del esquema e índices; una clave extra se representa como `<extra>`.
 
 La validación se repite antes de crear archivos y en cada entrega, contrastando
-el paquete de la sección con las evidencias del informe. Markdown, HTML y correo
-muestran las secciones válidas y el respaldo mecánico de las demás. Las propuestas
-de plan se guardan con `accepted=0`; generar no acepta ni edita planes humanos.
-Las dudas humanas se incluyen solo para proyectos presentes en el paquete.
-
+el paquete de la sección con las evidencias del informe. La entrega también
+comprueba completitud antes de crear filas o efectos de publicación. Los
+informes históricos `mechanical` permanecen en disco pero no se pueden reenviar
+por este flujo. Las propuestas completas se guardan con `accepted=0`; generar no
+acepta ni edita planes ni estados de comprensión humanos. Las dudas humanas se
+incluyen solo para proyectos presentes en el paquete.
 
 ## 10. Semanal (IN-05)
 

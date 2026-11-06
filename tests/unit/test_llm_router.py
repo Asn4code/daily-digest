@@ -66,7 +66,7 @@ def test_T15_preferred_provider_down_uses_fallback_with_audit(
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
-def test_T16_both_providers_down_returns_mechanical_signal(
+def test_T16_both_providers_down_returns_pending_signal(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -162,8 +162,138 @@ def test_broken_json_gets_one_repair_and_no_raw_error_in_audit(
         )
         assert len(requests) == 2
         assert len(json.loads(requests[1].content)["messages"]) == 1
-        assert db.execute("SELECT ok,error FROM llm_call").fetchall() == [
-            (0, "invalid_json"),
-            (1, None),
-        ]
+        rows = db.execute("SELECT ok,error FROM llm_call").fetchall()
+        assert rows[0][0] == 0 and json.loads(rows[0][1])["rule"] == "invalid_json"
+        assert rows[1] == (1, None)
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
+
+
+@pytest.mark.parametrize("failure", ["semantic", "schema", "extra"])
+def test_validation_diagnostics_and_repair_include_safe_rule_and_field_only(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    from digest.llm.schemas import ResultExtraction
+    from digest.llm.validator import EvidencePackage, validate
+    from digest.report.model import EvidenceEntry
+
+    config = load_config(build_projects(tmp_path / "projects"))
+    config.llm.routing.extract = ["internal"]
+    monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
+    package = {
+        "result_id": "res_test",
+        "evidence": [{"id": "ev_test", "excerpt": "Control válido"}],
+    }
+    value = json.loads(FakeLLM().generate(package))
+    private = "PRIVATE_EXCEPTION_PAYLOAD"
+    if failure == "semantic":
+        value["facts"][0]["text"] = "Medida 987654321 Å"
+        expected = ("unsupported_number", "facts.0.text")
+    elif failure == "schema":
+        value["facts"][0]["text"] = {"private": private}
+        expected = ("schema_string_type", "facts.0.text")
+    else:
+        value[private] = private
+        expected = ("schema_extra_forbidden", "<extra>")
+    requests = []
+
+    def respond(request):
+        requests.append(json.loads(request.content))
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
+
+    scope = EvidencePackage(
+        {
+            "ev_test": EvidenceEntry(
+                "ev_test",
+                config.projects[0].id,
+                "doc_change",
+                "note",
+                "Control válido",
+                "2026-11-04T19:00:00+00:00",
+                None,
+                "observed",
+                {},
+            )
+        },
+        {config.projects[0].id},
+        {"res_test"},
+    )
+
+    def check(value):
+        parsed = ResultExtraction.model_validate(value)
+        validate(parsed, scope)
+        return parsed
+
+    with closing(connect(tmp_path / "db.sqlite")) as db:
+        router = Router(db, config, client=Client(transport=httpx.MockTransport(respond)))
+        assert (
+            router.generate(
+                "extract",
+                project_ids=scope.project_ids,
+                prompt_name="extract",
+                prompt_version="1",
+                messages=[],
+                schema=ResultExtraction.model_json_schema(),
+                validate=check,
+                section="extract:res_test",
+            )
+            is None
+        )
+        errors = [json.loads(row[0]) for row in db.execute("SELECT error FROM llm_call")]
+        assert len(errors) == 2
+        assert all((e["rule"], e["field"]) == expected for e in errors)
+        assert all(e["stage"] == "extract" and e["section"] == "extract:res_test" for e in errors)
+        repair = requests[1]["messages"][-1]["content"]
+        assert expected[0] in repair and expected[1] in repair
+        assert private not in repr(errors) + repair
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
+
+
+@pytest.mark.parametrize("failure", ["timeout", "deadline", "source"])
+def test_timeout_and_input_diagnostics_are_distinct_from_validation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    import time
+
+    config = load_config(build_projects(tmp_path / "projects"))
+    config.llm.routing.extract = ["internal"]
+    monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
+    if failure == "source":
+        monkeypatch.delenv("DIGEST_FIXTURE_UNUSED_KEY")
+    requests = []
+
+    def respond(request):
+        requests.append(request)
+        raise httpx.ReadTimeout("PRIVATE_TIMEOUT_BODY", request=request)
+
+    with closing(connect(tmp_path / "db.sqlite")) as db:
+        router = Router(
+            db,
+            config,
+            client=Client(transport=httpx.MockTransport(respond), sleep=lambda _: None),
+            deadline=time.monotonic() - 1 if failure == "deadline" else None,
+        )
+        assert (
+            router.generate(
+                "extract",
+                project_ids={config.projects[0].id},
+                prompt_name="extract",
+                prompt_version="1",
+                messages=[],
+                schema=None,
+                validate=lambda v: v,
+            )
+            is None
+        )
+        errors = [json.loads(r[0]) for r in db.execute("SELECT error FROM llm_call")]
+        rule = {
+            "timeout": "provider_timeout",
+            "deadline": "generation_timeout",
+            "source": "credential_missing",
+        }[failure]
+        assert errors and all(e["rule"] == rule for e in errors)
+        assert all(
+            e["category"] == ("provider" if failure == "source" else "timeout") for e in errors
+        )
+        assert len(requests) == (3 if failure == "timeout" else 0)
+        assert "PRIVATE_TIMEOUT_BODY" not in repr(errors)
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)

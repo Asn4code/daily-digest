@@ -57,6 +57,12 @@ def configuration(ctx: typer.Context) -> Config:
         raise typer.Exit(2) from None
 
 
+def show_outcome(result: str | None) -> None:
+    if result and Path(result).name == "draft.md":
+        typer.echo("Generación pendiente; borrador conservado, sin entrega final.")
+    typer.echo(result)
+
+
 def submit(
     ctx: typer.Context,
     kind: str,
@@ -70,7 +76,7 @@ def submit(
         ident = jobs.enqueue(config, kind, requested_by=requested_by, params=dict(params))
         typer.echo(f"Trabajo encolado: {ident}")
         if now:
-            typer.echo(jobs.execute(config, ident))
+            show_outcome(jobs.execute(config, ident))
     except (ValueError, OSError, RuntimeError, sqlite3.Error):
         typer.echo("No se pudo completar el trabajo; revisa configuración y registro.", err=True)
         raise typer.Exit(1) from None
@@ -129,7 +135,7 @@ def worker(ctx: typer.Context, once: Annotated[bool, typer.Option("--once")] = F
     while True:
         result = jobs.execute(config)
         if result:
-            typer.echo(result)
+            show_outcome(result)
         if once:
             return
         if not result:

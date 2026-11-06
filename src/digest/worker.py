@@ -18,6 +18,7 @@ from digest.config import Config
 from digest.db import connect
 from digest.intervals import close_interval, open_interval, pending_days
 from digest.llm.validator import validate_report
+from digest.report.completeness import missing_sections, require_complete
 from digest.report.mechanical import build
 from digest.report.render_html import render as render_html
 from digest.report.render_md import render as render_md
@@ -165,6 +166,24 @@ def execute(
 
             enrich(db, config, report, Router(db, config, job_id=ident, deadline=deadline))
             validate_report(report, {item.id for item in report.evidence})
+            for key in missing_sections(report):
+                report.pending.setdefault(
+                    key,
+                    [
+                        {
+                            "category": "input",
+                            "rule": "section_missing",
+                            "field": "$",
+                            "section": key,
+                        }
+                    ],
+                )
+            pending = bool(report.pending)
+            basename = "draft" if pending else "report"
+            if pending:
+                directory = Path(config.paths.data_dir) / "drafts" / kind / report_id
+            else:
+                require_complete(report)
             directory.mkdir(parents=True, exist_ok=False)
             for result in report.results:
                 for figure in result.figures:
@@ -183,9 +202,9 @@ def execute(
                             stream.write(raw)
                     figure.path = "figures/" + original.name
             for name, text in [
-                ("report.json", json.dumps(asdict(report), ensure_ascii=False, indent=2)),
-                ("report.md", render_md(report)),
-                ("report.html", render_html(report)),
+                (basename + ".json", json.dumps(asdict(report), ensure_ascii=False, indent=2)),
+                (basename + ".md", render_md(report)),
+                (basename + ".html", render_html(report)),
             ]:
                 with (directory / name).open("x", encoding="utf-8") as stream:
                     stream.write(text)
@@ -194,10 +213,10 @@ def execute(
                 "status=?,json_path=?,md_path=?,html_path=?,coverage=?,"
                 "model_info=?,prompt_versions=? WHERE id=?",
                 (
-                    "mechanical" if report.mechanical else "ready",
-                    str(directory / "report.json"),
-                    str(directory / "report.md"),
-                    str(directory / "report.html"),
+                    "generating" if pending else "ready",
+                    str(directory / (basename + ".json")),
+                    str(directory / (basename + ".md")),
+                    str(directory / (basename + ".html")),
                     canonical([asdict(item) for item in report.coverage]),
                     canonical(report.model_info),
                     canonical(report.prompt_versions),
@@ -208,6 +227,14 @@ def execute(
                 "INSERT INTO report_evidence VALUES (?,?)",
                 [(report_id, item.id) for item in report.evidence],
             )
+            if pending:
+                params.update(report_id=report_id, draft_path=str(directory / "draft.md"))
+                db.execute(
+                    "UPDATE job SET state='failed',finished_at=?,error='report_pending',params=? "
+                    "WHERE id=?",
+                    (utc(datetime.now(UTC)), canonical(params), ident),
+                )
+                return str(directory / "draft.md")
             if "plan" in report.sections:
                 proposal = report.sections["plan"]
                 for item in [proposal["mission"], *proposal["warmups"]]:
@@ -256,7 +283,11 @@ def recover(config: Config) -> int:
             "WHERE state='running'",
             (utc(datetime.now(UTC)),),
         )
-        db.execute("UPDATE report SET status='failed' WHERE status='generating'")
+        db.execute(
+            "UPDATE report SET status='failed' WHERE status='generating' "
+            "AND NOT EXISTS (SELECT 1 FROM job WHERE error='report_pending' "
+            "AND json_extract(params,'$.report_id')=report.id)"
+        )
         days = pending_days(db, datetime.now(UTC), timezone=config.timezone)
     count = 0
     for start, end in days:

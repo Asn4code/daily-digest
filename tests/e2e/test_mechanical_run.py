@@ -19,7 +19,7 @@ from tests.integration.test_fixtures import _snapshot
 
 
 @pytest.fixture
-def config(tmp_path: Path) -> Iterator[Config]:
+def config(tmp_path: Path, valid_llm: None) -> Iterator[Config]:
     path = build_projects(tmp_path / "projects")
     try:
         yield load_config(path)

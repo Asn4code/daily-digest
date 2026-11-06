@@ -25,7 +25,7 @@ NOW = datetime(2026, 11, 4, 19, tzinfo=UTC)
 
 
 @pytest.fixture
-def config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Config]:
+def config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, valid_llm: None) -> Iterator[Config]:
     path = build_projects(tmp_path / "projects")
     config = load_config(path)
     config.projects = config.projects[:1]

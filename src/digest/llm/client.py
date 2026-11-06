@@ -75,6 +75,7 @@ class Client:
         for attempt in range(3):
             remaining = deadline - time.monotonic()
             if remaining <= 0:
+                observer(None, "generation_timeout", 0)
                 raise ClientError("generation_timeout")
             started = time.monotonic()
             retryable = False
@@ -119,6 +120,9 @@ class Client:
                 )
                 observer(result, None, duration)
                 return result
+            except httpx.TimeoutException:
+                retryable = True
+                code = "provider_timeout"
             except httpx.TransportError:
                 retryable = True
                 code = "transport_error"
@@ -132,6 +136,7 @@ class Client:
                 raise ClientError(code) from None
             delay = 0.25 * 2**attempt
             if time.monotonic() + delay >= deadline:
+                observer(None, "generation_timeout", 0)
                 raise ClientError("generation_timeout")
             self.sleep(delay)
         raise ClientError("provider_unavailable")

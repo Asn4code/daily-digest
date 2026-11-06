@@ -14,6 +14,7 @@ from digest.config import Config
 from digest.llm.validator import validate_report
 from digest.publish import drive, email, obsidian
 from digest.publish.files import destination
+from digest.report.completeness import require_complete
 from digest.report.model import Report
 from digest.report.pdf import generate
 
@@ -33,7 +34,7 @@ def deliver_report(
         "WHERE r.id=?",
         (report_id,),
     ).fetchone()
-    if not row or row[1] not in {"ready", "mechanical"} or row[2] == "preview":
+    if not row or row[1] != "ready" or row[2] == "preview":
         raise ValueError("Report is not deliverable")
     data = Path(config.paths.data_dir).resolve()
     path = Path(row[0]).resolve()
@@ -47,6 +48,7 @@ def deliver_report(
         )
     }
     validate_report(report, manifest)
+    require_complete(report)
     if channel is not None and channel not in CHANNELS:
         raise ValueError("Unknown channel")
     selected = [channel] if channel else list(CHANNELS)

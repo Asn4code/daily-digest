@@ -7,10 +7,15 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f2f4f6;padding:1rem}
 article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px solid #b87500;padding:1rem}
 @media print{body{font-size:10pt}article{break-inside:avoid}pre{font-size:8pt}}
 </style></head><body><h1>Informe {{ report.kind_label }}</h1><p>{{ report.start_at|localtime(report.timezone) }} — {{ report.end_at|localtime(report.timezone) }}</p>
+{% if report.pending %}<aside class="coverage"><h2>Borrador pendiente</h2>
+<p>Generación incompleta. Sin entrega final ni cierre del intervalo.</p>
+<ul>{% for key, issues in report.pending.items() %}<li>{{ key }}:
+{% for issue in issues %}{{ issue.category }}/{{ issue.rule }} · {{ issue.field }} {% endfor %}
+</li>{% endfor %}</ul></aside>{% endif %}
 {% macro claims(items) %}{% for c in items %}<p>{{ c.text }}
 {% for eid in c.evidence %}<a href="#{{ eid }}">{{ eid }}</a> {% endfor %}</p>{% endfor %}{% endmacro %}
 {% set weekly=report.sections.get('weekly') %}{% set synthesis=report.sections.get('conceptual', {}) %}{% set plan=report.sections.get('plan') %}
-<h2>Lo esencial</h2>{% if weekly %}{{ claims(weekly.patterns[:3]) }}{% elif synthesis %}{{ claims(synthesis.highlights) }}{% else %}<p>Informe mecánico: evidencias verificables, sin síntesis ni plan de un modelo.</p>{% endif %}
+<h2>Lo esencial</h2>{% if weekly %}{{ claims(weekly.patterns[:3]) }}{% elif synthesis %}{{ claims(synthesis.highlights) }}{% else %}<p>Síntesis pendiente.</p>{% endif %}
 {% if weekly %}<h2>Balance de la semana frente a los objetivos</h2>
 {% for p in weekly.projects %}<h3>{{ p.project_id }}</h3>{{ claims(p.progress_vs_objective) }}{{ claims(p.decisions) }}
 {% for c in p.hypotheses_changed %}<p>Interpretación (confianza {{ c.confidence }}): {{ c.text }} — {{ c.evidence|join(', ') }}</p>{% endfor %}{% endfor %}
@@ -24,7 +29,7 @@ article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px sol
 {% endif %}<h2>Balance conceptual</h2>{% if weekly %}<p>Balance semanal mostrado arriba.</p>{% elif synthesis %}{% for p in synthesis.projects %}<h3>{{ p.project_id }}</h3>
 {{ claims(p.known_now) }}{% for doubt in p.still_unknown %}<p>{{ doubt }}</p>{% endfor %}
 {{ claims(p.decisions_changed) }}{% if p.no_new_conclusion %}<p>No hay conclusión científica nueva.</p>{% endif %}
-{% endfor %}{% else %}<p>Sin síntesis conceptual automática en modo mecánico.</p>{% endif %}
+{% endfor %}{% else %}<p>Sin balance conceptual validado.</p>{% endif %}
 <h2>Todo lo hecho</h2>
 {% if not report.results %}<p>Sin resultados verificables en este intervalo. Esto no demuestra que no se haya trabajado.</p>{% endif %}
 {% for item in report.results %}<article><h3>{{ item.project }} · {{ item.title }}</h3>
@@ -42,7 +47,7 @@ article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px sol
 <article><h3>{{ item.action }}</h3><p>Terminado cuando: {{ item.done_criterion }}</p>
 <p>Dependencia: {{ item.dependency or 'Ninguna declarada' }}</p><p>Motivo: {{ item.reason }}</p>
 <p>Origen: {{ item.origin }} · {{ item.kanvas_task_id or '' }} · {{ item.evidence|join(', ') }}</p></article>
-{% endfor %}{% else %}<p>Sin propuesta automática en modo mecánico.</p>{% endif %}
+{% endfor %}{% else %}<p>Sin propuesta validada.</p>{% endif %}
 <h2>Hilos abiertos</h2>{% for claim in report.open_threads %}<p>{{ claim.text }} — {{ claim.evidence|join(', ') }}</p>{% endfor %}
 {% for key,extraction in report.sections.items() %}{% if key.startswith('extract:') %}{{ claims(extraction.open_threads) }}{% endif %}{% endfor %}
 <h2>Nivel técnico y evidencias</h2>{% for item in report.evidence %}<article id="{{ item.id }}"><h3>{{ item.id }}</h3>

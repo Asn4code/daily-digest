@@ -1,8 +1,6 @@
 """Build and publish multi-level reports using a fake HTTP transport only."""
 
-import html
 import json
-import re
 from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path
@@ -19,94 +17,8 @@ from digest.llm.validator import ValidationError, validate_report
 from digest.publish.email import compose
 from digest.report.model import Report
 from digest.worker import enqueue, execute
+from tests.fixtures.llm import fake_response
 from tests.fixtures.make_projects import build_projects
-
-
-def fake_response(request: httpx.Request) -> httpx.Response:
-    wire = json.loads(request.content)
-    text = wire["messages"][1]["content"]
-    package = json.loads(html.unescape(re.search(r"<context>(.*?)</context>", text, re.S).group(1)))
-    entries = [
-        json.loads(html.unescape(raw))
-        for raw in re.findall(r'<evidence id="[^"]+">(.*?)</evidence>', text, re.S)
-    ]
-    eid = entries[0]["id"]
-    claim = {"text": "Hay evidencia disponible para contrastar.", "evidence": [eid]}
-    title = wire["response_format"]["json_schema"]["schema"]["title"]
-    if title == "ResultExtraction":
-        value = {
-            "result_id": package["context"]["result_id"],
-            "summary": claim["text"],
-            "facts": [claim],
-            "numbers": [],
-            "interpretations": [],
-            "uncertainties": [],
-            "controls_and_parameters": [],
-            "failures_or_blockers": [],
-            "open_threads": [],
-        }
-    elif title == "DailySynthesis":
-        value = {
-            "highlights": [claim],
-            "projects": [
-                {
-                    "project_id": pid,
-                    "known_now": [claim],
-                    "still_unknown": ["Falta contrastar la interpretación."],
-                    "decisions_changed": [],
-                    "no_new_conclusion": True,
-                }
-                for pid in package["project_ids"]
-            ],
-            "review_candidate": None,
-        }
-    elif title == "TomorrowPlan":
-        value = {
-            "mission": {
-                "kind": "mission",
-                "action": "Contrastar el resultado con un control",
-                "done_criterion": "Explicación contrastada con las evidencias",
-                "dependency": None,
-                "reason": claim["text"],
-                "origin": "model",
-                "kanvas_task_id": None,
-                "evidence": [eid],
-            },
-            "warmups": [],
-        }
-    elif title == "WeeklyReport":
-        objective = {
-            "kind": "mission",
-            "action": "Contrastar el resultado con un control",
-            "done_criterion": "Interpretación respaldada",
-            "dependency": None,
-            "reason": claim["text"],
-            "origin": "model",
-            "kanvas_task_id": None,
-            "evidence": [eid],
-        }
-        value = {
-            "projects": [
-                {
-                    "project_id": pid,
-                    "progress_vs_objective": [claim],
-                    "decisions": [],
-                    "hypotheses_changed": [],
-                }
-                for pid in package["project_ids"]
-            ],
-            "patterns": [claim],
-            "key_figures": [e["id"] for e in entries if e["kind"] == "figure"][:6],
-            "review_status": {
-                "completed": package["completed_reviews"],
-                "pending": package["pending_reviews"],
-                "doubts": [],
-            },
-            "next_week": [objective, objective, {**objective, "action": "Sesión de revisión"}],
-        }
-    else:
-        raise AssertionError(title)
-    return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
 
 
 def test_complete_daily_has_validated_sections_and_auditable_packages(
@@ -161,7 +73,7 @@ def test_complete_daily_has_validated_sections_and_auditable_packages(
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
-def test_T16_total_outage_still_publishes_all_mechanical_results(
+def test_T16_total_outage_keeps_pending_inventory_without_publication(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -174,7 +86,25 @@ def test_T16_total_outage_still_publishes_all_mechanical_results(
     value = json.loads(path.with_suffix(".json").read_text())
     assert value["mechanical"] and not value["sections"]
     assert any(r["task_id"] == "AN-01" for r in value["results"])
-    assert value["warnings"]
+    assert value["pending"]
+    assert path.name == "draft.md"
+    assert "Borrador pendiente" in path.read_text()
+    assert not list(Path(config.paths.data_dir).glob("reports/*/*/report.*"))
+    from digest.publish.deliveries import deliver_report
+
+    with closing(connect(Path(config.paths.data_dir) / "digest.db")) as db:
+        assert db.execute("SELECT status FROM report").fetchone() == ("generating",)
+        assert db.execute("SELECT state,error FROM job").fetchone() == ("failed", "report_pending")
+        assert db.execute("SELECT closed FROM interval").fetchone() == (0,)
+        assert not db.execute("SELECT * FROM meta WHERE key='last_closed_daily'").fetchall()
+        assert db.execute("SELECT count(*) FROM delivery").fetchone() == (0,)
+        assert db.execute("SELECT count(*) FROM plan_item").fetchone() == (0,)
+        assert db.execute("SELECT count(*) FROM report_evidence").fetchone()[0] == len(
+            value["evidence"]
+        )
+        with pytest.raises(ValueError, match="not deliverable"):
+            deliver_report(db, config, value["id"])
+        assert db.execute("SELECT count(*) FROM delivery").fetchone() == (0,)
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
@@ -341,4 +271,98 @@ def test_secrets_are_removed_from_sources_context_snapshots_and_model_wire(
         assert secret not in repr(
             db.execute("SELECT locator,excerpt,meta FROM evidence").fetchall()
         )
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
+
+
+@pytest.mark.parametrize("stage", ["extract", "conceptual", "plan", "weekly"])
+def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str
+) -> None:
+    config = load_config(build_projects(tmp_path / "projects"))
+    config.projects = config.projects[:1]
+    monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
+    titles = {
+        "extract": "ResultExtraction",
+        "conceptual": "DailySynthesis",
+        "plan": "TomorrowPlan",
+        "weekly": "WeeklyReport",
+    }
+    calls = []
+    failed_result = None
+
+    def respond(request):
+        nonlocal failed_result
+        wire = json.loads(request.content)
+        title = wire["response_format"]["json_schema"]["schema"]["title"]
+        response = fake_response(request)
+        value = json.loads(response.json()["choices"][0]["message"]["content"])
+        calls.append(title)
+        # Reject only one independent extraction; allow other results to validate.
+        if title == titles[stage]:
+            if stage == "extract" and failed_result is None:
+                failed_result = value["result_id"]
+            if stage != "extract" or value["result_id"] == failed_result:
+                value["unexpected_field"] = "PRIVATE_REJECTED_BODY"
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
+
+    client = Client(transport=httpx.MockTransport(respond))
+    original = Router.__init__
+
+    def setup(self, *args, **kwargs):
+        original(self, *args, **kwargs, client=client)
+
+    with patch.object(Router, "__init__", setup):
+        job = enqueue(config, "weekly" if stage == "weekly" else "daily")
+        now = (
+            datetime(2026, 11, 7, 9, tzinfo=UTC)
+            if stage == "weekly"
+            else datetime(2026, 11, 4, 19, tzinfo=UTC)
+        )
+        path = Path(execute(config, job, now=now))
+    value = json.loads(path.with_suffix(".json").read_text())
+    key = "extract:" + failed_result if stage == "extract" else stage
+    assert key in value["pending"]
+    assert value["pending"][key][0]["category"] == "validation"
+    assert value["sections"], "Validated independent sections must survive a rejection"
+    assert len(value["results"]) > 1
+    assert all(r["review_state"] == "pending" for r in value["results"])
+    assert "PRIVATE_REJECTED_BODY" not in path.with_suffix(".json").read_text()
+    if stage == "extract":
+        assert "DailySynthesis" not in calls and "TomorrowPlan" not in calls
+    if stage == "conceptual":
+        assert "TomorrowPlan" not in calls
+    with closing(connect(Path(config.paths.data_dir) / "digest.db")) as db:
+        assert db.execute("SELECT closed FROM interval").fetchone() == (0,)
+        assert db.execute("SELECT count(*) FROM delivery").fetchone() == (0,)
+        assert db.execute("SELECT count(*) FROM plan_item").fetchone() == (0,)
+        assert db.execute("SELECT count(*) FROM report_evidence").fetchone()[0] == len(
+            value["evidence"]
+        )
+        errors = [json.loads(row[0]) for row in db.execute("SELECT error FROM llm_call WHERE ok=0")]
+        assert all(e["section"] == key and e["rule"] == "schema_extra_forbidden" for e in errors)
+        assert "PRIVATE_REJECTED_BODY" not in repr(errors)
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
+
+
+def test_delivery_rechecks_completeness_even_if_status_and_flags_claim_ready(
+    tmp_path: Path, valid_llm: None
+) -> None:
+    from digest.publish.deliveries import deliver_report
+
+    config = load_config(build_projects(tmp_path / "projects"))
+    config.projects = config.projects[:1]
+    job = enqueue(config, "daily", params={"no_send": True})
+    path = Path(execute(config, job, now=datetime(2026, 11, 4, 19, tzinfo=UTC)))
+    value = json.loads(path.with_suffix(".json").read_text())
+    del value["sections"]["plan"]
+    del value["packages"]["plan"]
+    value["pending"] = {}
+    value["mechanical"] = False
+    path.with_suffix(".json").write_text(json.dumps(value))
+    with closing(connect(Path(config.paths.data_dir) / "digest.db")) as db:
+        assert db.execute("SELECT status FROM report").fetchone() == ("ready",)
+        with pytest.raises(ValueError, match="generation is pending"):
+            deliver_report(db, config, value["id"])
+        assert db.execute("SELECT count(*) FROM delivery").fetchone() == (0,)
+    assert not (Path(config.paths.data_dir) / "outbox").exists()
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)

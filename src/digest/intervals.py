@@ -70,7 +70,7 @@ def close_interval(db: sqlite3.Connection, interval_id: int, report_id: str) -> 
         "WHERE i.id=? AND r.id=?",
         (interval_id, report_id),
     ).fetchone()
-    if not row or row[2] not in {"ready", "mechanical"}:
+    if not row or row[2] != "ready":
         raise ValueError("Report must be published before closing")
     if row[0] == "preview":
         return

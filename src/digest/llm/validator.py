@@ -14,6 +14,10 @@ from digest.report.model import EvidenceEntry, Report
 class ValidationError(ValueError):
     """A report contains references outside its bounded evidence package."""
 
+    def __init__(self, rule: str, path: tuple[str | int, ...] = ()) -> None:
+        super().__init__(rule)
+        self.path = path
+
 
 def validate_report(report: Report, allowed_ids: set[str]) -> None:
     ids = {item.id for item in report.evidence}
@@ -170,13 +174,25 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             ):
                 raise ValidationError("unsupported_number")
 
-    def visit(value: Any, inherited: list[str]) -> None:
+    def visit(value: Any, inherited: list[str], path: tuple[str | int, ...] = ()) -> None:
+        try:
+            visit_value(value, inherited, path)
+        except ValidationError as error:
+            if not error.path:
+                error.path = path
+            raise
+
+    def visit_value(value: Any, inherited: list[str], path: tuple[str | int, ...]) -> None:
         if isinstance(value, dict):
             refs = inherited
             if "evidence" in value:
                 ref = value["evidence"]
                 refs = ref if isinstance(ref, list) else [ref]
-                entries(refs)
+                try:
+                    entries(refs)
+                except ValidationError as error:
+                    error.path = (*path, "evidence")
+                    raise
             if "value" in value and "unit" in value and "evidence" in value:
                 if not _present(value["value"], value["unit"], entries(refs)):
                     raise ValidationError("unsupported_number_or_unit")
@@ -194,31 +210,35 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
                 }:
                     continue
                 if key in {"action", "done_criterion", "dependency"} and isinstance(item, str):
-                    text(item, refs, measurements=False)
+                    try:
+                        text(item, refs, measurements=False)
+                    except ValidationError as error:
+                        error.path = (*path, key)
+                        raise
                 else:
-                    visit(item, refs)
+                    visit(item, refs, (*path, key))
         elif isinstance(value, list):
-            for item in value:
-                visit(item, inherited)
+            for index, item in enumerate(value):
+                visit(item, inherited, (*path, index))
         elif isinstance(value, str):
             text(value, inherited)
 
     data = output.model_dump()
     visit(data, list(allowed))
     if isinstance(output, schemas.ResultExtraction) and output.result_id not in package.result_ids:
-        raise ValidationError("unknown_result")
+        raise ValidationError("unknown_result", ("result_id",))
     if isinstance(output, schemas.DailySynthesis):
         if any(p.project_id not in package.project_ids for p in output.projects):
-            raise ValidationError("unknown_project")
+            raise ValidationError("unknown_project", ("projects",))
         if output.review_candidate and output.review_candidate.result_id not in package.result_ids:
-            raise ValidationError("unknown_review_candidate")
+            raise ValidationError("unknown_review_candidate", ("review_candidate", "result_id"))
     if isinstance(output, schemas.TomorrowPlan):
         if output.mission.kind != "mission" or any(w.kind != "warmup" for w in output.warmups):
-            raise ValidationError("invalid_plan_kind")
+            raise ValidationError("invalid_plan_kind", ("mission", "kind"))
         plan = [output.mission, *output.warmups]
     elif isinstance(output, schemas.WeeklyReport):
         if any(p.project_id not in package.project_ids for p in output.projects):
-            raise ValidationError("unknown_project")
+            raise ValidationError("unknown_project", ("projects",))
         figures = {eid for eid, e in package.evidence.items() if e.kind == "figure"}
         picked = set(output.key_figures)
         if (
@@ -226,20 +246,27 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             or not picked <= figures
             or len(picked) < min(4, len(figures))
         ):
-            raise ValidationError("invalid_key_figures")
+            raise ValidationError("invalid_key_figures", ("key_figures",))
         if (
             set(output.review_status.completed) != package.completed_reviews
             or output.review_status.pending != package.pending_reviews
         ):
-            raise ValidationError("invalid_review_summary")
+            raise ValidationError("invalid_review_summary", ("review_status",))
         plan = output.next_week
     else:
         plan = []
-    for item in plan:
+    for index, item in enumerate(plan):
+        path = (
+            ("next_week", index)
+            if isinstance(output, schemas.WeeklyReport)
+            else ("mission",)
+            if index == 0
+            else ("warmups", index - 1)
+        )
         if item.origin == "kanvas":
             if item.kanvas_task_id not in package.task_states:
-                raise ValidationError("unknown_kanvas_task")
+                raise ValidationError("unknown_kanvas_task", (*path, "kanvas_task_id"))
             if package.task_states[item.kanvas_task_id] in {"done", "review", "blocked"}:
-                raise ValidationError("unavailable_kanvas_task")
+                raise ValidationError("unavailable_kanvas_task", (*path, "kanvas_task_id"))
         elif item.kanvas_task_id is not None:
-            raise ValidationError("unexpected_kanvas_task")
+            raise ValidationError("unexpected_kanvas_task", (*path, "kanvas_task_id"))

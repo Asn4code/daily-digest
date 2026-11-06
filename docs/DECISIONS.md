@@ -119,3 +119,14 @@ Rellenar en CB-06 con lo comprobado (versiones, salidas reales, límites).
 | 2026-11-05 | Revisión de fase 2 | El revisor reprodujo fugas de secretos desde fuentes/contexto, bypass numéricos con unidades y puntuación, pérdida de etiqueta de interpretación semanal y reordenación de revisiones pendientes. Corregidos mediante frontera común de redacción y regresiones E2E de wire/almacenamiento, comprobación de tokens numéricos completos, marcado explícito y orden validado. Revalidación independiente y puerta en curso. |
 
 | 2026-11-05 | Revalidación de fase 2 | La sesión independiente reejecutó las reproducciones de secretos, cifras/unidades, Markdown y orden de revisiones: corregidas. make check: 168 tests pasan; puerta automática PROVISIONAL y ficha técnica aprobada. Pendientes las tres comprobaciones y firma humanas con diario y semanal reales. |
+
+
+### Avance de D-047: IN-07 (2026-11-06)
+
+Implementado el bloqueo de publicación, cierre y entrega de generaciones
+incompletas, con inventario y secciones válidas en borradores privados y
+rechazos diagnosticados por regla/campo seguros. Se conservan los enums SQLite
+publicados; el estado pendiente se expresa mediante los estados existentes y
+`job.error=report_pending`. No cambia el formato entregado a Obsidian o Drive.
+IN-08/09 siguen pendientes para paquetes pequeños, persistencia por nodo y
+reanudación selectiva; D-048/049 aún requieren IN-10/12 y validación del piloto.

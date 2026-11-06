@@ -46,7 +46,7 @@ Cada fila es al menos un test (`tests/e2e/` salvo indicación). El nombre de la 
 | T13 | README con instrucciones para el agente | Tratado como contenido; ningún efecto |
 | T14 | HTML o `<script>` en una nota de Kanvas, en la salida del LLM y en el texto humano | Escapado en webapp, correo y Obsidian |
 | T15 | Proveedor preferido caído | Se usa el respaldo y el informe lo indica |
-| T16 | Ambos proveedores caídos | Generación pendiente/reanudable, avances válidos conservados; sin sustitución mecánica, entrega final ni cierre de intervalo (D-047; tests por adaptar) |
+| T16 | Ambos proveedores caídos | Generación pendiente/reanudable, avances válidos conservados; sin sustitución mecánica, entrega final ni cierre de intervalo (D-047; bloqueo y conservación cubiertos en IN-07; reanudación selectiva en IN-09) |
 | T17 | `FakeLLM("broken_json")` | Reparación en un reintento; publicado |
 | T18 | Semana con dos días sin informe diario | El semanal sale de las evidencias de los 7 días |
 | T19 | Petición a la webapp con cabecera de Tailscale de otro usuario | 403 |
@@ -141,3 +141,16 @@ presentan como pruebas que ya pasan:
   explicación y estado humano, añadir la alerta y una interpretación versionada.
 - Señal importante antes del cierre semanal: aparece en el diario con el grado de
   certeza disponible, sin esperar a terminar toda la crítica semanal.
+
+## Generación pendiente (IN-07)
+
+Los tests de publicación y los de captura con informe completo inyectan el
+transporte HTTP determinista de `tests/fixtures/llm.py`; no dependen de credenciales
+ni endpoints reales. T16 elimina las credenciales de fixtures explícitamente y
+exige borrador, inventario completo, intervalo abierto y ausencia de entregas y
+planes. Los fallos parciales cubren extracción, síntesis, plan y semanal: las
+secciones independientes válidas sobreviven y las dependientes no se solicitan.
+Una prueba elimina una sección de un informe marcado `ready` y verifica que la
+entrega vuelve a rechazarlo antes de crear filas o correo. Los diagnósticos se
+prueban con cifras inventadas, tipos incorrectos, claves extra privadas, timeouts
+y credenciales ausentes; no contienen valores ni cuerpos rechazados.

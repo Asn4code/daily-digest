@@ -80,6 +80,7 @@ class Report:
     model_info: dict[str, dict[str, str]] = field(default_factory=dict)
     prompt_versions: dict[str, str] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
+    pending: dict[str, list[dict[str, str]]] = field(default_factory=dict)
 
     @property
     def kind_label(self) -> str:

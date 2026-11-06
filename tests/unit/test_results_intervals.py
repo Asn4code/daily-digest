@@ -68,8 +68,7 @@ def test_grouping_preserves_review_and_links_explicit_references(tmp_path: Path)
 def published(db, interval) -> str:
     name = f"report_{interval.id}"
     db.execute(
-        "INSERT INTO report(id,interval_id,revision,status,created_at) "
-        "VALUES (?,?,1,'mechanical',?)",
+        "INSERT INTO report(id,interval_id,revision,status,created_at) VALUES (?,?,1,'ready',?)",
         (name, interval.id, interval.end.isoformat()),
     )
     close_interval(db, interval.id, name)

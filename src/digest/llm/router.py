@@ -7,10 +7,10 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-from digest.collectors.base import utc
+from digest.collectors.base import canonical, utc
 from digest.config import Config
 from digest.llm.client import Client, ClientError, Completion
-from digest.llm.validator import ValidationError
+from digest.llm.diagnostics import error_category, validation_issue
 from digest.util.redact import known_secrets, redact_tree
 
 Task = Literal["extract", "conceptual", "plan", "weekly", "contrast"]
@@ -37,6 +37,7 @@ class Router:
     ) -> None:
         self.db, self.config, self.job_id = db, config, job_id
         self.client = client or Client()
+        self.issues: list[dict[str, str]] = []
         self.deadline = (
             deadline
             if deadline is not None
@@ -53,6 +54,7 @@ class Router:
         messages: list[dict[str, str]],
         schema: dict[str, Any] | None,
         validate: Callable[[dict[str, Any]], Any],
+        section: str | None = None,
     ) -> Routed | None:
         projects = {p.id: p for p in self.config.projects}
         if not project_ids or not project_ids <= projects.keys():
@@ -90,7 +92,17 @@ class Router:
                             result.output_tokens if result else None,
                             latency,
                             int(error is None),
-                            error,
+                            canonical(
+                                {
+                                    "stage": task,
+                                    "section": section or task,
+                                    "category": error_category(error),
+                                    "rule": error,
+                                    "field": "$",
+                                }
+                            )
+                            if error
+                            else None,
                             utc(datetime.now(UTC)),
                         ),
                     )
@@ -108,26 +120,34 @@ class Router:
                     try:
                         value = validate(redact_tree(result.value, known_secrets(self.config)))
                     except ValueError as invalid:
-                        issue = (
-                            str(invalid)
-                            if isinstance(invalid, ValidationError)
-                            else "schema_invalid"
-                        )
+                        detail = {
+                            "stage": task,
+                            "section": section or task,
+                            **validation_issue(invalid, schema),
+                        }
+                        self.issues.append(detail)
                         if log_ids:
                             self.db.execute(
-                                "UPDATE llm_call SET ok=0,error='output_invalid' WHERE id=?",
-                                (log_ids[-1],),
+                                "UPDATE llm_call SET ok=0,error=? WHERE id=?",
+                                (canonical(detail), log_ids[-1]),
                             )
-                        raise ClientError("output_invalid:" + issue) from None
+                        raise ClientError("output_invalid") from None
                     return Routed(value, name, provider.model, prompt_name, prompt_version)
                 except ClientError as error:
-                    if str(error) not in {"invalid_json", "response_invalid"} and not str(
-                        error
-                    ).startswith("output_invalid:"):
+                    code = str(error)
+                    if code != "output_invalid":
+                        detail = {
+                            "stage": task,
+                            "section": section or task,
+                            "category": error_category(code),
+                            "rule": code,
+                            "field": "$",
+                        }
+                        self.issues.append(detail)
+                        if not log_ids:
+                            observe(None, code, 0)
+                    if code not in {"invalid_json", "response_invalid", "output_invalid"}:
                         break
-                    issue = str(error).split(":", 1)[-1]
-                    if not issue.isidentifier() or len(issue) > 80:
-                        issue = "schema_invalid"
                     if repair == 0:
                         # Do not echo untrusted output, exceptions or secret-bearing bodies.
                         conversation += [
@@ -137,7 +157,9 @@ class Router:
                                     "Repara solo la salida: devuelve JSON que cumpla el esquema. "
                                     "Usa referencias y cifras de las evidencias originales. "
                                     + "Error de validación: "
-                                    + issue
+                                    + detail["rule"]
+                                    + "; campo: "
+                                    + detail["field"]
                                 ),
                             }
                         ]
