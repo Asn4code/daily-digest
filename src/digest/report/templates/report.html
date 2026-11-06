@@ -12,6 +12,8 @@ article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px sol
 <ul>{% for key, issues in report.pending.items() %}<li>{{ key }}:
 {% for issue in issues %}{{ issue.category }}/{{ issue.rule }} · {{ issue.field }} {% endfor %}
 </li>{% endfor %}</ul></aside>{% endif %}
+{% for observation in report.observations.values() if observation.origin == 'initial_inventory' %}{% if loop.first %}
+<p>Incluye referencia inicial; no todo representa trabajo de hoy.</p>{% endif %}{% endfor %}
 {% macro claims(items) %}{% for c in items %}<p>{{ c.text }}
 {% for eid in c.evidence %}<a href="#{{ eid }}">{{ eid }}</a> {% endfor %}</p>{% endfor %}{% endmacro %}
 {% set weekly=report.sections.get('weekly') %}{% set synthesis=report.sections.get('conceptual', {}) %}{% set plan=report.sections.get('plan') %}
@@ -30,7 +32,7 @@ article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px sol
 {{ claims(p.known_now) }}{% for doubt in p.still_unknown %}<p>{{ doubt }}</p>{% endfor %}
 {{ claims(p.decisions_changed) }}{% if p.no_new_conclusion %}<p>No hay conclusión científica nueva.</p>{% endif %}
 {% endfor %}{% else %}<p>Sin balance conceptual validado.</p>{% endif %}
-<h2>Todo lo hecho</h2>
+<h2>Todo lo hecho y contexto observado</h2>
 {% if not report.results %}<p>Sin resultados verificables en este intervalo. Esto no demuestra que no se haya trabajado.</p>{% endif %}
 {% for item in report.results %}<article><h3>{{ item.project }} · {{ item.title }}</h3>
 <p>{{ item.task_id or 'Fuera del tablero' }} · Revisión: {{ item.review_label }}</p>
@@ -52,7 +54,10 @@ article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px sol
 {% for key,extraction in report.sections.items() %}{% if key.startswith('extract:') %}{{ claims(extraction.open_threads) }}{% endif %}{% endfor %}
 <h2>Nivel técnico y evidencias</h2>{% for item in report.evidence %}<article id="{{ item.id }}"><h3>{{ item.id }}</h3>
 <p>{{ item.project }} · {{ item.kind }} · {{ item.locator }}</p><p>Hora: {{ (item.event_at or item.observed_at)|localtime(report.timezone) }} ({{ 'evento' if item.time_quality == 'event' else 'observada' }})</p>
-<pre>{{ item.excerpt }}</pre></article>{% endfor %}
+<pre>{{ item.excerpt }}</pre>{% set observation=report.observations.get(item.id) %}{% if observation %}
+<p>Origen: {{ observation.origin|originlabel }}</p>{% for limit in observation.limitations %}<p>{{ limit }}</p>{% endfor %}
+{% if observation.computed %}<ul>{% for fact in observation.computed %}<li>{{ fact.column }} / {{ fact.operation }} / {{ fact.statistic }}:
+{{ fact.value }} · unidad no declarada — {{ item.id }}</li>{% endfor %}</ul>{% endif %}{% endif %}</article>{% endfor %}
 <h2>Cobertura</h2>{% for item in report.coverage %}<section class="coverage"><h3>{{ item.project }} / {{ item.source }}: {{ item.status }}</h3><p>Captura {{ item.snapshot_id }}</p>
 {% for omitted in item.omitted %}<p>{{ omitted.locator }}: {{ omitted.reason }}</p>{% endfor %}</section>{% endfor %}
 {% for warning in report.warnings %}<p>{{ warning }}</p>{% endfor %}

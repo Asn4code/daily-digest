@@ -5,14 +5,15 @@ Dos proveedores con API compatible con OpenAI: **Qwen/Qwen3.8-27B** interno (con
 > **D-047 / IN-07:** una sección no validada queda pendiente; no se sustituye
 > por texto mecánico ni permite entregar o cerrar un informe incompleto. El
 > inventario y las secciones válidas se conservan como borrador privado. La
-> jerarquía completa y la reanudación selectiva de
-> [HIERARCHICAL_DIGEST.md](HIERARCHICAL_DIGEST.md) siguen pendientes de IN-08/09.
+> normalización y las unidades por fuente están implementadas en IN-08; la
+> persistencia por nodo y reanudación selectiva de
+> [HIERARCHICAL_DIGEST.md](HIERARCHICAL_DIGEST.md) siguen pendientes de IN-09.
 
 ## 1. Enrutado
 
 | Tarea (`task`) | Entrada | Preferencia por defecto | Salida (`schemas.py`) |
 | --- | --- | --- | --- |
-| `extract` | Paquete de un resultado | `internal`, luego `nan` | `ResultExtraction` |
+| `extract` | Paquete de unidades relacionadas de un resultado | `internal`, luego `nan` | `SourceFindings`; ensamblado validado a `ResultExtraction` |
 | `conceptual` | Extracciones del intervalo + objetivos de los proyectos | `nan`, luego `internal` | `DailySynthesis` (sin plan) |
 | `plan` | Síntesis + tareas de Kanvas `todo`/`ready`/`blocked` + dudas de revisiones | `nan`, luego `internal` | `TomorrowPlan` |
 | `weekly` | Extracciones de 7 días + revisiones + plan aceptado de cada día | `nan` (contexto largo), luego `internal` | `WeeklyReport` |
@@ -270,3 +271,49 @@ Cada propuesta de análisis explica qué alternativas distinguiría y con qué
 control y criterio. No ejecuta análisis ni modifica texto o estados humanos.
 El diseño y sus casos de aceptación están en HIERARCHICAL_DIGEST.md y en las
 propuestas IN-10, IN-12 e IN-11; todavía no están implementados.
+
+
+## 13. Observaciones y unidades por fuente (IN-08)
+
+`report/observations.py` normaliza procedencia, tiempo, límites y estadísticos ya
+calculados. `capture_origin` se incorpora a metadatos de evidencias nuevas sin
+migrar tablas: `initial_inventory` si es la primera captura utilizable de la
+fuente, `observed_change` después, y `dated_event` cuando hay hora de evento. Una
+captura fallida no consume el alta. Las evidencias históricas sin ese metadato se
+etiquetan con antigüedad desconocida; no se les inventa fecha. La recaptura de un
+contenido idéntico conserva su origen inicial. Las salidas guardadas de notebook
+siguen sin acreditar una ejecución nueva. El aviso de referencia inicial aparece
+en correo y vault y el origen queda junto a cada evidencia técnica.
+
+Los números vienen del recolector de métricas: operación (`stats`/`change`),
+columna, estadístico y valor exacto, con `unit=null` mientras la configuración no
+declare unidades. El LLM interpreta; no recalcula ni rellena una tabla numérica.
+Los deltas calculados se aceptan sin unidad solo contra `meta.change` original;
+una unidad o cifra inventada siguen rechazándose. La normalización se vuelve a
+calcular antes de publicar para detectar modificaciones.
+
+`report/packets.py` une versiones del mismo artefacto, fuentes científicas en el
+mismo directorio experimental y enlaces explícitos a rutas de otras fuentes en
+notas/documentos. Así conserva comparaciones con controles y figuras aunque
+estén en directorios distintos. Notas de tarea o commits sin enlaces explícitos
+son contexto compartido. Son reglas conservadoras de procedencia, no un detector
+infalible de relaciones científicas: una relación no documentada puede necesitar
+aclaración humana. No se leen archivos adicionales ni se ejecuta contenido.
+
+Las unidades completas se empaquetan hasta **24 000 caracteres del prompt JSON
+escapado**, o el límite configurado si es menor. Se agrupan varias unidades
+pequeñas; no se exige una llamada por archivo/celda. No se corta una unidad ni se
+quita su control para entrar: si no cabe, queda `coherent_unit_budget_exceeded`.
+Cada paquete mantiene IDs, tiempos, metadatos, cobertura, objetivo y ámbito de
+privacidad. El router recibe el proyecto real; abstraer una fuente privada no
+permite enviarla al proveedor externo.
+
+Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v1.
+Las piezas válidas se guardan en `sections[source:...]` y se enumeran en
+`source_units`. El ensamblado concatena texto validado y deduplica solo elementos
+idénticos, conservando citas y controles; no genera conclusiones nuevas ni omite
+listas para ajustarlas. El resultado sigue validando `ResultExtraction`; si el
+ensamblado supera sus límites, queda pendiente para ajustar ese contrato en la
+etapa de fichas. La entrega comprueba el linaje del ensamblado, las piezas
+necesarias y la cobertura exacta de las evidencias del resultado. La persistencia
+inmediata por nodo y la reducción de las etapas superiores siguen en IN-09/10.

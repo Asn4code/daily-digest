@@ -1,8 +1,10 @@
 # Construcción jerárquica y reanudable del digest
 
-Estado: propuesta de rediseño de fase 2. La exigencia de no sustituir secciones
+Estado: rediseño aprobado de fase 2, parcialmente implementado (IN-07/08). La exigencia de no sustituir secciones
 no validadas por contenido mecánico está confirmada por la persona (D-047).
-Este documento describe el cambio propuesto; no afirma que ya esté implementado.
+IN-07 bloquea la publicación incompleta y diagnostica rechazos; IN-08 aporta
+observaciones y paquetes por fuente. La reanudación, los niveles y la crítica
+semanal siguen pendientes de IN-09/10/12 y su validación en IN-11.
 
 ## Qué falla en el flujo actual
 

@@ -39,6 +39,8 @@ def compose(
         if any(c.status != "ok" for c in report.coverage)
         else "Sin incidencias de captura registradas."
     )
+    if any(o.get("origin") == "initial_inventory" for o in report.observations.values()):
+        warning += " Incluye referencia inicial; no todo representa trabajo de hoy."
     plain = [
         "Daily Digest",
         display(report.end_at, report.timezone),

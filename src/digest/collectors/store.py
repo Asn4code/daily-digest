@@ -50,6 +50,14 @@ def persist(
             stream.write(payload)
     db.execute("BEGIN IMMEDIATE")
     try:
+        initial = (
+            db.execute(
+                "SELECT 1 FROM snapshot WHERE project_id=? AND source=? "
+                "AND status IN ('ok','partial') LIMIT 1",
+                (project.id, source),
+            ).fetchone()
+            is None
+        )
         db.execute(
             "INSERT INTO project(id,name,root,objective,priority,external_allowed,config_hash) "
             "VALUES (?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name, "
@@ -100,7 +108,19 @@ def persist(
                     "event" if draft.event_at else "observed",
                     hashed,
                     redact(draft.excerpt, ctx.secrets)[: ctx.limits.max_excerpt_chars],
-                    canonical(redact_tree(draft.meta, ctx.secrets)),
+                    canonical(
+                        redact_tree(
+                            {
+                                **draft.meta,
+                                "capture_origin": "dated_event"
+                                if draft.event_at
+                                else "initial_inventory"
+                                if initial
+                                else "observed_change",
+                            },
+                            ctx.secrets,
+                        )
+                    ),
                     draft.task_id,
                     cursor.lastrowid,
                 ),

@@ -50,10 +50,10 @@ Base implementada antes del rediseño:
 - [IN-04] Recolectores de notebooks, estructuras y sesiones de agentes
 - [IN-05] Informe semanal
 
-Propuestas de rediseño D-047/D-048/D-049, aún pendientes de implementación:
+Rediseño D-047/D-048/D-049 aprobado; avance por tareas:
 
-- [IN-07] Diagnóstico de rechazos y publicación sin sustitución mecánica
-- [IN-08] Hechos normalizados y paquetes pequeños por fuente
+- [IN-07] Diagnóstico de rechazos y publicación sin sustitución mecánica — implementado
+- [IN-08] Hechos normalizados y paquetes pequeños por fuente — implementado
 - [IN-09] Nodos validados persistidos y generación reanudable
 - [IN-10] Seguimiento diario de resultados y próximo foco, con niveles por canal
 - [IN-12] Contraste crítico semanal de conclusiones y evidencia nueva

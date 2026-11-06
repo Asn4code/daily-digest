@@ -19,8 +19,12 @@ class Prompt:
     body: str
 
 
-def load(task: Task) -> Prompt:
-    raw = files("digest.llm").joinpath("prompts/" + task + ".md").read_text(encoding="utf-8")
+def load(task: Task, *, name: str | None = None) -> Prompt:
+    raw = (
+        files("digest.llm")
+        .joinpath("prompts/" + (name or task) + ".md")
+        .read_text(encoding="utf-8")
+    )
     _, front, body = raw.split("---", 2)
     meta = yaml.safe_load(front)
     if meta["task"] != task:

@@ -43,6 +43,16 @@ class ResultExtraction(Output):
     open_threads: list[Claim] = Field(max_length=100)
 
 
+class SourceFindings(Output):
+    result_id: Text
+    summary: Text
+    observations: list[Claim] = Field(max_length=100)
+    interpretations: list[Interpretation] = Field(max_length=100)
+    controls: list[Claim] = Field(max_length=100)
+    limitations: Texts
+    open_questions: list[Claim] = Field(max_length=100)
+
+
 class ProjectBalance(Output):
     project_id: Text
     known_now: list[Claim] = Field(max_length=100)

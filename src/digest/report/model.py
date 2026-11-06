@@ -81,6 +81,8 @@ class Report:
     prompt_versions: dict[str, str] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     pending: dict[str, list[dict[str, str]]] = field(default_factory=dict)
+    observations: dict[str, dict[str, Any]] = field(default_factory=dict)
+    source_units: dict[str, list[str]] = field(default_factory=dict)
 
     @property
     def kind_label(self) -> str:

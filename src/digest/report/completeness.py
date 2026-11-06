@@ -5,6 +5,7 @@ from digest.report.model import Report
 
 def required_sections(report: Report) -> set[str]:
     required = {"extract:" + item.id for item in report.results}
+    required.update(key for keys in report.source_units.values() for key in keys)
     if report.evidence or report.results:
         required.update({"weekly"} if report.kind == "weekly" else {"conceptual", "plan"})
     return required

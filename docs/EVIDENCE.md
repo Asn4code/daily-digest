@@ -247,3 +247,19 @@ la lectura se descarta. Si existe un WAL no vacío, se marca `sqlite_wal_not_rea
 la conexión inmutable no lo consume y no se afirma que incluya sus cambios recientes.
 Los límites de filas, sesiones y texto también quedan en cobertura.
 
+
+
+## Origen temporal de la referencia inicial (IN-08)
+
+Los metadatos de evidencias nuevas distinguen `initial_inventory`,
+`observed_change` y `dated_event`. Los dos primeros conservan `time_quality=observed`:
+ni descubrir un archivo antiguo ni observar un cambio acredita ejecución en el
+intervalo. Una fuente cuyo primer intento falló sigue pendiente de su primera
+captura utilizable. Se conserva el metadato inicial en recapturas idempotentes;
+los datos antiguos sin etiqueta mantienen antigüedad desconocida. No cambia el
+esquema SQLite publicado ni se reescriben evidencias existentes.
+
+Las observaciones calculadas y los paquetes por procedencia se describen en
+[LLM.md](LLM.md#13-observaciones-y-unidades-por-fuente-in-08). El contexto inicial se
+muestra como referencia, con unidades no declaradas y límites explícitos; no se
+convierte en una conclusión ni en producción del día por aparecer en un informe.

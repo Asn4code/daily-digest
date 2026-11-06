@@ -20,9 +20,16 @@ class ValidationError(ValueError):
 
 
 def validate_report(report: Report, allowed_ids: set[str]) -> None:
+    from digest.report.assembly import assemble
+    from digest.report.observations import normalize
+
     ids = {item.id for item in report.evidence}
     if ids != allowed_ids or len(ids) != len(report.evidence):
         raise ValidationError("Report evidence package does not match its manifest")
+    if (report.observations or report.source_units) and report.observations != {
+        e.id: normalize(e) for e in report.evidence
+    }:
+        raise ValidationError("Normalized observation modified")
     for result in report.results:
         if not result.evidence or not set(result.evidence) <= ids:
             raise ValidationError("Result has missing or unknown evidence")
@@ -39,6 +46,8 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
     for key, value in report.sections.items():
         package = report.packages[key]
         scope = package_scope(package)
+        if any(e.project not in scope.project_ids for e in scope.evidence.values()):
+            raise ValidationError("Section project scope mismatch")
         if not set(scope.evidence) <= ids:
             raise ValidationError("Section evidence outside report")
         originals = {item.id: item for item in report.evidence}
@@ -52,6 +61,31 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
                 raise ValidationError("Section evidence modified")
         schema = SCHEMAS[key.split(":", 1)[0]]
         validate(schema.model_validate(value), scope)
+    for result in report.results:
+        root = "extract:" + result.id
+        if root in report.sections and result.id in report.source_units:
+            children = report.source_units[result.id]
+            if (
+                not children
+                or len(children) != len(set(children))
+                or any(not key.startswith("source:" + result.id + ":") for key in children)
+                or any(key not in report.sections for key in children)
+                or report.packages[root]["context"].get("assembled_from") != children
+            ):
+                raise ValidationError("Source assembly incomplete")
+            expected = assemble(
+                result.id,
+                [schemas.SourceFindings.model_validate(report.sections[key]) for key in children],
+            )
+            if report.sections[root] != expected.model_dump():
+                raise ValidationError("Source assembly modified")
+            package = report.packages[root]
+            if set(e["id"] for e in package["evidence"]) != set(result.evidence):
+                raise ValidationError("Result assembly evidence incomplete")
+            if set(e["id"] for key in children for e in report.packages[key]["evidence"]) != set(
+                result.evidence
+            ):
+                raise ValidationError("Source packet evidence incomplete")
 
 
 # LLM output checks are independent of rendering and run again at publication.
@@ -128,7 +162,9 @@ def _present(number: float, unit: str | None, entries: list[EvidenceEntry]) -> b
         if unit is None and entry.kind == "metric":
             if any(
                 math.isclose(number, n, rel_tol=1e-6, abs_tol=0)
-                for n in _numeric_values(entry.meta.get("stats", {}))
+                for n in _numeric_values(
+                    [entry.meta.get("stats", {}), entry.meta.get("change", {})]
+                )
             ):
                 return True
         excerpt = entry.excerpt.replace("−", "-")
@@ -225,7 +261,10 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
 
     data = output.model_dump()
     visit(data, list(allowed))
-    if isinstance(output, schemas.ResultExtraction) and output.result_id not in package.result_ids:
+    if (
+        isinstance(output, schemas.ResultExtraction | schemas.SourceFindings)
+        and output.result_id not in package.result_ids
+    ):
         raise ValidationError("unknown_result", ("result_id",))
     if isinstance(output, schemas.DailySynthesis):
         if any(p.project_id not in package.project_ids for p in output.projects):

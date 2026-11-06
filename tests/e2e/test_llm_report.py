@@ -282,7 +282,7 @@ def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
     config.projects = config.projects[:1]
     monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
     titles = {
-        "extract": "ResultExtraction",
+        "extract": "SourceFindings",
         "conceptual": "DailySynthesis",
         "plan": "TomorrowPlan",
         "weekly": "WeeklyReport",
@@ -322,7 +322,10 @@ def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
     value = json.loads(path.with_suffix(".json").read_text())
     key = "extract:" + failed_result if stage == "extract" else stage
     assert key in value["pending"]
-    assert value["pending"][key][0]["category"] == "validation"
+    failed_key = key
+    if stage == "extract":
+        failed_key = next(k for k in value["source_units"][failed_result] if k in value["pending"])
+    assert value["pending"][failed_key][0]["category"] == "validation"
     assert value["sections"], "Validated independent sections must survive a rejection"
     assert len(value["results"]) > 1
     assert all(r["review_state"] == "pending" for r in value["results"])
@@ -339,7 +342,9 @@ def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
             value["evidence"]
         )
         errors = [json.loads(row[0]) for row in db.execute("SELECT error FROM llm_call WHERE ok=0")]
-        assert all(e["section"] == key and e["rule"] == "schema_extra_forbidden" for e in errors)
+        assert all(
+            e["section"] == failed_key and e["rule"] == "schema_extra_forbidden" for e in errors
+        )
         assert "PRIVATE_REJECTED_BODY" not in repr(errors)
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 

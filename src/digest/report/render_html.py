@@ -5,10 +5,12 @@ from importlib.resources import files
 from jinja2 import Environment, select_autoescape
 
 from digest.report.model import Report
+from digest.report.observations import origin_label
 from digest.report.timeutil import display
 
 ENV = Environment(autoescape=select_autoescape(default=True, default_for_string=True))
 ENV.filters["localtime"] = display
+ENV.filters["originlabel"] = origin_label
 TEMPLATE = files("digest.report").joinpath("templates/report.html").read_text(encoding="utf-8")
 
 

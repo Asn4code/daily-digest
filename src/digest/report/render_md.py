@@ -5,6 +5,7 @@ import re
 from typing import Any
 
 from digest.report.model import Report
+from digest.report.observations import normalize, origin_label
 from digest.report.timeutil import display
 
 
@@ -61,7 +62,7 @@ def render(report: Report) -> str:
         )
         or "Sin balance conceptual validado.",
         "",
-        "## Todo lo hecho",
+        "## Todo lo hecho y contexto observado",
     ]
     if not report.results:
         lines.append(
@@ -176,6 +177,18 @@ def render(report: Report) -> str:
                 escape(entry.excerpt),
             ]
         )
+        observed = report.observations.get(entry.id, normalize(entry))
+        lines.append("Origen: " + escape(origin_label(observed["origin"])))
+        lines.extend(escape(text) for text in observed["limitations"])
+        for fact in observed["computed"]:
+            lines.append(
+                escape(fact["column"] + " / " + fact["operation"] + " / " + fact["statistic"])
+                + ": "
+                + str(fact["value"])
+                + " · unidad no declarada ["
+                + entry.id
+                + "]"
+            )
     lines.extend(["", "## Cobertura"])
     for source in report.coverage:
         lines.append(
@@ -195,6 +208,8 @@ def render(report: Report) -> str:
             + " · prompt "
             + escape(report.prompt_versions[section])
         )
+    if any(o.get("origin") == "initial_inventory" for o in report.observations.values()):
+        lines.insert(2, "Incluye referencia inicial; no todo representa trabajo de hoy.")
     if report.pending:
         lines[0] = f"# Borrador pendiente · informe {report.kind_label}"
         lines[2:2] = [

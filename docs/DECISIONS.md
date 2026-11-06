@@ -130,3 +130,15 @@ publicados; el estado pendiente se expresa mediante los estados existentes y
 `job.error=report_pending`. No cambia el formato entregado a Obsidian o Drive.
 IN-08/09 siguen pendientes para paquetes pequeños, persistencia por nodo y
 reanudación selectiva; D-048/049 aún requieren IN-10/12 y validación del piloto.
+
+
+### Avance de D-047/048: IN-08 (2026-11-06)
+
+Añadidas observaciones deterministas y origen inicial/evento/cambio observado,
+sin inferir la fecha de ejecución de archivos descubiertos. Las fuentes enlazadas
+se empaquetan completas con sus controles, hasta 24 000 caracteres escapados o el
+límite configurado si es menor; una unidad mayor queda pendiente, no se recorta.
+La normalización distingue estadísticos/deltas de interpretación, conserva unidades
+no declaradas y privacidad, y ensambla solo piezas válidas con linaje verificable.
+No cambia el esquema SQL ni el formato de archivos humanos. Las relaciones por
+procedencia no garantizan comprender toda relación científica no documentada.

@@ -1051,12 +1051,24 @@
     {
       "id": "IN-08",
       "title": "Hechos normalizados y paquetes pequeños por fuente",
-      "state": "todo",
+      "state": "done",
       "group": "IN",
       "deps": ["IN-07"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "Preparar evidencia útil para seguir cada resultado: qué cambió, qué pregunta u objetivo afecta, qué observación lo respalda y qué sigue incierto. Separar hechos calculados por código de interpretaciones LLM; paquetes pequeños por unidad científica coherente, manteniendo comparación y control juntos, IDs, unidades, fechas, cobertura y external_allowed. Distinguir historia observada durante el alta de eventos nuevos. Terminado cuando ejemplos correctos conservan significado y controles, cifras/IDs inventados se rechazan y una entrada grande se divide sin perder ni ocultar resultados. No exigir una llamada LLM por archivo o fragmento. D-047/D-048 y docs/HIERARCHICAL_DIGEST.md."
+      "desc": "Preparar evidencia útil para seguir cada resultado: qué cambió, qué pregunta u objetivo afecta, qué observación lo respalda y qué sigue incierto. Separar hechos calculados por código de interpretaciones LLM; paquetes pequeños por unidad científica coherente, manteniendo comparación y control juntos, IDs, unidades, fechas, cobertura y external_allowed. Distinguir historia observada durante el alta de eventos nuevos. Terminado cuando ejemplos correctos conservan significado y controles, cifras/IDs inventados se rechazan y una entrada grande se divide sin perder ni ocultar resultados. No exigir una llamada LLM por archivo o fragmento. D-047/D-048 y docs/HIERARCHICAL_DIGEST.md.",
+      "notes": [
+        {
+          "at": "2026-11-06T09:35:57Z",
+          "by": "codex",
+          "text": "Plan: normalizar observaciones calculadas y procedencia/tiempo sin convertirlas en conclusiones; preparar unidades por experimento/documento con enlaces explícitos y controles juntos, empaquetadas con límites reales. Integrar extracciones pequeñas con ensamblado validado y diagnóstico de unidades que no caben; probar división, linaje, historia inicial y privacidad."
+        },
+        {
+          "at": "2026-11-06T09:49:02Z",
+          "by": "codex",
+          "text": "Las fuentes se normalizan como observaciones con cifras/deltas exactos, procedencia y límites, separadas de interpretaciones. El alta distingue referencia inicial de eventos y cambios observados. Se agrupan artefactos y enlaces explícitos para mantener comparaciones y controles juntos; varias unidades pequeñas comparten llamada, con máximo de 24000 caracteres escapados. Una unidad mayor queda pendiente sin truncarla. Ensamblado validado con linaje y privacidad. Verificado: make check, 192 tests; treinta fuentes, controles entre directorios, cifras/IDs inventados, conservación de estado humano y referencia inicial. Revisar en el piloto si las relaciones documentadas bastan: las no documentadas no se infieren automáticamente."
+        }
+      ]
     },
     {
       "id": "IN-09",

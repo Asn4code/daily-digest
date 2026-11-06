@@ -13,11 +13,17 @@ from digest.llm import schemas
 from digest.llm.prompts import load, messages
 from digest.llm.router import Router, Task
 from digest.llm.validator import EvidencePackage, validate
-from digest.report.model import EvidenceEntry, Report
+from digest.report.assembly import VERSION as ASSEMBLY_VERSION
+from digest.report.assembly import assemble
+from digest.report.model import EvidenceEntry, Report, ResultEntry
+from digest.report.observations import normalize
+from digest.report.packets import SOURCE_PACKET_CHARS
+from digest.report.packets import plan as plan_packets
 from digest.util.redact import known_secrets, redact, redact_tree
 
 SCHEMAS: dict[str, type[BaseModel]] = {
     "extract": schemas.ResultExtraction,
+    "source": schemas.SourceFindings,
     "conceptual": schemas.DailySynthesis,
     "plan": schemas.TomorrowPlan,
     "weekly": schemas.WeeklyReport,
@@ -75,6 +81,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
     tasks = task_context(db, config)
     projects = {p.id: p for p in config.projects}
     evidence = {e.id: e for e in report.evidence}
+    report.observations = {e.id: normalize(e) for e in report.evidence}
 
     def mark_pending(key: str, category: str, rule: str) -> None:
         report.pending[key] = [
@@ -87,18 +94,11 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             }
         ]
 
-    def call(
-        task: Task,
-        key: str,
-        ids: list[str],
-        project_ids: set[str],
-        context: dict[str, Any],
-        result_ids: list[str],
-    ) -> None:
-        if not ids or not project_ids:
-            mark_pending(key, "input", "no_evidence")
-            return
-        budget = config.limits.max_project_package_chars
+    def payload_for(
+        ids: list[str], project_ids: set[str], context: dict[str, Any], result_ids: list[str]
+    ) -> dict[str, Any]:
+        if any(evidence[eid].project not in project_ids for eid in ids):
+            raise ValueError("Evidence outside project scope")
         scoped_tasks = [t for pid in project_ids for t in tasks.get(pid, [])]
         states: dict[str, str] = {}
         for task_item in scoped_tasks:
@@ -124,34 +124,79 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             "pending_reviews": context.get("pending_reviews", []),
             "evidence": [],
         }
-        payload = redact_tree(payload, secrets)
-        prompt = load(task)
-        limit = budget * len(project_ids)
-        # Exceeding a package budget leaves the section pending, never substituted.
-        if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
-            mark_pending(key, "input", "context_budget_exceeded")
-            return
-        priority = {"task_note": 0, "metric": 1, "task_transition": 2, "run_error": 3, "diff": 4}
-        if task == "weekly":
-            priority["figure"] = 0
-        for eid in sorted(set(ids), key=lambda i: priority.get(evidence[i].kind, 5)):
+        for eid in sorted(set(ids)):
             item = asdict(evidence[eid])
             item["meta"] = {
                 k: v
                 for k, v in item["meta"].items()
-                if k in {"stats", "change", "path", "provenance"}
+                if k
+                in {
+                    "stats",
+                    "change",
+                    "path",
+                    "provenance",
+                    "capture_origin",
+                    "stored_outputs_only",
+                }
             }
             payload["evidence"].append(item)
-            if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
-                payload["evidence"].pop()
-                report.warnings.append(
-                    key + ": evidencia omitida por límite de paquete (" + eid + ")."
-                )
-        if not payload["evidence"]:
-            mark_pending(key, "input", "evidence_budget_exceeded")
+        payload = redact_tree(payload, secrets)
+        return payload
+
+    def call(
+        task: Task,
+        key: str,
+        ids: list[str],
+        project_ids: set[str],
+        context: dict[str, Any],
+        result_ids: list[str],
+        *,
+        source: bool = False,
+    ) -> None:
+        if not ids or not project_ids:
+            mark_pending(key, "input", "no_evidence")
             return
+        prompt = load(task, name="source" if source else None)
+        limit = config.limits.max_project_package_chars * len(project_ids)
+        if source:
+            limit = min(limit, SOURCE_PACKET_CHARS)
+        payload = payload_for(ids, project_ids, context, result_ids)
+        if source:
+            payload["context"]["computed_facts"] = [
+                {"evidence": [eid], "computed": report.observations[eid]["computed"]}
+                for eid in sorted(set(ids))
+                if report.observations[eid]["computed"]
+            ]
+            if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
+                mark_pending(key, "input", "coherent_unit_budget_exceeded")
+                return
+        else:
+            items = payload["evidence"]
+            payload["evidence"] = []
+            if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
+                mark_pending(key, "input", "context_budget_exceeded")
+                return
+            priority = {
+                "task_note": 0,
+                "metric": 1,
+                "task_transition": 2,
+                "run_error": 3,
+                "diff": 4,
+            }
+            if task == "weekly":
+                priority["figure"] = 0
+            for item in sorted(items, key=lambda e: priority.get(e["kind"], 5)):
+                payload["evidence"].append(item)
+                if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
+                    payload["evidence"].pop()
+                    report.warnings.append(
+                        key + ": evidencia omitida por límite de paquete (" + item["id"] + ")."
+                    )
+            if not payload["evidence"]:
+                mark_pending(key, "input", "evidence_budget_exceeded")
+                return
         scope = package_scope(payload)
-        schema = SCHEMAS[task]
+        schema = schemas.SourceFindings if source else SCHEMAS[task]
 
         def check(value: dict[str, Any]) -> BaseModel:
             parsed = schema.model_validate(value)
@@ -186,14 +231,58 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         report.prompt_versions[key] = response.prompt_version
 
     for result in report.results:
-        call(
-            "extract",
-            "extract:" + result.id,
-            result.evidence,
-            {result.project},
-            {"result_id": result.id, "objective": projects[result.project].objective},
-            [result.id],
+        context = {
+            "result_id": result.id,
+            "title": result.title,
+            "objective": projects[result.project].objective,
+            "external_allowed": projects[result.project].external_allowed,
+        }
+
+        def size(
+            ids: list[str], result: ResultEntry = result, context: dict[str, Any] = context
+        ) -> int:
+            payload = payload_for(ids, {result.project}, context, [result.id])
+            payload["context"]["computed_facts"] = [
+                {"evidence": [eid], "computed": report.observations[eid]["computed"]}
+                for eid in sorted(set(ids))
+                if report.observations[eid]["computed"]
+            ]
+            return len(
+                json.dumps(messages(load("extract", name="source"), payload), ensure_ascii=False)
+            )
+
+        packets = plan_packets(
+            [evidence[eid] for eid in result.evidence],
+            size=size,
+            limit=min(SOURCE_PACKET_CHARS, config.limits.max_project_package_chars),
         )
+        keys = ["source:" + result.id + ":" + packet.key for packet in packets]
+        report.source_units[result.id] = keys
+        for packet, key in zip(packets, keys, strict=True):
+            if not packet.fits:
+                mark_pending(key, "input", "coherent_unit_budget_exceeded")
+                continue
+            call(
+                "extract", key, packet.evidence, {result.project}, context, [result.id], source=True
+            )
+        root = "extract:" + result.id
+        if not keys or any(key not in report.sections for key in keys):
+            mark_pending(root, "dependency", "source_pending")
+            continue
+        findings = [schemas.SourceFindings.model_validate(report.sections[key]) for key in keys]
+        payload = payload_for(
+            result.evidence, {result.project}, {"assembled_from": keys}, [result.id]
+        )
+        try:
+            extracted = assemble(result.id, findings)
+            validate(extracted, package_scope(payload))
+        except ValueError:
+            mark_pending(root, "input", "assembly_contract_limit")
+            continue
+        report.sections[root] = extracted.model_dump()
+        report.packages[root] = payload
+        report.model_info[root] = {"provider": "assembly", "model": "validated-sources"}
+        report.prompt_versions[root] = ASSEMBLY_VERSION
     # Downstream synthesis must never turn a partial extraction set into a final story.
     if any("extract:" + item.id not in report.sections for item in report.results):
         for key in ["weekly"] if report.kind == "weekly" else ["conceptual", "plan"]:

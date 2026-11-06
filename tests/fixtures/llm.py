@@ -18,7 +18,17 @@ def fake_response(request: httpx.Request) -> httpx.Response:
     eid = entries[0]["id"]
     claim = {"text": "Hay evidencia disponible para contrastar.", "evidence": [eid]}
     title = wire["response_format"]["json_schema"]["schema"]["title"]
-    if title == "ResultExtraction":
+    if title == "SourceFindings":
+        value = {
+            "result_id": package["context"]["result_id"],
+            "summary": claim["text"],
+            "observations": [claim],
+            "interpretations": [],
+            "controls": [],
+            "limitations": [],
+            "open_questions": [],
+        }
+    elif title == "ResultExtraction":
         value = {
             "result_id": package["context"]["result_id"],
             "summary": claim["text"],

@@ -154,3 +154,14 @@ Una prueba elimina una sección de un informe marcado `ready` y verifica que la
 entrega vuelve a rechazarlo antes de crear filas o correo. Los diagnósticos se
 prueban con cifras inventadas, tipos incorrectos, claves extra privadas, timeouts
 y credenciales ausentes; no contienen valores ni cuerpos rechazados.
+
+## Unidades de evidencia (IN-08)
+
+`test_source_packets.py` cubre el origen inicial tras un fallo de captura, la
+recaptura idempotente, tiempos de evento, deltas exactos sin unidades inventadas,
+notebooks con sus figuras/datos, comparaciones enlazadas entre directorios y
+empaquetado de documentos independientes sin exigir una llamada por archivo.
+`test_source_pipeline.py` recorre un resultado con treinta fuentes: paquetes
+pequeños, todos los IDs conservados, privacidad heredada y estado humano intacto.
+También rechaza cifras/IDs inventados y deja pendiente una comparación que no
+cabe entera, sin enviarla truncada ni ocultarla del inventario.
