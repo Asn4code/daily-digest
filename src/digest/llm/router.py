@@ -1,5 +1,6 @@
 """Route validated calls with repair, fallback, privacy and metadata-only audit."""
 
+import json
 import sqlite3
 import time
 from collections.abc import Callable
@@ -7,8 +8,9 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-from digest.collectors.base import canonical, utc
+from digest.collectors.base import canonical, content_hash, utc
 from digest.config import Config
+from digest.llm.cache import Nodes
 from digest.llm.client import Client, ClientError, Completion
 from digest.llm.diagnostics import error_category, validation_issue
 from digest.util.redact import known_secrets, redact_tree
@@ -23,6 +25,8 @@ class Routed:
     model: str
     prompt_name: str
     prompt_version: str
+    cache_key: str = ""
+    reused: bool = False
 
 
 class Router:
@@ -55,15 +59,62 @@ class Router:
         schema: dict[str, Any] | None,
         validate: Callable[[dict[str, Any]], Any],
         section: str | None = None,
+        deadline: float | None = None,
+        package: dict[str, Any] | None = None,
     ) -> Routed | None:
         projects = {p.id: p for p in self.config.projects}
         if not project_ids or not project_ids <= projects.keys():
             raise ValueError("Unknown or missing project scope")
         external_allowed = all(projects[ident].external_allowed for ident in project_ids)
-        for name in getattr(self.config.llm.routing, task):
-            if name != "internal" and not external_allowed:
-                continue
+        eligible = [
+            name
+            for name in getattr(self.config.llm.routing, task)
+            if name == "internal" or external_allowed
+        ]
+        nodes = Nodes(self.config)
+        clean_package = redact_tree(package, known_secrets(self.config))
+        cache_key = nodes.key(
+            task, project_ids, messages, schema, prompt_name, prompt_version, clean_package
+        )
+
+        def remember() -> None:
+            if self.job_id is not None:
+                row = self.db.execute(
+                    "SELECT params FROM job WHERE id=?", (self.job_id,)
+                ).fetchone()
+                if row:
+                    params = json.loads(row[0])
+                    params.setdefault("nodes", {})[section or task] = cache_key
+                    self.db.execute(
+                        "UPDATE job SET params=? WHERE id=?", (canonical(params), self.job_id)
+                    )
+
+        def check_cached(value: dict[str, Any]) -> Any:
+            return validate(redact_tree(value, known_secrets(self.config)))
+
+        cached = nodes.load(
+            cache_key,
+            check_cached,
+            content_hash(canonical(clean_package)) if clean_package is not None else None,
+        )
+        if cached and cached.provider in eligible:
+            remember()
+            return Routed(
+                cached.value,
+                cached.provider,
+                cached.model,
+                prompt_name,
+                prompt_version,
+                cache_key,
+                True,
+            )
+        call_deadline = min(self.deadline, deadline) if deadline is not None else self.deadline
+        for index, name in enumerate(eligible):
             provider = self.config.llm.providers[name]
+            remaining = max(0.0, call_deadline - time.monotonic())
+            provider_deadline = min(
+                call_deadline, time.monotonic() + remaining / (len(eligible) - index)
+            )
             conversation = list(messages)
             for repair in range(2):
                 log_ids: list[int] = []
@@ -114,11 +165,12 @@ class Router:
                         provider,
                         conversation,
                         schema,
-                        deadline=self.deadline,
+                        deadline=provider_deadline,
                         observer=observe,
                     )
                     try:
-                        value = validate(redact_tree(result.value, known_secrets(self.config)))
+                        sanitized = redact_tree(result.value, known_secrets(self.config))
+                        value = validate(sanitized)
                     except ValueError as invalid:
                         detail = {
                             "stage": task,
@@ -132,7 +184,18 @@ class Router:
                                 (canonical(detail), log_ids[-1]),
                             )
                         raise ClientError("output_invalid") from None
-                    return Routed(value, name, provider.model, prompt_name, prompt_version)
+                    # Persist sanitized, validated output before starting another node.
+                    nodes.save(
+                        cache_key,
+                        sanitized,
+                        name,
+                        provider.model,
+                        clean_package,
+                    )
+                    remember()
+                    return Routed(
+                        value, name, provider.model, prompt_name, prompt_version, cache_key
+                    )
                 except ClientError as error:
                     code = str(error)
                     if code != "output_invalid":

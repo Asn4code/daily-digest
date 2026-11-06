@@ -16,6 +16,7 @@ COMMANDS = [
     ["run", "--preview"],
     ["enqueue", "daily", "--requested-by", "timer"],
     ["worker"],
+    ["resume", "1", "--now", "--no-send"],
     ["web"],
     ["deliver", "--retry", "--channel", "email", "--force-uncertain"],
     ["backup"],
@@ -43,7 +44,7 @@ def test_command_help(command: str) -> None:
     [
         args
         for args in COMMANDS
-        if args[0] not in {"doctor", "capture", "run", "enqueue", "worker", "deliver"}
+        if args[0] not in {"doctor", "capture", "run", "enqueue", "worker", "deliver", "resume"}
     ],
 )
 def test_unimplemented_commands_fail_without_writing(

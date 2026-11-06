@@ -267,6 +267,12 @@ def test_secrets_are_removed_from_sources_context_snapshots_and_model_wire(
     assert secret not in path.with_suffix(".json").read_text()
     for snapshot in (Path(config.paths.data_dir) / "snapshots").rglob("*.json"):
         assert secret not in snapshot.read_text()
+    for artifact in (Path(config.paths.data_dir) / "nodes").rglob("*.json"):
+        assert all(form not in artifact.read_text() for form in forms)
+        assert provider_key not in artifact.read_text()
+    for artifact in (Path(config.paths.data_dir) / "work").rglob("*.json"):
+        assert all(form not in artifact.read_text() for form in forms)
+        assert provider_key not in artifact.read_text()
     with closing(connect(Path(config.paths.data_dir) / "digest.db")) as db:
         assert secret not in repr(
             db.execute("SELECT locator,excerpt,meta FROM evidence").fetchall()

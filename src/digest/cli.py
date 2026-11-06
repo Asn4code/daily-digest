@@ -128,6 +128,25 @@ def enqueue(
 
 
 @app.command()
+def resume(
+    ctx: typer.Context,
+    job: Annotated[int, typer.Argument(min=1)],
+    now: Annotated[bool, typer.Option()] = False,
+    no_send: Annotated[bool, typer.Option("--no-send")] = False,
+) -> None:
+    """Reanudar un trabajo pendiente en su ventana original, reutilizando piezas válidas."""
+    config = configuration(ctx)
+    try:
+        jobs.resume(config, job, no_send=no_send)
+        typer.echo(f"Trabajo reencolado: {job}")
+        if now:
+            show_outcome(jobs.execute(config, job))
+    except (ValueError, OSError, RuntimeError, sqlite3.Error):
+        typer.echo("No se pudo reanudar; comprueba el trabajo y su inventario.", err=True)
+        raise typer.Exit(1) from None
+
+
+@app.command()
 def worker(ctx: typer.Context, once: Annotated[bool, typer.Option("--once")] = False) -> None:
     """Procesar la cola; --once procesa como máximo un trabajo."""
     config = configuration(ctx)

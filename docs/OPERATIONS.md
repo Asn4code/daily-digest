@@ -355,3 +355,57 @@ WeasyPrint; `make check` valida la generación real contra los fixtures.
 Las vistas de prueba locales están en `build/previews/email.html`,
 `email-mobile.png` (390 px) y `pdf-page-1.png`; no contienen datos del piloto
 ni sustituyen la comprobación humana del correo en su móvil.
+
+
+## Generación reanudable (IN-09, comportamiento vigente)
+
+El respaldo mecánico de fase 1 es histórico. Ahora un informe incompleto conserva
+un borrador privado, no se entrega ni cierra su intervalo. Cada pieza validada se
+guarda inmediatamente. Una caída tras guardar una pieza no obliga a repetir su
+llamada; una respuesta interrumpida antes de validar sí se repite.
+
+`work/jobs/<id>/inventory.json` guarda un inventario saneado e inmutable (formato
+v1), con hash y referencia desde `job.params`. El trabajo fija `since`, `until` e
+`interval_id` antes de generar. Reanudar conserva esa ventana e inventario, aunque
+la captura siguiente encuentre trabajo posterior; las decisiones humanas se leen
+de nuevo, nunca se restauran desde el inventario. Los nuevos disparos diarios
+parten de la última ventana reservada; sus evidencias no se duplican con las de
+un trabajo anterior pendiente. Una revisión usa exactamente la misma ventana;
+un solapamiento parcial explícito se rechaza.
+
+```bash
+# Un intento nuevo; no entrega al completarse si se indicó --no-send.
+digest --config config.yaml run --now --no-send
+
+# Continuar el mismo trabajo pendiente: cambia 12 por su ID.
+digest --config config.yaml resume 12 --now --no-send
+
+# El worker recupera al arrancar y procesa como máximo un trabajo.
+digest --config config.yaml worker --once
+```
+
+Al arrancar, el worker puede reencolar trabajos interrumpidos o pendientes con
+ventana fijada, hasta tres intentos totales. No los reencola indefinidamente en
+su bucle. Agotado el límite, `resume` inicia una continuación explícita y reinicia
+ese contador; conserva ventana, inventario, caché y la opción previa `no_send`.
+No se pueden reanudar trabajos ya finalizados ni convertir una revisión humana
+en trabajo de generación. Una revisión solicitada expresamente sí puede continuar
+aunque exista una revisión anterior completa de esa ventana. Si otra ejecución
+posterior ya completó la misma ventana, el trabajo antiguo queda `skipped` para
+evitar una generación o entrega duplicada. Las ejecuciones históricas sin ventana fijada no se
+reanudan automáticamente.
+
+Cada intento crea una revisión nueva. Los borradores anteriores permanecen en
+disco y sus filas de informe pasan a `failed` al sustituirse por otro intento;
+la fila del trabajo conserva el diagnóstico y las claves de piezas. Un informe
+completo queda `ready`; el cierre y las entregas siguen requiriendo validación.
+La recuperación de siete días resta ventanas reservadas y solo encola huecos
+con evidencia aún sin asignar. Los eventos antiguos descubiertos tarde se muestran
+como referencia histórica con fecha de evento y fecha de observación separadas;
+no se presentan como trabajo nuevo. No hay cambios de esquema SQLite publicado.
+
+Si el corte ocurre después de guardar el informe completo, la recuperación vuelve
+a validar ese mismo archivo y termina el cierre pendiente. Si debía entregarse,
+encola una única entrega del mismo ID; no crea otra revisión ni otro Message-ID.
+Los canales enviados se conservan y el correo incierto sigue sin reintento. Un
+archivo que no supera esta comprobación se marca fallido y requiere intervención.

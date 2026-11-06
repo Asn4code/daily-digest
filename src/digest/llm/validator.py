@@ -26,6 +26,15 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
     ids = {item.id for item in report.evidence}
     if ids != allowed_ids or len(ids) != len(report.evidence):
         raise ValidationError("Report evidence package does not match its manifest")
+    for item in report.evidence:
+        if "report_role" in item.meta:
+            expected_role = (
+                "historical_reference"
+                if item.event_at and item.event_at < report.start_at
+                else "interval_evidence"
+            )
+            if item.meta["report_role"] != expected_role:
+                raise ValidationError("Evidence temporal role mismatch")
     if (report.observations or report.source_units) and report.observations != {
         e.id: normalize(e) for e in report.evidence
     }:
@@ -56,6 +65,7 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
                 entry.excerpt != originals[eid].excerpt
                 or entry.kind != originals[eid].kind
                 or entry.project != originals[eid].project
+                or entry.content_hash != originals[eid].content_hash
                 or any(originals[eid].meta.get(k) != v for k, v in entry.meta.items())
             ):
                 raise ValidationError("Section evidence modified")

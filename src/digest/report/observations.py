@@ -12,6 +12,8 @@ def normalize(entry: EvidenceEntry) -> dict[str, Any]:
     origin = entry.meta.get("capture_origin", "observed_unknown_age")
     if entry.time_quality == "event" and entry.event_at:
         origin = "dated_event"
+    if entry.meta.get("report_role") == "historical_reference":
+        origin = "historical_reference"
     computed = []
     if entry.kind == "metric":
         for operation in ("stats", "change"):
@@ -33,12 +35,14 @@ def normalize(entry: EvidenceEntry) -> dict[str, Any]:
                             }
                         )
     limitations = []
-    if origin != "dated_event":
+    if origin not in {"dated_event", "historical_reference"}:
         limitations.append(
             "La hora de observación no acredita la fecha del trabajo ni de ejecución."
         )
     if origin == "initial_inventory":
         limitations.append("Referencia inicial: no se atribuye a trabajo de hoy.")
+    if origin == "historical_reference":
+        limitations.append("Evento anterior descubierto ahora; no se atribuye a trabajo de hoy.")
     if entry.kind == "metric":
         limitations.append("Estadísticos sobre columnas declaradas; unidades no declaradas.")
     if entry.kind == "notebook_change":
@@ -56,6 +60,7 @@ def normalize(entry: EvidenceEntry) -> dict[str, Any]:
         "observed_at": entry.observed_at,
         "event_at": entry.event_at,
         "time_quality": entry.time_quality,
+        "content_hash": entry.content_hash,
         "computed": computed,
         "scientific_status": "source_observation",
         "limitations": limitations,
@@ -67,4 +72,5 @@ def origin_label(origin: str) -> str:
         "initial_inventory": "Referencia inicial",
         "observed_change": "Cambio observado; fecha del trabajo no acreditada",
         "dated_event": "Evento con fecha propia",
+        "historical_reference": "Evento anterior descubierto en este intervalo",
     }.get(origin, "Observado; antigüedad desconocida")

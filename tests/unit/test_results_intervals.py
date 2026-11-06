@@ -120,3 +120,94 @@ def test_pending_days_only_with_uncovered_evidence(tmp_path: Path) -> None:
         interval = open_interval(db, pending[0][1], since=pending[0][0], until=pending[0][1])
         published(db, interval)
         assert not pending_days(db, datetime(2026, 11, 4, 10, tzinfo=UTC))
+
+
+def test_pending_windows_reserve_time_and_reject_partial_overlap(tmp_path: Path) -> None:
+    with closing(connect(tmp_path / "db")) as db:
+        first_end = datetime(2026, 11, 4, 19, tzinfo=UTC)
+        first = open_interval(db, first_end)
+        db.execute(
+            "INSERT INTO report(id,interval_id,revision,status,created_at) "
+            "VALUES ('pending',?,1,'generating',?)",
+            (first.id, first_end.isoformat()),
+        )
+        following = open_interval(db, first_end + timedelta(days=1))
+        assert following.start == first.end
+        assert db.execute("SELECT closed FROM interval WHERE id=?", (first.id,)).fetchone() == (0,)
+        with pytest.raises(ValueError, match="overlaps"):
+            open_interval(db, first_end + timedelta(days=1), since=first.start + timedelta(hours=1))
+        # An exact interval is a revision, never a partially overlapping new window.
+        revision = open_interval(
+            db, first_end + timedelta(days=1), since=first.start, until=first.end
+        )
+        assert revision.start == first.start and revision.end == first.end
+
+
+def test_recovery_queues_only_gaps_outside_reserved_windows(tmp_path: Path) -> None:
+    root = tmp_path / "project"
+    root.mkdir()
+    project = ProjectConfig(id="p", name="P", root=str(root))
+    start = datetime(2026, 11, 2, 10, tzinfo=UTC)
+    with closing(connect(tmp_path / "db")) as db:
+        for hour in (9, 13, 19):
+            at = start.replace(hour=hour)
+            persist(
+                db,
+                project,
+                "test",
+                CollectorOutput(
+                    evidence=[EvidenceDraft("metric", str(hour), str(hour), "Observed", at)]
+                ),
+                CaptureContext(tmp_path / "service", at),
+            )
+        reserved = open_interval(
+            db, start + timedelta(hours=6), since=start, until=start + timedelta(hours=6)
+        )
+        db.execute(
+            "INSERT INTO report(id,interval_id,revision,status,created_at) "
+            "VALUES ('pending',?,1,'generating',?)",
+            (reserved.id, start.isoformat()),
+        )
+        gaps = pending_days(db, datetime(2026, 11, 4, 10, tzinfo=UTC))
+        assert len(gaps) == 2
+        assert gaps[0][1] == reserved.start
+        assert gaps[1][0] == reserved.end
+        assert all(max(first, reserved.start) >= min(last, reserved.end) for first, last in gaps)
+
+
+def test_late_evidence_keeps_event_time_and_is_reserved_as_historical_context(
+    tmp_path: Path,
+) -> None:
+    from digest.report.mechanical import build
+
+    root = tmp_path / "project"
+    root.mkdir()
+    project = ProjectConfig(id="p", name="P", root=str(root))
+    first_end = datetime(2026, 11, 2, 19, tzinfo=UTC)
+    observed = first_end + timedelta(days=1)
+    original_event = first_end - timedelta(hours=1)
+    with closing(connect(tmp_path / "db")) as db:
+        previous = open_interval(db, first_end)
+        published(db, previous)
+        late = EvidenceDraft(
+            "commit",
+            "late",
+            "newly discovered",
+            "Evento anterior descubierto después",
+            observed,
+            original_event,
+        )
+        ids = persist(
+            db,
+            project,
+            "test",
+            CollectorOutput(evidence=[late]),
+            CaptureContext(tmp_path / "service", observed),
+        )
+        group_results(db)
+        interval = open_interval(db, observed)
+        report = build(db, interval, "late_report", observed)
+        assert [e.id for e in report.evidence] == ids
+        assert report.evidence[0].event_at == original_event.isoformat()
+        assert report.evidence[0].meta["report_role"] == "historical_reference"
+        assert report.evidence[0].observed_at == observed.isoformat()

@@ -2,6 +2,7 @@
 
 import json
 import sqlite3
+import time
 from dataclasses import asdict
 from typing import Any
 
@@ -17,7 +18,7 @@ from digest.report.assembly import VERSION as ASSEMBLY_VERSION
 from digest.report.assembly import assemble
 from digest.report.model import EvidenceEntry, Report, ResultEntry
 from digest.report.observations import normalize
-from digest.report.packets import SOURCE_PACKET_CHARS
+from digest.report.packets import SOURCE_PACKET_CHARS, Packet
 from digest.report.packets import plan as plan_packets
 from digest.util.redact import known_secrets, redact, redact_tree
 
@@ -65,6 +66,18 @@ def package_scope(payload: dict[str, Any]) -> EvidencePackage:
 
 
 def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Router) -> Report:
+    # Rebuild generation state from revalidated nodes; never inherit a stale success
+    # or rejection after inputs/configuration changed. Human state lives elsewhere.
+    for generated in (
+        report.sections,
+        report.packages,
+        report.model_info,
+        report.prompt_versions,
+        report.pending,
+        report.source_units,
+    ):
+        generated.clear()
+    report.warnings.clear()
     secrets = known_secrets(config)
     for item in report.evidence:
         item.excerpt = redact(item.excerpt, secrets)
@@ -81,6 +94,11 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
     tasks = task_context(db, config)
     projects = {p.id: p for p in config.projects}
     evidence = {e.id: e for e in report.evidence}
+    started = time.monotonic()
+    duration = max(0.0, router.deadline - started)
+    source_deadline = started + duration * 0.65
+    synthesis_deadline = started + duration * 0.85
+    source_calls_remaining = 1
     report.observations = {e.id: normalize(e) for e in report.evidence}
 
     def mark_pending(key: str, category: str, rule: str) -> None:
@@ -137,6 +155,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                     "provenance",
                     "capture_origin",
                     "stored_outputs_only",
+                    "report_role",
                 }
             }
             payload["evidence"].append(item)
@@ -162,6 +181,9 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             limit = min(limit, SOURCE_PACKET_CHARS)
         payload = payload_for(ids, project_ids, context, result_ids)
         if source:
+            payload["task_states"] = (
+                {context["task_id"]: "context"} if context.get("task_id") else {}
+            )
             payload["context"]["computed_facts"] = [
                 {"evidence": [eid], "computed": report.observations[eid]["computed"]}
                 for eid in sorted(set(ids))
@@ -204,6 +226,17 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             return parsed
 
         before = len(router.issues)
+        eligible = [
+            name
+            for name in getattr(config.llm.routing, task)
+            if name == "internal" or all(projects[pid].external_allowed for pid in project_ids)
+        ]
+        # A fair share alone can make every slow but valid node time out, leaving
+        # nothing reusable. Allow bounded progress, then continue in another attempt.
+        allowance = max(
+            max(0.0, source_deadline - time.monotonic()) / max(1, source_calls_remaining),
+            min(duration * 0.2, sum(config.llm.providers[name].timeout_s for name in eligible)),
+        )
         response = router.generate(
             task,
             project_ids=project_ids,
@@ -213,6 +246,17 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             schema=schema.model_json_schema(),
             validate=check,
             section=key,
+            package=payload,
+            deadline=(
+                min(
+                    source_deadline,
+                    time.monotonic() + allowance,
+                )
+                if source
+                else synthesis_deadline
+                if task == "conceptual"
+                else router.deadline
+            ),
         )
         if response is None:
             report.pending[key] = router.issues[before:] or [
@@ -227,13 +271,20 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             return
         report.sections[key] = response.value.model_dump()
         report.packages[key] = payload
-        report.model_info[key] = {"provider": response.provider, "model": response.model}
+        report.model_info[key] = {
+            "provider": response.provider,
+            "model": response.model,
+            "cache_key": response.cache_key,
+            "reused": str(response.reused).lower(),
+        }
         report.prompt_versions[key] = response.prompt_version
 
+    planned: list[tuple[ResultEntry, dict[str, Any], list[Packet]]] = []
     for result in report.results:
-        context = {
+        context: dict[str, Any] = {
             "result_id": result.id,
             "title": result.title,
+            "task_id": result.task_id,
             "objective": projects[result.project].objective,
             "external_allowed": projects[result.project].external_allowed,
         }
@@ -242,6 +293,9 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             ids: list[str], result: ResultEntry = result, context: dict[str, Any] = context
         ) -> int:
             payload = payload_for(ids, {result.project}, context, [result.id])
+            payload["task_states"] = (
+                {context["task_id"]: "context"} if context.get("task_id") else {}
+            )
             payload["context"]["computed_facts"] = [
                 {"evidence": [eid], "computed": report.observations[eid]["computed"]}
                 for eid in sorted(set(ids))
@@ -256,15 +310,20 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             size=size,
             limit=min(SOURCE_PACKET_CHARS, config.limits.max_project_package_chars),
         )
+        planned.append((result, context, packets))
+    source_calls_remaining = max(1, sum(len(packets) for _, _, packets in planned))
+    for result, context, packets in planned:
         keys = ["source:" + result.id + ":" + packet.key for packet in packets]
         report.source_units[result.id] = keys
         for packet, key in zip(packets, keys, strict=True):
             if not packet.fits:
                 mark_pending(key, "input", "coherent_unit_budget_exceeded")
+                source_calls_remaining -= 1
                 continue
             call(
                 "extract", key, packet.evidence, {result.project}, context, [result.id], source=True
             )
+            source_calls_remaining -= 1
         root = "extract:" + result.id
         if not keys or any(key not in report.sections for key in keys):
             mark_pending(root, "dependency", "source_pending")

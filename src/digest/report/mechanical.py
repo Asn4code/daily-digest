@@ -21,23 +21,37 @@ def build(
     sql = (
         "SELECT "
         "e.id,e.project_id,e.kind,e.locator,e.excerpt,"
-        "e.observed_at,e.event_at,e.time_quality,e.meta "
-        "FROM evidence e WHERE COALESCE(e.event_at,e.observed_at)>=? "
-        "AND COALESCE(e.event_at,e.observed_at)<=?"
+        "e.observed_at,e.event_at,e.time_quality,e.meta,e.content_hash "
+        "FROM evidence e WHERE ((COALESCE(e.event_at,e.observed_at)>=? "
+        "AND COALESCE(e.event_at,e.observed_at)<=?) OR "
+        "(e.event_at<? AND e.observed_at>=? AND e.observed_at<=?))"
     )
-    if interval.kind != "weekly" and not regenerate:
+    if interval.kind != "weekly":
         sql += (
             " AND NOT EXISTS(SELECT 1 FROM report_evidence re JOIN report r ON re.report_id=r.id "
             "JOIN interval i ON r.interval_id=i.id WHERE re.evidence_id=e.id AND i.kind='daily' "
-            "AND i.closed=1 AND r.status IN ('mechanical','ready'))"
+            "AND i.id!=? )"
         )
-    rows = db.execute(
-        sql + " ORDER BY e.project_id,e.observed_at,e.id", (utc(interval.start), utc(interval.end))
-    ).fetchall()
+    parameters: tuple[str | int, ...] = (
+        utc(interval.start),
+        utc(interval.end),
+        utc(interval.start),
+        utc(interval.start),
+        utc(interval.end),
+    )
+    if interval.kind != "weekly":
+        parameters += (interval.id,)
+    rows = db.execute(sql + " ORDER BY e.project_id,e.observed_at,e.id", parameters).fetchall()
     items = [
-        EvidenceEntry(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], json.loads(r[8]))
+        EvidenceEntry(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], json.loads(r[8]), r[9])
         for r in rows
     ]
+    for item in items:
+        item.meta["report_role"] = (
+            "historical_reference"
+            if item.event_at and item.event_at < utc(interval.start)
+            else "interval_evidence"
+        )
     ids = {item.id for item in items}
     report = Report(
         ident, interval.kind, utc(interval.start), utc(interval.end), utc(now), evidence=items

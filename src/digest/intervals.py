@@ -17,6 +17,16 @@ class Interval:
     end: datetime
 
 
+def reserved_daily(db: sqlite3.Connection) -> list[tuple[datetime, datetime]]:
+    rows = db.execute(
+        "SELECT i.start_at,i.end_at FROM interval i WHERE i.kind='daily' AND "
+        "(i.closed=1 OR EXISTS(SELECT 1 FROM report r WHERE r.interval_id=i.id) "
+        "OR EXISTS(SELECT 1 FROM job j WHERE json_extract(j.params,'$.interval_id')=i.id)) "
+        "ORDER BY i.start_at,i.end_at"
+    ).fetchall()
+    return [(datetime.fromisoformat(start), datetime.fromisoformat(end)) for start, end in rows]
+
+
 def open_interval(
     db: sqlite3.Connection,
     now: datetime,
@@ -39,8 +49,10 @@ def open_interval(
         start = since or datetime.combine(date - timedelta(days=7), time(), zone)
     else:
         row = db.execute(
-            "SELECT end_at FROM interval WHERE kind='daily' AND closed=1 "
-            "ORDER BY end_at DESC LIMIT 1"
+            "SELECT i.end_at FROM interval i WHERE i.kind='daily' AND "
+            "(i.closed=1 OR EXISTS(SELECT 1 FROM report r WHERE r.interval_id=i.id) "
+            "OR EXISTS(SELECT 1 FROM job j WHERE json_extract(j.params,'$.interval_id')=i.id)) "
+            "ORDER BY i.end_at DESC LIMIT 1"
         ).fetchone()
         start = since or (
             datetime.fromisoformat(row[0]) if row else datetime.combine(local.date(), time(), zone)
@@ -56,6 +68,10 @@ def open_interval(
                 return None
     if start >= end:
         raise ValueError("Interval start must precede end")
+    if kind == "daily" and since is not None:
+        for left, right in reserved_daily(db):
+            if max(start, left) < min(end, right) and (start, end) != (left, right):
+                raise ValueError("Daily interval overlaps an existing reservation")
     cursor = db.execute(
         "INSERT INTO interval(kind,start_at,end_at,requested_by) VALUES (?,?,?,?)",
         (kind, utc(start), utc(end), requested_by),
@@ -90,18 +106,33 @@ def pending_days(
     utc(now)
     today = now.astimezone(zone).date()
     result = []
+    reserved = reserved_daily(db)
     for offset in range(7, 0, -1):
         date = today - timedelta(days=offset)
         start = datetime.combine(date, time(), zone).astimezone(UTC)
         end = datetime.combine(date + timedelta(days=1), time(), zone).astimezone(UTC)
-        row = db.execute(
-            "SELECT 1 FROM evidence e WHERE COALESCE(e.event_at,e.observed_at)>=? "
-            "AND COALESCE(e.event_at,e.observed_at)<? AND NOT EXISTS "
-            "(SELECT 1 FROM interval i WHERE i.kind='daily' AND i.closed=1 "
-            "AND i.start_at<=COALESCE(e.event_at,e.observed_at) "
-            "AND i.end_at>COALESCE(e.event_at,e.observed_at)) LIMIT 1",
-            (utc(start), utc(end)),
-        ).fetchone()
-        if row:
-            result.append((start, end))
+        gaps = [(start, end)]
+        for left, right in reserved:
+            remaining = []
+            for first, last in gaps:
+                if right <= first or left >= last:
+                    remaining.append((first, last))
+                else:
+                    if first < left:
+                        remaining.append((first, left))
+                    if right < last:
+                        remaining.append((right, last))
+            gaps = remaining
+        for first, last in gaps:
+            row = db.execute(
+                "SELECT 1 FROM evidence e WHERE ((COALESCE(e.event_at,e.observed_at)>=? "
+                "AND COALESCE(e.event_at,e.observed_at)<?) OR "
+                "(e.event_at<? AND e.observed_at>=? AND e.observed_at<?)) AND NOT EXISTS "
+                "(SELECT 1 FROM report_evidence re JOIN report r ON r.id=re.report_id "
+                "JOIN interval i ON i.id=r.interval_id WHERE i.kind='daily' "
+                "AND re.evidence_id=e.id) LIMIT 1",
+                (utc(first), utc(last), utc(first), utc(first), utc(last)),
+            ).fetchone()
+            if row:
+                result.append((first, last))
     return result

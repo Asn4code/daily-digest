@@ -1,10 +1,11 @@
 # Construcción jerárquica y reanudable del digest
 
-Estado: rediseño aprobado de fase 2, parcialmente implementado (IN-07/08). La exigencia de no sustituir secciones
+Estado: rediseño aprobado de fase 2, parcialmente implementado (IN-07/08/09). La exigencia de no sustituir secciones
 no validadas por contenido mecánico está confirmada por la persona (D-047).
 IN-07 bloquea la publicación incompleta y diagnostica rechazos; IN-08 aporta
-observaciones y paquetes por fuente. La reanudación, los niveles y la crítica
-semanal siguen pendientes de IN-09/10/12 y su validación en IN-11.
+observaciones y paquetes por fuente; IN-09 añade persistencia y reanudación.
+Los niveles y la crítica semanal siguen pendientes de IN-10/12 y su validación
+en IN-11.
 
 ## Qué falla en el flujo actual
 
@@ -314,3 +315,27 @@ si se añade, sigue controlada dentro del único worker y por límites verificad
 
 La fase 2 permanece abierta. La aprobación técnica anterior corresponde al flujo
 anterior y no sustituye la revisión de estos cambios.
+
+### Ventanas y reintentos de la primera implementación (IN-09)
+
+Cada trabajo fija su ventana antes de generar y conserva un inventario privado
+inmutable. Reanudar usa esa ventana e inventario, no extiende el informe hasta la
+hora del reinicio. Los nuevos disparos diarios parten del final de la última
+ventana reservada, aunque siga pendiente. Cada evidencia se reserva mediante el
+manifiesto existente `report_evidence`; repetir exactamente una ventana crea una
+revisión, mientras que un solapamiento parcial explícito se rechaza. El intervalo
+solo se cierra al publicar el informe completo. Los huecos de recuperación se
+calculan restando ventanas reservadas, para no crear trabajos duplicados.
+
+Un reinicio puede reencolar como máximo tres intentos totales del mismo trabajo;
+no existe un bucle de reintentos mientras el worker sigue vivo. Tras agotar ese
+límite, la continuación debe ser explícita. Los nodos validados persisten antes
+de seguir y se revalidan al reutilizarlos. Cada intento crea una revisión nueva,
+sin sobrescribir borradores ni informes ni texto humano. Los artefactos privados
+y las referencias de `job.params` evitan migrar tablas o enums publicados.
+
+Una ejecución antigua no se reanuda automáticamente si otra revisión posterior
+ya completó esa misma ventana. En cambio, un intento de revisión solicitado
+expresamente puede continuar aunque exista una versión anterior completa. Un
+corte con informe `ready` se recupera validando y cerrando ese mismo informe y,
+si correspondía, encolando su entrega sin duplicar ID ni correo incierto.

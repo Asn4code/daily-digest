@@ -1073,12 +1073,24 @@
     {
       "id": "IN-09",
       "title": "Nodos validados persistidos y generación reanudable",
-      "state": "todo",
+      "state": "done",
       "group": "IN",
       "deps": ["IN-08"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "Mantener continuidad del estado de resultados y sus interpretaciones sin rehacer la historia cada día. Guardar cada pieza válida con evidencia y versiones; reutilizarla al reiniciar y actualizar solo las dependencias de cambios nuevos. Separar referencia inicial, novedades y estados humanos; conservar versiones anteriores y planes editados. Reintentos localizados, presupuesto por etapa y caché válida separada de rechazos. Concretar intervalos y disparos consecutivos sin pérdidas, duplicados ni cierre incompleto; presentar cualquier migración publicada antes de implementarla. Terminado cuando una interrupción reutiliza piezas válidas, un cambio actualiza solo su rama y una ejecución sin novedades no repite interpretación LLM salvo invalidación de versión. Sin escritura en proyectos ni sobrescritura humana."
+      "desc": "Mantener continuidad del estado de resultados y sus interpretaciones sin rehacer la historia cada día. Guardar cada pieza válida con evidencia y versiones; reutilizarla al reiniciar y actualizar solo las dependencias de cambios nuevos. Separar referencia inicial, novedades y estados humanos; conservar versiones anteriores y planes editados. Reintentos localizados, presupuesto por etapa y caché válida separada de rechazos. Concretar intervalos y disparos consecutivos sin pérdidas, duplicados ni cierre incompleto; presentar cualquier migración publicada antes de implementarla. Terminado cuando una interrupción reutiliza piezas válidas, un cambio actualiza solo su rama y una ejecución sin novedades no repite interpretación LLM salvo invalidación de versión. Sin escritura en proyectos ni sobrescritura humana.",
+      "notes": [
+        {
+          "at": "2026-11-06T09:50:28Z",
+          "by": "codex",
+          "text": "Plan: cache privada inmutable de nodos validados, con claves de entradas/contratos/prompts/validador/configuración y revalidación al leer; persistir cada acierto antes de seguir. Fijar ventana e inventario por trabajo para reanudar el mismo intervalo, reservar evidencias y evitar duplicados entre disparos; reintentos automáticos acotados y reanudación explícita. Repartir presupuesto por etapa/nodo. Sin migraciones publicadas ni cambios de estados humanos."
+        },
+        {
+          "at": "2026-11-06T10:36:16Z",
+          "by": "codex",
+          "text": "Cada pieza válida se guarda inmediatamente en caché privada e inmutable y se revalida antes de reutilizarla; cambiar una evidencia regenera su rama y las síntesis dependientes. Ventana e inventario congelados por trabajo, reservas sin duplicar evidencias, huecos de recuperación, revisiones nuevas sin sobrescribir y máximo de tres intentos automáticos; digest resume JOB permite continuar explícitamente. Los cortes con informe listo validan y entregan el mismo ID sin repetir correo incierto. Los eventos antiguos descubiertos tarde se etiquetan como referencia; las decisiones humanas se leen de nuevo y nunca se restauran de caché. Verificado: make check, 211 tests, incluidos interrupción real con KeyboardInterrupt, ramas, privacidad/versiones, límites, ventanas y frontera de publicación. Sin migraciones publicadas. La utilidad y los niveles del diario siguen en IN-10 y la validación real en IN-11."
+        }
+      ]
     },
     {
       "id": "IN-10",

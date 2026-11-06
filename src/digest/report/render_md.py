@@ -208,8 +208,11 @@ def render(report: Report) -> str:
             + " · prompt "
             + escape(report.prompt_versions[section])
         )
-    if any(o.get("origin") == "initial_inventory" for o in report.observations.values()):
-        lines.insert(2, "Incluye referencia inicial; no todo representa trabajo de hoy.")
+    if any(
+        o.get("origin") in {"initial_inventory", "historical_reference"}
+        for o in report.observations.values()
+    ):
+        lines.insert(2, "Incluye contexto histórico; no todo representa trabajo de hoy.")
     if report.pending:
         lines[0] = f"# Borrador pendiente · informe {report.kind_label}"
         lines[2:2] = [

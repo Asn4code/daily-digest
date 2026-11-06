@@ -46,7 +46,7 @@ Cada fila es al menos un test (`tests/e2e/` salvo indicación). El nombre de la 
 | T13 | README con instrucciones para el agente | Tratado como contenido; ningún efecto |
 | T14 | HTML o `<script>` en una nota de Kanvas, en la salida del LLM y en el texto humano | Escapado en webapp, correo y Obsidian |
 | T15 | Proveedor preferido caído | Se usa el respaldo y el informe lo indica |
-| T16 | Ambos proveedores caídos | Generación pendiente/reanudable, avances válidos conservados; sin sustitución mecánica, entrega final ni cierre de intervalo (D-047; bloqueo y conservación cubiertos en IN-07; reanudación selectiva en IN-09) |
+| T16 | Ambos proveedores caídos | Generación pendiente/reanudable, avances válidos conservados; sin sustitución mecánica, entrega final ni cierre de intervalo (D-047; bloqueo y conservación cubiertos en IN-07; reanudación selectiva cubierta en IN-09) |
 | T17 | `FakeLLM("broken_json")` | Reparación en un reintento; publicado |
 | T18 | Semana con dos días sin informe diario | El semanal sale de las evidencias de los 7 días |
 | T19 | Petición a la webapp con cabecera de Tailscale de otro usuario | 403 |
@@ -165,3 +165,26 @@ empaquetado de documentos independientes sin exigir una llamada por archivo.
 pequeños, todos los IDs conservados, privacidad heredada y estado humano intacto.
 También rechaza cifras/IDs inventados y deja pendiente una comparación que no
 cabe entera, sin enviarla truncada ni ocultarla del inventario.
+
+
+## Reanudación y ventanas (IN-09)
+
+`test_resumable_generation.py` interrumpe tras la primera pieza validada, comprueba
+su persistencia, modifica el proyecto sintético y reanuda en otra jornada: conserva
+ventana e IDs originales, reutiliza la pieza y mantiene la decisión humana nueva.
+También verifica ventanas pendientes contiguas sin repetir evidencias, recuperación
+idempotente y límite de tres intentos con continuación explícita. Los borradores
+anteriores y el inventario nunca se sobrescriben.
+
+`test_node_cache.py` cubre identidad de entradas, esquema, prompt, modelo, ruta y
+privacidad, revalidación de caché corrupta, reutilización sin credenciales o plazo
+HTTP y tiempo reservado al respaldo. El recorrido de ramas prueba que cambiar
+un resultado regenera solo su fuente y las síntesis dependientes. Las pruebas de
+secretos inspeccionan también los nodos e inventarios persistidos. Las pruebas de
+intervalos rechazan solapamientos parciales, recuperan solo huecos y conservan la
+fecha real de eventos antiguos observados tarde.
+
+La recuperación en el límite de publicación se prueba justo antes y después del
+cierre: valida el informe ya guardado, conserva su ID y encola la entrega una sola
+vez. Una revisión completa posterior sustituye a trabajos antiguos pendientes;
+una revisión nueva solicitada explícitamente puede reanudar su propio intento.

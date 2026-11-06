@@ -50,6 +50,7 @@ class EvidenceEntry:
     event_at: str | None
     time_quality: str
     meta: dict[str, Any]
+    content_hash: str | None = None
 
 
 @dataclass

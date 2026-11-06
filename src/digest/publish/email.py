@@ -39,14 +39,15 @@ def compose(
         if any(c.status != "ok" for c in report.coverage)
         else "Sin incidencias de captura registradas."
     )
-    if any(o.get("origin") == "initial_inventory" for o in report.observations.values()):
-        warning += " Incluye referencia inicial; no todo representa trabajo de hoy."
+    if any(
+        o.get("origin") in {"initial_inventory", "historical_reference"}
+        for o in report.observations.values()
+    ):
+        warning += " Incluye contexto histórico; no todo representa trabajo de hoy."
     plain = [
         "Daily Digest",
         display(report.end_at, report.timezone),
-        "Informe mecánico disponible para revisar."
-        if report.mechanical
-        else "Informe con secciones LLM validadas disponible para revisar.",
+        "Informe completo disponible para revisar.",
     ]
     for project, items in groups.items():
         plain.append(project)
@@ -81,7 +82,7 @@ def compose(
             for p in [plan["mission"], *plan["warmups"]]
         )
     elif not weekly:
-        plain.append("Plan de mañana: sin propuesta automática en modo mecánico.")
+        plain.append("Plan de mañana: sin propuesta validada.")
     plain.append(warning)
     if drive_url:
         plain.append("Abrir informe completo en Drive: " + drive_url)

@@ -188,3 +188,67 @@ def test_oversized_comparison_is_pending_and_never_sent_as_a_truncated_packet(
     )
     assert not report.sections and not report.packages
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
+
+
+def test_one_changed_result_invalidates_only_its_sources_and_descendants(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from copy import deepcopy
+
+    config = load_config(build_projects(tmp_path / "projects"))
+    config.projects = config.projects[:1]
+    monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
+    project = config.projects[0].id
+    now = "2026-11-04T19:00:00+00:00"
+    inventory = Report("rep_branches", "daily", now, now, now)
+    for n in range(3):
+        e = EvidenceEntry(
+            f"ev_{n}",
+            project,
+            "doc_change",
+            f"experiment-{n}/summary.md",
+            "Control observado",
+            now,
+            None,
+            "observed",
+            {"path": f"experiment-{n}/summary.md"},
+            str(n) * 64,
+        )
+        inventory.evidence.append(e)
+        inventory.results.append(
+            ResultEntry(f"res_{n}", project, "Contraste", None, "pending", [e.id])
+        )
+    calls = []
+
+    def respond(request):
+        calls.append(json.loads(request.content))
+        return fake_response(request)
+
+    client = Client(transport=httpx.MockTransport(respond))
+    with closing(connect(tmp_path / "db")) as db:
+        first = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
+        count = len(calls)
+        assert count == 5
+        repeated = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
+        assert len(calls) == count
+        assert all(
+            m.get("reused") == "true"
+            for k, m in repeated.model_info.items()
+            if not k.startswith("extract:")
+        )
+        changed = deepcopy(inventory)
+        changed.evidence[0].id = "ev_changed"
+        changed.evidence[0].content_hash = "f" * 64
+        changed.evidence[0].excerpt = "Se observó un control adicional"
+        changed.results[0].evidence = ["ev_changed"]
+        updated = enrich(db, config, changed, Router(db, config, client=client))
+        assert len(calls) == count + 3
+        for result in ("res_1", "res_2"):
+            key = updated.source_units[result][0]
+            assert updated.model_info[key]["reused"] == "true"
+            assert updated.sections[key] == first.sections[key]
+        assert updated.model_info["conceptual"]["reused"] == "false"
+        assert updated.model_info["plan"]["reused"] == "false"
+        validate_report(updated, {e.id for e in updated.evidence})
+        require_complete(updated)
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)

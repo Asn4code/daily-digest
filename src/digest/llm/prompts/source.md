@@ -1,6 +1,6 @@
 ---
 name: source
-version: 1
+version: 2
 task: extract
 ---
 
@@ -12,7 +12,8 @@ originales del paquete; separa observación de interpretación (con confianza).
 Conserva controles, condiciones, alcance y limitaciones que cambian el significado.
 No deduzcas un efecto causal de actividad técnica, una nota o el texto de un agente.
 No afirmes una ejecución nueva por salidas almacenadas de un notebook. El origen
-initial_inventory es referencia inicial, no trabajo del día; observed_change solo
+initial_inventory es referencia inicial, no trabajo del día; historical_reference
+es un evento anterior descubierto ahora, tampoco trabajo nuevo; observed_change solo
 acredita que el cambio fue observado, no cuándo ocurrió. Un evento tiene fecha
 propia. La ausencia de datos no se disfraza como ausencia de efecto.
 

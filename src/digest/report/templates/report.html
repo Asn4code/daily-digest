@@ -12,8 +12,8 @@ article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px sol
 <ul>{% for key, issues in report.pending.items() %}<li>{{ key }}:
 {% for issue in issues %}{{ issue.category }}/{{ issue.rule }} · {{ issue.field }} {% endfor %}
 </li>{% endfor %}</ul></aside>{% endif %}
-{% for observation in report.observations.values() if observation.origin == 'initial_inventory' %}{% if loop.first %}
-<p>Incluye referencia inicial; no todo representa trabajo de hoy.</p>{% endif %}{% endfor %}
+{% for observation in report.observations.values() if observation.origin in ['initial_inventory', 'historical_reference'] %}{% if loop.first %}
+<p>Incluye contexto histórico; no todo representa trabajo de hoy.</p>{% endif %}{% endfor %}
 {% macro claims(items) %}{% for c in items %}<p>{{ c.text }}
 {% for eid in c.evidence %}<a href="#{{ eid }}">{{ eid }}</a> {% endfor %}</p>{% endfor %}{% endmacro %}
 {% set weekly=report.sections.get('weekly') %}{% set synthesis=report.sections.get('conceptual', {}) %}{% set plan=report.sections.get('plan') %}

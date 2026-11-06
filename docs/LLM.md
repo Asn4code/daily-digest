@@ -6,8 +6,9 @@ Dos proveedores con API compatible con OpenAI: **Qwen/Qwen3.8-27B** interno (con
 > por texto mecánico ni permite entregar o cerrar un informe incompleto. El
 > inventario y las secciones válidas se conservan como borrador privado. La
 > normalización y las unidades por fuente están implementadas en IN-08; la
-> persistencia por nodo y reanudación selectiva de
-> [HIERARCHICAL_DIGEST.md](HIERARCHICAL_DIGEST.md) siguen pendientes de IN-09.
+> persistencia por nodo y reanudación están implementadas en IN-09. Los balances
+> jerárquicos y vistas por canal de [HIERARCHICAL_DIGEST.md](HIERARCHICAL_DIGEST.md)
+> siguen pendientes de IN-10 y la crítica semanal de IN-12.
 
 ## 1. Enrutado
 
@@ -200,9 +201,9 @@ Un intento incompleto guarda `draft.json`, `draft.md`, `draft.html` y figuras en
 inventario. No crea archivos finales, propuestas de plan ni entregas y no cierra
 el intervalo. Se usa el esquema SQLite existente: `report.status=generating`,
 `job.state=failed`, `job.error=report_pending`, y referencia al borrador en
-`job.params`; recuperar el worker conserva estos borradores. La reanudación
-selectiva y persistencia tras cada nodo corresponden a IN-09: este paso conserva
-los avances al terminar el intento, no promete recuperar una llamada interrumpida.
+`job.params`. IN-09 conserva el inventario de la ventana y persiste cada pieza
+válida antes de seguir; la recuperación reutiliza esas piezas. Una llamada
+interrumpida antes de validar y guardar su respuesta se repite, no se da por válida.
 
 `llm_call.error` conserva un objeto JSON con etapa, sección, categoría, regla y
 campo. Se distinguen timeout del proveedor/plazo global, errores de proveedor y
@@ -308,7 +309,7 @@ Cada paquete mantiene IDs, tiempos, metadatos, cobertura, objetivo y ámbito de
 privacidad. El router recibe el proyecto real; abstraer una fuente privada no
 permite enviarla al proveedor externo.
 
-Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v1.
+Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v2.
 Las piezas válidas se guardan en `sections[source:...]` y se enumeran en
 `source_units`. El ensamblado concatena texto validado y deduplica solo elementos
 idénticos, conservando citas y controles; no genera conclusiones nuevas ni omite
@@ -316,4 +317,40 @@ listas para ajustarlas. El resultado sigue validando `ResultExtraction`; si el
 ensamblado supera sus límites, queda pendiente para ajustar ese contrato en la
 etapa de fichas. La entrega comprueba el linaje del ensamblado, las piezas
 necesarias y la cobertura exacta de las evidencias del resultado. La persistencia
-inmediata por nodo y la reducción de las etapas superiores siguen en IN-09/10.
+inmediata por nodo está implementada en IN-09; la reducción de las etapas
+superiores corresponde a IN-10.
+
+
+## 14. Nodos persistidos y presupuesto (IN-09)
+
+El router guarda de inmediato cada salida saneada y validada bajo
+`data_dir/nodes/<prefijo>/<clave>/<variante>.json`. Son artefactos privados,
+atómicos e inmutables de formato v1: conservan salida y manifiesto acotado de
+entrada, con hash, sin credenciales, cabeceras HTTP ni respuestas rechazadas. La clave incluye los mensajes completos y saneados,
+IDs y hashes completos de evidencia, esquema, cuerpo/versión de prompt, código del
+validador y esquemas, ruta de proveedores/modelos/URL y política de privacidad.
+Las credenciales y el tiempo restante no forman parte de esa identidad.
+
+Antes de reutilizar un nodo se vuelve a validar su salida contra las entradas
+actuales. Una pieza corrupta o inválida se ignora y no se sobrescribe; un acierto
+posterior crea una variante. Un nodo válido puede reutilizarse aunque ahora falte
+la clave del proveedor o ya no quede presupuesto HTTP. `job.params.nodes` y
+`model_info` identifican las claves usadas; `reused` distingue reutilización de
+llamada nueva. El registro `llm_call` sigue contando intentos reales, no aciertos
+de caché. Los estados cambiantes del tablero no invalidan observaciones de fuentes
+congeladas: entran en síntesis y plan donde corresponden.
+
+Se reserva el 65 % del tiempo restante para fuentes y hasta el 85 % para la
+síntesis diaria; el plan usa el plazo global. Cada fuente recibe su cuota del
+tiempo de etapa, con margen para hacer progreso en modelos lentos: hasta la suma
+de timeouts configurados, limitada al 20 % del tiempo total restante al empezar.
+Siempre manda el plazo de etapa. El router reparte el tiempo del nodo entre
+proveedores elegibles para que el primer proveedor no agote el respaldo; reparación
+y reintentos HTTP comparten ese plazo. Si no se termina, se conservan los aciertos
+y el informe sigue pendiente; nunca se publica por agotamiento del reloj.
+
+El ensamblado determinista se reconstruye a partir de sus piezas persistidas y
+validadas. Una evidencia cambiada modifica la pieza correspondiente y sus
+síntesis descendientes; los otros resultados se reutilizan. Cambiar contrato,
+prompt, validador, modelo o política invalida las piezas afectadas. El plan humano
+aceptado y el estado de comprensión se mantienen fuera de esta caché.

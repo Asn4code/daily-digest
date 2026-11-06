@@ -80,7 +80,10 @@ def units(entries: list[EvidenceEntry]) -> tuple[list[list[str]], list[str]]:
     for ident in sorted(by_id):
         if ident not in anchors:
             groups.setdefault(root(ident), []).append(ident)
-    return sorted(groups.values(), key=lambda group: group[0]), sorted(anchors)
+    return sorted(
+        groups.values(),
+        key=lambda group: min((by_id[eid].locator, by_id[eid].kind) for eid in group),
+    ), sorted(anchors)
 
 
 def plan(

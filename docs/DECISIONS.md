@@ -142,3 +142,17 @@ La normalización distingue estadísticos/deltas de interpretación, conserva un
 no declaradas y privacidad, y ensambla solo piezas válidas con linaje verificable.
 No cambia el esquema SQL ni el formato de archivos humanos. Las relaciones por
 procedencia no garantizan comprender toda relación científica no documentada.
+
+
+### Avance de D-047/048: IN-09 (2026-11-06)
+
+Persistencia privada por nodo validado, claves por entradas/contratos/validador/
+modelos/política y revalidación en cada reutilización. Inventario y ventana
+congelados por trabajo; cada intento crea otra revisión sin sobrescribir. Las
+ventanas nuevas parten de la última reserva y los huecos de recuperación excluyen
+reservas existentes; una revisión exacta está permitida, un solapamiento parcial
+no. Los eventos antiguos descubiertos tarde se conservan como referencias, con
+sus dos fechas. Se limita la recuperación automática a tres intentos y se añade
+`digest resume JOB`, con presupuesto por etapa/nodo/proveedor. No cambian enums,
+tablas, planes humanos ni estados de comprensión. Se concreta el diseño de
+reservas previsto en HIERARCHICAL_DIGEST.md dentro del alcance aprobado de IN-09.

@@ -375,6 +375,8 @@ La elección inicial de modelos está en D-024 (`DECISIONS.md`); la URL interna 
   snapshots/<proyecto>/<fecha>/...
   reports/<kind>/<id>/report.json, report.md, report.html, report.pdf, figures/
   drafts/<kind>/<id>/draft.json, draft.md, draft.html, figures/  # privado, no entregable (IN-07)
+  nodes/<prefijo>/<clave>/<variante>.json   # piezas validadas privadas, formato v1 (IN-09)
+  work/jobs/<id>/inventory.json            # inventario congelado privado, formato v1 (IN-09)
   outbox/                     correos generados (para reconciliar estados inciertos)
   briefs/<id>/                fase 6: manifest.json, context.json, context.md, instructions.md, figures/
   backups/digest-AAAA-MM-DD.db

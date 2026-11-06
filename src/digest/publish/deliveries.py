@@ -7,15 +7,11 @@ from email.parser import BytesParser
 from email.policy import SMTP
 from pathlib import Path
 
-from pydantic import TypeAdapter
-
 from digest.collectors.base import utc
 from digest.config import Config
-from digest.llm.validator import validate_report
 from digest.publish import drive, email, obsidian
 from digest.publish.files import destination
-from digest.report.completeness import require_complete
-from digest.report.model import Report
+from digest.report.loading import load_ready
 from digest.report.pdf import generate
 
 CHANNELS = ("obsidian", "drive", "email")
@@ -29,26 +25,10 @@ def deliver_report(
     channel: str | None = None,
     force_uncertain: bool = False,
 ) -> dict[str, str]:
-    row = db.execute(
-        "SELECT r.json_path,r.status,i.kind FROM report r JOIN interval i ON i.id=r.interval_id "
-        "WHERE r.id=?",
-        (report_id,),
-    ).fetchone()
-    if not row or row[1] != "ready" or row[2] == "preview":
+    report, path, _ = load_ready(db, config, report_id)
+    if report.kind == "preview":
         raise ValueError("Report is not deliverable")
     data = Path(config.paths.data_dir).resolve()
-    path = Path(row[0]).resolve()
-    if not path.is_relative_to(data):
-        raise ValueError("Report outside data directory")
-    report = TypeAdapter(Report).validate_json(path.read_bytes())
-    manifest = {
-        r[0]
-        for r in db.execute(
-            "SELECT evidence_id FROM report_evidence WHERE report_id=?", (report_id,)
-        )
-    }
-    validate_report(report, manifest)
-    require_complete(report)
     if channel is not None and channel not in CHANNELS:
         raise ValueError("Unknown channel")
     selected = [channel] if channel else list(CHANNELS)
