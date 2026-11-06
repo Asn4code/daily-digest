@@ -121,8 +121,8 @@ archivo `.xtc` es disperso de 3 GB, sin reservar esos 3 GB físicamente. El árb
 
 ## Diseño pendiente D-048: niveles de lectura y contraste científico
 
-Los siguientes casos deben añadirse al implementar IN-10/IN-12/IN-11; no se
-presentan como pruebas que ya pasan:
+Los casos diarios se cubren con las pruebas indicadas más abajo. El contraste
+semanal y la aceptación del conjunto corresponden a IN-12/IN-11:
 
 - Mismo contenido en móvil y vault: el resumen conserva condiciones decisivas,
   incertidumbre y referencias; la explicación conceptual y el detalle técnico
@@ -183,6 +183,24 @@ un resultado regenera solo su fuente y las síntesis dependientes. Las pruebas d
 secretos inspeccionan también los nodos e inventarios persistidos. Las pruebas de
 intervalos rechazan solapamientos parciales, recuperan solo huecos y conservan la
 fecha real de eventos antiguos observados tarde.
+
+## Niveles diarios y foco opcional (IN-10)
+
+`test_daily_levels.py` recorre fuentes, fichas, balance, orientación y plan con
+transporte falso. Comprueba que observación, interpretación y limitación decisiva
+son las mismas en correo plano/HTML y vault Markdown/HTML, con técnica plegable;
+permite no proponer misión y mantiene revisión pendiente. El inventario inicial
+permanece visible sin llamar al modelo; con captura incompleta no se publica.
+La manipulación de fichas o clasificación temporal se rechaza. Los IDs de tareas
+repetidos en distintos proyectos no permiten proponer tareas concluidas,
+bloqueadas o en revisión. Un plan humano editado se conserva literalmente y una
+alternativa sin motivo se rechaza. La continuación no añade planes duplicados.
+
+Las pruebas E2E de fallos incluyen el balance de proyecto como etapa obligatoria;
+si falla, orientación y plan no se solicitan. El escenario de cuarenta tareas
+incluye notas fechadas en el intervalo, para probar actividad actual además del
+inventario histórico. La prueba de reanudación detecta diferencias accidentales
+en la serialización tras recuperar un inventario congelado.
 
 La recuperación en el límite de publicación se prueba justo antes y después del
 cierre: valida el informe ya guardado, conserva su ID y encola la entrega una sola

@@ -1095,12 +1095,19 @@
     {
       "id": "IN-10",
       "title": "Seguimiento diario de resultados y próximo foco, con niveles por canal",
-      "state": "todo",
+      "state": "doing",
       "group": "IN",
       "deps": ["IN-09"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "El diario debe permitir entender qué cambió, qué se sabe ahora y en qué conviene enfocarse después, en relación con el objetivo de cada proyecto. Construirlo desde fichas y balances incrementales con profundidad científica intermedia. Móvil: hasta tres novedades con significado y limitación decisiva, misión propuesta y hasta dos calentamientos opcionales, con todas las tareas del intervalo en bloque compacto. Vault: orientación breve, explicación conceptual por proyecto/resultado y comprobación técnica ampliable desde el mismo contenido validado.\n\nLa misión debe explicar por qué merece prioridad (valor científico, decisión o trabajo que desbloquea, dudas/controles pendientes, dependencias, Kanvas y compromisos humanos), qué acción concreta propone y cuándo está terminada. Evitar repetir tareas concluidas o inventar ocupación; mantener como contexto un plan aceptado si no hay razón nueva para cambiarlo. La persona conserva la elección y las ediciones. Señales científicas importantes aparecen en el diario sin esperar al semanal. No bloquearlo por analizar toda la historia ni por completar la crítica semanal.\n\nTerminado cuando un cambio real conserva su evidencia y sus condiciones en móvil/vault, la persona puede explicar su significado y la misión es ejecutable con motivo, dependencia y criterio de finalización. No confundir historia del arranque con producción de hoy, volumen de archivos con avance ni validación automática con comprensión humana. D-048/D-049 y docs/HIERARCHICAL_DIGEST.md."
+      "desc": "El diario debe permitir entender qué cambió, qué se sabe ahora y en qué conviene enfocarse después, en relación con el objetivo de cada proyecto. Construirlo desde fichas y balances incrementales con profundidad científica intermedia. Móvil: hasta tres novedades con significado y limitación decisiva, misión propuesta y hasta dos calentamientos opcionales, con todas las tareas del intervalo en bloque compacto. Vault: orientación breve, explicación conceptual por proyecto/resultado y comprobación técnica ampliable desde el mismo contenido validado.\n\nLa misión debe explicar por qué merece prioridad (valor científico, decisión o trabajo que desbloquea, dudas/controles pendientes, dependencias, Kanvas y compromisos humanos), qué acción concreta propone y cuándo está terminada. Evitar repetir tareas concluidas o inventar ocupación; mantener como contexto un plan aceptado si no hay razón nueva para cambiarlo. La persona conserva la elección y las ediciones. Señales científicas importantes aparecen en el diario sin esperar al semanal. No bloquearlo por analizar toda la historia ni por completar la crítica semanal.\n\nTerminado cuando un cambio real conserva su evidencia y sus condiciones en móvil/vault, la persona puede explicar su significado y la misión es ejecutable con motivo, dependencia y criterio de finalización. No confundir historia del arranque con producción de hoy, volumen de archivos con avance ni validación automática con comprensión humana. D-048/D-049 y docs/HIERARCHICAL_DIGEST.md.",
+      "notes": [
+        {
+          "at": "2026-11-06T10:48:31Z",
+          "by": "codex",
+          "text": "Plan: distinguir referencia inicial/histórica antes de generar, sin bloquear el diario por interpretarla; fichas de resultados y balances por proyecto, síntesis y foco con condiciones/límites explícitos. Vistas móvil y vault desde los mismos valores validados, técnica plegable y todo el inventario visible. Mantener planes humanos aceptados como contexto y permitir conservarlos, proponer alternativas justificadas o no inventar misión; validar linaje y dependencias. Sin cambiar rutas/front matter humanos ni implementar webapp de fase 3."
+        }
+      ]
     },
     {
       "id": "IN-11",

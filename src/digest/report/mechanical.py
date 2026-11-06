@@ -109,4 +109,7 @@ def build(
         Coverage(sid, project, source, status, json.loads(error or "[]"))
         for sid, project, source, status, error in snapshots
     ]
+    from digest.report.activity import classify
+
+    classify(report)
     return report

@@ -15,6 +15,7 @@ from digest.config import Config, load_config
 from digest.report.model import Claim
 from digest.worker import enqueue, execute
 from tests.fixtures.make_projects import build_projects
+from tests.fixtures.work import add_current_work
 from tests.integration.test_fixtures import _snapshot
 
 
@@ -22,7 +23,9 @@ from tests.integration.test_fixtures import _snapshot
 def config(tmp_path: Path, valid_llm: None) -> Iterator[Config]:
     path = build_projects(tmp_path / "projects")
     try:
-        yield load_config(path)
+        config = load_config(path)
+        add_current_work(config, extra_result=False)
+        yield config
     finally:
         (path.parent / "proj-fail/no-access").chmod(0o700)
 
@@ -78,7 +81,11 @@ def test_cli_enqueues_then_worker_once_builds_report(config: Config) -> None:
     result = runner.invoke(app, ["--config", str(config_path), "run", "--no-send"])
     assert result.exit_code == 0, result.output
     assert not list(Path(config.paths.data_dir).glob("reports/*/*/report.md"))
-    result = runner.invoke(app, ["--config", str(config_path), "worker", "--once"])
+    with patch(
+        "digest.cli.jobs.execute",
+        side_effect=lambda cfg: execute(cfg, now=datetime(2026, 11, 4, 19, tzinfo=UTC)),
+    ):
+        result = runner.invoke(app, ["--config", str(config_path), "worker", "--once"])
     assert result.exit_code == 0, result.output
     assert list(Path(config.paths.data_dir).glob("reports/*/*/report.md"))
 

@@ -19,6 +19,7 @@ from digest.report.model import Report
 from digest.worker import enqueue, execute
 from tests.fixtures.llm import fake_response
 from tests.fixtures.make_projects import build_projects
+from tests.fixtures.work import add_current_work
 
 
 def test_complete_daily_has_validated_sections_and_auditable_packages(
@@ -27,6 +28,7 @@ def test_complete_daily_has_validated_sections_and_auditable_packages(
 ) -> None:
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
     client = Client(transport=httpx.MockTransport(fake_response))
     original = Router.__init__
@@ -39,7 +41,11 @@ def test_complete_daily_has_validated_sections_and_auditable_packages(
         path = Path(execute(config, job, now=datetime(2026, 11, 4, 19, tzinfo=UTC)))
     report = json.loads(path.with_suffix(".json").read_text())
     assert {"conceptual", "plan"} <= report["sections"].keys()
-    assert all("extract:" + r["id"] in report["sections"] for r in report["results"])
+    assert all(
+        "extract:" + r["id"] in report["sections"]
+        for r in report["results"]
+        if not r["reference_only"]
+    )
     assert not report["mechanical"]
     text = path.read_text()
     for section in [
@@ -67,7 +73,7 @@ def test_complete_daily_has_validated_sections_and_auditable_packages(
         assert db.execute("SELECT status FROM report").fetchone() == ("ready",)
         assert db.execute("SELECT accepted FROM plan_item").fetchall() == [(0,)]
         assert db.execute("SELECT count(*) FROM llm_call WHERE ok=1").fetchone()[0] >= 3
-    typed.sections["conceptual"]["highlights"][0]["evidence"] = ["ev_unknown"]
+    typed.sections["conceptual"]["highlights"][0]["observation"]["evidence"] = ["ev_unknown"]
     with pytest.raises(ValidationError):
         validate_report(typed, {e.id for e in typed.evidence})
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
@@ -79,6 +85,7 @@ def test_T16_total_outage_keeps_pending_inventory_without_publication(
 ) -> None:
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     monkeypatch.delenv("DIGEST_FIXTURE_UNUSED_KEY", raising=False)
     monkeypatch.delenv("CREDENTIALS_DIRECTORY", raising=False)
     job = enqueue(config, "daily", params={"no_send": True})
@@ -114,6 +121,7 @@ def test_T18_weekly_uses_evidence_even_when_daily_report_files_are_missing(
 ) -> None:
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
     client = Client(transport=httpx.MockTransport(fake_response))
     original = Router.__init__
@@ -172,7 +180,7 @@ def test_T18_weekly_uses_evidence_even_when_daily_report_files_are_missing(
             "confidence": "low",
         }
     ]
-    assert "Interpretación (confianza low): El control sugiere sesgo" in render(typed)
+    assert "Interpretación (confianza baja): El control sugiere sesgo" in render(typed)
     assert len(typed.sections["weekly"]["review_status"]["pending"]) > 1
     typed.sections["weekly"]["review_status"]["pending"].reverse()
     with pytest.raises(ValidationError, match="invalid_review_summary"):
@@ -200,6 +208,7 @@ def test_secrets_are_removed_from_sources_context_snapshots_and_model_wire(
 ) -> None:
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     provider_key = "SYNTHETIC_PROVIDER_KEY_7391"
     config.email.password_env = "DIGEST_PRIVATE_TEST_PASSWORD"
     monkeypatch.setenv(config.email.password_env, secret)
@@ -280,16 +289,18 @@ def test_secrets_are_removed_from_sources_context_snapshots_and_model_wire(
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
-@pytest.mark.parametrize("stage", ["extract", "conceptual", "plan", "weekly"])
+@pytest.mark.parametrize("stage", ["extract", "project", "conceptual", "plan", "weekly"])
 def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str
 ) -> None:
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
     titles = {
         "extract": "SourceFindings",
-        "conceptual": "DailySynthesis",
+        "project": "ProjectDigest",
+        "conceptual": "DailyOverview",
         "plan": "TomorrowPlan",
         "weekly": "WeeklyReport",
     }
@@ -326,7 +337,13 @@ def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
         )
         path = Path(execute(config, job, now=now))
     value = json.loads(path.with_suffix(".json").read_text())
-    key = "extract:" + failed_result if stage == "extract" else stage
+    key = (
+        "extract:" + failed_result
+        if stage == "extract"
+        else "project:" + config.projects[0].id
+        if stage == "project"
+        else stage
+    )
     assert key in value["pending"]
     failed_key = key
     if stage == "extract":
@@ -337,7 +354,13 @@ def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
     assert all(r["review_state"] == "pending" for r in value["results"])
     assert "PRIVATE_REJECTED_BODY" not in path.with_suffix(".json").read_text()
     if stage == "extract":
-        assert "DailySynthesis" not in calls and "TomorrowPlan" not in calls
+        assert (
+            "ProjectDigest" not in calls
+            and "DailyOverview" not in calls
+            and "TomorrowPlan" not in calls
+        )
+    if stage == "project":
+        assert "DailyOverview" not in calls and "TomorrowPlan" not in calls
     if stage == "conceptual":
         assert "TomorrowPlan" not in calls
     with closing(connect(Path(config.paths.data_dir) / "digest.db")) as db:
@@ -349,7 +372,13 @@ def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
         )
         errors = [json.loads(row[0]) for row in db.execute("SELECT error FROM llm_call WHERE ok=0")]
         assert all(
-            e["section"] == failed_key and e["rule"] == "schema_extra_forbidden" for e in errors
+            (
+                e["section"] in value["source_units"][failed_result]
+                if stage == "extract"
+                else e["section"] == failed_key
+            )
+            and e["rule"] == "schema_extra_forbidden"
+            for e in errors
         )
         assert "PRIVATE_REJECTED_BODY" not in repr(errors)
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
@@ -362,6 +391,7 @@ def test_delivery_rechecks_completeness_even_if_status_and_flags_claim_ready(
 
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     job = enqueue(config, "daily", params={"no_send": True})
     path = Path(execute(config, job, now=datetime(2026, 11, 4, 19, tzinfo=UTC)))
     value = json.loads(path.with_suffix(".json").read_text())

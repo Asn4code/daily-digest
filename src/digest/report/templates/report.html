@@ -2,64 +2,64 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'">
 <title>{{ report.id }}</title><style>
-body{font:16px/1.5 system-ui,sans-serif;max-width:72rem;margin:auto;padding:1rem;color:#18212b;background:#fff}
+body{font:17px/1.6 system-ui,sans-serif;max-width:72rem;margin:auto;padding:1rem;color:#18212b;background:#fff}
 pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f2f4f6;padding:1rem}img{max-width:100%;height:auto}
-article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage{border:1px solid #b87500;padding:1rem}
+article{border-top:1px solid #ccd2d8;padding-block:1rem}.coverage,.limit{border-left:4px solid #b87500;padding:1rem;background:#fff9ec}
+summary{cursor:pointer;font-weight:600;padding:.5rem}details{margin-block:.5rem;border:1px solid #ccd2d8;padding:.5rem}
 @media print{body{font-size:10pt}article{break-inside:avoid}pre{font-size:8pt}}
-</style></head><body><h1>Informe {{ report.kind_label }}</h1><p>{{ report.start_at|localtime(report.timezone) }} — {{ report.end_at|localtime(report.timezone) }}</p>
-{% if report.pending %}<aside class="coverage"><h2>Borrador pendiente</h2>
-<p>Generación incompleta. Sin entrega final ni cierre del intervalo.</p>
-<ul>{% for key, issues in report.pending.items() %}<li>{{ key }}:
-{% for issue in issues %}{{ issue.category }}/{{ issue.rule }} · {{ issue.field }} {% endfor %}
-</li>{% endfor %}</ul></aside>{% endif %}
-{% for observation in report.observations.values() if observation.origin in ['initial_inventory', 'historical_reference'] %}{% if loop.first %}
-<p>Incluye contexto histórico; no todo representa trabajo de hoy.</p>{% endif %}{% endfor %}
-{% macro claims(items) %}{% for c in items %}<p>{{ c.text }}
-{% for eid in c.evidence %}<a href="#{{ eid }}">{{ eid }}</a> {% endfor %}</p>{% endfor %}{% endmacro %}
-{% set weekly=report.sections.get('weekly') %}{% set synthesis=report.sections.get('conceptual', {}) %}{% set plan=report.sections.get('plan') %}
-<h2>Lo esencial</h2>{% if weekly %}{{ claims(weekly.patterns[:3]) }}{% elif synthesis %}{{ claims(synthesis.highlights) }}{% else %}<p>Síntesis pendiente.</p>{% endif %}
-{% if weekly %}<h2>Balance de la semana frente a los objetivos</h2>
-{% for p in weekly.projects %}<h3>{{ p.project_id }}</h3>{{ claims(p.progress_vs_objective) }}{{ claims(p.decisions) }}
-{% for c in p.hypotheses_changed %}<p>Interpretación (confianza {{ c.confidence }}): {{ c.text }} — {{ c.evidence|join(', ') }}</p>{% endfor %}{% endfor %}
-<h2>Patrones</h2>{{ claims(weekly.patterns) }}<h2>Revisiones de la semana</h2>
-<p>Cerradas por la persona: {{ weekly.review_status.completed|join(', ') }}</p>
-<p>Pendientes (de mayor a menor antigüedad): {{ weekly.review_status.pending|join(', ') }}</p>{{ claims(weekly.review_status.doubts) }}
-<h2>Figuras clave</h2>{% for eid in weekly.key_figures %}<p><a href="#{{ eid }}">{{ eid }}</a></p>{% else %}<p>No hay figuras disponibles.</p>{% endfor %}
-<h2>Propuesta de semana</h2>{% for item in weekly.next_week %}<article><h3>{{ item.action }}</h3>
-<p>Terminado cuando: {{ item.done_criterion }}</p><p>Dependencia: {{ item.dependency or 'Ninguna declarada' }}</p>
-<p>Motivo: {{ item.reason }} · Origen: {{ item.origin }} · {{ item.evidence|join(', ') }}</p></article>{% endfor %}
-{% endif %}<h2>Balance conceptual</h2>{% if weekly %}<p>Balance semanal mostrado arriba.</p>{% elif synthesis %}{% for p in synthesis.projects %}<h3>{{ p.project_id }}</h3>
-{{ claims(p.known_now) }}{% for doubt in p.still_unknown %}<p>{{ doubt }}</p>{% endfor %}
-{{ claims(p.decisions_changed) }}{% if p.no_new_conclusion %}<p>No hay conclusión científica nueva.</p>{% endif %}
-{% endfor %}{% else %}<p>Sin balance conceptual validado.</p>{% endif %}
-<h2>Todo lo hecho y contexto observado</h2>
-{% if not report.results %}<p>Sin resultados verificables en este intervalo. Esto no demuestra que no se haya trabajado.</p>{% endif %}
-{% for item in report.results %}<article><h3>{{ item.project }} · {{ item.title }}</h3>
-<p>{{ item.task_id or 'Fuera del tablero' }} · Revisión: {{ item.review_label }}</p>
-<p>Evidencias: {% for eid in item.evidence %}<a href="#{{ eid }}">{{ eid }}</a> {% endfor %}</p>
-{% set extraction=report.sections.get('extract:' + item.id) %}{% if extraction %}
-<p>{{ extraction.summary }}</p>{{ claims(extraction.facts) }}
-{% for c in extraction.interpretations %}<p>Interpretación (confianza {{ c.confidence }}): {{ c.text }} — {{ c.evidence|join(', ') }}</p>{% endfor %}
-{% for doubt in extraction.uncertainties %}<p>{{ doubt }}</p>{% endfor %}
-{{ claims(extraction.controls_and_parameters) }}{{ claims(extraction.failures_or_blockers) }}
-{% for n in extraction.numbers %}<p>{{ n.name }}: {{ n.value }} {{ n.unit or '' }} — {{ n.evidence }}</p>{% endfor %}
-{% endif %}{% for figure in item.figures %}<figure><img src="{{ figure.path }}" alt="{{ figure.caption }}"><figcaption>{{ figure.caption }} · {{ figure.evidence }}</figcaption></figure>{% endfor %}
-</article>{% endfor %}
-<h2>{{ "Propuesta de semana" if weekly else "Plan de mañana" }}</h2>{% if weekly %}<p>Objetivos y sesión de revisión propuestos arriba.</p>{% elif plan %}{% for item in [plan.mission] + plan.warmups %}
-<article><h3>{{ item.action }}</h3><p>Terminado cuando: {{ item.done_criterion }}</p>
-<p>Dependencia: {{ item.dependency or 'Ninguna declarada' }}</p><p>Motivo: {{ item.reason }}</p>
-<p>Origen: {{ item.origin }} · {{ item.kanvas_task_id or '' }} · {{ item.evidence|join(', ') }}</p></article>
-{% endfor %}{% else %}<p>Sin propuesta validada.</p>{% endif %}
-<h2>Hilos abiertos</h2>{% for claim in report.open_threads %}<p>{{ claim.text }} — {{ claim.evidence|join(', ') }}</p>{% endfor %}
-{% for key,extraction in report.sections.items() %}{% if key.startswith('extract:') %}{{ claims(extraction.open_threads) }}{% endif %}{% endfor %}
-<h2>Nivel técnico y evidencias</h2>{% for item in report.evidence %}<article id="{{ item.id }}"><h3>{{ item.id }}</h3>
-<p>{{ item.project }} · {{ item.kind }} · {{ item.locator }}</p><p>Hora: {{ (item.event_at or item.observed_at)|localtime(report.timezone) }} ({{ 'evento' if item.time_quality == 'event' else 'observada' }})</p>
-<pre>{{ item.excerpt }}</pre>{% set observation=report.observations.get(item.id) %}{% if observation %}
-<p>Origen: {{ observation.origin|originlabel }}</p>{% for limit in observation.limitations %}<p>{{ limit }}</p>{% endfor %}
-{% if observation.computed %}<ul>{% for fact in observation.computed %}<li>{{ fact.column }} / {{ fact.operation }} / {{ fact.statistic }}:
-{{ fact.value }} · unidad no declarada — {{ item.id }}</li>{% endfor %}</ul>{% endif %}{% endif %}</article>{% endfor %}
-<h2>Cobertura</h2>{% for item in report.coverage %}<section class="coverage"><h3>{{ item.project }} / {{ item.source }}: {{ item.status }}</h3><p>Captura {{ item.snapshot_id }}</p>
-{% for omitted in item.omitted %}<p>{{ omitted.locator }}: {{ omitted.reason }}</p>{% endfor %}</section>{% endfor %}
+</style></head><body><h1>{{ 'Borrador pendiente · informe' if report.pending else 'Informe' }} {{ report.kind_label }}</h1>
+<p>{{ report.start_at|localtime(report.timezone) }} — {{ report.end_at|localtime(report.timezone) }}</p>
+{% macro claim(c) %}{{ c.text }} {% for eid in c.evidence %}<a href="#{{ eid }}">{{ eid }}</a> {% endfor %}{% endmacro %}
+{% macro claims(items) %}{% for c in items %}<p>{{ claim(c) }}</p>{% endfor %}{% endmacro %}
+{% macro interpretation(c) %}<p>Interpretación (confianza {{ c.confidence|confidence }}): {{ claim(c) }}</p>{% endmacro %}
+{% if report.pending %}<aside class="coverage"><h2>Generación pendiente</h2><p>Sin entrega final ni cierre del intervalo.</p><ul>
+{% for key,issues in report.pending.items() %}<li>{{ key }}: {% for issue in issues %}{{ issue.category }}/{{ issue.rule }} · {{ issue.field }} {% endfor %}</li>{% endfor %}
+</ul></aside>{% endif %}
+{% for result in report.results if result.reference_only %}{% if loop.first %}<p>Incluye contexto histórico; no todo representa trabajo de hoy.</p>{% endif %}{% endfor %}
+{% set weekly=report.sections.get('weekly') %}<h2>Lo esencial · orientación</h2>
+{% if weekly %}{{ claims(weekly.patterns[:3]) }}{% elif view.highlights %}
+{% for h in view.highlights %}<article><p>{{ claim(h.observation) }}</p>{{ interpretation(h.meaning) }}<p class="limit"><strong>Límite decisivo:</strong> {{ claim(h.decisive_limit) }}</p></article>{% endfor %}
+{% elif report.pending %}<p>Orientación pendiente de validación.</p>{% else %}<p>Sin novedades verificadas del intervalo. La referencia inicial o histórica está disponible en el inventario; no se ha solicitado su interpretación científica en este diario.</p>{% endif %}
+<h2>Balance conceptual</h2>{% for p in view.projects %}<section>
+{% set context=report.project_context.get(p.project_id,{}) %}<h3>{{ context.get('name',p.project_id) }}</h3>
+{% if context.get('objective') %}<p>Objetivo declarado: {{ context.objective }}</p>{% endif %}
+<p>{{ claim(p.explanation) }}</p>{{ interpretation(p.importance) }}{{ claims(p.known_now) }}
+<h4>Qué sigue abierto</h4>{{ claims(p.still_unknown) }}{{ claims(p.decisions_changed) }}
+{% if p.no_new_conclusion %}<p>No hay conclusión científica nueva en las fuentes analizadas.</p>{% endif %}</section>{% endfor %}
+{% if weekly %}{% for p in weekly.projects %}<h3>{{ p.project_id }}</h3>{{ claims(p.progress_vs_objective) }}{{ claims(p.decisions) }}{% for h in p.hypotheses_changed %}{{ interpretation(h) }}{% endfor %}{% endfor %}{% endif %}
+<h2>Todo lo hecho y contexto observado</h2>{% if not report.results %}<p>Sin resultados verificables en este intervalo. Esto no demuestra que no se haya trabajado.</p>{% endif %}
+{% for result in report.results %}<article><h3>{{ result.project }} · {{ result.title }}</h3><p>{{ result.task_id or 'Fuera del tablero' }} · Revisión: {{ result.review_label }}</p>
+<p>{{ 'Referencia inicial/histórica; no acredita trabajo nuevo.' if result.reference_only else 'Resultado del intervalo.' }}</p>
+<p>Evidencias: {% for eid in result.evidence %}<a href="#{{ eid }}">{{ eid }}</a> {% endfor %}</p>
+{% set card=view.cards.get(result.id) %}{% if card %}<details open><summary>Entender el resultado</summary>
+{% if card.question %}<p>Pregunta: {{ claim(card.question) }}</p>{% endif %}{{ claims(card.observations) }}{% if card.meaning %}{{ interpretation(card.meaning) }}{% endif %}
+<h4>Controles y condiciones</h4>{{ claims(card.controls) }}<h4>Límites</h4>{{ claims(card.limits) }}
+{% if card.decision_impact %}<p>Consecuencia: {{ claim(card.decision_impact) }}</p>{% endif %}
+{% if card.next_question %}<p>Pregunta pendiente: {{ claim(card.next_question) }}</p>{% endif %}</details>
+{% elif not result.reference_only %}{% set extracted=report.sections.get('extract:' + result.id) %}{% if extracted %}{% for source in extracted.sources %}<p>{{ claim(source.summary) }}</p>{{ claims(source.observations) }}{% for c in source.interpretations %}{{ interpretation(c) }}{% endfor %}{% endfor %}{% else %}<p>Explicación pendiente.</p>{% endif %}{% endif %}
+{% for figure in result.figures %}<figure><img src="{{ figure.path }}" alt="{{ figure.caption }}"><figcaption>{{ figure.caption }} · {{ figure.evidence }}</figcaption></figure>{% endfor %}</article>{% endfor %}
+<h2>{{ 'Propuesta de semana' if weekly else 'Plan de mañana · próximo foco' }}</h2>
+{% if view.planning_for %}<p>Orientado al {{ view.planning_for }}. La elección sigue siendo tuya.</p>{% endif %}
+{% if view.accepted %}<section><h3>Plan aceptado por la persona</h3><p>{{ view.accepted.edited_text or view.accepted.action }}</p><p>Terminado cuando: {{ view.accepted.done_criterion }}</p>
+{% if view.accepted.dependency %}<p>Dependencia: {{ view.accepted.dependency }}</p>{% endif %}{% if view.carry_forward %}<p>Se conserva el plan aceptado.</p>{% endif %}</section>{% endif %}
+{% if view.change_reason %}<p>Motivo para reconsiderar el foco: {{ claim(view.change_reason) }}</p>{% endif %}
+{% set proposed=weekly.next_week if weekly else ([view.mission] if view.mission else []) + view.warmups %}
+{% for p in proposed %}<article><h3>Propuesta: {{ p.action }}</h3>{% if p.project_id %}<p>Proyecto: {{ p.project_id }}</p>{% endif %}
+<p>Terminado cuando: {{ p.done_criterion }}</p><p>Dependencia: {{ p.dependency or 'Ninguna declarada' }}</p><p>Motivo: {{ p.reason }} — {{ p.evidence|join(', ') }}</p><p>Origen: {{ p.origin }}</p>
+{% if p.priority_basis %}<p>Prioridad por: {% for b in p.priority_basis %}{{ b|priority }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+{% if p.decision_unlocked %}<p>Decisión que ayudaría a tomar: {{ p.decision_unlocked }}</p>{% endif %}
+{% if p.uncertainty_addressed %}<p>Duda o control: {{ claim(p.uncertainty_addressed) }}</p>{% endif %}</article>{% endfor %}
+{% if view.no_mission_reason %}<p>Sin misión nueva propuesta: {{ claim(view.no_mission_reason) }}</p>{% elif not proposed and not view.carry_forward %}<p>Sin misión nueva propuesta.</p>{% endif %}
+<h2>Hilos abiertos</h2>{% for c in report.open_threads %}<p>{{ c.text }} — {{ c.evidence|join(', ') }}</p>{% endfor %}
+{% for key,extracted in report.sections.items() if key.startswith('extract:') %}{% for source in extracted.sources %}{{ claims(source.open_questions) }}{% endfor %}{% endfor %}
+{% if weekly %}<h2>Revisiones de la semana</h2><p>Cerradas por la persona: {{ weekly.review_status.completed|join(', ') }}</p><p>Pendientes (de mayor a menor antigüedad): {{ weekly.review_status.pending|join(', ') }}</p>{{ claims(weekly.review_status.doubts) }}
+<h2>Patrones</h2>{{ claims(weekly.patterns) }}<h2>Figuras clave</h2><p>{{ weekly.key_figures|join(', ') }}</p>{% endif %}
+<h2>Nivel técnico y evidencias</h2>{% for item in report.evidence %}<details id="{{ item.id }}"><summary>Comprobar {{ item.id }} · {{ item.kind }}</summary>
+<p>{{ item.project }} · {{ item.locator }}</p><p>Hora: {{ (item.event_at or item.observed_at)|localtime(report.timezone) }} ({{ 'evento' if item.time_quality == 'event' else 'observada' }})</p>
+{% set observation=report.observations.get(item.id) %}{% if observation %}<p>Origen: {{ observation.origin|originlabel }}</p>{% for limit in observation.limitations %}<p>{{ limit }}</p>{% endfor %}
+{% if observation.computed %}<ul>{% for fact in observation.computed %}<li>{{ fact.column }} / {{ fact.operation }} / {{ fact.statistic }}: {{ fact.value }} · unidad no declarada — {{ item.id }}</li>{% endfor %}</ul>{% endif %}{% endif %}
+<pre>{{ item.excerpt }}</pre></details>{% endfor %}
+<h2>Cobertura</h2>{% for item in report.coverage %}<section class="coverage"><h3>{{ item.project }} / {{ item.source }}: {{ item.status }}</h3><p>Captura {{ item.snapshot_id }}</p>{% for omitted in item.omitted %}<p>{{ omitted.locator }}: {{ omitted.reason }}</p>{% endfor %}</section>{% endfor %}
 {% for warning in report.warnings %}<p>{{ warning }}</p>{% endfor %}
-{% for section,model in report.model_info.items() %}<p>{{ section }}: {{ model.provider }} / {{ model.model }} · prompt {{ report.prompt_versions[section] }}</p>{% endfor %}
+<details><summary>Procedencia de la generación</summary>{% for section,model in report.model_info.items() %}<p>{{ section }}: {{ model.provider }} / {{ model.model }} · prompt {{ report.prompt_versions[section] }}</p>{% endfor %}</details>
 </body></html>

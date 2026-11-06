@@ -65,9 +65,9 @@ def persist(
             "external_allowed=excluded.external_allowed,config_hash=excluded.config_hash",
             (
                 project.id,
-                project.name,
+                redact(project.name, ctx.secrets),
                 project.root,
-                project.objective,
+                redact(project.objective, ctx.secrets),
                 project.priority,
                 int(project.external_allowed),
                 content_hash(canonical(project.model_dump())),

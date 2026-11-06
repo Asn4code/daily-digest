@@ -339,3 +339,25 @@ ya completó esa misma ventana. En cambio, un intento de revisión solicitado
 expresamente puede continuar aunque exista una versión anterior completa. Un
 corte con informe `ready` se recupera validando y cerrando ese mismo informe y,
 si correspondía, encolando su entrega sin duplicar ID ni correo incierto.
+
+### Diario implementado en IN-10
+
+La cadena actual es fuente → ficha de resultado → balance de proyecto →
+orientación diaria → foco opcional. Fuente y ficha conservan todos los fragmentos
+validados; los balances reciben una proyección sin duplicados idénticos, cifras
+normalizadas e índice de evidencia. Cada balance mantiene fichas de todos sus
+resultados actuales. Una ausencia o rechazo bloquea sus descendientes y la entrega.
+
+El código distingue referencia inicial, evento anterior y contexto auxiliar de
+actividad del intervalo antes de llamar al modelo. El inventario sigue completo;
+solo la referencia inicial no obliga a interpretar toda la historia. Los estados
+humanos permanecen visibles e intactos. Las comparaciones anteriores disponibles
+se incorporan con sus fuentes originales y su condición de generación automática,
+sin convertirlas en conclusiones humanas aceptadas.
+
+Móvil y vault comparten observación, interpretación con confianza y limitación
+decisiva. La vault añade conceptos y fichas; las comprobaciones técnicas quedan
+plegadas. El foco puede ser una propuesta ejecutable, mantener el plan aceptado
+o explicar por qué no hay misión nueva. Se conserva el texto humano y los motivos
+de cambio necesitan evidencia. La comprobación automática no firma utilidad ni
+comprensión; esas siguen requiriendo la revisión humana de la puerta.

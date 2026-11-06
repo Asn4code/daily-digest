@@ -14,6 +14,8 @@ def normalize(entry: EvidenceEntry) -> dict[str, Any]:
         origin = "dated_event"
     if entry.meta.get("report_role") == "historical_reference":
         origin = "historical_reference"
+    if entry.context_only:
+        origin = "supporting_context"
     computed = []
     if entry.kind == "metric":
         for operation in ("stats", "change"):
@@ -35,7 +37,7 @@ def normalize(entry: EvidenceEntry) -> dict[str, Any]:
                             }
                         )
     limitations = []
-    if origin not in {"dated_event", "historical_reference"}:
+    if origin not in {"dated_event", "historical_reference", "supporting_context"}:
         limitations.append(
             "La hora de observación no acredita la fecha del trabajo ni de ejecución."
         )
@@ -43,12 +45,18 @@ def normalize(entry: EvidenceEntry) -> dict[str, Any]:
         limitations.append("Referencia inicial: no se atribuye a trabajo de hoy.")
     if origin == "historical_reference":
         limitations.append("Evento anterior descubierto ahora; no se atribuye a trabajo de hoy.")
+    if origin == "supporting_context":
+        limitations.append(
+            "Referencia de contexto; no se atribuye a actividad nueva del intervalo."
+        )
     if entry.kind == "metric":
         limitations.append("Estadísticos sobre columnas declaradas; unidades no declaradas.")
     if entry.kind == "notebook_change":
         limitations.append("Solo salidas almacenadas; el servicio no ejecutó el notebook.")
     if entry.kind == "agent_session":
         limitations.append("Texto de sesión; no acredita por sí solo la conclusión científica.")
+    if entry.kind == "figure":
+        limitations.append("Figura indexada; sin análisis visual automático de sus píxeles.")
     return {
         "version": VERSION,
         "evidence": [entry.id],
@@ -73,4 +81,5 @@ def origin_label(origin: str) -> str:
         "observed_change": "Cambio observado; fecha del trabajo no acreditada",
         "dated_event": "Evento con fecha propia",
         "historical_reference": "Evento anterior descubierto en este intervalo",
+        "supporting_context": "Referencia de contexto",
     }.get(origin, "Observado; antigüedad desconocida")

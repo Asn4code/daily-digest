@@ -45,12 +45,17 @@ class ResultExtraction(Output):
 
 class SourceFindings(Output):
     result_id: Text
-    summary: Text
+    summary: Claim
     observations: list[Claim] = Field(max_length=100)
     interpretations: list[Interpretation] = Field(max_length=100)
     controls: list[Claim] = Field(max_length=100)
     limitations: Texts
     open_questions: list[Claim] = Field(max_length=100)
+
+
+class ResultFiche(Output):
+    result_id: Text
+    sources: list[SourceFindings] = Field(min_length=1, max_length=1000)
 
 
 class ProjectBalance(Output):
@@ -73,6 +78,50 @@ class DailySynthesis(Output):
     review_candidate: ReviewCandidate | None
 
 
+class ResultExplanation(Output):
+    result_id: Text
+    question: Claim | None
+    observations: list[Claim] = Field(min_length=1, max_length=5)
+    meaning: Interpretation | None
+    controls: list[Claim] = Field(max_length=5)
+    limits: list[Claim] = Field(min_length=1, max_length=5)
+    decision_impact: Claim | None
+    next_question: Claim | None
+
+
+class ProjectDigest(Output):
+    project_id: Text
+    explanation: Claim
+    importance: Interpretation
+    known_now: list[Claim] = Field(max_length=5)
+    still_unknown: list[Claim] = Field(max_length=5)
+    decisions_changed: list[Claim] = Field(max_length=5)
+    no_new_conclusion: bool
+    results: list[ResultExplanation] = Field(min_length=1, max_length=1000)
+
+
+class CompactClaim(Claim):
+    text: Annotated[str, Field(min_length=1, max_length=600)]
+    evidence: Annotated[list[Text], Field(min_length=1, max_length=8)]
+
+
+class CompactInterpretation(CompactClaim):
+    confidence: Literal["low", "medium", "high"]
+
+
+class DailyHighlight(Output):
+    project_id: Text
+    result_ids: list[Text] = Field(min_length=1, max_length=100)
+    observation: CompactClaim
+    meaning: CompactInterpretation
+    decisive_limit: CompactClaim
+
+
+class DailyOverview(Output):
+    highlights: list[DailyHighlight] = Field(max_length=3)
+    review_candidate: ReviewCandidate | None
+
+
 class PlanItem(Output):
     kind: Literal["mission", "warmup"]
     action: Text
@@ -84,9 +133,28 @@ class PlanItem(Output):
     evidence: References
 
 
+class DailyMission(PlanItem):
+    project_id: Text
+    priority_basis: list[
+        Literal[
+            "scientific_value", "decision", "control", "dependency", "human_commitment", "kanvas"
+        ]
+    ] = Field(min_length=1, max_length=6)
+    decision_unlocked: Text | None
+    uncertainty_addressed: Claim | None
+    human_plan_id: int | None
+
+
+class DailyWarmup(PlanItem):
+    project_id: Text
+
+
 class TomorrowPlan(Output):
-    mission: PlanItem
-    warmups: list[PlanItem] = Field(max_length=2)
+    mission: DailyMission | None
+    warmups: list[DailyWarmup] = Field(max_length=2)
+    carry_forward_id: int | None
+    change_reason: Claim | None
+    no_mission_reason: Claim | None
 
 
 class ClaimWhy(Output):

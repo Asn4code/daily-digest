@@ -94,7 +94,7 @@ def test_T17_project_instructions_remain_escaped_data() -> None:
         assert "<system>" not in output[1]["content"]
         assert "&lt;/evidence&gt;" in output[1]["content"]
         assert output[1]["content"].count("<evidence ") == 1
-        assert prompt.version == "1"
+        assert prompt.version == ("2" if task in {"conceptual", "plan"} else "1")
 
 
 def test_finished_kanvas_task_cannot_be_proposed(package: EvidencePackage) -> None:
@@ -108,7 +108,21 @@ def test_finished_kanvas_task_cannot_be_proposed(package: EvidencePackage) -> No
         "kanvas_task_id": "AN-01",
         "evidence": ["ev_control"],
     }
-    plan = schemas.TomorrowPlan(mission=schemas.PlanItem.model_validate(item), warmups=[])
+    package.project_task_states = {"proj": dict(package.task_states)}
+    item.update(
+        project_id="proj",
+        priority_basis=["kanvas"],
+        decision_unlocked=None,
+        uncertainty_addressed=None,
+        human_plan_id=None,
+    )
+    plan = schemas.TomorrowPlan(
+        mission=schemas.DailyMission.model_validate(item),
+        warmups=[],
+        carry_forward_id=None,
+        change_reason=None,
+        no_mission_reason=None,
+    )
     with pytest.raises(ValidationError, match="unavailable_kanvas_task"):
         validate(plan, package)
     plan.mission.kanvas_task_id = "AN-02"

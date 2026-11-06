@@ -14,8 +14,11 @@ from digest.llm import schemas
 from digest.llm.prompts import load, messages
 from digest.llm.router import Router, Task
 from digest.llm.validator import EvidencePackage, validate
+from digest.report.activity import active_results, classify, current_evidence_ids
 from digest.report.assembly import VERSION as ASSEMBLY_VERSION
 from digest.report.assembly import assemble
+from digest.report.context import human_context
+from digest.report.daily import build as build_daily
 from digest.report.model import EvidenceEntry, Report, ResultEntry
 from digest.report.observations import normalize
 from digest.report.packets import SOURCE_PACKET_CHARS, Packet
@@ -23,9 +26,10 @@ from digest.report.packets import plan as plan_packets
 from digest.util.redact import known_secrets, redact, redact_tree
 
 SCHEMAS: dict[str, type[BaseModel]] = {
-    "extract": schemas.ResultExtraction,
+    "extract": schemas.ResultFiche,
     "source": schemas.SourceFindings,
-    "conceptual": schemas.DailySynthesis,
+    "project": schemas.ProjectDigest,
+    "conceptual": schemas.DailyOverview,
     "plan": schemas.TomorrowPlan,
     "weekly": schemas.WeeklyReport,
 }
@@ -62,10 +66,17 @@ def package_scope(payload: dict[str, Any]) -> EvidencePackage:
         payload.get("task_states", {}),
         set(payload.get("completed_reviews", [])),
         list(payload.get("pending_reviews", [])),
+        dict(payload.get("result_projects", {})),
+        set(payload.get("closed_results", [])),
+        set(payload.get("human_plan_ids", [])),
+        payload.get("active_plan_id"),
+        dict(payload.get("project_task_states", {})),
+        {rid: set(ids) for rid, ids in payload.get("result_evidence", {}).items()},
     )
 
 
 def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Router) -> Report:
+    classify(report)
     # Rebuild generation state from revalidated nodes; never inherit a stale success
     # or rejection after inputs/configuration changed. Human state lives elsewhere.
     for generated in (
@@ -79,6 +90,11 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         generated.clear()
     report.warnings.clear()
     secrets = known_secrets(config)
+    report.project_context = {
+        p.id: {"name": redact(p.name, secrets), "objective": redact(p.objective, secrets)}
+        for p in config.projects
+        if any(r.project == p.id for r in report.results)
+    }
     for item in report.evidence:
         item.excerpt = redact(item.excerpt, secrets)
         item.locator = redact(item.locator, secrets)
@@ -92,6 +108,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
     for thread in report.open_threads:
         thread.text = redact(thread.text, secrets)
     tasks = task_context(db, config)
+    report.human_context = human_context(db, config, tasks)
     projects = {p.id: p for p in config.projects}
     evidence = {e.id: e for e in report.evidence}
     started = time.monotonic()
@@ -115,19 +132,35 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
     def payload_for(
         ids: list[str], project_ids: set[str], context: dict[str, Any], result_ids: list[str]
     ) -> dict[str, Any]:
+        evidence.update({e.id: e for e in report.evidence})
         if any(evidence[eid].project not in project_ids for eid in ids):
             raise ValueError("Evidence outside project scope")
-        scoped_tasks = [t for pid in project_ids for t in tasks.get(pid, [])]
         states: dict[str, str] = {}
-        for task_item in scoped_tasks:
-            ident = task_item["id"]
-            states[ident] = "blocked" if ident in states else task_item["state"]
+        if "_task_states" not in context:
+            scoped_tasks = [t for pid in project_ids for t in tasks.get(pid, [])]
+            for task_item in scoped_tasks:
+                ident = task_item["id"]
+                states[ident] = "blocked" if ident in states else task_item["state"]
         payload: dict[str, Any] = {
             "project_ids": sorted(project_ids),
             "result_ids": result_ids,
-            "task_states": states,
+            "task_states": context.get("_task_states", states),
+            "project_task_states": context.get("_project_task_states", {}),
+            "human_plan_ids": context.get("_human_plan_ids", []),
+            "active_plan_id": context.get("_active_plan_id"),
+            "result_projects": {r.id: r.project for r in report.results if r.id in result_ids},
+            "result_evidence": {
+                r.id: sorted(set(r.evidence) & set(ids))
+                for r in report.results
+                if r.id in result_ids
+            },
+            "closed_results": [],
+            "parents": context.get("_parents", []),
+            "auxiliary_evidence": context.get("_auxiliary", []),
+            "reference_evidence": context.get("_reference_evidence", []),
+            "wire_excerpt_ids": context.get("_wire_excerpt_ids", []),
             "context": {
-                **context,
+                **{k: v for k, v in context.items() if not k.startswith("_")},
                 "coverage": [
                     {
                         "source": c.source,
@@ -156,6 +189,13 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                     "capture_origin",
                     "stored_outputs_only",
                     "report_role",
+                    "by",
+                    "agent",
+                    "role",
+                    "author",
+                    "state",
+                    "execution_count",
+                    "cell_type",
                 }
             }
             payload["evidence"].append(item)
@@ -171,15 +211,35 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         result_ids: list[str],
         *,
         source: bool = False,
+        contract: str | None = None,
+        prompt_name: str | None = None,
+        wire_mode: str = "full",
+        char_limit: int | None = None,
+        cutoff: float | None = None,
     ) -> None:
         if not ids or not project_ids:
             mark_pending(key, "input", "no_evidence")
             return
-        prompt = load(task, name="source" if source else None)
+        prompt = load(task, name="source" if source else prompt_name)
         limit = config.limits.max_project_package_chars * len(project_ids)
         if source:
             limit = min(limit, SOURCE_PACKET_CHARS)
+        if char_limit is not None:
+            limit = min(limit, char_limit)
         payload = payload_for(ids, project_ids, context, result_ids)
+        payload["wire_mode"] = wire_mode
+        if wire_mode == "references":
+            current = current_evidence_ids(report) & set(ids)
+            payload["current_evidence_ids"] = sorted(current)
+            payload["result_evidence"] = {
+                rid: sorted(set(refs) & current) for rid, refs in payload["result_evidence"].items()
+            }
+        if task == "conceptual" and contract is None:
+            payload["closed_results"] = [
+                r.id
+                for r in report.results
+                if r.review_state == "closed_by_human" and r.id in result_ids
+            ]
         if source:
             payload["task_states"] = (
                 {context["task_id"]: "context"} if context.get("task_id") else {}
@@ -191,6 +251,10 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             ]
             if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
                 mark_pending(key, "input", "coherent_unit_budget_exceeded")
+                return
+        elif wire_mode == "references":
+            if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
+                mark_pending(key, "input", "derived_package_budget_exceeded")
                 return
         else:
             items = payload["evidence"]
@@ -218,7 +282,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                 mark_pending(key, "input", "evidence_budget_exceeded")
                 return
         scope = package_scope(payload)
-        schema = schemas.SourceFindings if source else SCHEMAS[task]
+        schema = schemas.SourceFindings if source else SCHEMAS[contract or task]
 
         def check(value: dict[str, Any]) -> BaseModel:
             parsed = schema.model_validate(value)
@@ -247,7 +311,9 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             validate=check,
             section=key,
             package=payload,
-            deadline=(
+            deadline=cutoff
+            if cutoff is not None
+            else (
                 min(
                     source_deadline,
                     time.monotonic() + allowance,
@@ -280,19 +346,22 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         report.prompt_versions[key] = response.prompt_version
 
     planned: list[tuple[ResultEntry, dict[str, Any], list[Packet]]] = []
-    for result in report.results:
+    active = active_results(report)
+    for result in active:
         context: dict[str, Any] = {
             "result_id": result.id,
             "title": result.title,
             "task_id": result.task_id,
             "objective": projects[result.project].objective,
             "external_allowed": projects[result.project].external_allowed,
+            "_task_states": {result.task_id: "context"} if result.task_id else {},
         }
 
         def size(
             ids: list[str], result: ResultEntry = result, context: dict[str, Any] = context
         ) -> int:
             payload = payload_for(ids, {result.project}, context, [result.id])
+            payload["wire_mode"] = "full"
             payload["task_states"] = (
                 {context["task_id"]: "context"} if context.get("task_id") else {}
             )
@@ -332,6 +401,11 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         payload = payload_for(
             result.evidence, {result.project}, {"assembled_from": keys}, [result.id]
         )
+        payload["task_states"] = {
+            ident: state
+            for child in keys
+            for ident, state in report.packages[child]["task_states"].items()
+        }
         try:
             extracted = assemble(result.id, findings)
             validate(extracted, package_scope(payload))
@@ -343,12 +417,12 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         report.model_info[root] = {"provider": "assembly", "model": "validated-sources"}
         report.prompt_versions[root] = ASSEMBLY_VERSION
     # Downstream synthesis must never turn a partial extraction set into a final story.
-    if any("extract:" + item.id not in report.sections for item in report.results):
+    if any("extract:" + item.id not in report.sections for item in active):
         for key in ["weekly"] if report.kind == "weekly" else ["conceptual", "plan"]:
             mark_pending(key, "dependency", "extraction_pending")
         report.mechanical = not bool(report.sections)
         return report
-    if not evidence:
+    if not active:
         report.mechanical = False
         return report
     present = {e.project for e in report.evidence}
@@ -361,32 +435,15 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         },
     }
     if report.kind != "weekly":
-        call("conceptual", "conceptual", list(evidence), present, context, results)
-        if present and "conceptual" not in report.sections:
-            mark_pending("plan", "dependency", "synthesis_pending")
-            report.mechanical = not bool(report.sections)
-            return report
-        human_doubts = [
-            {"result_id": r[0], "doubts": json.loads(r[1])}
-            for r in db.execute(
-                "SELECT v.result_id,v.doubts FROM review v JOIN result r ON r.id=v.result_id "
-                "WHERE v.doubts!='[]' AND r.project_id IN ("
-                + ",".join("?" for _ in present)
-                + ") ORDER BY v.submitted_at",
-                tuple(sorted(present)),
-            )
-        ]
-        call(
-            "plan",
-            "plan",
-            list(evidence),
-            present,
-            {
-                "synthesis": report.sections.get("conceptual"),
-                "tasks": {pid: tasks.get(pid, []) for pid in present},
-                "human_doubts": human_doubts,
-            },
-            results,
+        build_daily(
+            db,
+            config,
+            report,
+            call,
+            tasks,
+            project_deadline=started + duration * 0.8,
+            overview_deadline=started + duration * 0.9,
+            deadline=router.deadline,
         )
     elif present:
         marks = ",".join("?" for _ in present)
@@ -428,7 +485,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             list(evidence),
             weekly_scope,
             {
-                **context,
+                **{k: v for k, v in context.items() if not k.startswith("_")},
                 "completed_reviews": completed,
                 "pending_reviews": pending,
                 "accepted_plans": accepted,

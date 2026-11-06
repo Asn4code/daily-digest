@@ -43,7 +43,7 @@ def test_large_result_splits_into_small_validated_packets_without_losing_invento
             now,
             None,
             "observed",
-            {"path": f"docs/part-{n}.md", "capture_origin": "initial_inventory"},
+            {"path": f"docs/part-{n}.md", "capture_origin": "observed_change"},
         )
         for n in range(30)
     ]
@@ -112,7 +112,7 @@ def test_large_result_splits_into_small_validated_packets_without_losing_invento
         }
         assert all(len(report.packages[key]["evidence"]) > 1 for key in keys)
         assert len(report.observations) == 30
-        assert all(o["origin"] == "initial_inventory" for o in report.observations.values())
+        assert all(o["origin"] == "observed_change" for o in report.observations.values())
         report.observations[report.evidence[0].id]["computed"] = [{"value": 123}]
         with pytest.raises(ValidationError, match="observation modified"):
             validate_report(report, {e.id for e in report.evidence})
@@ -228,7 +228,7 @@ def test_one_changed_result_invalidates_only_its_sources_and_descendants(
     with closing(connect(tmp_path / "db")) as db:
         first = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
         count = len(calls)
-        assert count == 5
+        assert count == 6
         repeated = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
         assert len(calls) == count
         assert all(
@@ -242,7 +242,7 @@ def test_one_changed_result_invalidates_only_its_sources_and_descendants(
         changed.evidence[0].excerpt = "Se observó un control adicional"
         changed.results[0].evidence = ["ev_changed"]
         updated = enrich(db, config, changed, Router(db, config, client=client))
-        assert len(calls) == count + 3
+        assert len(calls) == count + 4
         for result in ("res_1", "res_2"):
             key = updated.source_units[result][0]
             assert updated.model_info[key]["reused"] == "true"

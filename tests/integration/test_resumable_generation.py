@@ -16,6 +16,7 @@ from digest.llm.router import Router
 from digest.worker import enqueue, execute, recover, resume
 from tests.fixtures.llm import fake_response
 from tests.fixtures.make_projects import build_projects
+from tests.fixtures.work import add_current_work
 
 NOW = datetime(2026, 11, 4, 19, tzinfo=UTC)
 
@@ -25,6 +26,7 @@ def test_T29_interruption_reuses_saved_nodes_and_original_inventory(
 ) -> None:
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
     requests = []
     interrupted = False
@@ -92,6 +94,7 @@ def test_pending_windows_do_not_overlap_or_repeat_reserved_evidence(
 ) -> None:
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     monkeypatch.delenv("DIGEST_FIXTURE_UNUSED_KEY", raising=False)
     monkeypatch.delenv("CREDENTIALS_DIRECTORY", raising=False)
     first = enqueue(config, "daily", params={"no_send": True})
@@ -120,6 +123,7 @@ def test_pending_attempts_are_bounded_and_explicit_resume_preserves_window(
 ) -> None:
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     monkeypatch.delenv("DIGEST_FIXTURE_UNUSED_KEY", raising=False)
     monkeypatch.delenv("CREDENTIALS_DIRECTORY", raising=False)
     job = enqueue(config, "daily", params={"no_send": True})
@@ -153,6 +157,7 @@ def test_completed_revision_supersedes_older_pending_jobs_but_can_itself_be_rege
 ) -> None:
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     monkeypatch.delenv("DIGEST_FIXTURE_UNUSED_KEY")
     monkeypatch.delenv("CREDENTIALS_DIRECTORY", raising=False)
     first = enqueue(config, "daily", params={"no_send": True})
@@ -194,6 +199,7 @@ def test_ready_report_recovery_finishes_same_report_and_queues_delivery_once(
 
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
+    add_current_work(config)
     job = enqueue(config, "daily")
 
     def interrupt(db, interval_id, report_id):

@@ -8,15 +8,15 @@ Dos proveedores con API compatible con OpenAI: **Qwen/Qwen3.8-27B** interno (con
 > normalización y las unidades por fuente están implementadas en IN-08; la
 > persistencia por nodo y reanudación están implementadas en IN-09. Los balances
 > jerárquicos y vistas por canal de [HIERARCHICAL_DIGEST.md](HIERARCHICAL_DIGEST.md)
-> siguen pendientes de IN-10 y la crítica semanal de IN-12.
+> están implementados en IN-10; la crítica semanal corresponde a IN-12.
 
 ## 1. Enrutado
 
 | Tarea (`task`) | Entrada | Preferencia por defecto | Salida (`schemas.py`) |
 | --- | --- | --- | --- |
-| `extract` | Paquete de unidades relacionadas de un resultado | `internal`, luego `nan` | `SourceFindings`; ensamblado validado a `ResultExtraction` |
-| `conceptual` | Extracciones del intervalo + objetivos de los proyectos | `nan`, luego `internal` | `DailySynthesis` (sin plan) |
-| `plan` | Síntesis + tareas de Kanvas `todo`/`ready`/`blocked` + dudas de revisiones | `nan`, luego `internal` | `TomorrowPlan` |
+| `extract` | Paquete de unidades relacionadas de un resultado | `internal`, luego `nan` | `SourceFindings`; ensamblado validado a `ResultFiche` |
+| `conceptual` | Fichas y objetivo por proyecto; balances para orientación | `nan`, luego `internal` | `ProjectDigest`, después `DailyOverview` |
+| `plan` | Balances, orientación, tareas disponibles y contexto humano | `nan`, luego `internal` | `TomorrowPlan`, con misión opcional |
 | `weekly` | Extracciones de 7 días + revisiones + plan aceptado de cada día | `nan` (contexto largo), luego `internal` | `WeeklyReport` |
 | `contrast` | Explicación humana + paquete del resultado + resumen automático | A decidir en el piloto | `Contrast` |
 
@@ -55,6 +55,22 @@ Reglas para todos los prompts:
 - Español, frases cortas, sin adjetivos de relleno ni elogios.
 
 ## 4. Esquemas de salida
+
+Contratos principales vigentes en `src/digest/llm/schemas.py`:
+
+- `SourceFindings`: resumen citado, observaciones, interpretaciones, controles,
+  límites y preguntas de una unidad de fuente.
+- `ResultFiche`: resultado y piezas completas validadas, sin resumen mecánico.
+- `ProjectDigest`: explicación frente al objetivo, importancia, qué se sabe y
+  desconoce, decisiones y fichas conceptuales de todos los resultados actuales.
+- `DailyOverview`: hasta tres triples de observación, interpretación y límite
+  decisivo, más candidato de revisión opcional.
+- `TomorrowPlan`: misión justificada, conservación del plan humano o ausencia de
+  misión; hasta dos calentamientos y motivo citado de cambio cuando corresponda.
+
+El ejemplo histórico siguiente describe también contratos de compatibilidad de
+las primeras tareas de fase 2 (`ResultExtraction`, `DailySynthesis`); el generador
+diario vigente usa los contratos anteriores, descritos en la sección 15.
 
 ```python
 class Claim(BaseModel):
@@ -270,8 +286,9 @@ La crítica semanal relaciona conclusiones previas con evidencia nueva para
 reforzarlas, matizarlas, cuestionarlas o dejar explícito que no se puede decidir.
 Cada propuesta de análisis explica qué alternativas distinguiría y con qué
 control y criterio. No ejecuta análisis ni modifica texto o estados humanos.
-El diseño y sus casos de aceptación están en HIERARCHICAL_DIGEST.md y en las
-propuestas IN-10, IN-12 e IN-11; todavía no están implementados.
+El diseño y sus casos de aceptación están en HIERARCHICAL_DIGEST.md. IN-10
+implementa los niveles diarios; IN-12 e IN-11 completan el contraste semanal y
+la validación del conjunto, incluida la comprobación humana de utilidad.
 
 
 ## 13. Observaciones y unidades por fuente (IN-08)
@@ -309,16 +326,14 @@ Cada paquete mantiene IDs, tiempos, metadatos, cobertura, objetivo y ámbito de
 privacidad. El router recibe el proyecto real; abstraer una fuente privada no
 permite enviarla al proveedor externo.
 
-Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v2.
+Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v4.
 Las piezas válidas se guardan en `sections[source:...]` y se enumeran en
-`source_units`. El ensamblado concatena texto validado y deduplica solo elementos
-idénticos, conservando citas y controles; no genera conclusiones nuevas ni omite
-listas para ajustarlas. El resultado sigue validando `ResultExtraction`; si el
-ensamblado supera sus límites, queda pendiente para ajustar ese contrato en la
-etapa de fichas. La entrega comprueba el linaje del ensamblado, las piezas
+`source_units`. El ensamblado v3 conserva las piezas completas en `ResultFiche`,
+sin concatenar sus resúmenes en un campo limitado ni generar conclusiones nuevas.
+La proyección para el balance deduplica solo elementos idénticos y conserva citas,
+controles y límites. La entrega comprueba el linaje del ensamblado, las piezas
 necesarias y la cobertura exacta de las evidencias del resultado. La persistencia
-inmediata por nodo está implementada en IN-09; la reducción de las etapas
-superiores corresponde a IN-10.
+inmediata por nodo está implementada en IN-09; IN-10 añade las etapas superiores.
 
 
 ## 14. Nodos persistidos y presupuesto (IN-09)
@@ -340,8 +355,9 @@ llamada nueva. El registro `llm_call` sigue contando intentos reales, no acierto
 de caché. Los estados cambiantes del tablero no invalidan observaciones de fuentes
 congeladas: entran en síntesis y plan donde corresponden.
 
-Se reserva el 65 % del tiempo restante para fuentes y hasta el 85 % para la
-síntesis diaria; el plan usa el plazo global. Cada fuente recibe su cuota del
+Se reserva el 65 % del tiempo restante para fuentes, hasta el 80 % para balances
+por proyecto y hasta el 90 % para orientación diaria; el plan usa el plazo global.
+Cada fuente recibe su cuota del
 tiempo de etapa, con margen para hacer progreso en modelos lentos: hasta la suma
 de timeouts configurados, limitada al 20 % del tiempo total restante al empezar.
 Siempre manda el plazo de etapa. El router reparte el tiempo del nodo entre
@@ -354,3 +370,42 @@ validadas. Una evidencia cambiada modifica la pieza correspondiente y sus
 síntesis descendientes; los otros resultados se reutilizan. Cambiar contrato,
 prompt, validador, modelo o política invalida las piezas afectadas. El plan humano
 aceptado y el estado de comprensión se mantienen fuera de esta caché.
+
+## 15. Diario por niveles (IN-10)
+
+La actividad se clasifica antes de generar: una evidencia con evento anterior al
+intervalo, inventario inicial observado o contexto auxiliar no acredita trabajo
+nuevo. Un resultado compuesto solo de esas evidencias permanece visible como
+referencia; no necesita análisis LLM para completar el diario. Una captura
+incompleta sin novedades demostrables sigue pendiente. No se infiere la edad de
+evidencias antiguas sin procedencia documentada. El validador recalcula la
+clasificación y rechaza cambiar una tarea activa a histórica para eludir etapas.
+
+El balance `ProjectDigest` explica cada resultado actual, sus condiciones, límites
+y posibles consecuencias frente al objetivo declarado. Puede incorporar el último
+balance válido anterior con sus fuentes, separado de las observaciones actuales.
+`DailyOverview` elige hasta tres novedades, cada una con observación, interpretación
+marcada y limitación decisiva obligatoria. No representa comprensión humana.
+
+Los balances reciben fichas, cifras deterministas e índice de evidencias; no todos
+los documentos originales otra vez. Los paquetes derivados conservan originales
+para validar y auditar, y envían referencias con una breve muestra literal cuando
+se necesita anclar un resultado. Límites del prompt escapado: 48 000 caracteres
+por balance y plan, 24 000 para orientación, o la configuración si es menor. Si
+no caben íntegros quedan pendientes. Los mensajes JSON ordenan claves de forma
+estable: congelar y recuperar el inventario no invalida una pieza idéntica.
+
+El plan permite proponer una misión, conservar la última aceptada o explicar por
+qué no se justifica una nueva, con hasta dos calentamientos opcionales. La misión
+declara prioridad, motivo, dependencia y criterio de finalización. Los estados de
+Kanvas se validan por proyecto, incluso cuando dos tableros repiten un ID. Una
+alternativa a un plan humano necesita una razón con evidencia; no lo sustituye ni
+lo acepta. Texto editado y estado humano se preservan. Si su ámbito no está
+disponible, se bloquea el plan para evitar enviar contexto a un ámbito incorrecto.
+La frontera candidata contiene hasta cuarenta tareas disponibles, no todo el
+backlog. Las dudas humanas entran como contexto, no como instrucciones.
+
+Correo y vault usan los mismos valores validados de orientación y foco. La vault
+añade explicación conceptual, fichas y evidencias técnicas plegables. Todo el
+inventario, incluidas referencias y tareas pendientes de revisión, sigue visible
+en ambos canales. No cambian rutas ni front matter de archivos humanos.

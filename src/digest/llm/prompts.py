@@ -35,13 +35,25 @@ def load(task: Task, *, name: str | None = None) -> Prompt:
 def messages(prompt: Prompt, package: dict[str, Any]) -> list[dict[str, str]]:
     evidence = package.get("evidence", [])
     context = {key: value for key, value in package.items() if key != "evidence"}
-    blocks = ["<context>" + html.escape(json.dumps(context, ensure_ascii=False)) + "</context>"]
+    blocks = [
+        "<context>"
+        + html.escape(json.dumps(context, ensure_ascii=False, sort_keys=True))
+        + "</context>"
+    ]
     for item in evidence:
+        if package.get("wire_mode") == "references":
+            original = item
+            item = {key: original[key] for key in ("id", "project", "kind")}
+            if original["id"] in package.get("wire_excerpt_ids", []):
+                item.update(
+                    excerpt=original["excerpt"][:240],
+                    excerpt_truncated=len(original["excerpt"]) > 240,
+                )
         blocks.append(
             '<evidence id="'
             + html.escape(item["id"], quote=True)
             + '">'
-            + html.escape(json.dumps(item, ensure_ascii=False))
+            + html.escape(json.dumps(item, ensure_ascii=False, sort_keys=True))
             + "</evidence>"
         )
     return [

@@ -216,6 +216,10 @@ def execute(
             params.update(
                 json.loads(db.execute("SELECT params FROM job WHERE id=?", (ident,)).fetchone()[0])
             )
+            db.executemany(
+                "INSERT OR IGNORE INTO report_evidence VALUES (?,?)",
+                [(report_id, item.id) for item in report.evidence],
+            )
             validate_report(report, {item.id for item in report.evidence})
             for key in missing_sections(report):
                 report.pending.setdefault(
@@ -284,8 +288,9 @@ def execute(
                 return str(directory / "draft.md")
             if "plan" in report.sections:
                 proposal = report.sections["plan"]
-                for item in [proposal["mission"], *proposal["warmups"]]:
-                    db.execute(
+                items = ([proposal["mission"]] if proposal["mission"] else []) + proposal["warmups"]
+                for item in items:
+                    inserted = db.execute(
                         "INSERT INTO plan_item(report_id,kind,action,done_criterion,dependency,"
                         "reason,origin,kanvas_task_id) VALUES (?,?,?,?,?,?,?,?)",
                         (
@@ -297,6 +302,18 @@ def execute(
                             item["reason"],
                             item["origin"],
                             item["kanvas_task_id"],
+                        ),
+                    )
+                    assert inserted.lastrowid is not None
+                    db.execute(
+                        "INSERT INTO meta(key,value) VALUES (?,?)",
+                        (f"plan_project:{inserted.lastrowid}", item["project_id"]),
+                    )
+                    db.execute(
+                        "INSERT INTO meta(key,value) VALUES (?,?)",
+                        (
+                            f"plan_scope:{inserted.lastrowid}",
+                            canonical(report.packages["plan"]["project_ids"]),
                         ),
                     )
             close_interval(db, interval.id, report_id)

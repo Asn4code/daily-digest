@@ -1,4 +1,4 @@
-"""Render Markdown with all project-authored text escaped."""
+"""Render orientation, conceptual understanding and expandable technical evidence."""
 
 import html
 import re
@@ -7,143 +7,195 @@ from typing import Any
 from digest.report.model import Report
 from digest.report.observations import normalize, origin_label
 from digest.report.timeutil import display
+from digest.report.views import CONFIDENCE, PRIORITIES, daily_view
 
 
 def escape(text: str) -> str:
     return re.sub(r"([\\`*_{}\[\]()#+.!|>~-])", r"\\\1", html.escape(text))
 
 
+def claim(value: dict[str, Any]) -> str:
+    return escape(value["text"]) + " [" + ", ".join(value["evidence"]) + "]"
+
+
+def claims(values: list[dict[str, Any]]) -> list[str]:
+    return [claim(value) for value in values]
+
+
+def interpretation(value: dict[str, Any]) -> str:
+    return "Interpretación (confianza " + CONFIDENCE[value["confidence"]] + "): " + claim(value)
+
+
 def render(report: Report) -> str:
+    view = daily_view(report)
     weekly = report.sections.get("weekly")
-    synthesis = report.sections.get("conceptual", {})
-    if weekly:
-        synthesis = {
-            "highlights": weekly["patterns"][:3],
-            "projects": [
-                {
-                    "project_id": p["project_id"],
-                    "known_now": p["progress_vs_objective"],
-                    "still_unknown": [],
-                    "decisions_changed": p["decisions"],
-                    "no_new_conclusion": False,
-                }
-                for p in weekly["projects"]
-            ],
-        }
-
-    plan = report.sections.get("plan")
-
-    def claims(values: list[dict[str, Any]]) -> str:
-        return "\n".join(
-            escape(str(c["text"])) + " [" + ", ".join(str(e) for e in c["evidence"]) + "]"
-            for c in values
-        )
-
+    label = "Borrador pendiente · informe" if report.pending else "Informe"
     lines = [
-        f"# Informe {report.kind_label}",
+        f"# {label} {report.kind_label}",
         f"{display(report.start_at, report.timezone)} — {display(report.end_at, report.timezone)}",
-        "",
-        "## Lo esencial",
-        claims(synthesis.get("highlights", [])) or "Síntesis pendiente.",
-        "",
-        "## Balance conceptual",
-        "\n".join(
-            "### "
-            + escape(p["project_id"])
-            + "\n"
-            + claims(p["known_now"])
-            + "\n"
-            + "\n".join(escape(x) for x in p["still_unknown"])
-            + "\n"
-            + claims(p["decisions_changed"])
-            + "\n"
-            + ("No hay conclusión científica nueva." if p["no_new_conclusion"] else "")
-            for p in synthesis.get("projects", [])
-        )
-        or "Sin balance conceptual validado.",
-        "",
-        "## Todo lo hecho y contexto observado",
     ]
+    if report.pending:
+        lines.extend(
+            [
+                "Generación incompleta. Sin entrega final ni cierre del intervalo.",
+                "## Secciones pendientes",
+            ]
+        )
+        for key, issues in sorted(report.pending.items()):
+            lines.append(
+                escape(key)
+                + ": "
+                + "; ".join(
+                    escape(i["category"] + "/" + i["rule"] + " · " + i["field"]) for i in issues
+                )
+            )
+    if any(r.reference_only for r in report.results):
+        lines.append("Incluye contexto histórico; no todo representa trabajo de hoy.")
+    lines.append("## Lo esencial · orientación")
+    if weekly:
+        lines.extend(claims(weekly["patterns"][:3]))
+    elif view.highlights:
+        for item in view.highlights:
+            lines.extend(
+                [
+                    claim(item["observation"]),
+                    interpretation(item["meaning"]),
+                    "Límite decisivo: " + claim(item["decisive_limit"]),
+                ]
+            )
+    elif not report.pending and not any(not r.reference_only for r in report.results):
+        lines.append(
+            "Sin novedades verificadas del intervalo. La referencia inicial o histórica "
+            "queda disponible en el inventario; no se ha solicitado su interpretación "
+            "científica en este diario."
+        )
+    else:
+        lines.append("Orientación pendiente de validación.")
+    lines.append("## Balance conceptual")
+    for project in view.projects:
+        context = report.project_context.get(project["project_id"], {})
+        lines.append("### " + escape(context.get("name", project["project_id"])))
+        if context.get("objective"):
+            lines.append("Objetivo declarado: " + escape(context["objective"]))
+        lines.extend([claim(project["explanation"]), interpretation(project["importance"])])
+        lines.extend(claims(project["known_now"]))
+        lines.append("Qué sigue abierto")
+        lines.extend(claims(project["still_unknown"]))
+        lines.extend(claims(project["decisions_changed"]))
+        if project["no_new_conclusion"]:
+            lines.append("No hay conclusión científica nueva en las fuentes analizadas.")
+    if weekly:
+        for project in weekly["projects"]:
+            lines.append("### " + escape(project["project_id"]))
+            lines.extend(claims(project["progress_vs_objective"]))
+            lines.extend(claims(project["decisions"]))
+            lines.extend(interpretation(value) for value in project["hypotheses_changed"])
+    lines.append("## Todo lo hecho y contexto observado")
     if not report.results:
         lines.append(
             "Sin resultados verificables en este intervalo. "
             "Esto no demuestra que no se haya trabajado."
         )
-    for item in report.results:
+    for result in report.results:
         lines.extend(
             [
-                f"### {escape(item.project)} · {escape(item.title)}",
-                f"Tarea: {escape(item.task_id or 'fuera del tablero')} · "
-                f"Revisión: {escape(item.review_label)}",
-                "Evidencias: " + ", ".join(item.evidence),
+                "### " + escape(result.project) + " · " + escape(result.title),
+                "Tarea: "
+                + escape(result.task_id or "fuera del tablero")
+                + " · Revisión: "
+                + escape(result.review_label),
+                "Referencia inicial/histórica; no acredita trabajo nuevo."
+                if result.reference_only
+                else "Resultado del intervalo.",
+                "Evidencias: " + ", ".join(result.evidence),
             ]
         )
-        extracted = report.sections.get("extract:" + item.id)
-        if extracted:
-            lines.extend([escape(extracted["summary"]), claims(extracted["facts"])])
-            for interpretation in extracted["interpretations"]:
+        card = view.cards.get(result.id)
+        if card:
+            if card["question"]:
+                lines.append("Pregunta: " + claim(card["question"]))
+            lines.extend(claims(card["observations"]))
+            if card["meaning"]:
+                lines.append(interpretation(card["meaning"]))
+            lines.append("Controles y condiciones")
+            lines.extend(claims(card["controls"]))
+            lines.append("Límites")
+            lines.extend(claims(card["limits"]))
+            if card["decision_impact"]:
+                lines.append("Consecuencia: " + claim(card["decision_impact"]))
+            if card["next_question"]:
+                lines.append("Pregunta pendiente: " + claim(card["next_question"]))
+        elif not result.reference_only:
+            extracted = report.sections.get("extract:" + result.id)
+            if extracted:
                 lines.append(
-                    "Interpretación (confianza "
-                    + escape(interpretation["confidence"])
-                    + "): "
-                    + claims([interpretation])
+                    "Pieza de fuente validada; explicación integrada pendiente."
+                    if report.pending
+                    else "Síntesis de las fuentes"
                 )
-            lines.extend(escape(x) for x in extracted["uncertainties"])
-            lines.extend(
-                [
-                    claims(extracted["controls_and_parameters"]),
-                    claims(extracted["failures_or_blockers"]),
-                ]
-            )
-            for number in extracted["numbers"]:
-                lines.append(
-                    escape(number["name"])
-                    + ": "
-                    + str(number["value"])
-                    + " "
-                    + escape(number["unit"] or "")
-                    + " ["
-                    + number["evidence"]
-                    + "]"
-                )
-        for figure in item.figures:
+                for source in extracted["sources"]:
+                    lines.extend([claim(source["summary"]), *claims(source["observations"])])
+                    lines.extend(interpretation(value) for value in source["interpretations"])
+                    lines.extend(claims(source["controls"]))
+                    lines.extend(escape(text) for text in source["limitations"])
+            else:
+                lines.append("Explicación pendiente.")
+        for figure in result.figures:
             lines.append(f"![{escape(figure.caption)}]({figure.path}) · {figure.evidence}")
-    lines.extend(
-        [
-            "",
-            "## Propuesta de semana" if weekly else "## Plan de mañana",
-            "\n".join(
-                escape(item["action"])
-                + " — Terminado cuando: "
-                + escape(item["done_criterion"])
-                + " — Dependencia: "
-                + escape(item["dependency"] or "Ninguna declarada")
-                + " — Motivo: "
-                + escape(item["reason"])
-                + " — Origen: "
-                + escape(item["origin"])
-                + " ["
-                + ", ".join(item["evidence"])
-                + "]"
-                for item in (
-                    weekly["next_week"]
-                    if weekly
-                    else [plan["mission"], *plan["warmups"]]
-                    if plan
-                    else []
-                )
+    lines.append("## Propuesta de semana" if weekly else "## Plan de mañana · próximo foco")
+    if view.planning_for:
+        lines.append(
+            "Orientado al " + escape(view.planning_for) + ". La elección sigue siendo tuya."
+        )
+    if view.accepted:
+        accepted = view.accepted
+        lines.extend(
+            [
+                "### Plan aceptado por la persona",
+                escape(accepted["edited_text"] or accepted["action"]),
+                "Terminado cuando: " + escape(accepted["done_criterion"]),
+            ]
+        )
+        if accepted.get("dependency"):
+            lines.append("Dependencia: " + escape(accepted["dependency"]))
+        if view.carry_forward:
+            lines.append("Se conserva el plan aceptado.")
+    if view.change_reason:
+        lines.append("Motivo para reconsiderar el foco: " + claim(view.change_reason))
+    proposed = (
+        weekly["next_week"] if weekly else ([view.mission] if view.mission else []) + view.warmups
+    )
+    for item in proposed:
+        lines.extend(
+            [
+                "### Propuesta: " + escape(item["action"]),
+                "Terminado cuando: " + escape(item["done_criterion"]),
+                "Dependencia: " + escape(item["dependency"] or "Ninguna declarada"),
+                "Motivo: " + escape(item["reason"]) + " [" + ", ".join(item["evidence"]) + "]",
+                "Origen: " + escape(item["origin"]),
+            ]
+        )
+        if item.get("project_id"):
+            lines.append("Proyecto: " + escape(item["project_id"]))
+        if item.get("priority_basis"):
+            lines.append(
+                "Prioridad por: " + ", ".join(PRIORITIES[basis] for basis in item["priority_basis"])
             )
-            or "Sin propuesta validada.",
-            "",
-            "## Hilos abiertos",
-        ]
-    )
+        if item.get("decision_unlocked"):
+            lines.append("Decisión que ayudaría a tomar: " + escape(item["decision_unlocked"]))
+        if item.get("uncertainty_addressed"):
+            lines.append("Duda o control: " + claim(item["uncertainty_addressed"]))
+    if view.no_mission_reason:
+        lines.append("Sin misión nueva propuesta: " + claim(view.no_mission_reason))
+    elif not proposed and not view.carry_forward:
+        lines.append("Sin misión nueva propuesta.")
+    lines.append("## Hilos abiertos")
     lines.extend(
-        escape(claim.text) + " [" + ", ".join(claim.evidence) + "]" for claim in report.open_threads
+        escape(value.text) + " [" + ", ".join(value.evidence) + "]" for value in report.open_threads
     )
-    for key, extraction in report.sections.items():
+    for key, value in report.sections.items():
         if key.startswith("extract:"):
-            lines.append(claims(extraction["open_threads"]))
+            lines.extend(c for source in value["sources"] for c in claims(source["open_questions"]))
     if weekly:
         lines.extend(
             [
@@ -151,37 +203,27 @@ def render(report: Report) -> str:
                 "Cerradas por la persona: " + ", ".join(weekly["review_status"]["completed"]),
                 "Pendientes (de mayor a menor antigüedad): "
                 + ", ".join(weekly["review_status"]["pending"]),
-                claims(weekly["review_status"]["doubts"]),
+                *claims(weekly["review_status"]["doubts"]),
                 "## Patrones",
-                claims(weekly["patterns"]),
+                *claims(weekly["patterns"]),
                 "## Figuras clave",
                 ", ".join(weekly["key_figures"]) or "No hay figuras disponibles.",
             ]
         )
-        for project in weekly["projects"]:
-            for hypothesis in project["hypotheses_changed"]:
-                lines.append(
-                    "Interpretación (confianza "
-                    + escape(hypothesis["confidence"])
-                    + "): "
-                    + claims([hypothesis])
-                )
-    lines.extend(["", "## Nivel técnico y evidencias"])
+    lines.append("## Nivel técnico y evidencias")
     for entry in report.evidence:
-        lines.extend(
-            [
-                f"### {entry.id}",
-                f"{escape(entry.project)} · {escape(entry.kind)} · {escape(entry.locator)}",
-                f"Hora: {display(entry.event_at or entry.observed_at, report.timezone)} "
-                f"({'evento' if entry.time_quality == 'event' else 'observada'})",
-                escape(entry.excerpt),
-            ]
-        )
         observed = report.observations.get(entry.id, normalize(entry))
-        lines.append("Origen: " + escape(origin_label(observed["origin"])))
-        lines.extend(escape(text) for text in observed["limitations"])
+        technical = [
+            f"### {entry.id}",
+            f"{escape(entry.project)} · {escape(entry.kind)} · {escape(entry.locator)}",
+            f"Hora: {display(entry.event_at or entry.observed_at, report.timezone)} "
+            f"({'evento' if entry.time_quality == 'event' else 'observada'})",
+            "Origen: " + escape(origin_label(observed["origin"])),
+            *(escape(text) for text in observed["limitations"]),
+            escape(entry.excerpt),
+        ]
         for fact in observed["computed"]:
-            lines.append(
+            technical.append(
                 escape(fact["column"] + " / " + fact["operation"] + " / " + fact["statistic"])
                 + ": "
                 + str(fact["value"])
@@ -189,15 +231,22 @@ def render(report: Report) -> str:
                 + entry.id
                 + "]"
             )
-    lines.extend(["", "## Cobertura"])
+        lines.append(
+            "> [!info]- Comprobar "
+            + entry.id
+            + "\n"
+            + "\n".join("> " + line for block in technical for line in block.splitlines())
+        )
+    lines.append("## Cobertura")
     for source in report.coverage:
         lines.append(
             f"- {escape(source.project)} / {source.source}: {source.status} "
             f"(captura {source.snapshot_id})"
         )
-        for omission in source.omitted:
-            lines.append("  - " + escape(omission["locator"]) + ": " + escape(omission["reason"]))
-    lines.extend(escape(w) for w in report.warnings)
+        lines.extend(
+            "  - " + escape(o["locator"]) + ": " + escape(o["reason"]) for o in source.omitted
+        )
+    lines.extend(escape(warning) for warning in report.warnings)
     for section, model in report.model_info.items():
         lines.append(
             escape(section)
@@ -208,24 +257,4 @@ def render(report: Report) -> str:
             + " · prompt "
             + escape(report.prompt_versions[section])
         )
-    if any(
-        o.get("origin") in {"initial_inventory", "historical_reference"}
-        for o in report.observations.values()
-    ):
-        lines.insert(2, "Incluye contexto histórico; no todo representa trabajo de hoy.")
-    if report.pending:
-        lines[0] = f"# Borrador pendiente · informe {report.kind_label}"
-        lines[2:2] = [
-            "Generación incompleta. Sin entrega final ni cierre del intervalo.",
-            "## Secciones pendientes",
-            *[
-                escape(key)
-                + ": "
-                + "; ".join(
-                    escape(issue["category"] + "/" + issue["rule"] + " · " + issue["field"])
-                    for issue in issues
-                )
-                for key, issues in sorted(report.pending.items())
-            ],
-        ]
     return "\n\n".join(lines) + "\n"

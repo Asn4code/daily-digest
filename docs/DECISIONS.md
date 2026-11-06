@@ -156,3 +156,20 @@ sus dos fechas. Se limita la recuperación automática a tres intentos y se aña
 `digest resume JOB`, con presupuesto por etapa/nodo/proveedor. No cambian enums,
 tablas, planes humanos ni estados de comprensión. Se concreta el diseño de
 reservas previsto en HIERARCHICAL_DIGEST.md dentro del alcance aprobado de IN-09.
+
+### Avance de D-048/049: IN-10 (2026-11-06)
+
+Se implementa el diario por fichas, balances de proyecto, orientación breve y foco
+opcional. Inventario inicial y referencias históricas quedan visibles sin forzar
+un análisis de toda la historia. La ficha conserva piezas completas en vez de
+concatenar resúmenes contra un límite artificial; el balance deriva significado
+desde fuentes citadas y mantiene condiciones y límites. Móvil y vault usan el
+mismo contenido validado, con técnica plegable en la vault.
+
+El foco distingue propuesta, conservación del plan aceptado y ausencia justificada
+de misión. Se comprueban motivos de cambio y estados de tareas por proyecto; el
+texto humano y su aceptación nunca se modifican. El ámbito de planes y fuentes
+auxiliares se guarda en metadatos existentes, sin migrar SQLite ni cambiar rutas
+o front matter humanos. La serialización estable evita invalidar piezas idénticas
+al recuperar un inventario. No se añaden dependencias ni se implementa la webapp.
+La validación semanal y la revisión independiente del conjunto siguen pendientes.

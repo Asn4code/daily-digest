@@ -20,6 +20,7 @@ from digest.report.pdf import RasterFetcher
 from digest.worker import enqueue, execute
 from tests.fixtures.doubles import LocalSMTP
 from tests.fixtures.make_projects import _kanvas, build_projects
+from tests.fixtures.work import add_current_work
 
 NOW = datetime(2026, 11, 4, 19, tzinfo=UTC)
 
@@ -29,6 +30,7 @@ def config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, valid_llm: None) -> 
     path = build_projects(tmp_path / "projects")
     config = load_config(path)
     config.projects = config.projects[:1]
+    add_current_work(config, extra_result=False)
     config.email.password_env = "DIGEST_TEST_SMTP_PASSWORD"
     monkeypatch.setenv("DIGEST_TEST_SMTP_PASSWORD", "synthetic-password")
     try:
@@ -58,9 +60,10 @@ def test_T02_all_40_tasks_reach_email_and_local_copies(config: Config) -> None:
 
     def add_tasks(board):
         for number in range(2, 41):
-            kanvas.add_task(
+            task = kanvas.add_task(
                 board, f"Resultado {number}", board["groups"][0], state="done", by="fixture-agent"
             )
+            kanvas.add_note(task, "Resultado actual disponible para contrastar.", "fixture-agent")
 
     kanvas.mutate(str(root / "kanvas.json"), add_tasks)
     ident = build(config)

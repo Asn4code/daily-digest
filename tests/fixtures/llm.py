@@ -15,13 +15,21 @@ def fake_response(request: httpx.Request) -> httpx.Response:
         json.loads(html.unescape(raw))
         for raw in re.findall(r'<evidence id="[^"]+">(.*?)</evidence>', text, re.S)
     ]
-    eid = entries[0]["id"]
+    eid = next(
+        (
+            e["id"]
+            for e in entries
+            if e.get("meta", {}).get("capture_origin") == "observed_change"
+            or (e.get("event_at") and e.get("meta", {}).get("report_role") == "interval_evidence")
+        ),
+        entries[0]["id"],
+    )
     claim = {"text": "Hay evidencia disponible para contrastar.", "evidence": [eid]}
     title = wire["response_format"]["json_schema"]["schema"]["title"]
     if title == "SourceFindings":
         value = {
             "result_id": package["context"]["result_id"],
-            "summary": claim["text"],
+            "summary": claim,
             "observations": [claim],
             "interpretations": [],
             "controls": [],
@@ -40,6 +48,58 @@ def fake_response(request: httpx.Request) -> httpx.Response:
             "failures_or_blockers": [],
             "open_threads": [],
         }
+    elif title == "ProjectDigest":
+        cards = []
+        for rid in package["context"]["fiches"]:
+            refs = package["result_evidence"][rid][:1]
+            local = {"text": claim["text"], "evidence": refs}
+            cards.append(
+                {
+                    "result_id": rid,
+                    "question": None,
+                    "observations": [local],
+                    "meaning": None,
+                    "controls": [],
+                    "limits": [{"text": "Falta contrastar la interpretación.", "evidence": refs}],
+                    "decision_impact": None,
+                    "next_question": None,
+                }
+            )
+        eid = next(ids[0] for ids in package["result_evidence"].values() if ids)
+        claim = {**claim, "evidence": [eid]}
+        value = {
+            "project_id": package["context"]["project_id"],
+            "explanation": claim,
+            "importance": {**claim, "confidence": "low"},
+            "known_now": [claim],
+            "still_unknown": [{"text": "Falta contrastar la interpretación.", "evidence": [eid]}],
+            "decisions_changed": [],
+            "no_new_conclusion": True,
+            "results": cards,
+        }
+    elif title == "DailyOverview":
+        pid = package["project_ids"][0]
+        observation = package["context"]["balances"][pid]["known_now"][0]
+        rid = next(
+            rid
+            for rid, ids in package["result_evidence"].items()
+            if package["result_projects"][rid] == pid and set(ids) & set(observation["evidence"])
+        )
+        value = {
+            "highlights": [
+                {
+                    "project_id": pid,
+                    "result_ids": [rid],
+                    "observation": observation,
+                    "meaning": {**observation, "confidence": "low"},
+                    "decisive_limit": {
+                        "text": "Falta contrastar la interpretación.",
+                        "evidence": observation["evidence"],
+                    },
+                }
+            ],
+            "review_candidate": None,
+        }
     elif title == "DailySynthesis":
         value = {
             "highlights": [claim],
@@ -56,9 +116,13 @@ def fake_response(request: httpx.Request) -> httpx.Response:
             "review_candidate": None,
         }
     elif title == "TomorrowPlan":
+        accepted = package["active_plan_id"]
         value = {
-            "mission": {
+            "mission": None
+            if accepted is not None
+            else {
                 "kind": "mission",
+                "project_id": package["project_ids"][0],
                 "action": "Contrastar el resultado con un control",
                 "done_criterion": "Explicación contrastada con las evidencias",
                 "dependency": None,
@@ -66,8 +130,18 @@ def fake_response(request: httpx.Request) -> httpx.Response:
                 "origin": "model",
                 "kanvas_task_id": None,
                 "evidence": [eid],
+                "priority_basis": ["control"],
+                "decision_unlocked": "Decidir qué interpretación sostener",
+                "uncertainty_addressed": {
+                    "text": "Falta contrastar la interpretación.",
+                    "evidence": [eid],
+                },
+                "human_plan_id": None,
             },
             "warmups": [],
+            "carry_forward_id": accepted,
+            "change_reason": None,
+            "no_mission_reason": None,
         }
     elif title == "WeeklyReport":
         objective = {

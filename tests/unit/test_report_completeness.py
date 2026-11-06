@@ -9,8 +9,8 @@ from digest.report.model import Coverage, EvidenceEntry, Report, ResultEntry
 @pytest.mark.parametrize(
     "kind,required",
     [
-        ("daily", {"conceptual", "plan"}),
-        ("preview", {"conceptual", "plan"}),
+        ("daily", {"conceptual", "plan", "project:p"}),
+        ("preview", {"conceptual", "plan", "project:p"}),
         ("weekly", {"weekly"}),
     ],
 )
