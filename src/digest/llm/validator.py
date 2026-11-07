@@ -74,6 +74,50 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
         }
         if scope.result_evidence != expected_results:
             raise ValidationError("Result evidence index modified")
+        if key.startswith("critical:"):
+            pid = key.split(":", 1)[1]
+            if package["context"].get("project_id") != pid or value["project_id"] != pid:
+                raise ValidationError("Critical project mismatch")
+            expected_prior = {
+                p["id"]: p
+                for p in report.human_context.get("weekly_conclusions", [])
+                if p["project_id"] == pid
+            }
+            if scope.conclusions != expected_prior:
+                raise ValidationError("Prior conclusion provenance modified")
+            entries_by_id = {e.id: e for e in report.evidence}
+            for prior in scope.conclusions.values():
+                comparison_result = next(
+                    (r for r in report.results if r.id == prior["result_id"]), None
+                )
+                if (
+                    comparison_result is None
+                    or comparison_result.project != pid
+                    or not set(prior["evidence"]) <= scope.evidence.keys()
+                ):
+                    raise ValidationError("Prior conclusion evidence missing")
+                new_ids = set(prior["new_evidence"])
+                if not new_ids <= set(comparison_result.evidence) & current_evidence_ids(report):
+                    raise ValidationError("New evidence outside result")
+                if any(
+                    (entries_by_id[eid].event_at or entries_by_id[eid].observed_at)
+                    <= prior["source_date"]
+                    for eid in new_ids
+                ):
+                    raise ValidationError("Comparison evidence is not newer")
+        if key == "weekly":
+            expected_critical = {
+                c["conclusion_id"]: c
+                for node, content in report.sections.items()
+                if node.startswith("critical:")
+                for c in content["checks"]
+            }
+            if scope.critical != expected_critical:
+                raise ValidationError("Critical findings modified")
+            if scope.conclusions != {
+                p["id"]: p for p in report.human_context.get("weekly_conclusions", [])
+            }:
+                raise ValidationError("Prior conclusion provenance modified")
         parents = package.get("parents", [])
         if len(parents) != len(set(parents)) or any(
             parent not in report.sections for parent in parents
@@ -201,6 +245,10 @@ class EvidencePackage:
     active_plan_id: int | None = None
     project_task_states: dict[str, dict[str, str]] = field(default_factory=dict)
     result_evidence: dict[str, set[str]] = field(default_factory=dict)
+    conclusions: dict[str, dict[str, Any]] = field(default_factory=dict)
+    critical: dict[str, dict[str, Any]] = field(default_factory=dict)
+    weekly_projects: set[str] = field(default_factory=set)
+    weekly_balances: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 def _numeric_values(value: Any) -> list[float]:
@@ -331,14 +379,22 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
                     "result_ids",
                     "carry_forward_id",
                     "human_plan_id",
+                    "conclusion_id",
+                    "critical_ids",
+                    "critical_highlights",
                 }:
                     continue
-                if key in {
-                    "action",
-                    "done_criterion",
-                    "dependency",
-                    "decision_unlocked",
-                } and isinstance(item, str):
+                if (
+                    key
+                    in {
+                        "action",
+                        "done_criterion",
+                        "dependency",
+                        "decision_unlocked",
+                    }
+                    and isinstance(item, str)
+                    or ("analyses" in path and isinstance(item, str))
+                ):
                     try:
                         text(item, refs, measurements=False)
                     except ValidationError as error:
@@ -402,6 +458,43 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             or candidate.result_id in package.closed_results
         ):
             raise ValidationError("unavailable_review_candidate", ("review_candidate", "result_id"))
+    if isinstance(output, schemas.WeeklyCritical):
+        if output.project_id not in package.project_ids:
+            raise ValidationError("unknown_project", ("project_id",))
+        ids_checked = [check.conclusion_id for check in output.checks]
+        if set(ids_checked) != package.conclusions.keys() or len(ids_checked) != len(
+            set(ids_checked)
+        ):
+            raise ValidationError("incomplete_conclusion_checks", ("checks",))
+        if (not output.checks) != (output.no_comparison_reason is not None):
+            raise ValidationError("comparison_reason_missing", ("no_comparison_reason",))
+        path: tuple[str | int, ...]
+        for index, check in enumerate(output.checks):
+            path = ("checks", index)
+            prior = package.conclusions[check.conclusion_id]
+            if prior["project_id"] != output.project_id:
+                raise ValidationError("unknown_project", (*path, "conclusion_id"))
+            old = set(prior["evidence"])
+            new = set(check.new_evidence)
+            if not new or not new <= set(prior["new_evidence"]) or not new <= allowed or new & old:
+                raise ValidationError("new_evidence_missing", (*path, "new_evidence"))
+            cited = set(check.assessment.evidence)
+            if not cited & old or not cited & new:
+                raise ValidationError(
+                    "comparison_lineage_missing", (*path, "assessment", "evidence")
+                )
+            if not check.comparable and check.outcome in {"reinforces", "challenges"}:
+                raise ValidationError("incomparable_conditions", (*path, "outcome"))
+            if check.outcome == "challenges" and not check.alternative_explanations:
+                raise ValidationError("alternatives_missing", (*path, "alternative_explanations"))
+            for number, analysis in enumerate(check.analyses):
+                predicted = [p.alternative for p in analysis.predictions]
+                if set(predicted) != set(analysis.alternatives) or len(predicted) != len(
+                    set(predicted)
+                ):
+                    raise ValidationError(
+                        "predictions_incomplete", (*path, "analyses", number, "predictions")
+                    )
     plan: list[schemas.PlanItem]
     if isinstance(output, schemas.TomorrowPlan):
         if (output.mission and output.mission.kind != "mission") or any(
@@ -449,8 +542,15 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
                 raise ValidationError("kanvas_reason_missing", ("mission", "origin"))
         plan = [*([mission] if mission else []), *output.warmups]
     elif isinstance(output, schemas.WeeklyReport):
-        if any(p.project_id not in package.project_ids for p in output.projects):
+        project_ids = [p.project_id for p in output.projects]
+        if (
+            set(project_ids) != package.weekly_projects
+            or len(project_ids) != len(set(project_ids))
+            or not set(project_ids) <= package.project_ids
+        ):
             raise ValidationError("unknown_project", ("projects",))
+        if any(p.model_dump() != package.weekly_balances[p.project_id] for p in output.projects):
+            raise ValidationError("weekly_balance_modified", ("projects",))
         figures = {eid for eid, e in package.evidence.items() if e.kind == "figure"}
         picked = set(output.key_figures)
         if (
@@ -464,7 +564,21 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             or output.review_status.pending != package.pending_reviews
         ):
             raise ValidationError("invalid_review_summary", ("review_status",))
-        plan = output.next_week
+        if (
+            len(output.critical_highlights) != len(set(output.critical_highlights))
+            or not set(output.critical_highlights) <= package.critical.keys()
+        ):
+            raise ValidationError("unknown_critical_check", ("critical_highlights",))
+        if package.critical and not output.critical_highlights:
+            raise ValidationError("critical_highlight_missing", ("critical_highlights",))
+        actionable = {
+            cid
+            for cid, check in package.critical.items()
+            if check["analyses"] or check["outcome"] in {"qualifies", "challenges"}
+        }
+        if actionable and not any(set(item.critical_ids) & actionable for item in output.next_week):
+            raise ValidationError("critical_focus_missing", ("next_week",))
+        plan = list(output.next_week)
     else:
         plan = []
     for index, item in enumerate(plan):
@@ -480,10 +594,19 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             )
         )
         states = package.task_states
-        if isinstance(item, schemas.DailyMission | schemas.DailyWarmup):
+        if isinstance(item, schemas.DailyMission | schemas.DailyWarmup | schemas.WeeklyObjective):
             if item.project_id not in package.project_ids:
                 raise ValidationError("unknown_project", (*path, "project_id"))
             states = package.project_task_states.get(item.project_id, {})
+        if isinstance(item, schemas.WeeklyObjective):
+            if not set(item.critical_ids) <= package.critical.keys():
+                raise ValidationError("unknown_critical_check", (*path, "critical_ids"))
+            for cid in item.critical_ids:
+                focus_prior = package.conclusions.get(cid)
+                if focus_prior is None or focus_prior["project_id"] != item.project_id:
+                    raise ValidationError("unknown_project", (*path, "critical_ids"))
+                if not set(item.evidence) & set(package.critical[cid]["new_evidence"]):
+                    raise ValidationError("critical_focus_evidence_missing", (*path, "evidence"))
         if item.origin == "kanvas":
             if item.kanvas_task_id not in states:
                 raise ValidationError("unknown_kanvas_task", (*path, "kanvas_task_id"))

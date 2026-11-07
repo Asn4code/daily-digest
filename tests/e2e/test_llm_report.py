@@ -176,11 +176,12 @@ def test_T18_weekly_uses_evidence_even_when_daily_report_files_are_missing(
     typed.sections["weekly"]["projects"][0]["hypotheses_changed"] = [
         {
             "text": "El control sugiere sesgo",
-            "evidence": [typed.evidence[0].id],
+            "evidence": [typed.packages["weekly"]["evidence"][0]["id"]],
             "confidence": "low",
         }
     ]
     assert "Interpretación (confianza baja): El control sugiere sesgo" in render(typed)
+    typed = TypeAdapter(Report).validate_json(path.with_suffix(".json").read_bytes())
     assert len(typed.sections["weekly"]["review_status"]["pending"]) > 1
     typed.sections["weekly"]["review_status"]["pending"].reverse()
     with pytest.raises(ValidationError, match="invalid_review_summary"):
@@ -289,7 +290,9 @@ def test_secrets_are_removed_from_sources_context_snapshots_and_model_wire(
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
-@pytest.mark.parametrize("stage", ["extract", "project", "conceptual", "plan", "weekly"])
+@pytest.mark.parametrize(
+    "stage", ["extract", "project", "conceptual", "plan", "critical", "weekly"]
+)
 def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str
 ) -> None:
@@ -303,6 +306,7 @@ def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
         "conceptual": "DailyOverview",
         "plan": "TomorrowPlan",
         "weekly": "WeeklyReport",
+        "critical": "WeeklyCritical",
     }
     calls = []
     failed_result = None
@@ -329,10 +333,10 @@ def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
         original(self, *args, **kwargs, client=client)
 
     with patch.object(Router, "__init__", setup):
-        job = enqueue(config, "weekly" if stage == "weekly" else "daily")
+        job = enqueue(config, "weekly" if stage in {"critical", "weekly"} else "daily")
         now = (
             datetime(2026, 11, 7, 9, tzinfo=UTC)
-            if stage == "weekly"
+            if stage in {"critical", "weekly"}
             else datetime(2026, 11, 4, 19, tzinfo=UTC)
         )
         path = Path(execute(config, job, now=now))
@@ -342,6 +346,8 @@ def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
         if stage == "extract"
         else "project:" + config.projects[0].id
         if stage == "project"
+        else "critical:" + config.projects[0].id
+        if stage == "critical"
         else stage
     )
     assert key in value["pending"]
@@ -363,6 +369,8 @@ def test_partial_failure_preserves_valid_sections_and_blocks_descendants(
         assert "DailyOverview" not in calls and "TomorrowPlan" not in calls
     if stage == "conceptual":
         assert "TomorrowPlan" not in calls
+    if stage == "critical":
+        assert "WeeklyReport" not in calls
     with closing(connect(Path(config.paths.data_dir) / "digest.db")) as db:
         assert db.execute("SELECT closed FROM interval").fetchone() == (0,)
         assert db.execute("SELECT count(*) FROM delivery").fetchone() == (0,)

@@ -7,7 +7,7 @@ from jinja2 import Environment, select_autoescape
 from digest.report.model import Report
 from digest.report.observations import origin_label
 from digest.report.timeutil import display
-from digest.report.views import CONFIDENCE, PRIORITIES, daily_view
+from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
 
 ENV = Environment(autoescape=select_autoescape(default=True, default_for_string=True))
 ENV.filters["localtime"] = display
@@ -18,4 +18,10 @@ TEMPLATE = files("digest.report").joinpath("templates/report.html").read_text(en
 
 
 def render(report: Report) -> str:
-    return ENV.from_string(TEMPLATE).render(report=report, view=daily_view(report))
+    return ENV.from_string(TEMPLATE).render(
+        report=report,
+        view=daily_view(report),
+        critical=weekly_checks(report),
+        critical_highlights=weekly_checks(report, highlighted=True),
+        critical_notices=weekly_notices(report),
+    )

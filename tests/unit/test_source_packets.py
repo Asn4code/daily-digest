@@ -64,6 +64,16 @@ def test_many_independent_documents_are_batched_not_one_call_per_file() -> None:
     assert plan(list(reversed(entries)), size=size, limit=600) == packets
 
 
+def test_unrelated_technical_files_do_not_become_an_indivisible_directory() -> None:
+    entries = [entry(f"diff_{n}", "diff", f"src/file_{n}.py") for n in range(8)]
+    packets = plan(entries, size=lambda ids: len(ids) * 100, limit=400)
+    assert len(packets) == 2 and all(p.fits for p in packets)
+    # Versions of the same artifact still travel together.
+    entries.append(entry("previous", "diff", "src/file_0.py"))
+    related, _ = units(entries)
+    assert ["diff_0", "previous"] in related
+
+
 def test_notebook_cells_and_comparison_artifacts_share_one_unit() -> None:
     entries = [
         entry("cell_a", "notebook_change", "analysis/compare.ipynb"),

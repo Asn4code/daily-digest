@@ -14,6 +14,37 @@ PRIORITIES = {
     "kanvas": "tarea de Kanvas",
 }
 CONFIDENCE = {"low": "baja", "medium": "media", "high": "alta"}
+OUTCOMES = {
+    "reinforces": "Refuerza",
+    "qualifies": "Matiza o restringe",
+    "challenges": "Pone en duda",
+    "inconclusive": "No permite decidir",
+}
+
+
+def weekly_checks(report: Report, *, highlighted: bool = False) -> list[dict[str, Any]]:
+    prior = {p["id"]: p for p in report.human_context.get("weekly_conclusions", [])}
+    checks = {
+        c["conclusion_id"]: c
+        for key, value in report.sections.items()
+        if key.startswith("critical:")
+        for c in value["checks"]
+    }
+    selected = (
+        report.sections.get("weekly", {}).get("critical_highlights", []) if highlighted else checks
+    )
+    return [
+        {**checks[cid], "prior": prior[cid], "label": OUTCOMES[checks[cid]["outcome"]]}
+        for cid in selected
+    ]
+
+
+def weekly_notices(report: Report) -> list[dict[str, Any]]:
+    return [
+        value["no_comparison_reason"]
+        for key, value in report.sections.items()
+        if key.startswith("critical:") and value["no_comparison_reason"]
+    ]
 
 
 @dataclass(frozen=True)

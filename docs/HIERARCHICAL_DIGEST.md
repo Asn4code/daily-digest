@@ -361,3 +361,22 @@ plegadas. El foco puede ser una propuesta ejecutable, mantener el plan aceptado
 o explicar por qué no hay misión nueva. Se conserva el texto humano y los motivos
 de cambio necesitan evidencia. La comprobación automática no firma utilidad ni
 comprensión; esas siguen requiriendo la revisión humana de la puerta.
+
+### Semanal implementado en IN-12
+
+La cadena semanal añade un balance crítico por proyecto entre fichas y agregado.
+La declaración anterior conserva identidad, fecha, autor, versión, condiciones,
+estado humano y evidencia original; otra evidencia del mismo resultado debe ser
+posterior para contrastarla. La evaluación distingue refuerzo, matiz, duda y falta
+de comparabilidad. Toda alerta cita ambos lados y conserva una limitación decisiva.
+Los diseños de análisis tienen pregunta, alternativas, datos, control, predicciones
+y criterio para decidir, y se enlazan a propuestas del próximo foco.
+
+La declaración humana no se reescribe ni se reabre; su último contraste se añade
+como contexto. Las evaluaciones automáticas sí generan versiones de interpretación
+con procedencia. El móvil muestra hasta tres evaluaciones con el mismo límite y
+consecuencia que la vault; esta desarrolla originales, condiciones y diseños.
+Una semana sin evidencia adicional no repite alertas y la ausencia de bases
+anteriores no se presenta como prueba de ausencia de cambio. Si falla la etapa
+crítica, no se solicita ni publica el agregado. Los balances válidos tampoco se
+reescriben al integrarlos. La validación real y humana del conjunto sigue abierta.

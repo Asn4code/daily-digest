@@ -48,10 +48,11 @@ def units(entries: list[EvidenceEntry]) -> tuple[list[list[str]], list[str]]:
         if isinstance(path, str):
             paths.setdefault(path, []).append(e.id)
             directory = str(PurePosixPath(path).parent)
-            # Group technical changes too: small files do not imply a model call each.
-            family = "experiment" if e.kind in SCIENTIFIC else e.kind
-            if e.kind in SCIENTIFIC or e.kind in {"diff", "uncommitted"}:
-                directories.setdefault(family + ":" + directory, []).append(e.id)
+            # Scientific artifacts share their experiment's conditions. Unrelated
+            # technical files in a directory are packed together when they fit,
+            # but the directory alone does not make them an indivisible control.
+            if e.kind in SCIENTIFIC:
+                directories.setdefault(directory, []).append(e.id)
         elif e.kind.startswith("task_") or e.kind == "commit":
             anchors.append(e.id)
     for related in [*paths.values(), *directories.values()]:

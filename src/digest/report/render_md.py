@@ -1,13 +1,14 @@
 """Render orientation, conceptual understanding and expandable technical evidence."""
 
 import html
+import json
 import re
 from typing import Any
 
 from digest.report.model import Report
 from digest.report.observations import normalize, origin_label
 from digest.report.timeutil import display
-from digest.report.views import CONFIDENCE, PRIORITIES, daily_view
+from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
 
 
 def escape(text: str) -> str:
@@ -53,7 +54,19 @@ def render(report: Report) -> str:
         lines.append("Incluye contexto histórico; no todo representa trabajo de hoy.")
     lines.append("## Lo esencial · orientación")
     if weekly:
-        lines.extend(claims(weekly["patterns"][:3]))
+        highlighted = weekly_checks(report, highlighted=True)
+        if highlighted:
+            for check in highlighted:
+                lines.extend(
+                    [
+                        check["label"] + " · " + escape(check["prior"]["project_id"]),
+                        interpretation(check["assessment"]),
+                        "Límite decisivo: " + claim(check["decisive_limit"]),
+                        "Consecuencia para el foco: " + claim(check["focus_implication"]),
+                    ]
+                )
+        else:
+            lines.extend(claims(weekly["patterns"][:3]))
     elif view.highlights:
         for item in view.highlights:
             lines.extend(
@@ -92,6 +105,49 @@ def render(report: Report) -> str:
             lines.extend(claims(project["progress_vs_objective"]))
             lines.extend(claims(project["decisions"]))
             lines.extend(interpretation(value) for value in project["hypotheses_changed"])
+    if report.kind == "weekly":
+        lines.append("## Contraste crítico semanal")
+        lines.extend(claims(weekly_notices(report)))
+        for check in weekly_checks(report):
+            prior = check["prior"]
+            lines.extend(
+                [
+                    "### " + check["label"] + " · " + escape(prior["result_id"]),
+                    "Declaración anterior: " + escape(prior["text"]),
+                    "Autor: " + escape(prior["author"]) + " · Versión: " + escape(prior["version"]),
+                    "Fecha de referencia: " + display(prior["source_date"], report.timezone),
+                    "Estado humano conservado: " + escape(prior["review_state"]),
+                    "Alcance y condiciones originales: "
+                    + escape(json.dumps(prior["scope"], ensure_ascii=False)),
+                    "Fuentes anteriores: " + ", ".join(prior["evidence"]),
+                    "Fuentes nuevas: " + ", ".join(check["new_evidence"]),
+                    "Comparabilidad: " + claim(check["comparability"]),
+                    interpretation(check["assessment"]),
+                    "Límite decisivo: " + claim(check["decisive_limit"]),
+                    "Consecuencia para el foco: " + claim(check["focus_implication"]),
+                ]
+            )
+            lines.extend(claims(check["alternative_explanations"]))
+            for analysis in check["analyses"]:
+                lines.extend(
+                    [
+                        "#### Análisis propuesto · " + escape(analysis["question"]),
+                        "Datos necesarios: " + escape(analysis["required_data"]),
+                        "Control: " + escape(analysis["control"]),
+                        "Dependencia: " + escape(analysis["dependency"] or "Ninguna declarada"),
+                        "Alternativas: " + "; ".join(escape(t) for t in analysis["alternatives"]),
+                        *[
+                            "Predicción para "
+                            + escape(p["alternative"])
+                            + ": "
+                            + escape(p["expected_observation"])
+                            for p in analysis["predictions"]
+                        ],
+                        "Criterio de decisión: " + escape(analysis["decision_criterion"]),
+                        "Motivado por: " + ", ".join(analysis["evidence"]),
+                        "Propuesta; no ejecutada por el servicio.",
+                    ]
+                )
     lines.append("## Todo lo hecho y contexto observado")
     if not report.results:
         lines.append(
@@ -144,7 +200,9 @@ def render(report: Report) -> str:
                 lines.append("Explicación pendiente.")
         for figure in result.figures:
             lines.append(f"![{escape(figure.caption)}]({figure.path}) · {figure.evidence}")
-    lines.append("## Propuesta de semana" if weekly else "## Plan de mañana · próximo foco")
+    lines.append(
+        "## Propuesta de semana" if report.kind == "weekly" else "## Plan de mañana · próximo foco"
+    )
     if view.planning_for:
         lines.append(
             "Orientado al " + escape(view.planning_for) + ". La elección sigue siendo tuya."
@@ -189,6 +247,8 @@ def render(report: Report) -> str:
             lines.append("Duda o control: " + claim(item["uncertainty_addressed"]))
     if view.no_mission_reason:
         lines.append("Sin misión nueva propuesta: " + claim(view.no_mission_reason))
+    elif report.pending and not proposed:
+        lines.append("Propuesta pendiente de validación.")
     elif not proposed and not view.carry_forward:
         lines.append("Sin misión nueva propuesta.")
     lines.append("## Hilos abiertos")

@@ -17,7 +17,7 @@ Dos proveedores con API compatible con OpenAI: **Qwen/Qwen3.8-27B** interno (con
 | `extract` | Paquete de unidades relacionadas de un resultado | `internal`, luego `nan` | `SourceFindings`; ensamblado validado a `ResultFiche` |
 | `conceptual` | Fichas y objetivo por proyecto; balances para orientación | `nan`, luego `internal` | `ProjectDigest`, después `DailyOverview` |
 | `plan` | Balances, orientación, tareas disponibles y contexto humano | `nan`, luego `internal` | `TomorrowPlan`, con misión opcional |
-| `weekly` | Extracciones de 7 días + revisiones + plan aceptado de cada día | `nan` (contexto largo), luego `internal` | `WeeklyReport` |
+| `weekly` | Fichas semanales + declaraciones previas y nuevas fuentes; luego balances críticos | `nan`, luego `internal` | `WeeklyCritical` por proyecto, después `WeeklyReport` |
 | `contrast` | Explicación humana + paquete del resultado + resumen automático | A decidir en el piloto | `Contrast` |
 
 - La configuración (`llm.routing`) asigna proveedores por tarea; `llm.providers` asigna modelo, URL y timeout.
@@ -423,3 +423,51 @@ referencia. Una fecha de procedencia exacta puede respaldar una fecha textual si
 que deba repetirse en el extracto. La validación automática de IDs/cifras no prueba
 por sí sola que una paráfrasis esté científicamente respaldada: se mantiene la
 revisión semántica real e independiente antes de la puerta.
+
+## 16. Contraste crítico semanal (IN-12)
+
+Tras las fuentes y fichas, `WeeklyCritical` construye un balance por proyecto y
+contrasta declaraciones previas con evidencia posterior del mismo resultado.
+Cada base conserva texto, versión, fecha, alcance/controles/límites, autor
+(`human` o `automatic`), fuentes originales y estado humano actual. Una revisión
+con texto humano tiene prioridad; no se convierte una interpretación del modelo
+en una explicación aceptada. Se consultan como máximo cuarenta revisiones y ocho
+informes anteriores por proyecto, con hasta veinte resultados para el contraste.
+Las bases ausentes, inaccesibles o fuera de límites se explicitan; no demuestran
+ausencia de cambio. El inventario semanal completo permanece visible.
+
+La declaración humana mantiene su identidad aunque cambie la evidencia nueva.
+El último contraste disponible se incorpora como contexto con sus pruebas, sin
+reescribirla. Una evaluación automática anterior puede ser una versión nueva de
+referencia; el informe conserva su procedencia. Solo se compara cuando hay otra
+evidencia del resultado posterior a la fecha de referencia; sin evidencia adicional
+no se repite la alerta. Una conclusión humana cerrada puede recibir una alerta
+sin modificar ni reabrir su revisión.
+
+Cada contraste elige refuerzo, matiz, cuestionamiento o imposibilidad de decidir.
+La evaluación cita fuentes antiguas y nuevas. Comparabilidad, límite decisivo,
+explicaciones alternativas y consecuencia para el foco son explícitos; condiciones
+no comparables no permiten declarar refuerzo o contradicción. Los análisis son
+opcionales y propuestos: pregunta, alternativas, datos, control, predicción para
+cada alternativa, dependencia y criterio de decisión. No se ejecuta contenido ni
+se crean tareas en los proyectos. Sin bases anteriores se genera un balance con
+la carencia declarada; no se inventa una controversia.
+
+El agregado `WeeklyReport` conserva exactamente los balances críticos validados,
+selecciona hasta tres IDs de contraste y propone objetivos con `critical_ids`.
+Cuando el contraste propone análisis o matiza/cuestiona, al menos un objetivo
+debe recoger una consecuencia con evidencia nueva. Correo y vault presentan la
+misma evaluación, límite y consecuencia originales; la vault desarrolla el texto
+anterior, condiciones, alternativas y diseños de análisis. Los estados y planes
+humanos nunca se aceptan o modifican automáticamente. Un rechazo de la etapa
+crítica impide solicitar el agregado y publicar o entregar el semanal.
+
+Los paquetes críticos tienen hasta 48 000 caracteres escapados; el agregado,
+64 000, o el límite configurado si es menor. Las fuentes usan hasta el 65 % del
+presupuesto, crítica hasta el 85 % y agregado hasta el plazo global. Se aplican
+las políticas de todos los proyectos configurados al texto humano, que podría
+mencionar otros proyectos. Se usan artefactos y metadatos existentes, sin migrar
+SQLite ni cambiar archivos humanos. Los diffs técnicos independientes de un
+directorio se empaquetan juntos cuando caben; compartir directorio no los hace
+indivisibles. Versiones de una ruta, vínculos explícitos y controles experimentales
+siguen viajando completos.

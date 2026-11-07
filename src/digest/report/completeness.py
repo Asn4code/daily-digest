@@ -11,6 +11,8 @@ def required_sections(report: Report) -> set[str]:
     if active:
         if report.kind != "weekly":
             required.update("project:" + result.project for result in active)
+        else:
+            required.update("critical:" + result.project for result in active)
         required.update({"weekly"} if report.kind == "weekly" else {"conceptual", "plan"})
     return required
 

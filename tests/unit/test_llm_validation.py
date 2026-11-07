@@ -143,7 +143,7 @@ def test_T17_project_instructions_remain_escaped_data() -> None:
         assert "<system>" not in output[1]["content"]
         assert "&lt;/evidence&gt;" in output[1]["content"]
         assert output[1]["content"].count("<evidence ") == 1
-        assert prompt.version == ("2" if task in {"conceptual", "plan"} else "1")
+        assert prompt.version == ("2" if task in {"conceptual", "plan", "weekly"} else "1")
 
 
 def test_finished_kanvas_task_cannot_be_proposed(package: EvidencePackage) -> None:

@@ -11,7 +11,7 @@ from digest.report.model import Coverage, EvidenceEntry, Report, ResultEntry
     [
         ("daily", {"conceptual", "plan", "project:p"}),
         ("preview", {"conceptual", "plan", "project:p"}),
-        ("weekly", {"weekly"}),
+        ("weekly", {"weekly", "critical:p"}),
     ],
 )
 def test_requirements_come_from_inventory_not_mechanical_flag(

@@ -143,6 +143,34 @@ def fake_response(request: httpx.Request) -> httpx.Response:
             "change_reason": None,
             "no_mission_reason": None,
         }
+    elif title == "WeeklyCritical":
+        value = {
+            "project_id": package["context"]["project_id"],
+            "progress_vs_objective": [claim],
+            "decisions": [],
+            "hypotheses_changed": [],
+            "checks": [],
+            "no_comparison_reason": claim,
+        }
+        for cid, prior in package["conclusions"].items():
+            refs = list(dict.fromkeys(prior["evidence"][:1] + prior["new_evidence"][:1]))
+            pair = {"text": "El contraste requiere comprobar condiciones.", "evidence": refs}
+            value["checks"].append(
+                {
+                    "conclusion_id": cid,
+                    "new_evidence": prior["new_evidence"][:1],
+                    "outcome": "inconclusive",
+                    "comparable": False,
+                    "comparability": pair,
+                    "assessment": {**pair, "confidence": "low"},
+                    "decisive_limit": pair,
+                    "alternative_explanations": [],
+                    "analyses": [],
+                    "focus_implication": pair,
+                }
+            )
+        if value["checks"]:
+            value["no_comparison_reason"] = None
     elif title == "WeeklyReport":
         objective = {
             "kind": "mission",
@@ -153,16 +181,21 @@ def fake_response(request: httpx.Request) -> httpx.Response:
             "origin": "model",
             "kanvas_task_id": None,
             "evidence": [eid],
+            "project_id": package["project_ids"][0],
+            "critical_ids": [],
         }
         value = {
             "projects": [
                 {
-                    "project_id": pid,
-                    "progress_vs_objective": [claim],
-                    "decisions": [],
-                    "hypotheses_changed": [],
+                    field: package["context"]["project_balances"][pid][field]
+                    for field in (
+                        "project_id",
+                        "progress_vs_objective",
+                        "decisions",
+                        "hypotheses_changed",
+                    )
                 }
-                for pid in package["project_ids"]
+                for pid in package["context"]["project_balances"]
             ],
             "patterns": [claim],
             "key_figures": [e["id"] for e in entries if e["kind"] == "figure"][:6],
@@ -172,6 +205,7 @@ def fake_response(request: httpx.Request) -> httpx.Response:
                 "doubts": [],
             },
             "next_week": [objective, objective, {**objective, "action": "Sesión de revisión"}],
+            "critical_highlights": list(package["critical"])[:3],
         }
     else:
         raise AssertionError(title)

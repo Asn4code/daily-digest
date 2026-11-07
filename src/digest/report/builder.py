@@ -23,6 +23,7 @@ from digest.report.model import EvidenceEntry, Report, ResultEntry
 from digest.report.observations import normalize
 from digest.report.packets import SOURCE_PACKET_CHARS, Packet
 from digest.report.packets import plan as plan_packets
+from digest.report.weekly import build as build_weekly
 from digest.util.redact import known_secrets, redact, redact_tree
 
 SCHEMAS: dict[str, type[BaseModel]] = {
@@ -32,6 +33,7 @@ SCHEMAS: dict[str, type[BaseModel]] = {
     "conceptual": schemas.DailyOverview,
     "plan": schemas.TomorrowPlan,
     "weekly": schemas.WeeklyReport,
+    "critical": schemas.WeeklyCritical,
 }
 
 
@@ -72,6 +74,21 @@ def package_scope(payload: dict[str, Any]) -> EvidencePackage:
         payload.get("active_plan_id"),
         dict(payload.get("project_task_states", {})),
         {rid: set(ids) for rid, ids in payload.get("result_evidence", {}).items()},
+        dict(payload.get("conclusions", {})),
+        dict(payload.get("critical", {})),
+        set(payload.get("context", {}).get("project_balances", {})),
+        {
+            pid: {
+                field: value[field]
+                for field in (
+                    "project_id",
+                    "progress_vs_objective",
+                    "decisions",
+                    "hypotheses_changed",
+                )
+            }
+            for pid, value in payload.get("context", {}).get("project_balances", {}).items()
+        },
     )
 
 
@@ -146,6 +163,8 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             "result_ids": result_ids,
             "task_states": context.get("_task_states", states),
             "project_task_states": context.get("_project_task_states", {}),
+            "conclusions": context.get("_conclusions", {}),
+            "critical": context.get("_critical", {}),
             "human_plan_ids": context.get("_human_plan_ids", []),
             "active_plan_id": context.get("_active_plan_id"),
             "result_projects": {r.id: r.project for r in report.results if r.id in result_ids},
@@ -425,15 +444,6 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
     if not active:
         report.mechanical = False
         return report
-    present = {e.project for e in report.evidence}
-    results = [r.id for r in report.results]
-    context = {
-        "objectives": {pid: projects[pid].objective for pid in present},
-        "results": [{"id": r.id, "project": r.project, "title": r.title} for r in report.results],
-        "extractions": {
-            key: value for key, value in report.sections.items() if key.startswith("extract:")
-        },
-    }
     if report.kind != "weekly":
         build_daily(
             db,
@@ -445,52 +455,15 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             overview_deadline=started + duration * 0.9,
             deadline=router.deadline,
         )
-    elif present:
-        marks = ",".join("?" for _ in present)
-        parameters = tuple(sorted(present))
-        completed = sorted(
-            {
-                r[0]
-                for r in db.execute(
-                    "SELECT v.result_id FROM review v JOIN result r ON r.id=v.result_id "
-                    "WHERE v.decision='closed' AND v.decided_at>=? AND v.decided_at<=? "
-                    "AND r.project_id IN (" + marks + ")",
-                    (report.start_at, report.end_at, *parameters),
-                )
-            }
-        )
-        pending = [
-            r[0]
-            for r in db.execute(
-                "SELECT id FROM result WHERE review_state!='closed_by_human' "
-                "AND first_seen_at<=? AND project_id IN (" + marks + ") ORDER BY first_seen_at,id",
-                (report.end_at, *parameters),
-            )
-        ]
-        accepted = [
-            dict(zip(["action", "done_criterion", "edited_text"], row, strict=True))
-            for row in db.execute(
-                "SELECT p.action,p.done_criterion,p.edited_text FROM plan_item p "
-                "JOIN report r ON r.id=p.report_id JOIN interval i ON i.id=r.interval_id "
-                "WHERE p.accepted=1 AND i.end_at>=? AND i.end_at<=? ORDER BY i.end_at,p.id",
-                (report.start_at, report.end_at),
-            )
-        ]
-        # Accepted plans may contain any configured project's human text.
-        # Include every configured project in the privacy scope for this context.
-        weekly_scope = set(projects) if accepted else present
-        call(
-            "weekly",
-            "weekly",
-            list(evidence),
-            weekly_scope,
-            {
-                **{k: v for k, v in context.items() if not k.startswith("_")},
-                "completed_reviews": completed,
-                "pending_reviews": pending,
-                "accepted_plans": accepted,
-            },
-            results,
+    else:
+        build_weekly(
+            db,
+            config,
+            report,
+            call,
+            tasks,
+            critical_deadline=started + duration * 0.85,
+            deadline=router.deadline,
         )
     report.mechanical = not bool(report.sections)
     return report

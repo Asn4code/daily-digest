@@ -20,7 +20,7 @@ from digest.publish.files import create
 from digest.report.completeness import require_complete
 from digest.report.model import Report, ResultEntry
 from digest.report.timeutil import display
-from digest.report.views import CONFIDENCE, PRIORITIES, daily_view
+from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
 
 ENV = Environment(autoescape=select_autoescape(default=True, default_for_string=True))
 TEMPLATE = files("digest.report").joinpath("templates/email.html").read_text(encoding="utf-8")
@@ -57,8 +57,24 @@ def compose(
 
     plain = ["Daily Digest", display(report.end_at, report.timezone)]
     weekly = report.sections.get("weekly")
+    critical = weekly_checks(report, highlighted=True)
     if weekly:
-        plain.extend(cited(c) for c in weekly["patterns"][:3])
+        if critical:
+            for check in critical:
+                plain.extend(
+                    [
+                        check["label"] + " · " + check["prior"]["project_id"],
+                        "Interpretación (confianza "
+                        + CONFIDENCE[check["assessment"]["confidence"]]
+                        + "): "
+                        + cited(check["assessment"]),
+                        "Límite decisivo: " + cited(check["decisive_limit"]),
+                        "Consecuencia para el foco: " + cited(check["focus_implication"]),
+                    ]
+                )
+        else:
+            plain.extend(cited(c) for c in weekly["patterns"][:3])
+            plain.extend("Base del contraste: " + cited(c) for c in weekly_notices(report))
     else:
         for item in view.highlights:
             plain.extend(
@@ -161,6 +177,8 @@ def compose(
         selected=selected,
         images=images,
         warning=warning,
+        critical_highlights=critical,
+        critical_notices=weekly_notices(report),
     )
     message.add_alternative(html, subtype="html")
     alternative = message.get_payload(-1)

@@ -1137,12 +1137,29 @@
     {
       "id": "IN-12",
       "title": "Contraste crítico semanal de conclusiones y evidencia nueva",
-      "state": "todo",
+      "state": "done",
       "group": "IN",
       "deps": ["IN-10"],
       "at": "2026-11-05T15:22:35Z",
       "by": "codex",
-      "desc": "El semanal ayuda a corregir el rumbo científico: contrastar conclusiones previas versionadas, su alcance y su grado de revisión humana con evidencia nueva. Explicar si esta refuerza, matiza/restringe, pone en duda o no permite decidir; comprobar controles, condiciones, comparabilidad y alternativas antes de hablar de contradicción. Conservar referencias originales de ambos lados, incluidas las históricas pertinentes.\n\nToda propuesta de nuevo análisis debe indicar qué duda resolvería, qué alternativas distinguiría, qué control/datos necesita y qué criterio permitiría tomar una decisión. Sus consecuencias alimentan propuestas del próximo plan, con motivo y dependencias; no ejecutan análisis, crean tareas en los proyectos ni alteran planes aceptados o estados humanos. Móvil: cambios de interpretación y decisiones prioritarios con incertidumbre decisiva. Vault: razonamiento crítico, pruebas y alcance consultables. No fabricar controversias, recomendar genéricamente más análisis ni repetir una alerta como nueva sin evidencia adicional.\n\nTerminado cuando fixtures de refuerzo, matiz, contradicción aparente por condiciones distintas y ausencia de cambio muestran linaje completo y consecuencias concretas para el foco siguiente. La evidencia nueva sobre un resultado ya revisado añade una alerta y otra interpretación sin sobrescribir su explicación ni reabrir automáticamente su estado. D-048/D-049 y docs/HIERARCHICAL_DIGEST.md."
+      "desc": "El semanal ayuda a corregir el rumbo científico: contrastar conclusiones previas versionadas, su alcance y su grado de revisión humana con evidencia nueva. Explicar si esta refuerza, matiza/restringe, pone en duda o no permite decidir; comprobar controles, condiciones, comparabilidad y alternativas antes de hablar de contradicción. Conservar referencias originales de ambos lados, incluidas las históricas pertinentes.\n\nToda propuesta de nuevo análisis debe indicar qué duda resolvería, qué alternativas distinguiría, qué control/datos necesita y qué criterio permitiría tomar una decisión. Sus consecuencias alimentan propuestas del próximo plan, con motivo y dependencias; no ejecutan análisis, crean tareas en los proyectos ni alteran planes aceptados o estados humanos. Móvil: cambios de interpretación y decisiones prioritarios con incertidumbre decisiva. Vault: razonamiento crítico, pruebas y alcance consultables. No fabricar controversias, recomendar genéricamente más análisis ni repetir una alerta como nueva sin evidencia adicional.\n\nTerminado cuando fixtures de refuerzo, matiz, contradicción aparente por condiciones distintas y ausencia de cambio muestran linaje completo y consecuencias concretas para el foco siguiente. La evidencia nueva sobre un resultado ya revisado añade una alerta y otra interpretación sin sobrescribir su explicación ni reabrir automáticamente su estado. D-048/D-049 y docs/HIERARCHICAL_DIGEST.md.",
+      "notes": [
+        {
+          "at": "2026-11-07T12:21:39Z",
+          "by": "codex",
+          "text": "Plan: añadir contraste semanal obligatorio por proyecto desde fichas y conclusiones anteriores con autor, versión, alcance y revisión humana. Exigir evidencia nueva y referencias de ambos lados, comparabilidad, alternativas y análisis discriminantes con control/datos/predicciones/criterio; derivar consecuencias para el foco y vistas móvil/vault comunes. Sin migrar SQLite, ejecutar análisis, escribir proyectos ni modificar estados o texto humanos. Probar refuerzo, matiz, condiciones no comparables y ausencia de cambio antes de validar el flujo real completo en IN-11."
+        },
+        {
+          "at": "2026-11-07T12:33:09Z",
+          "by": "codex",
+          "text": "Los fixtures semanales detectaron una unidad artificial demasiado grande: los diffs técnicos no relacionados de un mismo directorio se habían tratado como indivisibles. Ahora se empaquetan juntos cuando caben, pero solo misma ruta, enlaces explícitos y relaciones experimentales obligan a conservarlos en una unidad. Se mantienen versiones y controles; una unidad científica realmente mayor que el límite sigue pendiente. Añadida regresión, sin aumentar límites ni recortar evidencias."
+        },
+        {
+          "at": "2026-11-07T12:44:59Z",
+          "by": "codex",
+          "text": "El semanal ya contrasta declaraciones previas versionadas con evidencia posterior, explica comparabilidad, límites y consecuencias y enlaza análisis discriminantes al próximo foco. Móvil y vault muestran la misma evaluación; el agregado conserva los balances validados. make check: 238 tests, lint, formato y tipos pasan. Fixtures cubren refuerzo, matiz, cuestionamiento, condiciones distintas, ausencia de novedades, versiones automáticas/humanas, estado humano intacto, privacidad entre proyectos y bloqueo si falla la crítica. No se ejecutan análisis ni se cambian proyectos/planes humanos. La utilidad sobre muestras reales y la revisión independiente del rediseño se comprobarán en IN-11/IN-06; no se da por aprobada la fase."
+        }
+      ]
     }
   ]
 }

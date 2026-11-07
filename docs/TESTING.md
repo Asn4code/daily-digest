@@ -214,3 +214,22 @@ La recuperación en el límite de publicación se prueba justo antes y después 
 cierre: valida el informe ya guardado, conserva su ID y encola la entrega una sola
 vez. Una revisión completa posterior sustituye a trabajos antiguos pendientes;
 una revisión nueva solicitada explícitamente puede reanudar su propio intento.
+
+## Contraste crítico semanal (IN-12)
+
+`test_weekly_critical.py` recorre diario, revisión declarada por la persona,
+captura posterior y semanal para refuerzo, matiz, cuestionamiento y condiciones
+no comparables. Comprueba linaje de ambos lados, versión/autor, límites y foco
+idénticos en los cuatro formatos, diseños discriminantes, estado/texto humano
+intactos y ausencia de entregas en `--no-send`. Rechaza predicciones incompletas,
+evidencia solo nueva, contradicción sin comparabilidad y objetivos que ignoran
+un contraste con consecuencias. Los casos sin novedades no repiten alertas ni
+llamadas; evidencia posterior reutiliza la declaración humana y su contraste
+anterior, o una versión automática previa. Una base humana que podría mencionar
+otro proyecto privado fuerza proveedor interno en crítica y agregado.
+
+El fallo parcial E2E incluye `WeeklyCritical`: sus fuentes válidas sobreviven y
+`WeeklyReport` no se solicita. La publicación exige ambas etapas. Los balances
+del agregado deben coincidir con la etapa crítica; los IDs destacados y los del
+foco son existentes. La regresión de paquetes distingue diffs independientes de
+versiones del mismo artefacto y conserva las unidades científicas indivisibles.

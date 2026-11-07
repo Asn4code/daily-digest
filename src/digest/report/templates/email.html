@@ -2,7 +2,7 @@
 <body style="font:17px/1.5 Arial,sans-serif;margin:0;padding:16px;color:#18212b;background:#fff;max-width:640px">
 {% macro claim(c) %}{{ c.text }} — {{ c.evidence|join(', ') }}{% endmacro %}
 <h1 style="font-size:24px">Daily Digest</h1><p>{{ date }}</p>{% set weekly=report.sections.get('weekly') %}
-<h2>Lo esencial</h2>{% if weekly %}{% for c in weekly.patterns[:3] %}<p>{{ claim(c) }}</p>{% endfor %}
+<h2>Lo esencial</h2>{% if weekly %}{% if critical_highlights %}{% for c in critical_highlights %}<h3>{{ c.label }} · {{ c.prior.project_id }}</h3><p>Interpretación (confianza {{ confidence[c.assessment.confidence] }}): {{ claim(c.assessment) }}</p><p><strong>Límite decisivo:</strong> {{ claim(c.decisive_limit) }}</p><p>Consecuencia para el foco: {{ claim(c.focus_implication) }}</p>{% endfor %}{% else %}{% for c in weekly.patterns[:3] %}<p>{{ claim(c) }}</p>{% endfor %}{% for c in critical_notices %}<p>Base del contraste: {{ claim(c) }}</p>{% endfor %}{% endif %}
 {% elif view.highlights %}{% for h in view.highlights %}<p>{{ claim(h.observation) }}</p><p>Interpretación (confianza {{ confidence[h.meaning.confidence] }}): {{ claim(h.meaning) }}</p><p style="border-left:4px solid #b87500;padding:8px"><strong>Límite decisivo:</strong> {{ claim(h.decisive_limit) }}</p>{% endfor %}
 {% else %}<p>{{ view.orientation_notice }}</p>{% endif %}
 {% if drive_url %}<p><a href="{{ drive_url }}">Abrir informe completo en Drive</a></p>{% endif %}

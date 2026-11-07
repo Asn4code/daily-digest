@@ -177,6 +177,49 @@ class WeeklyProject(Output):
     hypotheses_changed: list[Interpretation] = Field(max_length=100)
 
 
+class Prediction(Output):
+    alternative: Text
+    expected_observation: Text
+
+
+class AnalysisProposal(Output):
+    question: Text
+    alternatives: list[Text] = Field(min_length=2, max_length=4)
+    required_data: Text
+    control: Text
+    predictions: list[Prediction] = Field(min_length=2, max_length=4)
+    decision_criterion: Text
+    dependency: Text | None
+    evidence: References
+
+
+class ConclusionCheck(Output):
+    conclusion_id: Text
+    new_evidence: References
+    outcome: Literal["reinforces", "qualifies", "challenges", "inconclusive"]
+    comparable: bool
+    comparability: Claim
+    assessment: CompactInterpretation
+    decisive_limit: CompactClaim
+    alternative_explanations: list[Claim] = Field(max_length=5)
+    analyses: list[AnalysisProposal] = Field(max_length=3)
+    focus_implication: CompactClaim
+
+
+class WeeklyCritical(Output):
+    project_id: Text
+    progress_vs_objective: list[Claim] = Field(min_length=1, max_length=6)
+    decisions: list[Claim] = Field(max_length=6)
+    hypotheses_changed: list[Interpretation] = Field(max_length=6)
+    checks: list[ConclusionCheck] = Field(max_length=20)
+    no_comparison_reason: Claim | None
+
+
+class WeeklyObjective(PlanItem):
+    project_id: Text
+    critical_ids: list[Text] = Field(max_length=20)
+
+
 class ReviewSummary(Output):
     completed: list[Text] = Field(max_length=1000)
     pending: list[Text] = Field(max_length=1000)
@@ -188,4 +231,5 @@ class WeeklyReport(Output):
     patterns: list[Claim] = Field(max_length=100)
     key_figures: list[Text] = Field(max_length=6)
     review_status: ReviewSummary
-    next_week: list[PlanItem] = Field(min_length=3, max_length=4)
+    next_week: list[WeeklyObjective] = Field(min_length=3, max_length=4)
+    critical_highlights: list[Text] = Field(max_length=3)

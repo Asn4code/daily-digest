@@ -184,3 +184,25 @@ La nueva salida distingue lanzamiento declarado, ejecución verificada y cosecha
 su propuesta busca verificar el estado en lugar de preparar otro lanzamiento.
 Esta muestra de cobertura parcial no demuestra un resultado científico nuevo ni
 sustituye el diario/semanal completos de IN-11 o la firma humana de utilidad.
+
+### Avance de D-048/049: IN-12 (2026-11-07)
+
+Se añade crítica semanal por proyecto antes del agregado: declaraciones previas
+con versión, autor, alcance y fuentes, contrastadas con evidencia posterior del
+mismo resultado. Las evaluaciones requieren referencias de ambos lados y no
+permiten declarar contradicción o refuerzo con condiciones no comparables. Los
+análisis propuestos especifican alternativas, datos, control, predicciones,
+dependencias y criterio; sus consecuencias se enlazan a los objetivos semanales.
+
+Una explicación humana conserva texto, identidad y estado, con el contraste
+anterior como contexto. Una interpretación automática puede originar otra versión.
+Sin evidencia posterior no se repite la alerta; sin bases previas se declara la
+carencia. Correo y vault comparten evaluación y límite; el agregado conserva los
+balances críticos exactos. Los límites de historia se aplican antes de copiar
+evidencia auxiliar, sin ocultar resultados del intervalo. Los diffs técnicos sin
+relación explícita no son indivisibles solo por compartir directorio.
+
+No se ejecutan análisis, modifican proyectos, cambian estados humanos, aceptan
+planes ni añaden dependencias o migraciones SQLite. La nueva validación real,
+revisión independiente y firma humana corresponden a IN-11/IN-06; la aprobación
+técnica anterior no se reutiliza para aprobar este rediseño.
