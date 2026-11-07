@@ -1127,12 +1127,19 @@
     {
       "id": "IN-11",
       "title": "Validación del flujo jerárquico con fallos y proyectos reales",
-      "state": "todo",
+      "state": "doing",
       "group": "IN",
       "deps": ["IN-10", "IN-12"],
       "at": "2026-11-05T14:54:06Z",
       "by": "codex",
-      "desc": "Validar que el digest ayuda a entender la evolución de los resultados y decidir el próximo foco. Mantener D-047: sin secciones fallidas sustituidas por contenido mecánico ni cierre/entrega final incompletos; reanudación, caché, fuentes acotadas, cifras/unidades, referencias y external_allowed. Arranque separado de novedades y todos los resultados visibles.\n\nRecorrer una muestra real desde evidencia a explicación y misión: contrastar cinco afirmaciones, comprobar qué cambió respecto al objetivo del proyecto y justificar por qué la misión propuesta merece prioridad y cómo se termina. Comparar mensaje móvil con vault: misma conclusión, condiciones e incertidumbre, con niveles de orientación, comprensión y comprobación técnica. El diario mantiene profundidad intermedia sin necesitar crítica exhaustiva de la historia.\n\nProbar el semanal ante refuerzo, matiz, cuestionamiento, condiciones no comparables y ausencia de cambio material. Cada crítica conserva conclusión previa y nueva evidencia, deriva consecuencias para decisiones y propone contrastes concretos sin inventar resultados. Conservar estados y texto humanos, propuestas sin aceptación automática y alertas importantes también en el diario. Nueva revisión independiente y comprobación humana de utilidad; no inferirla de que pasen tests sintéticos. Terminado cuando la puerta de fase 2 refleja D-047/D-048/D-049 y la persona puede explicar un resultado, elegir o ajustar el foco y entender por qué una conclusión se mantiene o se revisa."
+      "desc": "Validar que el digest ayuda a entender la evolución de los resultados y decidir el próximo foco. Mantener D-047: sin secciones fallidas sustituidas por contenido mecánico ni cierre/entrega final incompletos; reanudación, caché, fuentes acotadas, cifras/unidades, referencias y external_allowed. Arranque separado de novedades y todos los resultados visibles.\n\nRecorrer una muestra real desde evidencia a explicación y misión: contrastar cinco afirmaciones, comprobar qué cambió respecto al objetivo del proyecto y justificar por qué la misión propuesta merece prioridad y cómo se termina. Comparar mensaje móvil con vault: misma conclusión, condiciones e incertidumbre, con niveles de orientación, comprensión y comprobación técnica. El diario mantiene profundidad intermedia sin necesitar crítica exhaustiva de la historia.\n\nProbar el semanal ante refuerzo, matiz, cuestionamiento, condiciones no comparables y ausencia de cambio material. Cada crítica conserva conclusión previa y nueva evidencia, deriva consecuencias para decisiones y propone contrastes concretos sin inventar resultados. Conservar estados y texto humanos, propuestas sin aceptación automática y alertas importantes también en el diario. Nueva revisión independiente y comprobación humana de utilidad; no inferirla de que pasen tests sintéticos. Terminado cuando la puerta de fase 2 refleja D-047/D-048/D-049 y la persona puede explicar un resultado, elegir o ajustar el foco y entender por qué una conclusión se mantiene o se revisa.",
+      "notes": [
+        {
+          "at": "2026-11-07T12:44:59Z",
+          "by": "codex",
+          "text": "Plan: recorrer muestras reales acotadas de los dos proyectos con los contratos actuales, contrastar cinco afirmaciones y comparar móvil/vault y un foco ejecutable. Mantener las fechas y cobertura parcial explícitas, no entregar ni escribir proyectos. Verificar rechazos/reanudación/privacidad y el semanal crítico con fixtures y muestras; ejecutar la puerta y obtener revisión independiente nueva según AGENTS.md. Preparar una ficha concreta para que la persona valore utilidad y firme la fase sin atribuirle aprobación ni comprensión automática."
+        }
+      ]
     },
     {
       "id": "IN-12",

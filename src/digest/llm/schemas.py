@@ -196,7 +196,7 @@ class AnalysisProposal(Output):
 class ConclusionCheck(Output):
     conclusion_id: Text
     new_evidence: References
-    outcome: Literal["reinforces", "qualifies", "challenges", "inconclusive"]
+    outcome: Literal["reinforces", "qualifies", "challenges", "inconclusive", "no_material_change"]
     comparable: bool
     comparability: Claim
     assessment: CompactInterpretation

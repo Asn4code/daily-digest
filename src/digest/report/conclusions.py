@@ -24,9 +24,20 @@ def baselines(
     entries = {e.id: e for e in report.evidence}
     current = current_evidence_ids(report)
     chosen: dict[str, dict[str, Any]] = {}
+    human_versions: dict[str, str] = {}
+    human_checked: set[str] = set()
+    automatic_latest: dict[str, tuple[dict[str, Any], dict[str, EvidenceEntry]]] = {}
+    compared_evidence: dict[str, set[str]] = {}
+    covered_latest: set[str] = set()
 
     def retain(item: dict[str, Any], originals: dict[str, EvidenceEntry]) -> None:
         rid = item["result_id"]
+        if rid not in results or rid in chosen:
+            return
+        if item["author"] == "automatic":
+            if ensure_human(rid):
+                return
+            automatic_latest.setdefault(rid, (dict(item), originals))
         refs = set(item["evidence"])
         if rid not in results or rid in chosen or not refs or not refs <= originals.keys():
             return
@@ -40,35 +51,60 @@ def baselines(
             and (entries[eid].event_at or entries[eid].observed_at) > item["source_date"]
         )
         if not new:
+            covered_latest.add(rid)
             return
         if len(chosen) >= MAX_CONCLUSIONS:
             warning = "El contraste semanal prioriza veinte resultados con conclusiones previas."
             if warning not in report.warnings:
                 report.warnings.append(warning)
             return
-        item["id"] = "con_" + content_hash(canonical(item))[:20]
+        identity = {
+            key: value
+            for key, value in item.items()
+            if key not in {"privacy_projects", "human_decision", "model"}
+        }
+        item["id"] = "con_" + content_hash(canonical(identity))[:20]
         item["new_evidence"] = new
         item["review_state"] = results[rid].review_state
+        if item["author"] == "automatic":
+            later, later_sources = automatic_latest[rid]
+            if later["version"] != item["version"]:
+                item["later_automatic_interpretation"] = {
+                    key: later[key]
+                    for key in ("version", "text", "scope", "evidence", "source_date")
+                }
+                item["context_evidence"] = list(later["evidence"])
+                item["privacy_projects"] = sorted(
+                    set(item["privacy_projects"]) | set(later["privacy_projects"])
+                )
+                for eid in later["evidence"]:
+                    attach_context(report, later_sources[eid], config)
         item = redact_tree(item, known_secrets(config))
         for eid in sorted(refs):
             attach_context(report, originals[eid], config)
         chosen[rid] = item
+        covered_latest.discard(rid)
 
     # A human statement is its original submitted text, not a model's paraphrase
     # or an assertion that all its claims have been scientifically confirmed.
     rows = db.execute(
         "SELECT v.id,v.result_id,v.human_text,v.submitted_at,v.decision "
         "FROM review v JOIN result r ON r.id=v.result_id WHERE r.project_id=? "
-        "AND v.human_text IS NOT NULL AND v.submitted_at<? "
+        "AND v.human_text IS NOT NULL AND v.submitted_at<=? "
         "ORDER BY v.submitted_at DESC,v.id DESC LIMIT 40",
-        (project_id, report.end_at),
+        (project_id, report.created_at),
     ).fetchall()
-    for review_id, rid, text, submitted, decision in rows:
+
+    def consider_human(row: tuple[Any, ...]) -> None:
+        review_id, rid, text, submitted, decision = row
         if rid not in results or rid in chosen:
-            continue
+            return
+        human_versions.setdefault(rid, review_id)
+        if human_versions[rid] != review_id:
+            return
         if len(text) > 12_000:
             report.warnings.append("Una explicación previa excede el límite del contraste semanal.")
-            continue
+            return
         rows_e = db.execute(
             "SELECT e.id,e.project_id,e.kind,e.locator,e.excerpt,e.observed_at,e.event_at,"
             "e.time_quality,e.meta,e.content_hash FROM result_evidence re "
@@ -79,7 +115,7 @@ def baselines(
         ).fetchall()
         if len(rows_e) > MAX_PRIOR_EVIDENCE:
             report.warnings.append("Fuentes de una revisión previa exceden el límite semanal.")
-            continue
+            return
         original = {
             r[0]: EvidenceEntry(
                 r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], json.loads(r[8]), r[9]
@@ -99,11 +135,32 @@ def baselines(
                 "source_date": submitted,
                 "version": review_id,
                 "author": "human",
+                "privacy_projects": sorted(
+                    {p.id for p in config.projects}
+                    | {r[0] for r in db.execute("SELECT id FROM project")}
+                ),
                 "human_decision": decision,
                 "source_report": None,
             },
             original,
         )
+
+    def ensure_human(rid: str) -> bool:
+        if rid not in human_checked:
+            human_checked.add(rid)
+            latest = db.execute(
+                "SELECT id,result_id,human_text,submitted_at,decision FROM review "
+                "WHERE result_id=? AND human_text IS NOT NULL AND submitted_at<=? "
+                "ORDER BY submitted_at DESC,id DESC LIMIT 1",
+                (rid, report.created_at),
+            ).fetchone()
+            if latest:
+                consider_human(latest)
+        return rid in human_versions
+
+    for row in rows:
+        human_checked.add(row[1])
+        consider_human(row)
 
     rows_r = db.execute(
         "SELECT DISTINCT r.id FROM report r JOIN interval i ON r.interval_id=i.id "
@@ -126,6 +183,9 @@ def baselines(
             for check in critical["checks"]:
                 old = old_statements[check["conclusion_id"]]
                 rid = old["result_id"]
+                if rid in results:
+                    ensure_human(rid)
+                compared_evidence.setdefault(rid, set()).update(check["new_evidence"])
                 if rid in chosen:
                     item = chosen[rid]
                     if item["version"] == old["version"] and not item.get("previous_comparisons"):
@@ -144,6 +204,10 @@ def baselines(
                                 }
                             ]
                             item["context_evidence"] = sorted(refs)
+                            item["privacy_projects"] = sorted(
+                                set(item["privacy_projects"])
+                                | set(previous.packages["critical:" + project_id]["project_ids"])
+                            )
                             for eid in sorted(refs):
                                 attach_context(report, original[eid], config)
                     continue
@@ -172,6 +236,9 @@ def baselines(
                         "version": report_id,
                         "source_report": report_id,
                         "author": "automatic",
+                        "privacy_projects": previous.packages["critical:" + project_id][
+                            "project_ids"
+                        ],
                         "human_decision": None,
                     },
                     original,
@@ -201,6 +268,9 @@ def baselines(
                             "version": report_id,
                             "source_report": report_id,
                             "author": "automatic",
+                            "privacy_projects": previous.packages["critical:" + project_id][
+                                "project_ids"
+                            ],
                             "human_decision": None,
                         },
                         original,
@@ -210,6 +280,15 @@ def baselines(
             continue
         for card in project["results"]:
             meaning = card["meaning"]
+            statement_kind = "result_interpretation"
+            if not meaning:
+                candidate = project["importance"]
+                owner_ids = [
+                    r.id for r in previous.results if set(candidate["evidence"]) <= set(r.evidence)
+                ]
+                if owner_ids == [card["result_id"]]:
+                    meaning = candidate
+                    statement_kind = "project_importance"
             if not meaning:
                 continue
             scope = {name: card[name] for name in ("question", "controls", "limits")}
@@ -218,6 +297,7 @@ def baselines(
                     "project_id": project_id,
                     "result_id": card["result_id"],
                     "text": meaning["text"],
+                    "statement_kind": statement_kind,
                     "confidence": meaning["confidence"],
                     "scope": scope,
                     "evidence": sorted(references([meaning, scope])),
@@ -225,10 +305,20 @@ def baselines(
                     "version": report_id,
                     "source_report": report_id,
                     "author": "automatic",
+                    "privacy_projects": previous.packages["project:" + project_id]["project_ids"],
                     "model": previous.model_info.get("project:" + project_id, {}),
                     "human_decision": None,
                 },
                 original,
             )
+    for rid, item in list(chosen.items()):
+        item["new_evidence"] = sorted(set(item["new_evidence"]) - compared_evidence.get(rid, set()))
+        if not item["new_evidence"]:
+            del chosen[rid]
+            covered_latest.add(rid)
     # All interval results remain in the report, even beyond this bounded history.
+    report.human_context.setdefault("weekly_history", {})[project_id] = {
+        "without_new_evidence": sorted(covered_latest),
+        "comparison_results": sorted(chosen),
+    }
     return list(chosen.values())

@@ -19,6 +19,7 @@ OUTCOMES = {
     "qualifies": "Matiza o restringe",
     "challenges": "Pone en duda",
     "inconclusive": "No permite decidir",
+    "no_material_change": "Sin cambio material",
 }
 
 

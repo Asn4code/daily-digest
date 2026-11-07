@@ -15,6 +15,13 @@ from digest.report.observations import normalize
 from digest.util.redact import known_secrets, redact_tree
 
 
+def human_scope(db: sqlite3.Connection, config: Config) -> set[str] | None:
+    """Free human prose may mention projects removed from the current config."""
+    configured = {p.id for p in config.projects}
+    registered = {row[0] for row in db.execute("SELECT id FROM project")}
+    return configured if registered <= configured else None
+
+
 def human_context(
     db: sqlite3.Connection, config: Config, tasks: dict[str, list[dict[str, Any]]]
 ) -> dict[str, Any]:

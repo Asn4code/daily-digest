@@ -127,6 +127,17 @@ def render(report: Report) -> str:
                     "Consecuencia para el foco: " + claim(check["focus_implication"]),
                 ]
             )
+            if prior["author"] == "automatic":
+                lines.append("Interpretación automática histórica; no declara tu posición actual.")
+            later = prior.get("later_automatic_interpretation")
+            if later:
+                lines.extend(
+                    [
+                        "Versión automática posterior como contexto: " + escape(later["version"]),
+                        escape(later["text"]) + " [" + ", ".join(later["evidence"]) + "]",
+                        "No representa aceptación humana ni un descubrimiento nuevo del semanal.",
+                    ]
+                )
             lines.extend(claims(check["alternative_explanations"]))
             for analysis in check["analyses"]:
                 lines.extend(

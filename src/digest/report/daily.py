@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 from digest.config import Config
 from digest.llm.router import Task
 from digest.report.activity import active_results, current_evidence_ids
-from digest.report.context import attach_context, prior_balance
+from digest.report.context import attach_context, human_scope, prior_balance
 from digest.report.model import EvidenceEntry, Report
 
 PROJECT_CHARS = 48_000
@@ -298,6 +298,14 @@ def build(
     doubts = [
         {"result_id": row[0], "doubts": json.loads(row[1])} for row in doubt_rows[:MAX_CANDIDATES]
     ]
+    if doubts:
+        # Review prose may mention any configured project, including one whose
+        # evidence is forbidden outside the internal provider.
+        privacy_scope = human_scope(db, config)
+        if privacy_scope is None:
+            pending(report, "plan", "human_scope_missing", "input")
+            return
+        scope.update(privacy_scope)
     generate(
         "plan",
         "plan",

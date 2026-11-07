@@ -436,6 +436,16 @@ informes anteriores por proyecto, con hasta veinte resultados para el contraste.
 Las bases ausentes, inaccesibles o fuera de límites se explicitan; no demuestran
 ausencia de cambio. El inventario semanal completo permanece visible.
 
+Al recuperar una base automática se comprueba también la última revisión humana
+de ese resultado, aunque otras revisiones la hayan desplazado del límite global.
+La ausencia de evidencia posterior a la última declaración humana no autoriza
+rescatar una anterior. Las revisiones se consultan hasta la fecha de generación,
+incluidas las enviadas después del cierre temporal de la semana. Cada versión
+conserva el ámbito de privacidad del paquete original; contexto posterior y
+antecedentes lo amplían por unión, nunca lo reducen. Si una política de un proyecto
+registrado no está disponible en la configuración, el contexto humano queda
+pendiente antes de llamar al proveedor.
+
 La declaración humana mantiene su identidad aunque cambie la evidencia nueva.
 El último contraste disponible se incorpora como contexto con sus pruebas, sin
 reescribirla. Una evaluación automática anterior puede ser una versión nueva de
@@ -443,6 +453,14 @@ referencia; el informe conserva su procedencia. Solo se compara cuando hay otra
 evidencia del resultado posterior a la fecha de referencia; sin evidencia adicional
 no se repite la alerta. Una conclusión humana cerrada puede recibir una alerta
 sin modificar ni reabrir su revisión.
+
+Para explicar la evolución dentro de una semana se puede contrastar una versión
+automática histórica, identificada como tal, aun si un diario posterior incorporó
+ya el matiz. Esa interpretación posterior acompaña al contraste como contexto;
+no se anuncia la corrección como descubrimiento nuevo. Las evidencias ya
+contrastadas no originan otra alerta por sí solas. `no_material_change` permite
+documentar que los cambios no afectan al alcance de la declaración, sin afirmar
+ausencia de efecto científico ni forzar alertas o análisis adicionales.
 
 Cada contraste elige refuerzo, matiz, cuestionamiento o imposibilidad de decidir.
 La evaluación cita fuentes antiguas y nuevas. Comparabilidad, límite decisivo,

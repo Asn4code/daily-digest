@@ -7,6 +7,7 @@ from typing import Any
 from digest.config import Config
 from digest.report.activity import active_results, current_evidence_ids
 from digest.report.conclusions import baselines
+from digest.report.context import human_scope
 from digest.report.daily import Generate, fiche_view, pending, references
 from digest.report.model import Report
 
@@ -52,8 +53,14 @@ def build(
         # Human prose may mention other projects. Conservatively apply every
         # configured privacy policy, as with an edited accepted plan.
         scope = set(projects) if any(p["author"] == "human" for p in prior) else {pid}
+        scope.update(project for p in prior for project in p.get("privacy_projects", [pid]))
         key = "critical:" + pid
         keys.append(key)
+        if not scope <= projects.keys() or (
+            any(p["author"] == "human" for p in prior) and human_scope(db, config) is None
+        ):
+            pending(report, key, "human_scope_missing", "input")
+            continue
         generate(
             "weekly",
             key,
@@ -65,6 +72,7 @@ def build(
                 "fiches": fiches,
                 "interval": {"start": report.start_at, "end": report.end_at},
                 "history_limits": list(report.warnings),
+                "history_status": report.human_context.get("weekly_history", {}).get(pid, {}),
                 "_conclusions": {p["id"]: p for p in prior},
                 "_parents": ["extract:" + r.id for r in items],
                 "_reference_evidence": sorted(
@@ -110,7 +118,7 @@ def build(
         for row in db.execute(
             "SELECT id FROM result WHERE review_state!='closed_by_human' AND first_seen_at<=? "
             "AND project_id IN (" + marks + ") ORDER BY first_seen_at,id",
-            (report.end_at, *parameters),
+            (report.created_at, *parameters),
         )
     ]
     accepted = [
@@ -122,11 +130,22 @@ def build(
             (report.start_at, report.end_at),
         )
     ]
+    human_plan = {
+        key: report.human_context.get(key)
+        for key in ("accepted_plan", "accepted_warmups", "scope_available")
+    }
+    has_human_plan = bool(accepted or human_plan["accepted_plan"] or human_plan["accepted_warmups"])
     scope = (
         set(projects)
-        if accepted or any(p["author"] == "human" for p in all_prior.values())
+        if has_human_plan or any(p["author"] == "human" for p in all_prior.values())
         else present
     )
+    scope.update(project for key in keys for project in report.packages[key]["project_ids"])
+    if not report.human_context.get("scope_available", True) or (
+        has_human_plan and human_scope(db, config) is None
+    ):
+        pending(report, "weekly", "human_scope_missing", "input")
+        return
     states = {pid: {t["id"]: t["state"] for t in items} for pid, items in tasks.items()}
     generate(
         "weekly",
@@ -139,6 +158,7 @@ def build(
             "completed_reviews": completed,
             "pending_reviews": reviews_pending,
             "accepted_plans": accepted,
+            "current_human_plan": human_plan,
             "_conclusions": all_prior,
             "_critical": critical,
             "_parents": keys,

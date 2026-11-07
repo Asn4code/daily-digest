@@ -327,3 +327,177 @@ def test_plan_bounds_current_doubts_without_deleting_or_reviving_old_reviews(dai
         assert "res_doubt_41" not in {d["result_id"] for d in doubts}
         assert any("dudas vigentes" in warning for warning in report.warnings)
         assert db.execute("SELECT count(*) FROM review").fetchone() == (43,)
+
+
+@pytest.mark.parametrize("removed", [False, True])
+def test_human_doubts_apply_every_configured_project_privacy_policy(daily, tmp_path, removed):
+    config, report = daily
+    project = config.projects[0]
+    peer = load_config(Path(project.root).parent / "config.yaml").projects[1]
+    peer.external_allowed = False
+    config.projects.append(peer)
+    requests = []
+
+    def respond(request):
+        if "PRIVATE_PROJECT_MARKER" in request.content.decode():
+            requests.append(str(request.url))
+        return fake_response(request)
+
+    with closing(connect(tmp_path / "db")) as db:
+        db.execute(
+            "INSERT INTO project VALUES (?,?,?,?,?,?,?)",
+            (project.id, project.name, project.root, project.objective, 1, 1, "fixture"),
+        )
+        db.execute(
+            "INSERT INTO project VALUES (?,?,?,?,?,?,?)",
+            (peer.id, peer.name, peer.root, peer.objective, 1, 0, "fixture"),
+        )
+        if removed:
+            config.projects = config.projects[:1]
+        db.execute(
+            "INSERT INTO result(id,project_id,title,first_seen_at) VALUES (?,?,?,?)",
+            (report.results[0].id, project.id, "Resultado", NOW),
+        )
+        db.execute(
+            "INSERT INTO review(id,result_id,submitted_at,doubts) VALUES (?,?,?,?)",
+            (
+                "rev_private",
+                report.results[0].id,
+                NOW,
+                json.dumps(["Comparar con PRIVATE_PROJECT_MARKER de otro proyecto"]),
+            ),
+        )
+        enrich(
+            db,
+            config,
+            report,
+            Router(db, config, client=Client(transport=httpx.MockTransport(respond))),
+        )
+    if removed:
+        assert report.pending["plan"][0]["rule"] == "human_scope_missing"
+        assert not requests
+        with pytest.raises(ValueError):
+            require_complete(report)
+        return
+    require_complete(report)
+    assert report.model_info["plan"]["provider"] == "internal"
+    assert report.packages["plan"]["project_ids"] == sorted(p.id for p in config.projects)
+    assert requests and all(
+        url.startswith(config.llm.providers["internal"].base_url) for url in requests
+    )
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("event_at", "2099-12-31T19:00:00+00:00"),
+        ("observed_at", "2099-12-31T19:00:00+00:00"),
+        ("time_quality", "observed"),
+        ("locator", "invented/source.md"),
+    ],
+)
+def test_revalidation_rejects_changed_provenance_even_when_claims_still_validate(
+    daily, tmp_path, field, value
+):
+    config, report = daily
+    with closing(connect(tmp_path / "db")) as db:
+        enrich(
+            db,
+            config,
+            report,
+            Router(db, config, client=Client(transport=httpx.MockTransport(fake_response))),
+        )
+    validate_report(report, {e.id for e in report.evidence})
+    source = next(key for key in report.packages if key.startswith("source:"))
+    report.packages[source]["evidence"][0][field] = value
+    with pytest.raises(ValidationError, match="Section evidence modified"):
+        validate_report(report, {e.id for e in report.evidence})
+
+
+@pytest.mark.parametrize("context_kind", ["review", "accepted_plan"])
+def test_weekly_human_context_blocks_when_registered_project_policy_is_unavailable(
+    daily, tmp_path, context_kind
+):
+    config, report = daily
+    report.kind = "weekly"
+    project = config.projects[0]
+    peer = load_config(Path(project.root).parent / "config.yaml").projects[1]
+    requests = []
+
+    def respond(request):
+        if "PRIVATE_PROJECT_MARKER" in request.content.decode():
+            requests.append(request)
+        return fake_response(request)
+
+    with closing(connect(tmp_path / "db")) as db:
+        for p in [project, peer]:
+            db.execute(
+                "INSERT INTO project VALUES (?,?,?,?,?,?,?)",
+                (p.id, p.name, p.root, p.objective, 1, int(p.id == project.id), "fixture"),
+            )
+        db.execute(
+            "INSERT INTO result(id,project_id,title,first_seen_at) VALUES (?,?,?,?)",
+            (report.results[0].id, project.id, "Resultado", "2026-11-03T10:00:00+00:00"),
+        )
+        if context_kind == "review":
+            db.execute(
+                "INSERT INTO evidence(id,project_id,source,kind,locator,observed_at,event_at,"
+                "time_quality,content_hash,excerpt) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (
+                    "ev_old",
+                    project.id,
+                    "notes",
+                    "task_note",
+                    "old",
+                    "2026-11-03T10:00:00+00:00",
+                    "2026-11-03T10:00:00+00:00",
+                    "event",
+                    "old",
+                    "Declaración previa",
+                ),
+            )
+            db.execute("INSERT INTO result_evidence VALUES (?,?)", (report.results[0].id, "ev_old"))
+            db.execute(
+                "INSERT INTO review(id,result_id,human_text,submitted_at) VALUES (?,?,?,?)",
+                (
+                    "rev_private",
+                    report.results[0].id,
+                    "PRIVATE_PROJECT_MARKER",
+                    "2026-11-03T12:00:00+00:00",
+                ),
+            )
+        else:
+            interval = db.execute(
+                "INSERT INTO interval(kind,start_at,end_at,requested_by) VALUES (?,?,?,?)",
+                ("daily", report.start_at, "2026-11-04T12:00:00+00:00", "cli"),
+            ).lastrowid
+            db.execute(
+                "INSERT INTO report(id,interval_id,revision,status,created_at) VALUES (?,?,?,?,?)",
+                ("rep_human", interval, 1, "ready", NOW),
+            )
+            db.execute(
+                "INSERT INTO plan_item(report_id,kind,action,done_criterion,reason,origin,"
+                "accepted,edited_text) "
+                "VALUES (?,?,?,?,?,?,?,?)",
+                (
+                    "rep_human",
+                    "mission",
+                    "Verificar",
+                    "Verificado",
+                    "Control",
+                    "model",
+                    1,
+                    "PRIVATE_PROJECT_MARKER",
+                ),
+            )
+        enrich(
+            db,
+            config,
+            report,
+            Router(db, config, client=Client(transport=httpx.MockTransport(respond))),
+        )
+    key = "critical:" + project.id if context_kind == "review" else "weekly"
+    assert report.pending[key][0]["rule"] == "human_scope_missing"
+    assert not requests
+    with pytest.raises(ValueError):
+        require_complete(report)

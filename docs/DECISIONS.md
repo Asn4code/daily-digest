@@ -206,3 +206,22 @@ No se ejecutan análisis, modifican proyectos, cambian estados humanos, aceptan
 planes ni añaden dependencias o migraciones SQLite. La nueva validación real,
 revisión independiente y firma humana corresponden a IN-11/IN-06; la aprobación
 técnica anterior no se reutiliza para aprobar este rediseño.
+
+### Auditoría preparatoria de IN-11 (2026-11-07)
+
+Una sesión nueva sin contexto de construcción reprodujo cuatro problemas:
+privacidad de dudas humanas, alteración de fechas/localizador en paquetes,
+recuperación de una revisión sustituida y pérdida de ámbito ancestral al alcanzar
+el límite global de revisiones. Las correcciones conservan los campos originales,
+consultan la última revisión del resultado y heredan las políticas por unión.
+Un proyecto retirado de configuración pero registrado en SQLite bloquea el
+contexto humano si falta su política. Se añadieron regresiones de los casos y
+del diario que ya incorpora datos antes del contraste semanal. Se permite declarar
+ausencia de cambio material sin forzar una alerta o análisis.
+
+El revisor reejecutó las reproducciones y comprobó el rechazo de reducir ámbitos
+heredados. El informe preparatorio no es un veredicto de fase. La revisión anterior
+se archiva sin borrar sus firmas en `docs/reviews/phase-2-before-hierarchical.md`;
+la ficha vigente queda pendiente de revisión formal y firma humana. Las muestras
+reales se generan en un directorio privado de validación, sin entrega ni ejecución
+de contenido observado.

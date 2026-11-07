@@ -32,6 +32,9 @@ ASSESSMENTS = {
     "qualifies": "El efecto parece restringido a la condición analizada y no permite generalizar",
     "challenges": "El control nuevo pone en duda que la diferencia sea específica de la muestra",
     "inconclusive": "Cambian las condiciones y no se puede decidir si hay una contradicción",
+    "no_material_change": (
+        "La evidencia añadida documenta formato y no cambia el alcance de la interpretación"
+    ),
 }
 LIMIT = "Falta separar el efecto de la condición del efecto de preparación"
 FOCUS = "Contrastar ambas explicaciones con preparación independiente y condiciones comparables"
@@ -55,6 +58,12 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
     add_current_work(config, extra_result=False)
     monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
     calls = []
+    integrated = False
+    focus = (
+        "Conservar el foco aceptado y sus límites sin abrir otro análisis"
+        if outcome == "no_material_change"
+        else FOCUS
+    )
 
     def respond(request):
         wire = json.loads(request.content)
@@ -72,7 +81,13 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
         if title == "ProjectDigest" and not human:
             value["no_new_conclusion"] = False
             for card in value["results"]:
-                card["meaning"] = {**card["observations"][0], "confidence": "low"}
+                card["meaning"] = {
+                    **card["observations"][0],
+                    "confidence": "low",
+                    "text": "Interpretación posterior ya matizada"
+                    if integrated
+                    else "Interpretación automática inicial",
+                }
         if title == "WeeklyCritical":
             for check in value["checks"]:
                 prior = package["conclusions"][check["conclusion_id"]]
@@ -86,10 +101,10 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
                         "confidence": "low",
                     },
                     decisive_limit={"text": LIMIT, "evidence": refs},
-                    focus_implication={"text": FOCUS, "evidence": refs},
+                    focus_implication={"text": focus, "evidence": refs},
                     alternative_explanations=[{"text": LIMIT, "evidence": refs}],
                 )
-                if outcome != "reinforces":
+                if outcome not in {"reinforces", "no_material_change"}:
                     check["analyses"] = [
                         {
                             "question": "¿El efecto depende de condición o preparación?",
@@ -125,7 +140,7 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
                 project_id=prior["project_id"],
                 critical_ids=[cid],
                 evidence=package["critical"][cid]["new_evidence"],
-                action=FOCUS,
+                action=focus,
             )
         return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
 
@@ -155,7 +170,8 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
                     json.dumps(
                         {
                             "what_shows": "La diferencia podría ser específica",
-                            "scope": "Mismo protocolo; control compartido",
+                            "scope": "Mismo protocolo; control compartido"
+                            + (" PRIVATE_PROJECT_MARKER" if private_scope else ""),
                         }
                     )
                     if human
@@ -179,6 +195,14 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
         kanvas.mutate(str(Path(config.projects[0].root) / "kanvas.json"), add)
         captured = enqueue(config, "capture")
         execute(config, captured, now=datetime(2026, 11, 6, 22, tzinfo=UTC))
+        integrated_preview = None
+        if not human:
+            integrated = True
+            preview = enqueue(config, "preview", params={"no_send": True})
+            integrated_path = Path(
+                execute(config, preview, now=datetime(2026, 11, 6, 22, tzinfo=UTC))
+            )
+            integrated_preview = json.loads(integrated_path.with_suffix(".json").read_text())["id"]
         weekly = enqueue(config, "weekly", params={"no_send": True})
         path = Path(execute(config, weekly, now=datetime(2026, 11, 7, 9, tzinfo=UTC)))
         assert path.name == "report.md", json.loads(path.with_suffix(".json").read_text())[
@@ -195,6 +219,8 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
         assert set(check["assessment"]["evidence"]) & set(prior["evidence"])
         assert set(check["assessment"]["evidence"]) & set(check["new_evidence"])
         assert prior["version"] == ("rev_human" if human else first_daily_id)
+        if not human:
+            assert prior["later_automatic_interpretation"]["version"] == integrated_preview
         assert prior["review_state"] == "closed_by_human"
         assert report.sections["weekly"]["next_week"][0]["critical_ids"] == [prior["id"]]
         with closing(connect(data / "digest.db")) as db:
@@ -210,8 +236,17 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
             message.get_body(preferencelist=("plain",)).get_content(),
             message.get_body(preferencelist=("html",)).get_content(),
         ]:
-            assert ASSESSMENTS[outcome] in text and LIMIT in text and FOCUS in text
-        assert "Criterio de decisión" in path.read_text() if outcome != "reinforces" else True
+            assert ASSESSMENTS[outcome] in text and LIMIT in text and focus in text
+        assert "Criterio de decisión" in path.read_text() if check["analyses"] else True
+        if outcome == "no_material_change":
+            quiet = deepcopy(report)
+            quiet.sections["weekly"]["critical_highlights"] = []
+            validate_report(quiet, {e.id for e in quiet.evidence})
+            quiet_message = compose(config, quiet, path.parent)
+            assert (
+                ASSESSMENTS[outcome]
+                not in quiet_message.get_body(preferencelist=("plain",)).get_content()
+            )
         broken = deepcopy(report)
         broken.sections[critical_key]["checks"][0]["assessment"]["evidence"] = check["new_evidence"]
         with pytest.raises(ValidationError, match="lineage_missing"):
@@ -240,7 +275,31 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
         subsequent = json.loads(next_path.with_suffix(".json").read_text())
         assert not subsequent["results"] and not subsequent["sections"]
         assert len(calls) == count
-        if outcome == "reinforces" or not human:
+        if outcome == "reinforces" or not human or private_scope:
+            if private_scope:
+                with closing(connect(data / "digest.db")) as db:
+                    for n in range(41):
+                        other = f"res_other_{n}"
+                        db.execute(
+                            "INSERT INTO result(id,project_id,title,first_seen_at) "
+                            "VALUES (?,?,?,?)",
+                            (
+                                other,
+                                config.projects[0].id,
+                                "Otra tarea",
+                                "2026-11-19T10:00:00+00:00",
+                            ),
+                        )
+                        db.execute(
+                            "INSERT INTO review(id,result_id,human_text,submitted_at) "
+                            "VALUES (?,?,?,?)",
+                            (
+                                f"rev_other_{n}",
+                                other,
+                                "Otra explicación humana",
+                                "2026-11-19T10:00:00+00:00",
+                            ),
+                        )
             kanvas.now_iso = lambda: "2026-11-20T15:00:00+00:00"
             kanvas.mutate(str(Path(config.projects[0].root) / "kanvas.json"), add)
             captured = enqueue(config, "capture")
@@ -249,6 +308,10 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
             third = Path(execute(config, next_week, now=datetime(2026, 11, 21, 9, tzinfo=UTC)))
             later = json.loads(third.with_suffix(".json").read_text())
             statement = later["human_context"]["weekly_conclusions"][0]
+            if private_scope:
+                assert later["model_info"][critical_key]["provider"] == "internal"
+                assert later["model_info"]["weekly"]["provider"] == "internal"
+                assert set(statement["privacy_projects"]) == {p.id for p in config.projects}
             if human:
                 assert statement["id"] == prior["id"]
                 assert statement["version"] == "rev_human"

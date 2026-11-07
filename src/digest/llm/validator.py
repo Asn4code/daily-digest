@@ -85,6 +85,11 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
             }
             if scope.conclusions != expected_prior:
                 raise ValidationError("Prior conclusion provenance modified")
+            if any(
+                not set(p.get("privacy_projects", [pid])) <= scope.project_ids
+                for p in scope.conclusions.values()
+            ):
+                raise ValidationError("Prior privacy scope narrowed")
             entries_by_id = {e.id: e for e in report.evidence}
             for prior in scope.conclusions.values():
                 comparison_result = next(
@@ -124,6 +129,11 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
         ):
             raise ValidationError("Section dependency missing")
         if parents:
+            inherited_projects = {
+                pid for parent in parents for pid in report.packages[parent]["project_ids"]
+            }
+            if not inherited_projects <= scope.project_ids:
+                raise ValidationError("Section privacy scope narrowed")
             inherited = {e["id"] for parent in parents for e in report.packages[parent]["evidence"]}
             auxiliary = set(package.get("auxiliary_evidence", []))
             reference = set(package.get("reference_evidence", []))
@@ -140,6 +150,10 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
                 entry.excerpt != originals[eid].excerpt
                 or entry.kind != originals[eid].kind
                 or entry.project != originals[eid].project
+                or entry.locator != originals[eid].locator
+                or entry.observed_at != originals[eid].observed_at
+                or entry.event_at != originals[eid].event_at
+                or entry.time_quality != originals[eid].time_quality
                 or entry.content_hash != originals[eid].content_hash
                 or entry.context_only != originals[eid].context_only
                 or any(originals[eid].meta.get(k) != v for k, v in entry.meta.items())
@@ -569,7 +583,10 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             or not set(output.critical_highlights) <= package.critical.keys()
         ):
             raise ValidationError("unknown_critical_check", ("critical_highlights",))
-        if package.critical and not output.critical_highlights:
+        if (
+            any(c["outcome"] != "no_material_change" for c in package.critical.values())
+            and not output.critical_highlights
+        ):
             raise ValidationError("critical_highlight_missing", ("critical_highlights",))
         actionable = {
             cid
