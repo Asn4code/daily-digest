@@ -75,6 +75,55 @@ def test_literal_and_computed_values_validate_without_inventing_units(
         validate(schemas.ResultExtraction.model_validate(value), package)
 
 
+@pytest.mark.parametrize("stamp", ["observed_at", "event_at"])
+def test_provenance_date_is_validated_against_its_cited_evidence(package, stamp):
+    entry = package.evidence["ev_control"]
+    setattr(entry, stamp, "2026-11-05T10:00:00+00:00")
+    value = extraction(package)
+    value["facts"][0]["text"] = "El registro está fechado el 2026-11-05"
+    validate(schemas.ResultExtraction.model_validate(value), package)
+    value["facts"][0]["text"] = "El registro está fechado el 2026-11-06"
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(schemas.ResultExtraction.model_validate(value), package)
+
+
+@pytest.mark.parametrize(
+    ("excerpt", "claim"),
+    [
+        ("13 de esas estructuras ya tenían réplicas", "13 estructuras tenían réplicas"),
+        ("51 estructuras, 30 pares", "51 estructuras/30 pares"),
+        ("Las semillas 6-25 están disponibles", "Las semillas 6-25 se conservaron"),
+    ],
+)
+def test_count_paraphrases_preserve_numbers_and_unit_labels(package, excerpt, claim):
+    package.evidence["ev_control"].excerpt = excerpt
+    value = extraction(package)
+    value["numbers"] = []
+    value["facts"][0]["text"] = claim
+    validate(schemas.ResultExtraction.model_validate(value), package)
+    value["facts"][0]["text"] = "13 pares disponibles"
+    if "pares" not in excerpt:
+        with pytest.raises(ValidationError, match="unsupported_number"):
+            validate(schemas.ResultExtraction.model_validate(value), package)
+
+
+def test_exact_provenance_clock_is_valid_but_an_invented_time_is_not(package):
+    value = extraction(package)
+    value["facts"][0]["text"] = "El registro se observó a las 10:00:00 UTC"
+    validate(schemas.ResultExtraction.model_validate(value), package)
+    value["facts"][0]["text"] = "El registro se observó a las 10:01:00 UTC"
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(schemas.ResultExtraction.model_validate(value), package)
+
+
+@pytest.mark.parametrize("unit", ["A", "Se", "nm"])
+def test_capitalized_unit_is_not_mistaken_for_a_spanish_connector(package, unit):
+    value = extraction(package)
+    value["facts"][0]["text"] = "RMSD 1.4 " + unit
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(schemas.ResultExtraction.model_validate(value), package)
+
+
 def test_T17_project_instructions_remain_escaped_data() -> None:
     for task in ["extract", "conceptual", "plan", "weekly", "contrast"]:
         prompt = load(task)

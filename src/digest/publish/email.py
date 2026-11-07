@@ -72,10 +72,7 @@ def compose(
                 ]
             )
     if not weekly and not view.highlights:
-        plain.append(
-            "Sin novedades verificadas del intervalo; "
-            "la referencia inicial o histórica está en el inventario."
-        )
+        plain.append(view.orientation_notice)
     plain.append("Propuesta de semana" if weekly else "Plan de mañana · próximo foco")
     if view.planning_for:
         plain.append("Orientado al " + view.planning_for + ". La elección sigue siendo tuya.")

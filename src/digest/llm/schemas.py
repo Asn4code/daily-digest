@@ -49,7 +49,7 @@ class SourceFindings(Output):
     observations: list[Claim] = Field(max_length=100)
     interpretations: list[Interpretation] = Field(max_length=100)
     controls: list[Claim] = Field(max_length=100)
-    limitations: Texts
+    limitations: list[Claim] = Field(max_length=100)
     open_questions: list[Claim] = Field(max_length=100)
 
 

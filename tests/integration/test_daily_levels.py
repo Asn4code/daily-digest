@@ -1,6 +1,8 @@
 """Daily meaning survives channel changes; history and human intent stay separate."""
 
+import html
 import json
+import re
 from contextlib import closing
 from copy import deepcopy
 from datetime import UTC, datetime
@@ -81,7 +83,7 @@ def response_with_meaning(request):
             observations=[claim],
             interpretations=[meaning],
             controls=[limit],
-            limitations=[LIMIT],
+            limitations=[limit],
         )
     elif title == "ProjectDigest":
         value.update(
@@ -163,6 +165,59 @@ def test_initial_inventory_remains_visible_without_model_work(daily, tmp_path):
         require_complete(report)
 
 
+def test_latest_anchor_is_complete_and_empty_highlights_do_not_claim_no_activity(daily, tmp_path):
+    config, report = daily
+    latest = deepcopy(report.evidence[0])
+    latest.id = "ev_latest"
+    latest.event_at = "2026-11-04T19:00:00+00:00"
+    report.evidence[0].event_at = "2026-11-04T18:00:00+00:00"
+    latest.excerpt = (
+        "Preparación y condiciones documentadas. " * 9 + "Lanzamiento declarado; sin cosecha."
+    )
+    report.evidence.append(latest)
+    report.results[0].evidence.append(latest.id)
+    requests = []
+
+    def respond(request):
+        wire = json.loads(request.content)
+        title = wire["response_format"]["json_schema"]["schema"]["title"]
+        if title == "ProjectDigest":
+            requests.append(wire)
+        response = fake_response(request)
+        value = json.loads(response.json()["choices"][0]["message"]["content"])
+        if title == "DailyOverview":
+            value["highlights"] = []
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
+
+    with closing(connect(tmp_path / "db")) as db:
+        enrich(
+            db,
+            config,
+            report,
+            Router(db, config, client=Client(transport=httpx.MockTransport(respond))),
+        )
+    require_complete(report)
+    wire_text = requests[0]["messages"][1]["content"]
+    anchors = [
+        json.loads(html.unescape(raw))
+        for raw in re.findall(r'<evidence id="[^"]+">(.*?)</evidence>', wire_text, re.S)
+    ]
+    anchor = next(e for e in anchors if e["id"] == latest.id)
+    assert anchor["excerpt"] == latest.excerpt
+    assert anchor["event_at"] == latest.event_at
+    assert anchor["excerpt_included"] is True
+    assert not any("excerpt" in e for e in anchors if e["id"] != latest.id)
+    message = compose(config, report, tmp_path)
+    for text in [
+        render_md(report),
+        render_html(report),
+        message.get_body(preferencelist=("plain",)).get_content(),
+        message.get_body(preferencelist=("html",)).get_content(),
+    ]:
+        assert "Hay resultados del intervalo" in text
+        assert "Sin novedades verificadas" not in text
+
+
 @pytest.mark.parametrize("state", ["done", "review", "blocked"])
 def test_plan_checks_task_state_within_project_namespace(state):
     evidence = EvidenceEntry("ev", "p", "task_note", "note", "Hay evidencia", NOW, NOW, "event", {})
@@ -236,3 +291,39 @@ def test_accepted_human_edit_is_carried_without_overwriting_or_new_proposal(dail
     assert "Se conserva el plan aceptado" in path.read_text()
     with closing(connect(data / "digest.db")) as db:
         assert db.execute("SELECT * FROM plan_item").fetchall() == before
+
+
+def test_plan_bounds_current_doubts_without_deleting_or_reviving_old_reviews(daily, tmp_path):
+    config, report = daily
+    project = config.projects[0]
+    with closing(connect(tmp_path / "db")) as db:
+        db.execute(
+            "INSERT INTO project VALUES (?,?,?,?,?,?,?)",
+            (project.id, project.name, project.root, project.objective, 1, 1, "fixture"),
+        )
+        for n in range(42):
+            rid = f"res_doubt_{n:02d}"
+            db.execute(
+                "INSERT INTO result(id,project_id,title,first_seen_at) VALUES (?,?,?,?)",
+                (rid, project.id, "Pregunta", NOW),
+            )
+            db.execute(
+                "INSERT INTO review(id,result_id,submitted_at,doubts) VALUES (?,?,?,?)",
+                (f"rev_{n:02d}", rid, NOW, json.dumps(["Duda vigente"])),
+            )
+        db.execute(
+            "INSERT INTO review(id,result_id,submitted_at,doubts) VALUES (?,?,?,?)",
+            ("rev_new", "res_doubt_41", "2026-11-04T19:01:00+00:00", "[]"),
+        )
+        enrich(
+            db,
+            config,
+            report,
+            Router(db, config, client=Client(transport=httpx.MockTransport(fake_response))),
+        )
+        require_complete(report)
+        doubts = report.packages["plan"]["context"]["human_doubts"]
+        assert len(doubts) == 40
+        assert "res_doubt_41" not in {d["result_id"] for d in doubts}
+        assert any("dudas vigentes" in warning for warning in report.warnings)
+        assert db.execute("SELECT count(*) FROM review").fetchone() == (43,)

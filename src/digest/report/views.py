@@ -18,6 +18,7 @@ CONFIDENCE = {"low": "baja", "medium": "media", "high": "alta"}
 
 @dataclass(frozen=True)
 class DailyView:
+    orientation_notice: str
     highlights: list[dict[str, Any]]
     projects: list[dict[str, Any]]
     cards: dict[str, dict[str, Any]]
@@ -40,6 +41,12 @@ def daily_view(report: Report) -> DailyView:
         not plan and accepted is not None and accepted["availability"] == "available"
     )
     return DailyView(
+        "Hay resultados del intervalo, sin novedades destacadas en esta orientación."
+        if any(not r.reference_only for r in report.results)
+        else (
+            "Sin novedades verificadas del intervalo; "
+            "la referencia inicial o histórica está en el inventario."
+        ),
         report.sections.get("conceptual", {}).get("highlights", []),
         projects,
         {card["result_id"]: card for project in projects for card in project["results"]},

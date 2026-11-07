@@ -1,6 +1,6 @@
 ---
 name: project
-version: 1
+version: 2
 task: conceptual
 ---
 
@@ -22,6 +22,12 @@ known_now resume lo respaldado, still_unknown y decisions_changed acotan lo que
 falta y las decisiones afectadas. no_new_conclusion no es una excusa para omitir
 fallos técnicos: indica si las observaciones aportan una conclusión científica.
 No interpretes referencia inicial/histórica como producción del intervalo.
+
+Respeta la cronología: una nota de plan anterior no invalida un registro posterior
+de lanzamiento o de cambio de alcance. Distingue lanzamiento declarado, ejecución
+verificada y resultados; no propongas preparar un lanzamiento ya documentado.
+Las fichas resumen fuentes completas. Un índice sin extracto no indica que falte
+el contenido original: no inventes truncamientos ni carencias por esa presentación.
 
 Cada afirmación cita IDs de evidencia del índice. Las fichas ascendentes conservan
 sus citas; esas citas se validan otra vez contra las fuentes originales, no contra

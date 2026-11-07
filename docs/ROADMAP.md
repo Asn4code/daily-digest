@@ -55,7 +55,7 @@ Rediseño D-047/D-048/D-049 aprobado; avance por tareas:
 - [IN-07] Diagnóstico de rechazos y publicación sin sustitución mecánica — implementado
 - [IN-08] Hechos normalizados y paquetes pequeños por fuente — implementado
 - [IN-09] Nodos validados persistidos y generación reanudable — implementado
-- [IN-10] Seguimiento diario de resultados y próximo foco, con niveles por canal
+- [IN-10] Seguimiento diario de resultados y próximo foco, con niveles por canal — implementado
 - [IN-12] Contraste crítico semanal de conclusiones y evidencia nueva
 - [IN-11] Validación del flujo jerárquico con fallos y proyectos reales
 - [IN-06] Puerta de fase 2: espera la nueva validación

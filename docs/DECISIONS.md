@@ -173,3 +173,14 @@ auxiliares se guarda en metadatos existentes, sin migrar SQLite ni cambiar rutas
 o front matter humanos. La serialización estable evita invalidar piezas idénticas
 al recuperar un inventario. No se añaden dependencias ni se implementa la webapp.
 La validación semanal y la revisión independiente del conjunto siguen pendientes.
+
+Validación parcial real de IN-10 (2026-11-07): se recorrió una muestra acotada de
+cinco notas de un resultado del piloto, con fechas y procedencia originales,
+proveedores reales y sin captura adicional ni entrega. Se conservan los intentos
+privados en `build/in10-sample/`; `sample-r3/` completa la cadena y se revalida con
+el contrato vigente. El cotejo detectó y corrigió la pérdida de cronología por un
+extracto antiguo truncado, además de falsos rechazos de recuentos y procedencia.
+La nueva salida distingue lanzamiento declarado, ejecución verificada y cosecha;
+su propuesta busca verificar el estado en lugar de preparar otro lanzamiento.
+Esta muestra de cobertura parcial no demuestra un resultado científico nuevo ni
+sustituye el diario/semanal completos de IN-11 o la firma humana de utilidad.

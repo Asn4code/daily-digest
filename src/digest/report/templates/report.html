@@ -19,7 +19,7 @@ summary{cursor:pointer;font-weight:600;padding:.5rem}details{margin-block:.5rem;
 {% set weekly=report.sections.get('weekly') %}<h2>Lo esencial · orientación</h2>
 {% if weekly %}{{ claims(weekly.patterns[:3]) }}{% elif view.highlights %}
 {% for h in view.highlights %}<article><p>{{ claim(h.observation) }}</p>{{ interpretation(h.meaning) }}<p class="limit"><strong>Límite decisivo:</strong> {{ claim(h.decisive_limit) }}</p></article>{% endfor %}
-{% elif report.pending %}<p>Orientación pendiente de validación.</p>{% else %}<p>Sin novedades verificadas del intervalo. La referencia inicial o histórica está disponible en el inventario; no se ha solicitado su interpretación científica en este diario.</p>{% endif %}
+{% elif report.pending %}<p>Orientación pendiente de validación.</p>{% else %}<p>{{ view.orientation_notice }}</p>{% endif %}
 <h2>Balance conceptual</h2>{% for p in view.projects %}<section>
 {% set context=report.project_context.get(p.project_id,{}) %}<h3>{{ context.get('name',p.project_id) }}</h3>
 {% if context.get('objective') %}<p>Objetivo declarado: {{ context.objective }}</p>{% endif %}

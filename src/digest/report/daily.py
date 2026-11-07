@@ -64,7 +64,6 @@ def references(value: Any) -> set[str]:
 
 def fiche_view(report: Report, result_id: str) -> dict[str, Any]:
     fiche = report.sections["extract:" + result_id]
-    keys = report.source_units[result_id]
     output: dict[str, Any] = {
         "observations": [],
         "interpretations": [],
@@ -73,16 +72,13 @@ def fiche_view(report: Report, result_id: str) -> dict[str, Any]:
         "open_questions": [],
     }
     seen: dict[str, set[str]] = {name: set() for name in output}
-    for source, key in zip(fiche["sources"], keys, strict=True):
+    for source in fiche["sources"]:
         values = {
             "observations": [source["summary"], *source["observations"]],
             "interpretations": source["interpretations"],
             "controls": source["controls"],
             "open_questions": source["open_questions"],
-            "limitations": [
-                {"text": text, "evidence": [e["id"] for e in report.packages[key]["evidence"]]}
-                for text in source["limitations"]
-            ],
+            "limitations": source["limitations"],
         }
         for name, entries in values.items():
             for value in entries:
@@ -184,7 +180,15 @@ def build(
         fiches = {r.id: fiche_view(report, r.id) for r in items}
         ids = references(fiches)
         current = current_evidence_ids(report)
-        anchors = {min(set(r.evidence) & current) for r in items if set(r.evidence) & current}
+        entries = {e.id: e for e in report.evidence}
+        anchors = {
+            max(
+                set(r.evidence) & current,
+                key=lambda eid: (entries[eid].event_at or entries[eid].observed_at, eid),
+            )
+            for r in items
+            if set(r.evidence) & current
+        }
         ids.update(anchors)
         ids.update(eid for r in items for eid in r.evidence if report.observations[eid]["computed"])
         if prior:
@@ -279,15 +283,20 @@ def build(
                     "blocked",
                 )
                 states.setdefault(accepted["project_id"], {})[accepted["kanvas_task_id"]] = status
+    doubt_rows = db.execute(
+        "SELECT v.result_id,v.doubts FROM review v JOIN result r "
+        "ON r.id=v.result_id WHERE v.doubts!='[]' AND r.project_id IN ("
+        + ",".join("?" for _ in scope)
+        + ") AND v.id=(SELECT latest.id FROM review latest "
+        "WHERE latest.result_id=v.result_id "
+        "ORDER BY latest.submitted_at DESC,latest.id DESC LIMIT 1) "
+        "ORDER BY v.submitted_at DESC,v.id DESC LIMIT ?",
+        (*sorted(scope), MAX_CANDIDATES + 1),
+    ).fetchall()
+    if len(doubt_rows) > MAX_CANDIDATES:
+        report.warnings.append("El plan usa las dudas vigentes más recientes; no toda la historia.")
     doubts = [
-        {"result_id": row[0], "doubts": json.loads(row[1])}
-        for row in db.execute(
-            "SELECT v.result_id,v.doubts FROM review v JOIN result r "
-            "ON r.id=v.result_id WHERE v.doubts!='[]' AND r.project_id IN ("
-            + ",".join("?" for _ in scope)
-            + ") ORDER BY v.submitted_at",
-            tuple(sorted(scope)),
-        )
+        {"result_id": row[0], "doubts": json.loads(row[1])} for row in doubt_rows[:MAX_CANDIDATES]
     ]
     generate(
         "plan",

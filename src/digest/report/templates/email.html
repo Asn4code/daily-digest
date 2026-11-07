@@ -4,7 +4,7 @@
 <h1 style="font-size:24px">Daily Digest</h1><p>{{ date }}</p>{% set weekly=report.sections.get('weekly') %}
 <h2>Lo esencial</h2>{% if weekly %}{% for c in weekly.patterns[:3] %}<p>{{ claim(c) }}</p>{% endfor %}
 {% elif view.highlights %}{% for h in view.highlights %}<p>{{ claim(h.observation) }}</p><p>Interpretación (confianza {{ confidence[h.meaning.confidence] }}): {{ claim(h.meaning) }}</p><p style="border-left:4px solid #b87500;padding:8px"><strong>Límite decisivo:</strong> {{ claim(h.decisive_limit) }}</p>{% endfor %}
-{% else %}<p>Sin novedades verificadas del intervalo; la referencia inicial o histórica está en el inventario.</p>{% endif %}
+{% else %}<p>{{ view.orientation_notice }}</p>{% endif %}
 {% if drive_url %}<p><a href="{{ drive_url }}">Abrir informe completo en Drive</a></p>{% endif %}
 <h2>{{ 'Propuesta de semana' if weekly else 'Plan de mañana · próximo foco' }}</h2>
 {% if view.planning_for %}<p>Orientado al {{ view.planning_for }}. La elección sigue siendo tuya.</p>{% endif %}

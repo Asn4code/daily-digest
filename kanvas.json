@@ -1095,7 +1095,7 @@
     {
       "id": "IN-10",
       "title": "Seguimiento diario de resultados y próximo foco, con niveles por canal",
-      "state": "doing",
+      "state": "done",
       "group": "IN",
       "deps": ["IN-09"],
       "at": "2026-11-05T14:54:06Z",
@@ -1106,6 +1106,21 @@
           "at": "2026-11-06T10:48:31Z",
           "by": "codex",
           "text": "Plan: distinguir referencia inicial/histórica antes de generar, sin bloquear el diario por interpretarla; fichas de resultados y balances por proyecto, síntesis y foco con condiciones/límites explícitos. Vistas móvil y vault desde los mismos valores validados, técnica plegable y todo el inventario visible. Mantener planes humanos aceptados como contexto y permitir conservarlos, proponer alternativas justificadas o no inventar misión; validar linaje y dependencias. Sin cambiar rutas/front matter humanos ni implementar webapp de fase 3."
+        },
+        {
+          "at": "2026-11-06T12:37:57Z",
+          "by": "codex",
+          "text": "Diario por niveles guardado en 2cdb69b: 218 tests pasan con lint, formato y tipos. Incluye orientación común móvil/vault, balances por objetivo, foco opcional, separación temporal e intención humana preservada. Sigue en validación una muestra parcial real de CAS-02, sin entrega; todavía no cierro la tarea."
+        },
+        {
+          "at": "2026-11-07T12:15:23Z",
+          "by": "codex",
+          "text": "La muestra CAS-02 mostró un balance que interpretaba un plan anterior como estado vigente, inducido por un ancla antigua truncada. Corregidos anclaje al último evento, extractos completos acotados y límites de fuente citados; se valida la cronología con nuevos tests y se repite la muestra sin entrega. El primer reintento real agotó el presupuesto reducido; continúa pendiente, sin publicación ni cambios humanos."
+        },
+        {
+          "at": "2026-11-07T12:21:38Z",
+          "by": "codex",
+          "text": "El diario ya relaciona resultados con el objetivo, explica condiciones y límites y permite proponer un foco ejecutable, conservar el plan humano o no inventar misión. Móvil/vault comparten contenido validado; el inventario histórico se distingue de actividad nueva. make check: 229 tests, lint, formato y tipos pasan. Muestra real parcial de cinco notas en build/in10-sample/sample-r3: cadena completa con NaN, fuentes cotejadas y propuesta de verificar ejecución/cosecha, sin entrega ni escrituras en proyectos. Corregido el retroceso de cronología detectado en el primer intento. Para revisión humana final: leer mobile.txt y sample.md/html y valorar si se puede explicar el resultado y ejecutar el foco; esta muestra no sustituye la validación de los dos proyectos de IN-11."
         }
       ]
     },

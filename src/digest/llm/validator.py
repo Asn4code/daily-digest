@@ -157,6 +157,11 @@ CONNECTORS = {
     "vs",
     "es",
     "son",
+    "se",
+    "usado",
+    "usados",
+    "usada",
+    "usadas",
 }
 
 
@@ -168,10 +173,13 @@ COMPOUND_UNIT = re.compile(
 
 def unit_at(text: str) -> str | None:
     text = text.lstrip().lstrip("\"'")
+    text = re.sub(r"^de\s+(?:esas|esos|estas|estos|las|los)\s+", "", text)
     matched = UNIT.match(text)
-    if not matched or matched.group(1).rstrip(".!?\"'").lower() in CONNECTORS:
+    if not matched or matched.group(1).rstrip(".!?\"'") in CONNECTORS:
         return None
-    parts = [matched.group(1).rstrip(".!?\"'")]
+    # A slash followed by another quantity separates counts (51 structures/30
+    # pairs); it is not part of a compound unit such as kcal/mol.
+    parts = [re.split(r"/(?=\d)", matched.group(1).rstrip(".!?\"'"))[0]]
     tail = text[matched.end() :]
     while (suffix := COMPOUND_UNIT.match(tail)) is not None:
         parts.append(suffix.group(1))
@@ -251,6 +259,33 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             allowed | package.result_ids | set(package.task_states), key=len, reverse=True
         ):
             cleaned = cleaned.replace(ident, "")
+        # Dates are also provenance: a note's event date need not be repeated
+        # literally in its excerpt. Keep exact cited dates, never infer one.
+        for dated in re.findall(r"(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)", cleaned):
+            if not any(
+                dated in entry.excerpt
+                or any(
+                    stamp and stamp.startswith(dated)
+                    for stamp in (entry.event_at, entry.observed_at)
+                )
+                for entry in entries(refs)
+            ):
+                raise ValidationError("unsupported_number")
+            cleaned = cleaned.replace(dated, "")
+        for clock in re.findall(r"(?<!\d)\d{2}:\d{2}(?::\d{2})?(?!\d)", cleaned):
+            if not any(
+                clock in entry.excerpt
+                or any(
+                    stamp
+                    and len(stamp) >= 19
+                    and stamp[10] == "T"
+                    and stamp[11 : 11 + len(clock)] == clock
+                    for stamp in (entry.event_at, entry.observed_at)
+                )
+                for entry in entries(refs)
+            ):
+                raise ValidationError("unsupported_number")
+            cleaned = cleaned.replace(clock, "")
         for match in TOKEN.finditer(cleaned):
             unit = unit_at(cleaned[match.end() :])
             if not _present(

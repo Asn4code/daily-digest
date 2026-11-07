@@ -326,7 +326,7 @@ Cada paquete mantiene IDs, tiempos, metadatos, cobertura, objetivo y ámbito de
 privacidad. El router recibe el proyecto real; abstraer una fuente privada no
 permite enviarla al proveedor externo.
 
-Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v4.
+Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v5.
 Las piezas válidas se guardan en `sections[source:...]` y se enumeran en
 `source_units`. El ensamblado v3 conserva las piezas completas en `ResultFiche`,
 sin concatenar sus resúmenes en un campo limitado ni generar conclusiones nuevas.
@@ -390,7 +390,12 @@ marcada y limitación decisiva obligatoria. No representa comprensión humana.
 Los balances reciben fichas, cifras deterministas e índice de evidencias; no todos
 los documentos originales otra vez. Los paquetes derivados conservan originales
 para validar y auditar, y envían referencias con una breve muestra literal cuando
-se necesita anclar un resultado. Límites del prompt escapado: 48 000 caracteres
+se necesita anclar un resultado. Esa muestra corresponde a la evidencia actual
+más reciente y se incluye completa hasta 1 000 caracteres; si es mayor, se omite
+el extracto y se usa la ficha validada, sin cortar una frase ni perder el final de
+una decisión. Conserva fecha de evento/observación y origen. Los índices internos
+de auditoría que el modelo no necesita no se duplican en el mensaje. Límites del
+prompt escapado: 48 000 caracteres
 por balance y plan, 24 000 para orientación, o la configuración si es menor. Si
 no caben íntegros quedan pendientes. Los mensajes JSON ordenan claves de forma
 estable: congelar y recuperar el inventario no invalida una pieza idéntica.
@@ -409,3 +414,12 @@ Correo y vault usan los mismos valores validados de orientación y foco. La vaul
 añade explicación conceptual, fichas y evidencias técnicas plegables. Todo el
 inventario, incluidas referencias y tareas pendientes de revisión, sigue visible
 en ambos canales. No cambian rutas ni front matter de archivos humanos.
+
+La muestra real CAS-02 detectó pérdida de cronología al elegir una nota antigua
+truncada como ancla. La regresión exige el último evento y un extracto completo;
+los prompts distinguen plan anterior, lanzamiento declarado, ejecución comprobada
+y cosecha. Los límites de fuente son ahora afirmaciones citadas, no cadenas sin
+referencia. Una fecha de procedencia exacta puede respaldar una fecha textual sin
+que deba repetirse en el extracto. La validación automática de IDs/cifras no prueba
+por sí sola que una paráfrasis esté científicamente respaldada: se mantiene la
+revisión semántica real e independiente antes de la puerta.

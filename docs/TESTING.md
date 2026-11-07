@@ -202,6 +202,14 @@ incluye notas fechadas en el intervalo, para probar actividad actual además del
 inventario histórico. La prueba de reanudación detecta diferencias accidentales
 en la serialización tras recuperar un inventario congelado.
 
+Las regresiones de la muestra real exigen anclar el balance al evento más reciente
+sin cortar su extracto, no confundir orientación vacía con ausencia de actividad
+y citar cada límite de fuente. Se admiten fechas y horas exactas de procedencia
+y paráfrasis de recuentos, sin aceptar fechas/horas inventadas ni cambiar unidades.
+Las unidades `A` o `Se` no se confunden con conectores españoles `a` o `se`.
+El plan recibe como máximo cuarenta dudas de las últimas revisiones por resultado;
+no revive una duda anterior que una revisión posterior dejó vacía ni borra historia.
+
 La recuperación en el límite de publicación se prueba justo antes y después del
 cierre: valida el informe ya guardado, conserva su ID y encola la entrega una sola
 vez. Una revisión completa posterior sustituye a trabajos antiguos pendientes;

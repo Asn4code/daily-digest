@@ -69,6 +69,8 @@ def render(report: Report) -> str:
             "queda disponible en el inventario; no se ha solicitado su interpretación "
             "científica en este diario."
         )
+    elif not report.pending:
+        lines.append(view.orientation_notice)
     else:
         lines.append("Orientación pendiente de validación.")
     lines.append("## Balance conceptual")
@@ -137,7 +139,7 @@ def render(report: Report) -> str:
                     lines.extend([claim(source["summary"]), *claims(source["observations"])])
                     lines.extend(interpretation(value) for value in source["interpretations"])
                     lines.extend(claims(source["controls"]))
-                    lines.extend(escape(text) for text in source["limitations"])
+                    lines.extend(claims(source["limitations"]))
             else:
                 lines.append("Explicación pendiente.")
         for figure in result.figures:
