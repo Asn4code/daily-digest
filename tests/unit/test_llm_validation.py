@@ -387,3 +387,39 @@ def test_direct_unit_preserves_denominator_with_any_slash_spacing(package, separ
             schemas.Claim(text=f"La energía es 14 kJ{separator}kg.", evidence=["ev_control"]),
             package,
         )
+
+
+def test_cited_structure_chain_is_an_identifier_and_not_a_quantity(package):
+    package.evidence["ev_control"].excerpt = "La proteína 1ABC_A tiene 123 aa; RMSD 1.4 Å."
+    for text in ("Se probó la proteína 1ABC_A (123 aa).", "Se probó `1ABC_A`."):
+        validate(schemas.Claim(text=text, evidence=["ev_control"]), package)
+    for text in (
+        "Se probó la proteína 1ABC_B.",
+        "Se probó la proteína 1abc_A.",
+        "La medida es 1.",
+        "RMSD 1.4 1ABC_A.",
+        "RMSD 1.4 Å/1ABC_A",
+        "RMSD 1.4 / `1ABC_A`.",
+        "RMSD 1.4 Å/**1ABC_A**",
+        "RMSD 1.4*(1ABC_A)",
+        "RMSD __1.4__ nm.",
+    ):
+        with pytest.raises(ValidationError, match="unsupported_number"):
+            validate(schemas.Claim(text=text, evidence=["ev_control"]), package)
+
+
+@pytest.mark.parametrize("opening,closing", [("«", "»"), ("“", "”"), ('"', '"'), ("'", "'")])
+def test_quoted_units_preserve_dimensions_and_suffixes(package, opening, closing):
+    package.evidence["ev_control"].excerpt = "Se midió RMSD 1.4 Å."
+    validate(
+        schemas.Claim(text=f"Se declaró {opening}1.4 Å{closing}.", evidence=["ev_control"]),
+        package,
+    )
+    for body in ("1.4 nm", f"1.4 Å{closing} nm"):
+        with pytest.raises(ValidationError, match="unsupported_number"):
+            validate(
+                schemas.Claim(
+                    text=f"Se declaró {opening}{body}{closing}.", evidence=["ev_control"]
+                ),
+                package,
+            )

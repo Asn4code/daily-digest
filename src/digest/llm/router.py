@@ -234,6 +234,14 @@ class Router:
                                         if detail["rule"] == "unsupported_number"
                                         else ""
                                     )
+                                    + (
+                                        ". No uses etiquetas HTML ni marcadores de nombre "
+                                        "entre ángulos. Si la fuente contiene un nombre "
+                                        "provisional con ese marcador, describe su función "
+                                        "sin reproducirlo; no inventes otro archivo."
+                                        if detail["rule"] == "html_forbidden"
+                                        else ""
+                                    )
                                 ),
                             }
                         ]

@@ -221,6 +221,7 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
 
 # LLM output checks are independent of rendering and run again at publication.
 TOKEN = re.compile(r"(?<![\w.])[-+]?(?>\d+(?:[.,]\d+)?|\.\d+)(?:[eE][-+]?\d+)?(?!\d)")
+PDB_CHAIN_ID = re.compile(r"\b[0-9][A-Za-z0-9]{3}_[A-Za-z0-9]+\b")
 UNIT = re.compile(
     r"^\s*((?:[%°]?(?:[^\W\d_][^\s,;:()\[\]{}<>/]*)|%)"
     r"(?:\s*/\s*[^\s,;:()\[\]{}<>/]+)*)"
@@ -304,29 +305,31 @@ COMPOUND_UNIT = re.compile(
 )
 
 FILE_LABELS = {"conf", "pdb", "mmcif", "npz", "csv", "json", "png", "pdf", "svg"}
+QUOTES = "\"'«»“”‘’"
+UNIT_PUNCTUATION = ".!?" + QUOTES
 
 
 def unit_at(text: str) -> str | None:
-    text = text.lstrip().lstrip("\"'")
+    text = text.lstrip().lstrip(QUOTES)
     text = re.sub(r"^de\s+(?:esas|esos|estas|estos|las|los)\s+", "", text)
     classifier = re.match(r"^(?:ficheros|archivos)\s+([^\W\d_][^\s,;:()\[\]{}<>]*)", text)
-    if classifier and classifier[1].rstrip(".!?\"'").casefold() in FILE_LABELS:
+    if classifier and classifier[1].rstrip(UNIT_PUNCTUATION).casefold() in FILE_LABELS:
         # File classifiers do not change the following artifact's count label:
         # "14 ficheros conf" and "14 conf" retain the same label. Keep physical
         # suffixes and reject a different artifact or an intervening connector.
         text = text[classifier.start(1) :]
     matched = UNIT.match(text)
-    if not matched or matched.group(1).rstrip(".!?\"'") in CONNECTORS:
+    if not matched or matched.group(1).rstrip(UNIT_PUNCTUATION) in CONNECTORS:
         return None
     # A slash followed by another quantity separates counts (51 structures/30
     # pairs); it is not part of a compound unit such as kcal/mol.
-    parts = [re.split(r"\s*/\s*(?=\d)", matched.group(1).rstrip(".!?\"'"))[0]]
-    if matched.group(1).endswith((".", "!", "?")):
+    parts = [re.split(r"\s*/\s*(?=\d)", matched.group(1).rstrip(UNIT_PUNCTUATION))[0]]
+    if matched.group(1).rstrip(QUOTES).endswith((".", "!", "?")):
         return " ".join(parts[0].split())
     tail = text[matched.end() :]
     while (suffix := COMPOUND_UNIT.match(tail)) is not None:
-        parts.append(suffix.group(1).rstrip(".!?\"'"))
-        if suffix.group(1).endswith((".", "!", "?")):
+        parts.append(suffix.group(1).rstrip(UNIT_PUNCTUATION))
+        if suffix.group(1).rstrip(QUOTES).endswith((".", "!", "?")):
             break
         tail = tail[suffix.end() :]
     return " ".join(" ".join(parts).split())
@@ -375,7 +378,7 @@ def _present(number: float, unit: str | None, entries: list[EvidenceEntry]) -> b
                 )
             ):
                 return True
-        excerpt = entry.excerpt.replace("−", "-")
+        excerpt = PDB_CHAIN_ID.sub(" ", entry.excerpt.replace("−", "-"))
         for match in TOKEN.finditer(excerpt):
             value = float(match.group().replace(",", "."))
             if not math.isclose(number, value, rel_tol=1e-6, abs_tol=0):
@@ -404,12 +407,33 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             return
         # IDs may contain digits; do not mistake those references for measurements.
         cleaned = value.replace("−", "-")
-        cleaned = re.sub(r"[`*_]", "", cleaned)
+        cited = entries(refs)
+        known_structures = {
+            match.group() for entry in cited for match in PDB_CHAIN_ID.finditer(entry.excerpt)
+        }
+
+        def structure(match: re.Match[str]) -> str:
+            prefix = cleaned[: match.start()].rstrip()
+            suffix = cleaned[match.end() :]
+            for marker in ("**", "`", "*"):
+                if prefix.endswith(marker) and suffix.startswith(marker):
+                    prefix = prefix[: -len(marker)].rstrip()
+                    suffix = suffix[len(marker) :]
+            prefix = prefix.rstrip("([ \t")
+            return (
+                " "
+                if match.group() in known_structures
+                and not (prefix and (prefix[-1].isdigit() or prefix[-1] in "/^*·×+-"))
+                else match.group()
+            )
+
+        cleaned = PDB_CHAIN_ID.sub(structure, cleaned)
+        cleaned = re.sub(r"[`*]", "", cleaned)
+        cleaned = cleaned.replace("_", "")
         for ident in sorted(
             allowed | package.result_ids | set(package.task_states), key=len, reverse=True
         ):
             cleaned = cleaned.replace(ident, "")
-        cited = entries(refs)
         known_labels = {
             " ".join(match.group().casefold().split())
             for entry in cited

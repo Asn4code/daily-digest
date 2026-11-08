@@ -541,3 +541,13 @@ caracteres o el límite configurado de ámbito si es menor, además del presupue
 de mensajes. Si no cabe, queda pendiente antes de HTTP. El esquema exacto forma
 parte de la clave de caché. Esto ayuda al decoder; si el proveedor ignora la
 restricción, la validación sigue rechazando IDs inventados o decorados.
+
+La extracción de procedencia prefiere fragmentos numéricos literales con su
+etiqueta, unidad y condición juntas; los balances posteriores explican su
+significado. Las fechas usan ISO. Los identificadores de estructura y cadena
+literales en la fuente se comprueban como identificadores, con mayúsculas y
+minúsculas conservadas, y no suministran cifras para otra medida. No se eliminan
+si aparecen como operandos de una unidad. Las comillas españolas o tipográficas
+no cambian la unidad ni permiten ocultar un sufijo tras el cierre. Los nombres
+provisionales con marcadores entre ángulos siguen rechazados en salida; la
+reparación debe describir su función sin inventar un archivo.

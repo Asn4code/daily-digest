@@ -1,6 +1,6 @@
 ---
 name: source
-version: 7
+version: 8
 task: extract
 ---
 
@@ -47,3 +47,16 @@ ni una tarea si la fuente no lo declara. Una mención de artefactos disponibles 
 es una lista de trabajo por hacer. Si una frase no permite decidir el estado,
 conserva la ambigüedad y pregunta cómo comprobarlo, sin convertirla en un estado
 categórico. Revisa todos los campos, también open_questions.
+
+La extracción es la capa de procedencia; los balances posteriores harán la
+síntesis conceptual. Para observaciones con cifras, prefiere fragmentos cortos
+literales de la fuente entre comillas, conservando el recuento, etiqueta, unidad
+y condición juntos. No añadas clasificadores ni reformules etiquetas numéricas.
+No calcules equivalencias ni sustituyas cifras por palabras para evitar validar.
+El resumen puede explicar el avance sin repetir el catálogo de cifras.
+
+Las fechas de procedencia se expresan en ISO (AAAA-MM-DD), tomadas de los
+metadatos; no las conviertas a DD-MM-AAAA. No generes marcadores de fichero
+entre ángulos: usa la denominación concreta que conste en la nota posterior o
+describe su función y conserva la referencia. No conviertas un plan anterior
+con un nombre provisional en un artefacto ya producido.
