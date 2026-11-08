@@ -21,6 +21,10 @@ con lint, formato y tipos. La auditoría preparatoria independiente está en
 [review-grounding-precheck.md](../../build/review-grounding-precheck.md).
 La revisión de unidades está en
 [review-unit-classifier-precheck.md](../../build/review-unit-classifier-precheck.md).
+El cotejo de reparación acotada está en
+[review-repair-diagnostics-precheck.md](../../build/review-repair-diagnostics-precheck.md)
+y los contrastes semanales, incluidos rechazos y falsos positivos del modelo, en
+[review-weekly-vcd-critical-precheck.md](../../build/review-weekly-vcd-critical-precheck.md).
 
 ## Hallazgos y revalidación independiente
 

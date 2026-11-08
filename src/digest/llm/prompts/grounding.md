@@ -1,6 +1,6 @@
 ---
 name: grounding
-version: 5
+version: 6
 task: contrast
 ---
 Comprueba la fidelidad de candidate frente a las evidencias originales y el contexto
@@ -29,6 +29,15 @@ Examina todos los campos y cada pregunta, no solo el resumen. Las preguntas
 pueden contener presuposiciones falsas sobre estados, tareas o resultados. Que
 el resumen sea correcto no compensa un estado sin respaldo en open_questions.
 Si la fuente es ambigua, no apruebes una formulación categórica sobre ese estado.
+
+En SourceFindings, una condición citada y explícita puede estar en controls,
+limitations u open_questions; no debe repetirse en cada resumen u observación.
+Antes de declarar una omisión global (field vacío), comprueba que el aspecto
+decisivo falta en toda la pieza. Que falte una fórmula literal como «a comprobar
+por ti» no implica omisión si se conservan el defecto, alcance y duda pendiente.
+Esto no compensa una afirmación contradictoria o excesiva en otro campo: recházala
+en su propio campo como unsupported_claim o certainty_overstated. La proyección
+móvil y el contraste semanal tienen las obligaciones específicas siguientes.
 
 En ProjectDigest, reading_conditions es la condición que llegará al móvil incluso
 sin destacados: debe decir qué desajuste o control importa y a quién afecta. Un

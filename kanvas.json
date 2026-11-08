@@ -1173,6 +1173,11 @@
           "at": "2026-11-08T20:23:38Z",
           "by": "codex",
           "text": "Reparación conjunta verificada: 314 tests y revisión independiente de 300 candidatos conservan aceptación/rechazo, primer error y ruta. Commit ba04d8b subido. VCD r4 se detuvo correctamente por omitir carga 0/+1 en el contraste, sin agregado. Critical v2/Grounding v5 precisan decisiones pendientes, defecto y alcance, reproducción frente a validación, sensibilidad frente a causalidad y falta de datos frente a refutación. Se regenera solo el contraste, reutilizando la fuente validada; no se publica ni entrega."
+        },
+        {
+          "at": "2026-11-08T20:33:44Z",
+          "by": "codex",
+          "text": "El revisor confirmó un falso positivo de Ground5: la condición 0/+1 ya estaba en límites y pregunta pendiente de la fuente. Ground6 distingue presencia en la ficha de fuente de su proyección obligatoria a móvil/contraste; no tolera contradicciones. Los 314 tests pasan. Fuente Benchmark Mimo y crítica numérica completadas, pendientes de cotejo/reparación por diferencias entre ausencia de exportación y capacidad del modelo. VCD se reanuda desde nodos válidos, sin entregas."
         }
       ]
     },

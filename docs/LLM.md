@@ -438,6 +438,11 @@ insumos deja una comprobación no evaluable, sin favorecer una explicación.
 Se empieza por auditar y recalcular datos existentes antes de proponer repetir
 una ejecución. El cotejo automático comprueba también estas distinciones.
 
+En las fichas de fuente, una condición explícita y citada puede estar en límites,
+controles o preguntas; el cotejo no exige repetirla en cada resumen. Esto no
+compensa una afirmación contradictoria en otro campo. En el balance móvil y en
+el contraste semanal siguen vigentes sus requisitos específicos de condiciones.
+
 Tras las fuentes y fichas, `WeeklyCritical` construye un balance por proyecto y
 contrasta declaraciones previas con evidencia posterior del mismo resultado.
 Cada base conserva texto, versión, fecha, alcance/controles/límites, autor
