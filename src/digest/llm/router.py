@@ -224,13 +224,13 @@ class Router:
                                     + "; campo: "
                                     + detail["field"]
                                     + (
-                                        ". Si la cifra consta en la fuente, comprueba su unidad: "
-                                        "conserva la etiqueta literal. Una cifra adimensional "
-                                        "puede separarse de la prosa siguiente con puntuación. "
-                                        "Si tiene unidad, consérvala antes de esa puntuación; "
-                                        "no ocultes ni omitas unidades para pasar la validación. "
-                                        "No cambies cifras ni las escribas con palabras para "
-                                        "eludir la comprobación."
+                                        ". Cada cifra se comprueba solo contra los IDs citados "
+                                        "en ese campo. Si procede de otra evidencia del paquete, "
+                                        "cita su ID exacto; no cambies el valor. Conserva unidades "
+                                        "y etiquetas literales. Puedes separar la prosa con "
+                                        "puntuación, después de la unidad si existe. No ocultes "
+                                        "unidades ni escribas cifras con palabras para eludir "
+                                        "la comprobación."
                                         if detail["rule"] == "unsupported_number"
                                         else ""
                                     )

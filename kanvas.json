@@ -1148,6 +1148,11 @@
           "at": "2026-11-08T02:16:13Z",
           "by": "codex",
           "text": "El cotejo independiente ya verifica dos referencias reales completas y focos concretos. Se corrigió una presuposición falsa en preguntas y se sigue afinando la conservación de condiciones en móvil. En los recuentos se reproducían falsos rechazos de clasificadores de fichero; su corrección incluye regresiones de dimensiones, prefijos, potencias y denominadores. La revalidación independiente no deja hallazgos abiertos de unidades y make check pasa con 295 tests. Diario conjunto y semanales se regeneran con las reglas actuales, sin entrega ni cierre."
+        },
+        {
+          "at": "2026-11-08T11:20:27Z",
+          "by": "codex",
+          "text": "Se han corregido falsos rechazos de identificadores de estructura y de unidades entre comillas, con revalidación independiente de denominadores/sufijos y make check 310 tests. El diario r6 ya conserva la fuente VCD validada; Benchmark tiene candidato corregido pero su cotejo agotó el plazo de pieza. Se reanuda con el presupuesto de 60 minutos previsto, reutilizando nodos; no se publica ni entrega un informe incompleto. Fuente y agrupaciones siguen acotadas y explícitas."
         }
       ]
     },
