@@ -15,7 +15,7 @@ no aprueba este rediseño. Protocolo en [VALIDATION.md](../VALIDATION.md).
 ## Informe automático
 
 [Puerta automática](../../build/gates/phase-2.md). La tarea IN-11 está en validación;
-no se da por aprobada la fase. Última suite del constructor: 295 tests pasan,
+no se da por aprobada la fase. Última suite del constructor: 305 tests pasan,
 con lint, formato y tipos. La auditoría preparatoria independiente está en
 [review-hierarchical-precheck.md](../../build/review-hierarchical-precheck.md) y
 [review-grounding-precheck.md](../../build/review-grounding-precheck.md).
@@ -63,3 +63,14 @@ por qué una interpretación se mantiene o cambia. La elección del foco y el es
 de comprensión siguen siendo tuyos.
 
 - [ ] Apruebo la fase
+
+
+Las notas de distintas tareas se agrupan de forma curada en una unidad de
+validación por proyecto (`res_in11_vcd` / `res_in11_benchmark`). Sus IDs, fechas
+y localizadores de evidencia son originales; estas agrupaciones no son resultados
+creados por el agrupador de producción. El ensayo valida explicación, referencias,
+foco y contraste después de esa agrupación. No acredita que el servicio descubra
+automáticamente una relación científica entre tareas distintas ni representa todos
+los resultados de los proyectos. La crítica actual busca evidencia posterior del
+mismo resultado; ampliar esa relación necesita política explícita y evaluación
+con datos del piloto, sin asociar tareas solo por parecido textual.

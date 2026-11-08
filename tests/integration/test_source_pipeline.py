@@ -1,6 +1,8 @@
 """Bounded source generation with full lineage, controls and privacy."""
 
+import html
 import json
+import re
 from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path
@@ -21,7 +23,7 @@ from tests.fixtures.llm import fake_response
 from tests.fixtures.make_projects import build_projects
 
 
-@pytest.mark.parametrize("invalid", [None, "number", "reference"])
+@pytest.mark.parametrize("invalid", [None, "number", "reference", "decorated"])
 def test_large_result_splits_into_small_validated_packets_without_losing_inventory(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, invalid: str | None
 ) -> None:
@@ -75,6 +77,8 @@ def test_large_result_splits_into_small_validated_packets_without_losing_invento
                     value["observations"][0]["text"] = "Efecto 987654321 Å"
                 elif invalid == "reference":
                     value["observations"][0]["evidence"] = ["ev_invented"]
+                elif invalid == "decorated":
+                    value["observations"][0]["evidence"] = [bad_reference + " (locator)"]
         return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
 
     with closing(connect(tmp_path / "db")) as db:
@@ -95,6 +99,29 @@ def test_large_result_splits_into_small_validated_packets_without_losing_invento
         for w in source_calls
     )
     assert all(w["model"] == config.llm.providers["internal"].model for w in requests)
+    for wire in requests:
+        sent = {
+            json.loads(html.unescape(raw))["id"]
+            for raw in re.findall(
+                r'<evidence id="[^"]+">(.*?)</evidence>', wire["messages"][1]["content"], re.S
+            )
+        }
+
+        expected_refs = tuple(sorted(sent))
+
+        def inspect_schema(value, expected=expected_refs):
+            if isinstance(value, dict):
+                for name, prop in value.get("properties", {}).items():
+                    if name in {"evidence", "new_evidence"}:
+                        target = prop.get("items", {}) if prop.get("type") == "array" else prop
+                        assert target["enum"] == list(expected)
+                for child in value.values():
+                    inspect_schema(child)
+            elif isinstance(value, list):
+                for child in value:
+                    inspect_schema(child)
+
+        inspect_schema(wire["response_format"]["json_schema"]["schema"])
     if invalid:
         assert "extract:res_test" in report.pending
         assert "extract:res_test" not in report.sections

@@ -1177,6 +1177,16 @@
           "text": "El semanal ya contrasta declaraciones previas versionadas con evidencia posterior, explica comparabilidad, límites y consecuencias y enlaza análisis discriminantes al próximo foco. Móvil y vault muestran la misma evaluación; el agregado conserva los balances validados. make check: 238 tests, lint, formato y tipos pasan. Fixtures cubren refuerzo, matiz, cuestionamiento, condiciones distintas, ausencia de novedades, versiones automáticas/humanas, estado humano intacto, privacidad entre proyectos y bloqueo si falla la crítica. No se ejecutan análisis ni se cambian proyectos/planes humanos. La utilidad sobre muestras reales y la revisión independiente del rediseño se comprobarán en IN-11/IN-06; no se da por aprobada la fase."
         }
       ]
+    },
+    {
+      "id": "PL-04",
+      "title": "Evaluar relaciones científicas entre tareas con datos del piloto",
+      "state": "proposed",
+      "group": "PL",
+      "deps": ["PL-01"],
+      "at": "2026-11-08T02:29:03Z",
+      "by": "codex",
+      "desc": "El contraste actual compara evidencia posterior del mismo resultado. Durante el piloto, registrar casos en los que otra tarea aporte evidencia relevante para una conclusión previa y medir qué queda fuera. Conservar un caso natural del mismo resultado y el mapeo de tareas/evidencias en cada ensayo curado. Proponer una política explícita de relaciones, con procedencia, controles y privacidad, para revisión humana antes de implementarla; no mezclar tareas automáticamente por parecido textual. Terminado cuando la evaluación documenta casos reales y la persona puede decidir si ampliar la relación merece una tarea de implementación."
     }
   ]
 }

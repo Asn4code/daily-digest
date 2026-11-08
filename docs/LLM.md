@@ -533,3 +533,11 @@ unidades físicas arbitrarias. Las unidades compuestas conservan prefijos, poten
 y denominadores, también con espacios alrededor de `/`; cambiar MB por GB o
 kJ/mol por kJ/kg sigue rechazándose. El reconocimiento de prosa no acredita por
 sí solo la relación científica entre una cifra y su sujeto.
+
+Antes de cada llamada, el JSON Schema copia el contrato y restringe `evidence`
+y `new_evidence` a IDs ordenados del paquete efectivo, también en referencias
+escalares. Los demás campos mantienen su contrato. El esquema tiene hasta 32 000
+caracteres o el límite configurado de ámbito si es menor, además del presupuesto
+de mensajes. Si no cabe, queda pendiente antes de HTTP. El esquema exacto forma
+parte de la clave de caché. Esto ayuda al decoder; si el proveedor ignora la
+restricción, la validación sigue rechazando IDs inventados o decorados.

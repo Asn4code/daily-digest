@@ -35,3 +35,14 @@ Marca solo las comprobaciones satisfactorias y «Apruebo la fase» en
 se genera otra revisión sin sobrescribir tus respuestas. La fase siguiente espera
 la puerta aprobada. Un cotejo automático positivo puede equivocarse y no sustituye
 esta lectura ni tu comprensión.
+
+
+Las notas de distintas tareas se agrupan de forma curada en una unidad de
+validación por proyecto (`res_in11_vcd` / `res_in11_benchmark`). Sus IDs, fechas
+y localizadores de evidencia son originales; estas agrupaciones no son resultados
+creados por el agrupador de producción. El ensayo valida explicación, referencias,
+foco y contraste después de esa agrupación. No acredita que el servicio descubra
+automáticamente una relación científica entre tareas distintas ni representa todos
+los resultados de los proyectos. La crítica actual busca evidencia posterior del
+mismo resultado; ampliar esa relación necesita política explícita y evaluación
+con datos del piloto, sin asociar tareas solo por parecido textual.

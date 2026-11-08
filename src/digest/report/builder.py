@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from digest.collectors.store import previous_payload
 from digest.config import Config
 from digest.llm import schemas
+from digest.llm.contracts import evidence_schema
 from digest.llm.grounding import check as check_grounding
 from digest.llm.prompts import load, messages
 from digest.llm.router import Router, Task
@@ -311,6 +312,15 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                 return
         scope = package_scope(payload)
         schema = schemas.SourceFindings if source else SCHEMAS[contract or task]
+        try:
+            schema_limit = config.limits.max_project_package_chars * len(project_ids)
+            output_schema = evidence_schema(schema, set(scope.evidence), max_chars=schema_limit)
+            audit_schema = evidence_schema(
+                schemas.GroundingAudit, set(scope.evidence), max_chars=schema_limit
+            )
+        except ValueError:
+            mark_pending(key, "input", "schema_budget_exceeded")
+            return
 
         def check(value: dict[str, Any]) -> BaseModel:
             parsed = schema.model_validate(value)
@@ -348,7 +358,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                 prompt_name=prompt.name,
                 prompt_version=prompt.version,
                 messages=messages(prompt, payload),
-                schema=schema.model_json_schema(),
+                schema=output_schema,
                 validate=check,
                 section=key,
                 package=payload,
@@ -398,7 +408,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                 prompt_name=grounding_prompt.name,
                 prompt_version=grounding_prompt.version,
                 messages=audit_messages,
-                schema=schemas.GroundingAudit.model_json_schema(),
+                schema=audit_schema,
                 validate=audit_check,
                 section="check:" + key,
                 package=audit_package,
