@@ -223,6 +223,17 @@ class Router:
                                     + detail["rule"]
                                     + "; campo: "
                                     + detail["field"]
+                                    + (
+                                        ". Si la cifra consta en la fuente, comprueba su unidad: "
+                                        "conserva la etiqueta literal. Una cifra adimensional "
+                                        "puede separarse de la prosa siguiente con puntuación. "
+                                        "Si tiene unidad, consérvala antes de esa puntuación; "
+                                        "no ocultes ni omitas unidades para pasar la validación. "
+                                        "No cambies cifras ni las escribas con palabras para "
+                                        "eludir la comprobación."
+                                        if detail["rule"] == "unsupported_number"
+                                        else ""
+                                    )
                                 ),
                             }
                         ]
