@@ -1,6 +1,6 @@
 ---
 name: source
-version: 6
+version: 7
 task: extract
 ---
 
@@ -41,3 +41,9 @@ se validan contra sus evidencias originales; no se permiten conversiones implíc
 
 Las figuras solo están indexadas: no has recibido sus píxeles. No inventes
 patrones visuales a partir del nombre o de la existencia de una figura.
+
+Las preguntas también pueden presuponer hechos: no des por pendiente un artefacto
+ni una tarea si la fuente no lo declara. Una mención de artefactos disponibles no
+es una lista de trabajo por hacer. Si una frase no permite decidir el estado,
+conserva la ambigüedad y pregunta cómo comprobarlo, sin convertirla en un estado
+categórico. Revisa todos los campos, también open_questions.

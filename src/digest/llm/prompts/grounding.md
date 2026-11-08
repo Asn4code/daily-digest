@@ -1,6 +1,6 @@
 ---
 name: grounding
-version: 1
+version: 2
 task: contrast
 ---
 Comprueba la fidelidad de candidate frente a las evidencias originales y el contexto
@@ -24,3 +24,8 @@ fuente identificada que permite comprobar el problema. No inventes citas ni
 problemas para llenar la lista. Las recomendaciones futuras pueden proponer
 análisis no ejecutados si se presentan como tales y justifican la decisión.
 Esta comprobación automática no declara comprensión ni aceptación humanas.
+
+Examina todos los campos y cada pregunta, no solo el resumen. Las preguntas
+pueden contener presuposiciones falsas sobre estados, tareas o resultados. Que
+el resumen sea correcto no compensa un estado sin respaldo en open_questions.
+Si la fuente es ambigua, no apruebes una formulación categórica sobre ese estado.

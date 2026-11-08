@@ -235,3 +235,10 @@ con un cotejo automático por pieza y una reparación local acotada, usando la r
 `contrast` y las mismas políticas de privacidad. Es una comprobación adicional a
 los validadores de código y a la firma humana; no prueba la verdad del resultado.
 Se preservan SQLite y archivos humanos, sin añadir dependencias ni entregas.
+
+El cotejo independiente detectó también una pregunta con una presuposición falsa
+que el comprobador automático había aprobado. Se detuvo esa muestra sin generar
+un informe final ni entregar; los prompts de fuente y cotejo pasan a revisar
+todos los campos y a conservar ambigüedades de estado. Este falso negativo se
+conserva en la auditoría privada de muestras y confirma que una aprobación de
+modelo no sustituye la revisión independiente ni la firma humana.
