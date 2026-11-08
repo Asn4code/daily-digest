@@ -143,8 +143,15 @@ def test_T17_project_instructions_remain_escaped_data() -> None:
         assert "<system>" not in output[1]["content"]
         assert "&lt;/evidence&gt;" in output[1]["content"]
         assert output[1]["content"].count("<evidence ") == 1
-        assert prompt.version == (
-            "3" if task in {"conceptual", "plan"} else "2" if task == "weekly" else "1"
+        assert (
+            prompt.version
+            == {
+                "extract": "1",
+                "conceptual": "4",
+                "plan": "3",
+                "weekly": "2",
+                "contrast": "1",
+            }[task]
         )
 
 

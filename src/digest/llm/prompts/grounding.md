@@ -1,6 +1,6 @@
 ---
 name: grounding
-version: 2
+version: 3
 task: contrast
 ---
 Comprueba la fidelidad de candidate frente a las evidencias originales y el contexto
@@ -29,3 +29,10 @@ Examina todos los campos y cada pregunta, no solo el resumen. Las preguntas
 pueden contener presuposiciones falsas sobre estados, tareas o resultados. Que
 el resumen sea correcto no compensa un estado sin respaldo en open_questions.
 Si la fuente es ambigua, no apruebes una formulación categórica sobre ese estado.
+
+En ProjectDigest, reading_conditions es la condición que llegará al móvil incluso
+sin destacados: debe decir qué desajuste o control importa y a quién afecta. Un
+aviso genérico de «efecto por comprobar» no sustituye una condición concreta
+conocida ni su alcance. En DailyOverview, esas reading_conditions del balance
+también se muestran: no exijas repetirlas en cada destacado. Comprueba la fidelidad
+y el alcance, no alargues el mensaje con todos los avisos genéricos.

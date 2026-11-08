@@ -34,7 +34,8 @@ def wire_context(request):
 
 
 @pytest.mark.parametrize("repair", [True, False])
-def test_unsupported_status_is_repaired_once_or_stays_pending(daily, tmp_path, repair):
+@pytest.mark.parametrize("in_question", [False, True])
+def test_unsupported_status_is_repaired_once_or_stays_pending(daily, tmp_path, repair, in_question):
     config, inventory = daily
     config.projects[0].external_allowed = False
     inventory.evidence[0].excerpt = "El contraste ya se ha completado."
@@ -55,17 +56,27 @@ def test_unsupported_status_is_repaired_once_or_stays_pending(daily, tmp_path, r
                 if repair and package["context"].get("validation_feedback")
                 else "El contraste queda pendiente."
             )
-            value["summary"]["text"] = text
+            if in_question:
+                value["open_questions"] = [{"text": text, "evidence": [inventory.evidence[0].id]}]
+            else:
+                value["summary"]["text"] = text
         elif title == "GroundingAudit":
             audit_calls += 1
             candidate = package["context"]["candidate"]
-            if candidate.get("summary", {}).get("text") == "El contraste queda pendiente.":
+            claims = (
+                candidate.get("open_questions", [])
+                if in_question
+                else [candidate.get("summary", {})]
+            )
+            if any(c.get("text") == "El contraste queda pendiente." for c in claims):
                 value = {
                     "approved": False,
                     "issues": [
                         {
                             "rule": "unsupported_claim",
-                            "field": ["summary", "text"],
+                            "field": ["open_questions", 0, "text"]
+                            if in_question
+                            else ["summary", "text"],
                             "evidence": [inventory.evidence[0].id],
                             "source_quote": "El contraste ya se ha completado.",
                         }
@@ -81,9 +92,9 @@ def test_unsupported_status_is_repaired_once_or_stays_pending(daily, tmp_path, r
         assert all(w["model"] == config.llm.providers["internal"].model for w in requests)
         if repair:
             require_complete(report)
-            assert report.sections["extract:res_comparison"]["sources"][0]["summary"]["text"] == (
-                "El contraste ya se ha completado."
-            )
+            source = report.sections["extract:res_comparison"]["sources"][0]
+            corrected = source["open_questions"][0] if in_question else source["summary"]
+            assert corrected["text"] == ("El contraste ya se ha completado.")
             count = len(requests)
             again = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
             require_complete(again)

@@ -519,3 +519,10 @@ destacados. El foco breve incluye acción, finalización, decisión, dependencia
 incertidumbre desde los mismos valores de la vault. `origin: review` exige contexto
 humano real. Las predicciones semanales enlazan `alternative_index` con cada
 alternativa por índice, sin exigir repetir literalmente su nombre.
+
+Las condiciones de lectura deben describir el desajuste conocido y su alcance,
+no solo decir que algo queda por comprobar. Un problema de un compuesto no
+invalida el conjunto. Los prompts procuran condiciones y destacados breves
+(unas 220 letras por campo); es una preferencia editorial, no permiso para
+eliminar una condición decisiva ni una garantía automática de legibilidad.
+El cotejo conoce qué campos llegan al móvil para detectar pérdidas de significado.
