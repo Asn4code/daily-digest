@@ -75,6 +75,62 @@ def test_literal_and_computed_values_validate_without_inventing_units(
         validate(schemas.ResultExtraction.model_validate(value), package)
 
 
+def test_repair_diagnostics_collect_independent_failures_without_values(package):
+    from digest.llm.diagnostics import repair_issues
+
+    valid = {"text": "RMSD 1.4 Å", "evidence": ["ev_control"]}
+    source = schemas.SourceFindings(
+        result_id="res_test",
+        summary=valid,
+        observations=[
+            {"text": "RMSD 987654321 nm", "evidence": ["ev_control"]},
+            {"text": "Private source", "evidence": ["PRIVATE_UNKNOWN_REFERENCE"]},
+        ],
+        interpretations=[],
+        controls=[{"text": "<script>PRIVATE_PAYLOAD</script>", "evidence": ["ev_control"]}],
+        limitations=[],
+        open_questions=[],
+    )
+    with pytest.raises(ValidationError) as caught:
+        validate(source, package)
+    diagnostics = repair_issues(caught.value, schemas.SourceFindings.model_json_schema())
+    assert [(d["rule"], d["field"]) for d in diagnostics] == [
+        ("unsupported_number", "observations.0.text"),
+        ("unknown_evidence", "observations.1.evidence"),
+        ("html_forbidden", "controls.0.text"),
+    ]
+    assert "PRIVATE" not in json.dumps(diagnostics)
+    assert "987654321" not in json.dumps(diagnostics)
+    source.observations = [schemas.Claim(**valid)]
+    # A later invalid field must still reject after the earlier ones are repaired.
+    with pytest.raises(ValidationError, match="html_forbidden"):
+        validate(source, package)
+    source.controls = [schemas.Claim(**valid)]
+    validate(source, package)
+
+
+def test_repair_diagnostics_are_bounded_and_hide_undeclared_keys(package):
+    from digest.llm.diagnostics import repair_issues
+
+    source = schemas.SourceFindings(
+        result_id="res_test",
+        summary={"text": "RMSD 1.4 Å", "evidence": ["ev_control"]},
+        observations=[{"text": "RMSD 987654321 nm", "evidence": ["ev_control"]} for _ in range(50)],
+        interpretations=[],
+        controls=[],
+        limitations=[],
+        open_questions=[],
+    )
+    with pytest.raises(ValidationError) as caught:
+        validate(source, package)
+    diagnostics = repair_issues(caught.value, schemas.SourceFindings.model_json_schema())
+    assert len(diagnostics) == 20
+    assert diagnostics[-1]["field"] == "observations.19.text"
+    private = ValidationError("unsupported_number", ("PRIVATE_FIELD", 3))
+    caught.value.related = (private,)
+    assert repair_issues(caught.value, {})[-1]["field"] == "<extra>.3"
+
+
 @pytest.mark.parametrize("stamp", ["observed_at", "event_at"])
 def test_provenance_date_is_validated_against_its_cited_evidence(package, stamp):
     entry = package.evidence["ev_control"]

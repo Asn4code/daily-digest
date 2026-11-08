@@ -1163,6 +1163,11 @@
           "at": "2026-11-08T19:50:18Z",
           "by": "codex",
           "text": "La extracción VCD con GLM r10 fue rechazada por mezclar límites antiguos con capacidades actualizadas y atribuir comprobaciones de navegador a notas que no las declaraban. Source v9 precisa cronología por capacidad y atribución por nota; no cambia los validadores ni permite publicar piezas rechazadas. Se regenera la muestra con el mismo ámbito acotado."
+        },
+        {
+          "at": "2026-11-08T20:11:25Z",
+          "by": "codex",
+          "text": "La suite de Source v9 compacta pasa con 311 tests y la puerta automática solo falla por IN-11 pendiente. La fuente VCD GLM pasó el cotejo; el revisor detectó un recuento verbal menor (dos notas frente a tres citas), registrado sin dar la muestra por aprobada. El semanal reveló reparaciones que arreglan un campo y fallan por otro: se comprueban diagnósticos simultáneos de hasta veinte campos, sin valores privados, sin aumentar reintentos ni relajar validación. Se regenera VCD y se ensaya Mimo de NaN para Benchmark en el entorno privado; producción conserva sus modelos."
         }
       ]
     },

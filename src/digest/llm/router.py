@@ -12,7 +12,7 @@ from digest.collectors.base import canonical, content_hash, utc
 from digest.config import Config
 from digest.llm.cache import Nodes
 from digest.llm.client import Client, ClientError, Completion
-from digest.llm.diagnostics import error_category, validation_issue
+from digest.llm.diagnostics import error_category, repair_issues, validation_issue
 from digest.util.redact import known_secrets, redact_tree
 
 Task = Literal["extract", "conceptual", "plan", "weekly", "contrast"]
@@ -118,6 +118,7 @@ class Router:
             conversation = list(messages)
             for repair in range(2):
                 log_ids: list[int] = []
+                rejected_fields: list[dict[str, str]] = []
 
                 def observe(
                     result: Completion | None,
@@ -172,6 +173,7 @@ class Router:
                         sanitized = redact_tree(result.value, known_secrets(self.config))
                         value = validate(sanitized)
                     except ValueError as invalid:
+                        rejected_fields = repair_issues(invalid, schema)
                         detail = {
                             "stage": task,
                             "section": section or task,
@@ -224,6 +226,12 @@ class Router:
                                     + "; campo: "
                                     + detail["field"]
                                     + (
+                                        ". Revisa todos estos campos en la misma reparación: "
+                                        + canonical(rejected_fields)
+                                        if len(rejected_fields) > 1
+                                        else ""
+                                    )
+                                    + (
                                         ". Cada cifra se comprueba solo contra los IDs citados "
                                         "en ese campo. Si procede de otra evidencia del paquete, "
                                         "cita su ID exacto; no cambies el valor. Conserva unidades "
@@ -232,6 +240,10 @@ class Router:
                                         "unidades ni escribas cifras con palabras para eludir "
                                         "la comprobación."
                                         if detail["rule"] == "unsupported_number"
+                                        or any(
+                                            i["rule"] == "unsupported_number"
+                                            for i in rejected_fields
+                                        )
                                         else ""
                                     )
                                     + (
@@ -240,6 +252,9 @@ class Router:
                                         "provisional con ese marcador, describe su función "
                                         "sin reproducirlo; no inventes otro archivo."
                                         if detail["rule"] == "html_forbidden"
+                                        or any(
+                                            i["rule"] == "html_forbidden" for i in rejected_fields
+                                        )
                                         else ""
                                     )
                                 ),

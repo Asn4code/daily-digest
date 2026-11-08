@@ -15,6 +15,12 @@ def error_category(code: str | None) -> str:
     return "provider"
 
 
+def repair_issues(error: ValueError, schema: dict[str, Any] | None) -> list[dict[str, str]]:
+    """Expose bounded rule/field diagnostics, never candidate values or error inputs."""
+    related = error.related if isinstance(error, ValidationError) else ()
+    return [validation_issue(item, schema) for item in (error, *related)[:20]]
+
+
 def validation_issue(error: ValueError, schema: dict[str, Any] | None) -> dict[str, str]:
     fields: set[str] = set()
 

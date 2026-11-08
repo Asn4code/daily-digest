@@ -190,7 +190,8 @@ como mediciones observadas. La comprobación es determinista de referencias y
 cifras; no demuestra por sí sola que la interpretación científica sea correcta.
 
 Los prompts versionados escapan los datos antes de delimitarlos y declaran las
-instrucciones de proyectos como datos. La reparación recibe la regla y el campo rechazados,
+instrucciones de proyectos como datos. La reparación recibe reglas y campos rechazados
+(hasta veinte fallos independientes en la misma pasada),
 sin repetir salidas, valores de entrada, claves desconocidas ni cuerpos HTTP. Una tarea `done`, `review` o
 bloqueada no se acepta como misión de Kanvas. La pertenencia y los bloqueos se
 obtienen de la captura por el constructor del paquete, no de la respuesta LLM.

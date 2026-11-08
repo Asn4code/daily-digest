@@ -17,6 +17,7 @@ class ValidationError(ValueError):
     def __init__(self, rule: str, path: tuple[str | int, ...] = ()) -> None:
         super().__init__(rule)
         self.path = path
+        self.related: tuple[ValidationError, ...] = ()
 
 
 def validate_report(report: Report, allowed_ids: set[str]) -> None:
@@ -395,6 +396,7 @@ def _present(number: float, unit: str | None, entries: list[EvidenceEntry]) -> b
 def validate(output: BaseModel, package: EvidencePackage) -> None:
     """Reject unknown references, unsupported numbers, units, HTML and invalid plans."""
     allowed = set(package.evidence)
+    failures: list[ValidationError] = []
 
     def entries(refs: list[str]) -> list[EvidenceEntry]:
         if not refs or not set(refs) <= allowed:
@@ -507,7 +509,8 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
         except ValidationError as error:
             if not error.path:
                 error.path = path
-            raise
+            if len(failures) < 20:
+                failures.append(error)
 
     def visit_value(value: Any, inherited: list[str], path: tuple[str | int, ...]) -> None:
         if isinstance(value, dict):
@@ -568,6 +571,9 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
 
     data = output.model_dump()
     visit(data, list(allowed))
+    if failures:
+        failures[0].related = tuple(failures[1:])
+        raise failures[0]
     if (
         isinstance(output, schemas.ResultExtraction | schemas.SourceFindings | schemas.ResultFiche)
         and output.result_id not in package.result_ids

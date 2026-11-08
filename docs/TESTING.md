@@ -154,6 +154,11 @@ Una prueba elimina una sección de un informe marcado `ready` y verifica que la
 entrega vuelve a rechazarlo antes de crear filas o correo. Los diagnósticos se
 prueban con cifras inventadas, tipos incorrectos, claves extra privadas, timeouts
 y credenciales ausentes; no contienen valores ni cuerpos rechazados.
+Los fallos independientes de una misma salida se comunican juntos (máximo veinte)
+sin repetir sus valores. Una prueba de transporte exige reparar cifras y HTML
+en la misma segunda llamada; otra mantiene un fallo posterior y comprueba que
+la salida sigue rechazada después de arreglar los anteriores. No aumenta el
+número de reparaciones ni se corrige el contenido automáticamente.
 
 ## Unidades de evidencia (IN-08)
 

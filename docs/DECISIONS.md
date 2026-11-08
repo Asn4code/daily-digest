@@ -242,3 +242,9 @@ un informe final ni entregar; los prompts de fuente y cotejo pasan a revisar
 todos los campos y a conservar ambigüedades de estado. Este falso negativo se
 conserva en la auditoría privada de muestras y confirma que una aprobación de
 modelo no sustituye la revisión independiente ni la firma humana.
+
+La validación real mostró también reparaciones que corregían el primer campo
+rechazado y fallaban inmediatamente por otro. La misma pasada recoge ahora
+hasta veinte fallos independientes y devuelve solo reglas y rutas de esquema
+filtradas a la reparación existente. No se añaden reintentos, no se transforman
+afirmaciones y cualquier error pendiente sigue bloqueando la pieza.

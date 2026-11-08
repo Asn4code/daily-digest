@@ -97,6 +97,79 @@ def test_T16_both_providers_down_returns_pending_signal(
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
+def test_one_repair_can_fix_multiple_independent_rejected_claims(tmp_path, monkeypatch):
+    from digest.llm.schemas import SourceFindings
+    from digest.llm.validator import EvidencePackage, validate
+    from digest.report.model import EvidenceEntry
+
+    config = load_config(build_projects(tmp_path / "projects"))
+    config.llm.routing.extract = ["internal"]
+    monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
+    pid = config.projects[0].id
+    scope = EvidencePackage(
+        {
+            "ev_test": EvidenceEntry(
+                "ev_test",
+                pid,
+                "metric",
+                "note",
+                "RMSD 1.4 Å",
+                "2026-11-04T19:00:00+00:00",
+                None,
+                "observed",
+                {},
+            )
+        },
+        {pid},
+        {"res_test"},
+    )
+    good = {"text": "RMSD 1.4 Å", "evidence": ["ev_test"]}
+    requests = []
+
+    def respond(request):
+        wire = json.loads(request.content)
+        requests.append(wire)
+        repair = wire["messages"][-1]["content"] if wire["messages"] else ""
+        fixed = all(field in repair for field in ("observations.0.text", "controls.0.text"))
+        value = {
+            "result_id": "res_test",
+            "summary": good,
+            "observations": [
+                good if fixed else {"text": "RMSD 987654321 nm", "evidence": ["ev_test"]}
+            ],
+            "controls": [
+                good
+                if fixed
+                else {"text": "<script>PRIVATE_PAYLOAD</script>", "evidence": ["ev_test"]}
+            ],
+            "interpretations": [],
+            "limitations": [],
+            "open_questions": [],
+        }
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
+
+    def check(value):
+        result = SourceFindings.model_validate(value)
+        validate(result, scope)
+        return result
+
+    with closing(connect(tmp_path / "db.sqlite")) as db:
+        result = Router(db, config, client=Client(transport=httpx.MockTransport(respond))).generate(
+            "extract",
+            project_ids={pid},
+            prompt_name="source",
+            prompt_version="test",
+            messages=[],
+            schema=SourceFindings.model_json_schema(),
+            validate=check,
+        )
+        assert result is not None and len(requests) == 2
+        feedback = requests[-1]["messages"][-1]["content"]
+        assert "PRIVATE_PAYLOAD" not in feedback and "987654321" not in feedback
+        assert db.execute("SELECT ok FROM llm_call ORDER BY id").fetchall() == [(0,), (1,)]
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
+
+
 def test_private_project_never_reaches_external_provider(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
