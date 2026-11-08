@@ -423,3 +423,15 @@ def test_quoted_units_preserve_dimensions_and_suffixes(package, opening, closing
                 ),
                 package,
             )
+
+
+def test_negative_conjunction_is_not_a_unit_but_element_symbol_remains_distinct(package):
+    package.evidence["ev_control"].excerpt = "Spearman 0,63 sobre 50 ligandos."
+    validate(
+        schemas.Claim(
+            text="No reproduce el 0,63 ni aporta nuevos resultados.", evidence=["ev_control"]
+        ),
+        package,
+    )
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(schemas.Claim(text="Medida 0,63 Ni", evidence=["ev_control"]), package)

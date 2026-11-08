@@ -1,6 +1,6 @@
 ---
 name: grounding
-version: 3
+version: 4
 task: contrast
 ---
 Comprueba la fidelidad de candidate frente a las evidencias originales y el contexto
@@ -36,3 +36,11 @@ aviso genérico de «efecto por comprobar» no sustituye una condición concreta
 conocida ni su alcance. En DailyOverview, esas reading_conditions del balance
 también se muestran: no exijas repetirlas en cada destacado. Comprueba la fidelidad
 y el alcance, no alargues el mensaje con todos los avisos genéricos.
+
+Si ProjectDigest describe comparación o uso de puntuaciones/resultados y las
+fuentes documentan un defecto concreto de entradas o preparación que puede
+afectarlos, su desajuste y alcance deben llegar a reading_conditions. No basta
+con que aparezca en results.limits o still_unknown, invisibles en el mensaje breve.
+No exijas todos los detalles técnicos en móvil, pero no sustituyas ese defecto
+conocido por cobertura genérica, repetición de cifras o capacidad de interfaz.
+Agrupar límites de una misma decisión evita alargar el mensaje.

@@ -551,3 +551,10 @@ si aparecen como operandos de una unidad. Las comillas españolas o tipográfica
 no cambian la unidad ni permiten ocultar un sufijo tras el cierre. Los nombres
 provisionales con marcadores entre ángulos siguen rechazados en salida; la
 reparación debe describir su función sin inventar un archivo.
+
+Al compactar el balance, los defectos conocidos de entradas o preparación que
+puedan afectar puntuaciones conservan desajuste y alcance en las condiciones
+visibles del móvil. Se agrupan límites de una misma decisión y se evita gastar
+los campos en repetir cifras o cobertura genérica. La revisión de fidelidad no
+da por conservado ese aviso solo porque esté en la ficha técnica; la proyección
+final sigue necesitando cotejo independiente y humano.

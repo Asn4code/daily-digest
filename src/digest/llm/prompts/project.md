@@ -1,6 +1,6 @@
 ---
 name: project
-version: 4
+version: 5
 task: conceptual
 ---
 
@@ -16,13 +16,15 @@ explanation integra qué cambió; importance interpreta su relevancia; known_now
 still_unknown y decisions_changed separan respaldo, dudas y decisiones.
 no_new_conclusion admite progreso técnico sin forzar conclusión científica.
 
-reading_conditions conserva hasta dos condiciones concretas que cambian el uso:
-entradas, controles, unidades, granularidad o comparabilidad. Llegan al móvil aun
-sin destacados. Di qué desajuste se observó, su referencia esperada y a quién
-afecta; no reemplaces esos datos por «efecto por comprobar». Si afecta solo a un
-compuesto o subconjunto, dilo. Prefiere 220 caracteres por condición y priorízala
-sobre avisos genéricos repetidos de cobertura. Atribuye la condición a la fuente;
-no confundas falta de verificación independiente con falta de información útil.
+reading_conditions conserva hasta dos grupos breves de condiciones decisivas de
+uso (preferentemente 220 caracteres cada uno). Agrupa las que limitan la misma
+decisión. Prioriza defectos conocidos de entradas o preparación que puedan afectar
+las puntuaciones o resultados descritos: di el desajuste y a quién afecta, aunque
+sea un solo compuesto. No basta con esconderlo en limits o still_unknown ni con
+decir «efecto por comprobar». Conserva también granularidad, controles o
+comparabilidad necesarios. No gastes estos campos repitiendo cifras de pruebas,
+capacidad de interfaz o cobertura genérica: el mensaje ya muestra esas advertencias.
+Atribuye los hechos a la fuente, sin fingir verificación independiente.
 
 Respeta cronología y procedencia: un plan antiguo no invalida un lanzamiento
 posterior; distingue lanzamiento declarado, ejecución verificada y resultados.

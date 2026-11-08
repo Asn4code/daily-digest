@@ -241,6 +241,7 @@ CONNECTORS = {
     "las",
     "que",
     "o",
+    "ni",
     "por",
     "según",
     "donde",
