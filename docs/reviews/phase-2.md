@@ -15,7 +15,7 @@ no aprueba este rediseño. Protocolo en [VALIDATION.md](../VALIDATION.md).
 ## Informe automático
 
 [Puerta automática](../../build/gates/phase-2.md). La tarea IN-11 está en validación;
-no se da por aprobada la fase. Última suite del constructor: 314 tests pasan,
+no se da por aprobada la fase. Última suite del constructor: 315 tests pasan,
 con lint, formato y tipos. La auditoría preparatoria independiente está en
 [review-hierarchical-precheck.md](../../build/review-hierarchical-precheck.md) y
 [review-grounding-precheck.md](../../build/review-grounding-precheck.md).

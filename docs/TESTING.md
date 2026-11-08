@@ -159,6 +159,9 @@ sin repetir sus valores. Una prueba de transporte exige reparar cifras y HTML
 en la misma segunda llamada; otra mantiene un fallo posterior y comprueba que
 la salida sigue rechazada después de arreglar los anteriores. No aumenta el
 número de reparaciones ni se corrige el contenido automáticamente.
+El transporte de cotejo prueba también una ruta inexistente seguida de un
+veredicto negativo válido: el diagnóstico permite reparar la comprobación sin
+aprobar el contenido cuestionado ni exponer candidatos o excepciones privadas.
 
 ## Unidades de evidencia (IN-08)
 

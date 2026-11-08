@@ -1178,6 +1178,11 @@
           "at": "2026-11-08T20:33:44Z",
           "by": "codex",
           "text": "El revisor confirmó un falso positivo de Ground5: la condición 0/+1 ya estaba en límites y pregunta pendiente de la fuente. Ground6 distingue presencia en la ficha de fuente de su proyección obligatoria a móvil/contraste; no tolera contradicciones. Los 314 tests pasan. Fuente Benchmark Mimo y crítica numérica completadas, pendientes de cotejo/reparación por diferencias entre ausencia de exportación y capacidad del modelo. VCD se reanuda desde nodos válidos, sin entregas."
+        },
+        {
+          "at": "2026-11-08T20:43:52Z",
+          "by": "codex",
+          "text": "Corregido el diagnóstico del cotejo: los cuatro códigos seguros de rutas/citas/referencias/veredicto se preservan; excepciones arbitrarias siguen saneadas. El fallo real era una ruta checks[0].hypotheses_changed inexistente (campo de raíz). El nuevo test permite reparar esa ruta y obtener auditoría negativa válida sin filtrar contenido. Suite315 pasa, revisión independiente85tests y20 casos adversariales sin impedimentos. Diario conjunto r14 ya pasó fuente y balance Benchmark numérico; semanales siguen pendientes de cotejo/reparación. Sin publicación ni entrega."
         }
       ]
     },

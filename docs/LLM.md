@@ -192,6 +192,8 @@ cifras; no demuestra por sí sola que la interpretación científica sea correct
 Los prompts versionados escapan los datos antes de delimitarlos y declaran las
 instrucciones de proyectos como datos. La reparación recibe reglas y campos rechazados
 (hasta veinte fallos independientes en la misma pasada),
+con códigos específicos y cerrados para rutas, citas, referencias o veredictos
+inválidos del cotejo. Los errores ajenos a esa lista conservan un código genérico,
 sin repetir salidas, valores de entrada, claves desconocidas ni cuerpos HTTP. Una tarea `done`, `review` o
 bloqueada no se acepta como misión de Kanvas. La pertenencia y los bloqueos se
 obtienen de la captura por el constructor del paquete, no de la respuesta LLM.

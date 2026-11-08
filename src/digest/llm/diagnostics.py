@@ -6,6 +6,15 @@ from pydantic import ValidationError as SchemaError
 
 from digest.llm.validator import ValidationError
 
+GROUNDING_RULES = frozenset(
+    {
+        "grounding_inconsistent_verdict",
+        "grounding_unknown_reference",
+        "grounding_quote_missing",
+        "grounding_field_missing",
+    }
+)
+
 
 def error_category(code: str | None) -> str:
     if code in {"generation_timeout", "provider_timeout"}:
@@ -39,6 +48,8 @@ def validation_issue(error: ValueError, schema: dict[str, Any] | None) -> dict[s
     elif isinstance(error, SchemaError):
         first = error.errors(include_url=False, include_context=False, include_input=False)[0]
         rule, path = "schema_" + first["type"], first["loc"]
+    elif str(error) in GROUNDING_RULES:
+        rule, path = str(error), ()
     else:
         rule, path = "schema_invalid", ()
     # Only schema-declared field names and numeric list indexes may leave validation.

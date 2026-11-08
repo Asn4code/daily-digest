@@ -229,6 +229,17 @@ class Router:
                                     + "; campo: "
                                     + detail["field"]
                                     + (
+                                        ". En el cotejo, source_quote es una cita breve y "
+                                        "contigua de una única fuente: no unas fragmentos "
+                                        "ni normalices espacios o saltos de línea. field "
+                                        "debe ser una ruta existente de candidate. "
+                                        "Los índices de listas son enteros JSON. No antepongas "
+                                        "checks a un campo situado en la raíz de candidate. "
+                                        "approved=true exige issues vacía."
+                                        if schema and schema.get("title") == "GroundingAudit"
+                                        else ""
+                                    )
+                                    + (
                                         ". Revisa todos estos campos en la misma reparación: "
                                         + canonical(rejected_fields)
                                         if len(rejected_fields) > 1

@@ -170,6 +170,68 @@ def test_one_repair_can_fix_multiple_independent_rejected_claims(tmp_path, monke
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
+def test_invalid_audit_path_can_be_repaired_without_exposing_candidate(tmp_path, monkeypatch):
+    from digest.llm.diagnostics import validation_issue
+    from digest.llm.grounding import check
+    from digest.llm.schemas import GroundingAudit
+
+    config = load_config(build_projects(tmp_path / "projects"))
+    config.llm.routing.contrast = ["internal"]
+    monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
+    package = {
+        "evidence": [{"id": "ev_test", "excerpt": "Control válido", "meta": {}}],
+        "context": {"candidate": {"observations": [{"text": "PRIVATE_CANDIDATE"}]}},
+    }
+    requests = []
+
+    def respond(request):
+        wire = json.loads(request.content)
+        requests.append(wire)
+        repair = wire["messages"][-1]["content"] if wire["messages"] else ""
+        path = ["observations", 0, "text"]
+        if "grounding_field_missing" not in repair:
+            path = ["checks", 0, *path]
+        value = {
+            "approved": False,
+            "issues": [
+                {
+                    "rule": "unsupported_claim",
+                    "field": path,
+                    "evidence": ["ev_test"],
+                    "source_quote": "Control válido",
+                }
+            ],
+        }
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
+
+    schema = GroundingAudit.model_json_schema()
+    with closing(connect(tmp_path / "db.sqlite")) as db:
+        result = Router(db, config, client=Client(transport=httpx.MockTransport(respond))).generate(
+            "contrast",
+            project_ids={config.projects[0].id},
+            prompt_name="grounding",
+            prompt_version="test",
+            messages=[],
+            schema=schema,
+            validate=lambda value: check(value, package),
+        )
+        assert result is not None and not result.value.approved
+        assert len(requests) == 2
+        feedback = requests[-1]["messages"][-1]["content"]
+        assert "grounding_field_missing" in feedback and "PRIVATE_CANDIDATE" not in feedback
+        error = json.loads(
+            db.execute("SELECT error FROM llm_call ORDER BY id LIMIT 1").fetchone()[0]
+        )
+        assert error["rule"] == "grounding_field_missing"
+    for secret in ("PRIVATE_EXCEPTION_PAYLOAD", "grounding_field_missing PRIVATE_PAYLOAD"):
+        assert validation_issue(ValueError(secret), schema) == {
+            "category": "validation",
+            "rule": "schema_invalid",
+            "field": "$",
+        }
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
+
+
 def test_private_project_never_reaches_external_provider(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
