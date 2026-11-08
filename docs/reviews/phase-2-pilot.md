@@ -1,62 +1,37 @@
-> **Estado actualizado:** los jobs 7 y 8 se detuvieron por la nueva instrucción
-> D-047. Ya no están generando muestras. La fase 2 necesita el rediseño de
-> [HIERARCHICAL_DIGEST.md](../HIERARCHICAL_DIGEST.md) y una nueva revisión antes
-> de solicitar la firma. Las instrucciones de abajo documentan la prueba anterior.
+# Comprobaciones humanas del digest jerárquico
 
-# Validación humana del piloto de fase 2
+La ficha vigente es [phase-2.md](phase-2.md). La prueba anterior se conserva en
+[phase-2-pilot-before-hierarchical.md](phase-2-pilot-before-hierarchical.md);
+no debe usarse para aprobar el rediseño.
 
-La revisión técnica independiente está aprobada en [phase-2.md](phase-2.md).
-La puerta automática da PROVISIONAL; faltan las comprobaciones y la firma humana.
+Las muestras se preparan en [build/in11-validation](../../build/in11-validation/).
+El [índice privado](../../build/in11-validation/README.md) identifica las revisiones
+completas y sus vistas. No firmes una revisión anterior ni un borrador pendiente.
+La comprobación técnica no marca las casillas humanas.
 
-## Generación real sin entrega
+Son muestras retrospectivas acotadas de notas reales de Benchmark y VCD. Conservan
+sus fechas y distinguen declaraciones de agentes de resultados verificados.
+No representan toda la actividad actual y no han enviado correo ni escrito en
+los proyectos, la vault o Drive. El archivo mobile.html permite comparar el texto
+del correo con report.html, que representa la vista extensa de la vault.
 
-Las ejecuciones de validación usan `--no-send`: no envían correo ni escriben nuevas
-copias en Obsidian o Drive. Los jobs 5 y 6 se cancelaron para ajustar la prioridad
-provisional de extracción tras observar la latencia de Qwen; se conservan sus
-estados y auditoría, incluida la revisión fallida `rep_daily_2026-11-05_r2`.
+1. Abre el diario completo y elige cinco afirmaciones. Busca sus IDs en el bloque
+   de evidencias del mismo informe y comprueba texto, cifras, unidades, controles
+   y fecha. Una pregunta también puede presuponer un hecho falso. Si solo hay una
+   declaración de agente, la afirmación debe conservar ese alcance.
+2. Compara mobile.html y report.html: mismo significado y límites decisivos; la
+   vista extensa debe ayudarte a profundizar sin obligarte a leerlo todo en el
+   móvil. Comprueba especialmente las condiciones que cambian la comparación.
+3. Revisa la misión: ¿resuelve una incertidumbre o desbloquea una decisión real
+   del proyecto? ¿Sabes qué hacer y cuándo darla por terminada? Puedes rechazarla
+   o proponer otro foco; una propuesta del modelo no es un compromiso aceptado.
+4. Abre los semanales y busca una conclusión previa, evidencia posterior y el
+   motivo de mantenerla, matizarla o cuestionarla. Distingue explicación histórica
+   de descubrimiento nuevo. Si propone un análisis, comprueba alternativas,
+   control, predicciones y criterio de decisión. No se ha ejecutado ese análisis.
 
-Los jobs de reemplazo son:
-
-- **7, diario:** rehace el intervalo del primer diario como revisión nueva.
-  Archivo previsto: `build/pilot/data/reports/daily/rep_daily_2026-11-05_r3/report.html`.
-- **8, semanal:** espera el bloqueo del worker y después genera los siete días
-  completos anteriores. Archivo previsto:
-  `build/pilot/data/reports/weekly/rep_weekly_2026-W45_r1/report.html`.
-
-Esos archivos solo aparecen al finalizar la generación y superar el validador.
-El plazo máximo configurado es 60 minutos por trabajo desde que empieza a
-procesarse; el semanal espera al diario. Una sección sin salida válida queda
-mecánica y se indica en el informe. No se afirma que los jobs hayan terminado
-solo porque esta ficha exista.
-
-Para consultar el estado desde la raíz del repositorio, sin modificar datos:
-
-```bash
-.venv/bin/python -c "import sqlite3; db=sqlite3.connect('file:build/pilot/data/digest.db?mode=ro', uri=True); print(db.execute('SELECT id,kind,state,error FROM job WHERE id IN (7,8)').fetchall()); db.close()"
-```
-
-`queued` significa en cola; `running`, en curso; `done`, finalizado; `failed`,
-fallido. Los informes terminados se abren como archivos HTML locales.
-
-## Las tres comprobaciones
-
-1. **Cinco afirmaciones:** elige cinco afirmaciones concretas del diario, de
-   resultados y proyectos diferentes. Abre los IDs de evidencia enlazados;
-   comprueba que respaldan el texto, las cifras y sus unidades. Si la evidencia
-   solo fue observada en la captura, no demuestra que el trabajo terminase hoy.
-2. **Plan ejecutable:** comprueba que las acciones propuestas tienen criterio de
-   finalización claro y dependencias resolubles, y que no repiten tareas
-   terminadas. Si la sección es mecánica, no hay aún un plan LLM que aprobar.
-3. **Utilidad del semanal:** contrasta su balance con los objetivos de Benchmark
-   y VCD. Busca una relación, patrón, duda o prioridad que ayude más que releer
-   los diarios. Las hipótesis deben estar marcadas como interpretaciones y las
-   revisiones pendientes no deben darse por comprendidas.
-
-Las limitaciones conocidas de fuentes siguen apareciendo en Cobertura: exploración
-y texto acotados, tablas de métricas todavía no declaradas y, en las sesiones
-SQLite, posibles cambios recientes en WAL no incluidos en la lectura inmutable.
-No se considera demostrada una tendencia científica solo por disponer de un
-informe semanal.
-
-Tras hacer las comprobaciones, marca únicamente las satisfactorias en la sección
-Firma de [phase-2.md](phase-2.md). La fase siguiente espera esa aprobación.
+Marca solo las comprobaciones satisfactorias y «Apruebo la fase» en
+[phase-2.md](phase-2.md). Si algo falla, indica la revisión, el texto y su evidencia;
+se genera otra revisión sin sobrescribir tus respuestas. La fase siguiente espera
+la puerta aprobada. Un cotejo automático positivo puede equivocarse y no sustituye
+esta lectura ni tu comprensión.
