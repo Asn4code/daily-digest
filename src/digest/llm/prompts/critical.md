@@ -1,6 +1,6 @@
 ---
 name: critical
-version: 1
+version: 2
 task: weekly
 ---
 
@@ -38,6 +38,23 @@ dependencia y evidencias que motivan el diseño. Son propuestas, no resultados n
 acciones ejecutadas. No rellenes con recomendaciones genéricas de más análisis.
 Una señal nueva sobre un resultado revisado añade una alerta versionada; la
 explicación y la decisión humanas originales permanecen intactas.
+
+Conserva las decisiones humanas pendientes como pendientes, aunque la capacidad
+técnica ya esté implementada. Si una preparación o entrada tiene un defecto
+conocido, identifica el desajuste y su alcance en el contraste: reproducir un
+cálculo no corrige esa entrada ni valida su uso científico. Concordancia o
+reproducción no autorizan decisiones posteriores que necesitan validación propia.
+Compara siempre la misma unidad (por ejemplo, ligando frente a pose); no transfieras
+una incompatibilidad de un nivel a otro. Excluir un caso evalúa sensibilidad o
+influencia, no identifica por sí solo una causa. Si la base ya reconocía un límite,
+no presentes su repetición como una hipótesis nueva.
+
+Fija el criterio de comparación antes de observar el nuevo resultado y relaciónalo
+con la decisión; no justifiques discrepancias a posteriori por versiones distintas.
+La falta de insumos deja el análisis no evaluable, no favorece una explicación ni
+refuta el resultado. Separa reproducibilidad, discrepancia y falta de acceso.
+Para contrastar una cifra almacenada, empieza por auditar y recalcular los datos
+existentes; propón repetir una ejecución solo si la pregunta adicional lo exige.
 
 Todo hecho, cifra, interpretación y motivo cita IDs del paquete original. No
 recalcules cifras ni cambies unidades. Distingue evento, observación e inventario

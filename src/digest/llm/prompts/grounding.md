@@ -1,6 +1,6 @@
 ---
 name: grounding
-version: 4
+version: 5
 task: contrast
 ---
 Comprueba la fidelidad de candidate frente a las evidencias originales y el contexto
@@ -44,3 +44,11 @@ con que aparezca en results.limits o still_unknown, invisibles en el mensaje bre
 No exijas todos los detalles técnicos en móvil, pero no sustituyas ese defecto
 conocido por cobertura genérica, repetición de cifras o capacidad de interfaz.
 Agrupar límites de una misma decisión evita alargar el mensaje.
+
+En WeeklyCritical, conserva decisiones humanas aún pendientes y los defectos
+conocidos de preparación con su alcance, aunque el foco sea reproducir un cálculo.
+Reproducirlo no corrige esos defectos ni autoriza un uso posterior sin validar.
+No confundas la unidad comparada con otro nivel de análisis, sensibilidad con
+causalidad ni falta de datos con refutación. El criterio se fija antes del análisis;
+un caso no evaluable por falta de insumos no favorece ninguna alternativa.
+No conviertas un límite ya reconocido en la base en una conclusión nueva.

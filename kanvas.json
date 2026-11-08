@@ -1168,6 +1168,11 @@
           "at": "2026-11-08T20:11:25Z",
           "by": "codex",
           "text": "La suite de Source v9 compacta pasa con 311 tests y la puerta automática solo falla por IN-11 pendiente. La fuente VCD GLM pasó el cotejo; el revisor detectó un recuento verbal menor (dos notas frente a tres citas), registrado sin dar la muestra por aprobada. El semanal reveló reparaciones que arreglan un campo y fallan por otro: se comprueban diagnósticos simultáneos de hasta veinte campos, sin valores privados, sin aumentar reintentos ni relajar validación. Se regenera VCD y se ensaya Mimo de NaN para Benchmark en el entorno privado; producción conserva sus modelos."
+        },
+        {
+          "at": "2026-11-08T20:23:38Z",
+          "by": "codex",
+          "text": "Reparación conjunta verificada: 314 tests y revisión independiente de 300 candidatos conservan aceptación/rechazo, primer error y ruta. Commit ba04d8b subido. VCD r4 se detuvo correctamente por omitir carga 0/+1 en el contraste, sin agregado. Critical v2/Grounding v5 precisan decisiones pendientes, defecto y alcance, reproducción frente a validación, sensibilidad frente a causalidad y falta de datos frente a refutación. Se regenera solo el contraste, reutilizando la fuente validada; no se publica ni entrega."
         }
       ]
     },

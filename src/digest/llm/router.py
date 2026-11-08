@@ -221,6 +221,9 @@ class Router:
                                 "content": (
                                     "Repara solo la salida: devuelve JSON que cumpla el esquema. "
                                     "Usa referencias y cifras de las evidencias originales. "
+                                    "Revisa la salida completa sin introducir otros errores: "
+                                    "sin HTML ni marcadores de nombre entre ángulos; "
+                                    "describe su función sin inventar un archivo. "
                                     + "Error de validación: "
                                     + detail["rule"]
                                     + "; campo: "

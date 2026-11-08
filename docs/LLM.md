@@ -431,6 +431,13 @@ revisión semántica real e independiente antes de la puerta.
 
 ## 16. Contraste crítico semanal (IN-12)
 
+El prompt crítico conserva decisiones humanas aún pendientes y defectos conocidos
+de preparación con su alcance. Reproducir un cálculo no corrige esos defectos ni
+valida un uso posterior. El criterio se fija antes del análisis; la falta de
+insumos deja una comprobación no evaluable, sin favorecer una explicación.
+Se empieza por auditar y recalcular datos existentes antes de proponer repetir
+una ejecución. El cotejo automático comprueba también estas distinciones.
+
 Tras las fuentes y fichas, `WeeklyCritical` construye un balance por proyecto y
 contrasta declaraciones previas con evidencia posterior del mismo resultado.
 Cada base conserva texto, versión, fecha, alcance/controles/límites, autor
