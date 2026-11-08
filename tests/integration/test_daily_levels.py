@@ -87,7 +87,11 @@ def response_with_meaning(request):
         )
     elif title == "ProjectDigest":
         value.update(
-            explanation=claim, importance=meaning, known_now=[claim], still_unknown=[limit]
+            explanation=claim,
+            importance=meaning,
+            known_now=[claim],
+            still_unknown=[limit],
+            reading_conditions=[limit],
         )
         value["results"][0].update(
             observations=[claim], meaning=meaning, controls=[limit], limits=[limit]
@@ -129,6 +133,39 @@ def test_meaning_and_decisive_limit_survive_all_channels_without_forcing_mission
     tampered.sections["project:" + config.projects[0].id]["results"] = []
     with pytest.raises(ValueError):
         validate_report(tampered, {e.id for e in tampered.evidence})
+
+
+def test_methodological_condition_reaches_mobile_even_without_a_highlight(daily, tmp_path):
+    config, report = daily
+
+    def respond(request):
+        response = response_with_meaning(request)
+        title = json.loads(request.content)["response_format"]["json_schema"]["schema"]["title"]
+        if title == "DailyOverview":
+            value = json.loads(response.json()["choices"][0]["message"]["content"])
+            value["highlights"] = []
+            return httpx.Response(
+                200, json={"choices": [{"message": {"content": json.dumps(value)}}]}
+            )
+        return response
+
+    with closing(connect(tmp_path / "db")) as db:
+        enrich(
+            db,
+            config,
+            report,
+            Router(db, config, client=Client(transport=httpx.MockTransport(respond))),
+        )
+    require_complete(report)
+    message = compose(config, report, tmp_path)
+    for text in [
+        render_md(report),
+        render_html(report),
+        message.get_body(preferencelist=("plain",)).get_content(),
+        message.get_body(preferencelist=("html",)).get_content(),
+    ]:
+        assert "Antes de interpretar" in text
+        assert LIMIT in text
     tampered = deepcopy(report)
     tampered.results[0].reference_only = True
     with pytest.raises(ValidationError, match="activity role"):

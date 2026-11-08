@@ -86,6 +86,10 @@ def render(report: Report) -> str:
         lines.append(view.orientation_notice)
     else:
         lines.append("Orientación pendiente de validación.")
+    if view.reading_conditions:
+        lines.append("## Antes de interpretar")
+        for item in view.reading_conditions:
+            lines.append(escape(item["project_id"]) + ": " + claim(item["condition"]))
     lines.append("## Balance conceptual")
     for project in view.projects:
         context = report.project_context.get(project["project_id"], {})
@@ -149,7 +153,7 @@ def render(report: Report) -> str:
                         "Alternativas: " + "; ".join(escape(t) for t in analysis["alternatives"]),
                         *[
                             "Predicción para "
-                            + escape(p["alternative"])
+                            + escape(analysis["alternatives"][p["alternative_index"]])
                             + ": "
                             + escape(p["expected_observation"])
                             for p in analysis["predictions"]

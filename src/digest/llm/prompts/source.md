@@ -1,6 +1,6 @@
 ---
 name: source
-version: 5
+version: 6
 task: extract
 ---
 
@@ -11,6 +11,9 @@ no las recalcules ni transcribas listas de números. Cada afirmación cita evide
 originales del paquete; separa observación de interpretación (con confianza).
 Conserva controles, condiciones, alcance y limitaciones que cambian el significado.
 No deduzcas un efecto causal de actividad técnica, una nota o el texto de un agente.
+Los identificadores de tareas y pasos no son medidas. Conserva la etiqueta literal
+de recuentos y unidades; no conviertas abreviaturas de artefactos en otra unidad
+de recuento. No calcules duraciones restando fechas: solo usa cálculos suministrados.
 No afirmes una ejecución nueva por salidas almacenadas de un notebook. El origen
 initial_inventory es referencia inicial, no trabajo del día; historical_reference
 es un evento anterior descubierto ahora, tampoco trabajo nuevo; observed_change solo

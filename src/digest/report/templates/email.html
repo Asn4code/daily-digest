@@ -6,16 +6,16 @@
 {% elif view.highlights %}{% for h in view.highlights %}<p>{{ claim(h.observation) }}</p><p>Interpretación (confianza {{ confidence[h.meaning.confidence] }}): {{ claim(h.meaning) }}</p><p style="border-left:4px solid #b87500;padding:8px"><strong>Límite decisivo:</strong> {{ claim(h.decisive_limit) }}</p>{% endfor %}
 {% else %}<p>{{ view.orientation_notice }}</p>{% endif %}
 {% if drive_url %}<p><a href="{{ drive_url }}">Abrir informe completo en Drive</a></p>{% endif %}
+{% if view.reading_conditions %}<h2>Antes de interpretar</h2>{% for c in view.reading_conditions %}<p><strong>{{ c.project_id }}:</strong> {{ claim(c.condition) }}</p>{% endfor %}{% endif %}
 <h2>{{ 'Propuesta de semana' if weekly else 'Plan de mañana · próximo foco' }}</h2>
 {% if view.planning_for %}<p>Orientado al {{ view.planning_for }}. La elección sigue siendo tuya.</p>{% endif %}
 {% if view.accepted %}<p><strong>Plan aceptado:</strong> {{ view.accepted.edited_text or view.accepted.action }}<br>Terminado cuando: {{ view.accepted.done_criterion }}</p>
 {% if view.accepted.dependency %}<p>Dependencia: {{ view.accepted.dependency }}</p>{% endif %}{% if view.carry_forward %}<p>Se conserva el plan aceptado.</p>{% endif %}{% endif %}
 {% if view.change_reason %}<p>Motivo para reconsiderar el foco: {{ claim(view.change_reason) }}</p>{% endif %}
 {% set proposed=weekly.next_week if weekly else ([view.mission] if view.mission else []) + view.warmups %}
-{% for p in proposed %}<p><strong>Propuesta: {{ p.action }}</strong><br>Terminado cuando: {{ p.done_criterion }}<br>Dependencia: {{ p.dependency or 'Ninguna declarada' }}<br>Motivo: {{ p.reason }} — {{ p.evidence|join(', ') }}</p>
+{% for p in proposed %}<p><strong>Propuesta: {{ p.action }}</strong><br>Terminado cuando: {{ p.done_criterion }}<br>Para: {{ p.decision_unlocked or p.reason }} — {{ p.evidence|join(', ') }}</p>
+{% if p.dependency %}<p>Dependencia: {{ p.dependency }}</p>{% endif %}
 {% if p.project_id %}<p>Proyecto: {{ p.project_id }}</p>{% endif %}
-{% if p.priority_basis %}<p>Prioridad por: {% for b in p.priority_basis %}{{ priorities[b] }}{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}
-{% if p.decision_unlocked %}<p>Decisión que ayudaría a tomar: {{ p.decision_unlocked }}</p>{% endif %}
 {% if p.uncertainty_addressed %}<p>Duda o control: {{ claim(p.uncertainty_addressed) }}</p>{% endif %}{% endfor %}
 {% if view.no_mission_reason %}<p>Sin misión nueva propuesta: {{ claim(view.no_mission_reason) }}</p>{% elif not proposed and not view.carry_forward %}<p>Sin misión nueva propuesta.</p>{% endif %}
 <h2>Todo lo hecho y contexto observado</h2>{% for project,items in groups.items() %}<h3>{{ project }}</h3><ul>

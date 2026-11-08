@@ -1138,6 +1138,11 @@
           "at": "2026-11-07T12:44:59Z",
           "by": "codex",
           "text": "Plan: recorrer muestras reales acotadas de los dos proyectos con los contratos actuales, contrastar cinco afirmaciones y comparar móvil/vault y un foco ejecutable. Mantener las fechas y cobertura parcial explícitas, no entregar ni escribir proyectos. Verificar rechazos/reanudación/privacidad y el semanal crítico con fixtures y muestras; ejecutar la puerta y obtener revisión independiente nueva según AGENTS.md. Preparar una ficha concreta para que la persona valore utilidad y firme la fase sin atribuirle aprobación ni comprensión automática."
+        },
+        {
+          "at": "2026-11-08T01:25:20Z",
+          "by": "codex",
+          "text": "El cotejo de fuentes detectó artefactos producidos interpretados como pendientes. Añadida comprobación de fidelidad por nodo, reparación local única y bloqueo sin cotejo; el revisor independiente comprobó privacidad y corrigió un vínculo incompleto del certificado. Pasan 260 tests; muestras reales regenerándose sin entrega. Móvil conserva condiciones metodológicas incluso sin destacados."
         }
       ]
     },

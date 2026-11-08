@@ -22,7 +22,11 @@ def test_requirements_come_from_inventory_not_mechanical_flag(
         EvidenceEntry("ev", "p", "doc_change", "note", "Control", "now", None, "observed", {})
     ]
     report.results = [ResultEntry("res", "p", "Result", None, "pending", ["ev"])]
-    assert missing_sections(report) == {"extract:res", *required}
+    assert missing_sections(report) == {
+        "extract:res",
+        *required,
+        *("check:" + key for key in required),
+    }
     report.sections = {key: {} for key in required}
     with pytest.raises(ValueError, match="generation is pending"):
         require_complete(report)

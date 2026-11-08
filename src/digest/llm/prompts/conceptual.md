@@ -1,8 +1,13 @@
 ---
 name: conceptual
-version: 2
+version: 3
 task: conceptual
 ---
+
+Las reading_conditions del balance son condiciones concretas de uso y permanecen
+en el móvil aunque no elijas highlights. Que no haya efecto biológico nuevo no
+vuelve irrelevante un límite de entradas, controles o comparabilidad. Orienta al
+objetivo sin convertir una nota de agente en una ejecución verificada.
 
 Redacta la orientación del diario desde balances de proyecto ya validados.
 Devuelve JSON DailyOverview en español. Hasta tres novedades; cada una conserva

@@ -1,11 +1,11 @@
 # Construcción jerárquica y reanudable del digest
 
-Estado: rediseño aprobado de fase 2, parcialmente implementado (IN-07/08/09). La exigencia de no sustituir secciones
-no validadas por contenido mecánico está confirmada por la persona (D-047).
-IN-07 bloquea la publicación incompleta y diagnostica rechazos; IN-08 aporta
-observaciones y paquetes por fuente; IN-09 añade persistencia y reanudación.
-Los niveles y la crítica semanal siguen pendientes de IN-10/12 y su validación
-en IN-11.
+Estado: rediseño aprobado de fase 2, implementado en IN-07/08/09/10/12 y en
+validación real e independiente en IN-11. IN-07 bloquea la publicación incompleta;
+IN-08 aporta observaciones y paquetes por fuente; IN-09 añade persistencia y
+reanudación. El diario por niveles y la crítica semanal requieren todavía el
+cotejo de muestras y la firma humana de IN-06. No se sustituye una sección
+rechazada por contenido mecánico (D-047).
 
 ## Qué falla en el flujo actual
 
@@ -380,3 +380,33 @@ Una semana sin evidencia adicional no repite alertas y la ausencia de bases
 anteriores no se presenta como prueba de ausencia de cambio. Si falla la etapa
 crítica, no se solicita ni publica el agregado. Los balances válidos tampoco se
 reescriben al integrarlos. La validación real y humana del conjunto sigue abierta.
+
+
+### Fidelidad frente a las fuentes
+
+Cada nodo generado (fuente, balance, orientación, plan, crítica y semanal) necesita
+una comprobación `GroundingAudit` antes de integrarse. La ruta `contrast` prefiere
+otro proveedor configurado cuando la privacidad lo permite; el respaldo puede ser
+el mismo modelo. Recibe el candidato y las fuentes originales completas, incluidos
+los controles, con un máximo de 128 000 caracteres escapados o el límite de ámbito
+configurado si es menor. No elige archivos adicionales ni ejecuta análisis.
+
+Los rechazos identifican regla y campo y citan un fragmento literal de una evidencia
+existente. Se permite una reparación local dentro del plazo original. Si vuelve a
+fallar, falta proveedor o el paquete excede el límite, esa pieza queda pendiente.
+No se publica, entrega ni cierra el intervalo. Se cachean los cotejos positivos y
+negativos; una entrada idéntica no requiere repetirlos. El cotejo queda vinculado al
+candidato, ámbito, contexto y fuentes exactos; cambiarlos exige otro cotejo. La
+validación previa a la entrega vuelve a comprobar ese vínculo y la completitud.
+
+Esta comprobación adicional busca errores como confundir artefactos producidos con
+trabajo pendiente o perder una condición metodológica decisiva. No demuestra
+verdad científica ni declara comprensión o aceptación humanas. Las referencias,
+cifras, procedencia y privacidad siguen teniendo validación de código; el cotejo
+humano de cinco afirmaciones continúa siendo requisito de la puerta.
+
+Las condiciones decisivas del balance aparecen también en el móvil aunque no haya
+destacados. El foco breve incluye acción, finalización, decisión, dependencia e
+incertidumbre desde los mismos valores de la vault. `origin: review` exige contexto
+humano real. Las predicciones semanales enlazan `alternative_index` con cada
+alternativa por índice, sin exigir repetir literalmente su nombre.

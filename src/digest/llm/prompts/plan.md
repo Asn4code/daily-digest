@@ -1,6 +1,6 @@
 ---
 name: plan
-version: 2
+version: 3
 task: plan
 ---
 
@@ -21,6 +21,17 @@ volumen. human_plan_id solo puede apuntar al plan aceptado suministrado. Si hay
 un plan aceptado y propones cambiarlo, change_reason es obligatorio y debe citar
 la evidencia nueva que justifica reconsiderarlo. No reescribas su texto ni lo des
 por sustituido: la alternativa sigue sin aceptar hasta una acción de la persona.
+
+La persona puede elegir y tú puedes recomendar una opción como propuesta motivada;
+no es necesario dejar toda decisión pendiente por obligación. No propongas copiar
+una tabla o redactar otro informe que ya existe. Prioriza una comprobación o
+contraste específico que permita decidir: datos/control y criterio que distinga
+alternativas. Si no hay acción útil, conserva el foco o no propongas misión.
+No sustituyas una duda metodológica concreta por verificar genéricamente todo el
+proyecto. origin=review exige dudas o contexto humano explícito suministrado;
+una nota de agente no es una revisión humana. Usa títulos, no IDs internos del
+servicio, en action. Acción y criterio: una frase cada uno, concisa y ejecutable.
+La elección humana no convierte escribir documentación en un resultado científico.
 
 Razones y afirmaciones citan evidencias del índice; las acciones y criterios son
 propuestas futuras, no resultados observados. No inventes cifras empíricas ni

@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from digest.collectors.store import previous_payload
 from digest.config import Config
 from digest.llm import schemas
+from digest.llm.grounding import check as check_grounding
 from digest.llm.prompts import load, messages
 from digest.llm.router import Router, Task
 from digest.llm.validator import EvidencePackage, validate
@@ -34,6 +35,7 @@ SCHEMAS: dict[str, type[BaseModel]] = {
     "plan": schemas.TomorrowPlan,
     "weekly": schemas.WeeklyReport,
     "critical": schemas.WeeklyCritical,
+    "check": schemas.GroundingAudit,
 }
 
 
@@ -89,6 +91,13 @@ def package_scope(payload: dict[str, Any]) -> EvidencePackage:
             }
             for pid, value in payload.get("context", {}).get("project_balances", {}).items()
         },
+        bool(
+            payload.get("human_plan_ids")
+            or payload.get("context", {}).get("human_doubts")
+            or payload.get("context", {}).get("accepted_plans")
+            or payload.get("context", {}).get("current_human_plan", {}).get("accepted_plan")
+            or any(p["author"] == "human" for p in payload.get("conclusions", {}).values())
+        ),
     )
 
 
@@ -320,40 +329,105 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             max(0.0, source_deadline - time.monotonic()) / max(1, source_calls_remaining),
             min(duration * 0.2, sum(config.llm.providers[name].timeout_s for name in eligible)),
         )
-        response = router.generate(
-            task,
-            project_ids=project_ids,
-            prompt_name=prompt.name,
-            prompt_version=prompt.version,
-            messages=messages(prompt, payload),
-            schema=schema.model_json_schema(),
-            validate=check,
-            section=key,
-            package=payload,
-            deadline=cutoff
+        deadline = (
+            cutoff
             if cutoff is not None
             else (
-                min(
-                    source_deadline,
-                    time.monotonic() + allowance,
-                )
+                min(source_deadline, time.monotonic() + allowance)
                 if source
                 else synthesis_deadline
                 if task == "conceptual"
                 else router.deadline
-            ),
+            )
         )
-        if response is None:
-            report.pending[key] = router.issues[before:] or [
-                {
-                    "stage": task,
-                    "section": key,
-                    "category": "provider",
-                    "rule": "no_eligible_provider",
-                    "field": "$",
+        grounding_prompt = load("contrast", name="grounding")
+        for attempt in range(2):
+            response = router.generate(
+                task,
+                project_ids=project_ids,
+                prompt_name=prompt.name,
+                prompt_version=prompt.version,
+                messages=messages(prompt, payload),
+                schema=schema.model_json_schema(),
+                validate=check,
+                section=key,
+                package=payload,
+                deadline=deadline,
+            )
+            if response is None:
+                report.pending[key] = router.issues[before:] or [
+                    {
+                        "stage": task,
+                        "section": key,
+                        "category": "provider",
+                        "rule": "no_eligible_provider",
+                        "field": "$",
+                    }
+                ]
+                return
+            order = sorted(config.llm.routing.contrast, key=lambda name: name == response.provider)
+            audit_package = {
+                **payload,
+                "parents": [key],
+                "context": {
+                    "target_section": key,
+                    "candidate": response.value.model_dump(),
+                    "generation_context": {
+                        k: v for k, v in payload["context"].items() if k != "validation_feedback"
+                    },
+                    "provider_order": order,
+                },
+            }
+            # The checker sees complete originals, including controls omitted from
+            # the compact synthesis projection. It never chooses additional files.
+            audit_messages = messages(grounding_prompt, {**audit_package, "wire_mode": "full"})
+            if len(json.dumps(audit_messages, ensure_ascii=False)) > min(
+                128_000, config.limits.max_project_package_chars * len(project_ids)
+            ):
+                mark_pending(key, "input", "grounding_package_budget_exceeded")
+                return
+
+            def audit_check(
+                value: dict[str, Any], package: dict[str, Any] = audit_package
+            ) -> schemas.GroundingAudit:
+                return check_grounding(value, package)
+
+            audited = router.generate(
+                "contrast",
+                project_ids=project_ids,
+                prompt_name=grounding_prompt.name,
+                prompt_version=grounding_prompt.version,
+                messages=audit_messages,
+                schema=schemas.GroundingAudit.model_json_schema(),
+                validate=audit_check,
+                section="check:" + key,
+                package=audit_package,
+                deadline=deadline,
+                provider_order=order,
+            )
+            if audited is None:
+                mark_pending(key, "grounding", "grounding_unavailable")
+                return
+            if audited.value.approved:
+                check_key = "check:" + key
+                report.sections[check_key] = audited.value.model_dump()
+                report.packages[check_key] = audit_package
+                report.model_info[check_key] = {
+                    "provider": audited.provider,
+                    "model": audited.model,
+                    "cache_key": audited.cache_key,
+                    "reused": str(audited.reused).lower(),
                 }
-            ]
-            return
+                report.prompt_versions[check_key] = audited.prompt_version
+                break
+            if attempt:
+                mark_pending(key, "grounding", "grounding_rejected")
+                return
+            payload["context"]["validation_feedback"] = audited.value.model_dump()
+            if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
+                mark_pending(key, "input", "repair_package_budget_exceeded")
+                return
+        assert response is not None
         report.sections[key] = response.value.model_dump()
         report.packages[key] = payload
         report.model_info[key] = {

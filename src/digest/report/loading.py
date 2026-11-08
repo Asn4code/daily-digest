@@ -45,6 +45,6 @@ def load_ready(db: sqlite3.Connection, config: Config, report_id: str) -> tuple[
             "SELECT evidence_id FROM report_evidence WHERE report_id=?", (report_id,)
         )
     }
-    validate_report(report, manifest)
     require_complete(report)
+    validate_report(report, manifest)
     return report, path, row[5]

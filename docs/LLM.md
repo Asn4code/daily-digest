@@ -489,3 +489,33 @@ SQLite ni cambiar archivos humanos. Los diffs técnicos independientes de un
 directorio se empaquetan juntos cuando caben; compartir directorio no los hace
 indivisibles. Versiones de una ruta, vínculos explícitos y controles experimentales
 siguen viajando completos.
+
+
+### Fidelidad frente a las fuentes
+
+Cada nodo generado (fuente, balance, orientación, plan, crítica y semanal) necesita
+una comprobación `GroundingAudit` antes de integrarse. La ruta `contrast` prefiere
+otro proveedor configurado cuando la privacidad lo permite; el respaldo puede ser
+el mismo modelo. Recibe el candidato y las fuentes originales completas, incluidos
+los controles, con un máximo de 128 000 caracteres escapados o el límite de ámbito
+configurado si es menor. No elige archivos adicionales ni ejecuta análisis.
+
+Los rechazos identifican regla y campo y citan un fragmento literal de una evidencia
+existente. Se permite una reparación local dentro del plazo original. Si vuelve a
+fallar, falta proveedor o el paquete excede el límite, esa pieza queda pendiente.
+No se publica, entrega ni cierra el intervalo. Se cachean los cotejos positivos y
+negativos; una entrada idéntica no requiere repetirlos. El cotejo queda vinculado al
+candidato, ámbito, contexto y fuentes exactos; cambiarlos exige otro cotejo. La
+validación previa a la entrega vuelve a comprobar ese vínculo y la completitud.
+
+Esta comprobación adicional busca errores como confundir artefactos producidos con
+trabajo pendiente o perder una condición metodológica decisiva. No demuestra
+verdad científica ni declara comprensión o aceptación humanas. Las referencias,
+cifras, procedencia y privacidad siguen teniendo validación de código; el cotejo
+humano de cinco afirmaciones continúa siendo requisito de la puerta.
+
+Las condiciones decisivas del balance aparecen también en el móvil aunque no haya
+destacados. El foco breve incluye acción, finalización, decisión, dependencia e
+incertidumbre desde los mismos valores de la vault. `origin: review` exige contexto
+humano real. Las predicciones semanales enlazan `alternative_index` con cada
+alternativa por índice, sin exigir repetir literalmente su nombre.

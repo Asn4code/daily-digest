@@ -51,6 +51,7 @@ def weekly_notices(report: Report) -> list[dict[str, Any]]:
 @dataclass(frozen=True)
 class DailyView:
     orientation_notice: str
+    reading_conditions: list[dict[str, Any]]
     highlights: list[dict[str, Any]]
     projects: list[dict[str, Any]]
     cards: dict[str, dict[str, Any]]
@@ -79,6 +80,11 @@ def daily_view(report: Report) -> DailyView:
             "Sin novedades verificadas del intervalo; "
             "la referencia inicial o histórica está en el inventario."
         ),
+        [
+            {"project_id": p["project_id"], "condition": condition}
+            for p in projects
+            for condition in p.get("reading_conditions", [])
+        ],
         report.sections.get("conceptual", {}).get("highlights", []),
         projects,
         {card["result_id"]: card for project in projects for card in project["results"]},

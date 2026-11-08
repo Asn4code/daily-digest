@@ -100,7 +100,8 @@ def test_large_result_splits_into_small_validated_packets_without_losing_invento
         assert "extract:res_test" not in report.sections
         assert report.sections, "Successful independent source pieces remain available"
         assert all(
-            w["response_format"]["json_schema"]["schema"]["title"] == "SourceFindings"
+            w["response_format"]["json_schema"]["schema"]["title"]
+            in {"SourceFindings", "GroundingAudit"}
             for w in requests
         )
         with pytest.raises(ValueError):
@@ -228,7 +229,7 @@ def test_one_changed_result_invalidates_only_its_sources_and_descendants(
     with closing(connect(tmp_path / "db")) as db:
         first = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
         count = len(calls)
-        assert count == 6
+        assert count == 12
         repeated = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
         assert len(calls) == count
         assert all(
@@ -242,7 +243,7 @@ def test_one_changed_result_invalidates_only_its_sources_and_descendants(
         changed.evidence[0].excerpt = "Se observó un control adicional"
         changed.results[0].evidence = ["ev_changed"]
         updated = enrich(db, config, changed, Router(db, config, client=client))
-        assert len(calls) == count + 4
+        assert len(calls) == count + 8
         for result in ("res_1", "res_2"):
             key = updated.source_units[result][0]
             assert updated.model_info[key]["reused"] == "true"

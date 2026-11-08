@@ -78,6 +78,15 @@ class DailySynthesis(Output):
     review_candidate: ReviewCandidate | None
 
 
+class CompactClaim(Claim):
+    text: Annotated[str, Field(min_length=1, max_length=600)]
+    evidence: Annotated[list[Text], Field(min_length=1, max_length=8)]
+
+
+class CompactInterpretation(CompactClaim):
+    confidence: Literal["low", "medium", "high"]
+
+
 class ResultExplanation(Output):
     result_id: Text
     question: Claim | None
@@ -97,16 +106,8 @@ class ProjectDigest(Output):
     still_unknown: list[Claim] = Field(max_length=5)
     decisions_changed: list[Claim] = Field(max_length=5)
     no_new_conclusion: bool
+    reading_conditions: list[CompactClaim] = Field(max_length=2)
     results: list[ResultExplanation] = Field(min_length=1, max_length=1000)
-
-
-class CompactClaim(Claim):
-    text: Annotated[str, Field(min_length=1, max_length=600)]
-    evidence: Annotated[list[Text], Field(min_length=1, max_length=8)]
-
-
-class CompactInterpretation(CompactClaim):
-    confidence: Literal["low", "medium", "high"]
 
 
 class DailyHighlight(Output):
@@ -134,14 +135,18 @@ class PlanItem(Output):
 
 
 class DailyMission(PlanItem):
+    action: Annotated[str, Field(min_length=1, max_length=350)]
+    done_criterion: Annotated[str, Field(min_length=1, max_length=350)]
+    reason: Annotated[str, Field(min_length=1, max_length=600)]
+    dependency: Annotated[str, Field(min_length=1, max_length=240)] | None
     project_id: Text
     priority_basis: list[
         Literal[
             "scientific_value", "decision", "control", "dependency", "human_commitment", "kanvas"
         ]
     ] = Field(min_length=1, max_length=6)
-    decision_unlocked: Text | None
-    uncertainty_addressed: Claim | None
+    decision_unlocked: Annotated[str, Field(min_length=1, max_length=300)] | None
+    uncertainty_addressed: CompactClaim | None
     human_plan_id: int | None
 
 
@@ -178,7 +183,7 @@ class WeeklyProject(Output):
 
 
 class Prediction(Output):
-    alternative: Text
+    alternative_index: Annotated[int, Field(ge=0, le=3)]
     expected_observation: Text
 
 
@@ -233,3 +238,17 @@ class WeeklyReport(Output):
     review_status: ReviewSummary
     next_week: list[WeeklyObjective] = Field(min_length=3, max_length=4)
     critical_highlights: list[Text] = Field(max_length=3)
+
+
+class GroundingIssue(Output):
+    rule: Literal[
+        "unsupported_claim", "missing_condition", "certainty_overstated", "unhelpful_focus"
+    ]
+    field: list[str | int] = Field(max_length=8)
+    evidence: Annotated[list[Text], Field(min_length=1, max_length=8)]
+    source_quote: Annotated[str, Field(min_length=1, max_length=600)]
+
+
+class GroundingAudit(Output):
+    approved: bool
+    issues: list[GroundingIssue] = Field(max_length=5)

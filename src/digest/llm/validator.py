@@ -160,7 +160,36 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
             ):
                 raise ValidationError("Section evidence modified")
         schema = SCHEMAS[key.split(":", 1)[0]]
-        validate(schema.model_validate(value), scope)
+        if not key.startswith("check:"):
+            validate(schema.model_validate(value), scope)
+    for key, value in report.sections.items():
+        package = report.packages[key]
+        if key.startswith("check:"):
+            from digest.llm.grounding import check as check_grounding
+
+            target = key.removeprefix("check:")
+            if (
+                target not in report.sections
+                or package["context"].get("target_section") != target
+                or package["context"].get("candidate") != report.sections[target]
+                or package.get("parents") != [target]
+                or not check_grounding(value, package).approved
+                or {k: v for k, v in package.items() if k not in {"context", "parents"}}
+                != {
+                    k: v
+                    for k, v in report.packages[target].items()
+                    if k not in {"context", "parents"}
+                }
+                or package["context"].get("generation_context")
+                != {
+                    k: v
+                    for k, v in report.packages[target]["context"].items()
+                    if k != "validation_feedback"
+                }
+            ):
+                raise ValidationError("Grounding binding mismatch")
+        elif not key.startswith("extract:") and "check:" + key not in report.sections:
+            raise ValidationError("Grounding check missing")
     for result in report.results:
         root = "extract:" + result.id
         if root in report.sections and result.id not in report.source_units:
@@ -220,7 +249,48 @@ CONNECTORS = {
     "usados",
     "usada",
     "usadas",
+    "entre",
+    "sobre",
+    "hasta",
+    "desde",
+    "tras",
+    "durante",
+    "sin",
+    "aunque",
+    "pese",
+    "mientras",
+    "podría",
+    "podrían",
+    "sugiere",
+    "sugieren",
 }
+REFERENCE_LABEL = re.compile(
+    r"\b(?:[A-Z]{2,}[A-Z0-9]*-\d+|(?i:Step|paso|proyecto|intento)\s+\d+)\b"
+    r"(?![.,]\d)"
+)
+MONTHS = {
+    month: f"{number:02d}"
+    for number, month in enumerate(
+        (
+            "enero",
+            "febrero",
+            "marzo",
+            "abril",
+            "mayo",
+            "junio",
+            "julio",
+            "agosto",
+            "septiembre",
+            "octubre",
+            "noviembre",
+            "diciembre",
+        ),
+        1,
+    )
+}
+SPANISH_DATE = re.compile(
+    r"\b(\d{1,2})\s+de\s+(" + "|".join(MONTHS) + r")\s+de(?:l)?\s+(\d{4})\b", re.I
+)
 
 
 COMPOUND_UNIT = re.compile(
@@ -263,6 +333,7 @@ class EvidencePackage:
     critical: dict[str, dict[str, Any]] = field(default_factory=dict)
     weekly_projects: set[str] = field(default_factory=set)
     weekly_balances: dict[str, dict[str, Any]] = field(default_factory=dict)
+    has_human_context: bool = False
 
 
 def _numeric_values(value: Any) -> list[float]:
@@ -321,6 +392,37 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             allowed | package.result_ids | set(package.task_states), key=len, reverse=True
         ):
             cleaned = cleaned.replace(ident, "")
+        cited = entries(refs)
+        known_labels = {
+            " ".join(match.group().casefold().split())
+            for entry in cited
+            for match in REFERENCE_LABEL.finditer(entry.excerpt + " " + entry.locator)
+        }
+
+        def label(match: re.Match[str]) -> str:
+            known = " ".join(match.group().casefold().split()) in known_labels
+            prefix = cleaned[: match.start()].rstrip()
+            # A task-like label directly after a number may be a unit. Do not
+            # remove it there and accidentally permit an unsupported unit.
+            return " " if known and not (prefix and prefix[-1].isdigit()) else match.group()
+
+        cleaned = REFERENCE_LABEL.sub(label, cleaned)
+
+        def spanish_date(match: re.Match[str]) -> str:
+            dated = f"{match[3]}-{MONTHS[match[2].casefold()]}-{int(match[1]):02d}"
+            if not any(
+                match.group().casefold() in entry.excerpt.casefold()
+                or dated in entry.excerpt
+                or any(
+                    stamp and stamp.startswith(dated)
+                    for stamp in (entry.event_at, entry.observed_at)
+                )
+                for entry in cited
+            ):
+                raise ValidationError("unsupported_number")
+            return " "
+
+        cleaned = SPANISH_DATE.sub(spanish_date, cleaned)
         # Dates are also provenance: a note's event date need not be repeated
         # literally in its excerpt. Keep exact cited dates, never infer one.
         for dated in re.findall(r"(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)", cleaned):
@@ -502,10 +604,10 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             if check.outcome == "challenges" and not check.alternative_explanations:
                 raise ValidationError("alternatives_missing", (*path, "alternative_explanations"))
             for number, analysis in enumerate(check.analyses):
-                predicted = [p.alternative for p in analysis.predictions]
-                if set(predicted) != set(analysis.alternatives) or len(predicted) != len(
-                    set(predicted)
-                ):
+                predicted = [p.alternative_index for p in analysis.predictions]
+                if set(predicted) != set(range(len(analysis.alternatives))) or len(
+                    predicted
+                ) != len(set(predicted)):
                     raise ValidationError(
                         "predictions_incomplete", (*path, "analyses", number, "predictions")
                     )
@@ -611,6 +713,8 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             )
         )
         states = package.task_states
+        if item.origin == "review" and not package.has_human_context:
+            raise ValidationError("human_review_origin_missing", (*path, "origin"))
         if isinstance(item, schemas.DailyMission | schemas.DailyWarmup | schemas.WeeklyObjective):
             if item.project_id not in package.project_ids:
                 raise ValidationError("unknown_project", (*path, "project_id"))

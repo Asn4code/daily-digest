@@ -26,7 +26,9 @@ def fake_response(request: httpx.Request) -> httpx.Response:
     )
     claim = {"text": "Hay evidencia disponible para contrastar.", "evidence": [eid]}
     title = wire["response_format"]["json_schema"]["schema"]["title"]
-    if title == "SourceFindings":
+    if title == "GroundingAudit":
+        value = {"approved": True, "issues": []}
+    elif title == "SourceFindings":
         value = {
             "result_id": package["context"]["result_id"],
             "summary": claim,
@@ -75,6 +77,9 @@ def fake_response(request: httpx.Request) -> httpx.Response:
             "still_unknown": [{"text": "Falta contrastar la interpretación.", "evidence": [eid]}],
             "decisions_changed": [],
             "no_new_conclusion": True,
+            "reading_conditions": [
+                {"text": "Falta contrastar la interpretación.", "evidence": [eid]}
+            ],
             "results": cards,
         }
     elif title == "DailyOverview":

@@ -143,7 +143,9 @@ def test_T17_project_instructions_remain_escaped_data() -> None:
         assert "<system>" not in output[1]["content"]
         assert "&lt;/evidence&gt;" in output[1]["content"]
         assert output[1]["content"].count("<evidence ") == 1
-        assert prompt.version == ("2" if task in {"conceptual", "plan", "weekly"} else "1")
+        assert prompt.version == (
+            "3" if task in {"conceptual", "plan"} else "2" if task == "weekly" else "1"
+        )
 
 
 def test_finished_kanvas_task_cannot_be_proposed(package: EvidencePackage) -> None:
@@ -227,3 +229,69 @@ def test_compound_unit_suffix_cannot_be_removed(
     validate(schemas.Claim(text=source, evidence=["ev_control"]), package)
     with pytest.raises(ValidationError, match="unsupported_number"):
         validate(schemas.Claim(text=short, evidence=["ev_control"]), package)
+
+
+def test_cited_task_and_step_identifiers_are_not_measurements(package):
+    entry = package.evidence["ev_control"]
+    entry.locator = "RUN-07#note/one"
+    entry.excerpt = "El Step 5 dejó de fallar. Spearman 0,63 sobre 50 ligandos."
+    claim = schemas.Interpretation(
+        text=(
+            "RUN-07: Step 5 dejó de fallar; "
+            "Spearman 0,63 podría indicar concordancia entre motores."
+        ),
+        confidence="low",
+        evidence=[entry.id],
+    )
+    validate(claim, package)
+    claim.text = "RUN-07 declara que el Step 6 funciona"
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(claim, package)
+
+
+def test_task_like_label_cannot_hide_an_unsupported_unit(package):
+    package.evidence["ev_control"].locator = "GB-1#note/one"
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(schemas.Claim(text="RMSD 1.4 GB-1", evidence=["ev_control"]), package)
+
+
+def test_spanish_provenance_date_is_exact_and_not_a_license_to_compute_durations(package):
+    claim = schemas.Claim(
+        text="El registro del 5 de noviembre de 2026 informa del control", evidence=["ev_control"]
+    )
+    validate(claim, package)
+    claim.text = "El registro del 6 de noviembre de 2026 informa del control"
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(claim, package)
+    claim.text = "La segunda nota llegó 35 segundos después"
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(claim, package)
+
+
+def test_review_origin_requires_actual_human_context(package):
+    mission = schemas.DailyMission(
+        kind="mission",
+        project_id="proj",
+        action="Contrastar el control",
+        done_criterion="Comparación resuelta",
+        dependency=None,
+        reason="Resolver el control",
+        origin="review",
+        kanvas_task_id=None,
+        evidence=["ev_control"],
+        priority_basis=["scientific_value"],
+        decision_unlocked=None,
+        uncertainty_addressed=None,
+        human_plan_id=None,
+    )
+    plan = schemas.TomorrowPlan(
+        mission=mission,
+        warmups=[],
+        carry_forward_id=None,
+        change_reason=None,
+        no_mission_reason=None,
+    )
+    with pytest.raises(ValidationError, match="human_review_origin_missing"):
+        validate(plan, package)
+    package.has_human_context = True
+    validate(plan, package)

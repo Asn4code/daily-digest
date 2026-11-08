@@ -116,11 +116,11 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
                             "control": "Control independiente procesado con el mismo protocolo",
                             "predictions": [
                                 {
-                                    "alternative": "Efecto de condición",
+                                    "alternative_index": 0,
                                     "expected_observation": "La diferencia sigue la condición",
                                 },
                                 {
-                                    "alternative": "Efecto de preparación",
+                                    "alternative_index": 1,
                                     "expected_observation": "La diferencia sigue la preparación",
                                 },
                             ],
@@ -241,6 +241,9 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
         if outcome == "no_material_change":
             quiet = deepcopy(report)
             quiet.sections["weekly"]["critical_highlights"] = []
+            quiet.packages["check:weekly"]["context"]["candidate"] = deepcopy(
+                quiet.sections["weekly"]
+            )
             validate_report(quiet, {e.id for e in quiet.evidence})
             quiet_message = compose(config, quiet, path.parent)
             assert (
@@ -259,8 +262,8 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
         if check["analyses"]:
             broken = deepcopy(report)
             broken.sections[critical_key]["checks"][0]["analyses"][0]["predictions"][0][
-                "alternative"
-            ] = "Otra explicación"
+                "alternative_index"
+            ] = 1
             with pytest.raises(ValidationError, match="predictions_incomplete"):
                 validate_report(broken, {e.id for e in broken.evidence})
             broken = deepcopy(report)

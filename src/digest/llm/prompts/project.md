@@ -1,6 +1,6 @@
 ---
 name: project
-version: 2
+version: 3
 task: conceptual
 ---
 
@@ -16,6 +16,14 @@ consecuencia para decisiones y pregunta pendiente. No rellenes una interpretaci�
 si no se sostiene. El balance tiene profundidad intermedia: permite entender el
 razonamiento sin releer código y conserva las condiciones que cambian el resultado.
 Todos los resultados indicados tienen ficha; el inventario lo ensambla el código.
+
+reading_conditions conserva hasta dos condiciones metodológicas concretas que
+cambian cómo se puede usar el resultado: validez de entradas, controles, unidades,
+granularidad o comparabilidad. Se muestran también en el móvil aunque no haya
+novedad científica. Si hay una limitación concreta declarada, inclúyela antes
+que avisos genéricos sobre notas sin verificar. No confundas falta de verificación
+independiente con falta de información útil: explica la condición y atribúyela a
+la fuente. No hace falta un nuevo efecto biológico para advertirla.
 
 explanation integra qué cambió frente al objetivo; importance es interpretación,
 known_now resume lo respaldado, still_unknown y decisions_changed acotan lo que

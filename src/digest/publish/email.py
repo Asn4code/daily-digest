@@ -89,6 +89,11 @@ def compose(
             )
     if not weekly and not view.highlights:
         plain.append(view.orientation_notice)
+    if view.reading_conditions:
+        plain.append("Antes de interpretar")
+        plain.extend(
+            item["project_id"] + ": " + cited(item["condition"]) for item in view.reading_conditions
+        )
     plain.append("Propuesta de semana" if weekly else "Plan de mañana · próximo foco")
     if view.planning_for:
         plain.append("Orientado al " + view.planning_for + ". La elección sigue siendo tuya.")
@@ -109,16 +114,15 @@ def compose(
             [
                 "Propuesta: " + item["action"],
                 "Terminado cuando: " + item["done_criterion"],
-                "Dependencia: " + (item["dependency"] or "Ninguna declarada"),
-                "Motivo: " + item["reason"] + " [" + ", ".join(item["evidence"]) + "]",
+                "Para: "
+                + (item.get("decision_unlocked") or item["reason"])
+                + " ["
+                + ", ".join(item["evidence"])
+                + "]",
             ]
         )
-        if item.get("priority_basis"):
-            plain.append(
-                "Prioridad por: " + ", ".join(PRIORITIES[b] for b in item["priority_basis"])
-            )
-        if item.get("decision_unlocked"):
-            plain.append("Decisión que ayudaría a tomar: " + item["decision_unlocked"])
+        if item["dependency"]:
+            plain.append("Dependencia: " + item["dependency"])
         if item.get("uncertainty_addressed"):
             plain.append("Duda o control: " + cited(item["uncertainty_addressed"]))
     if view.no_mission_reason:

@@ -233,3 +233,11 @@ El fallo parcial E2E incluye `WeeklyCritical`: sus fuentes válidas sobreviven y
 del agregado deben coincidir con la etapa crítica; los IDs destacados y los del
 foco son existentes. La regresión de paquetes distingue diffs independientes de
 versiones del mismo artefacto y conserva las unidades científicas indivisibles.
+
+
+La regresión `tests/integration/test_grounding.py` simula una interpretación de
+estado equivocada con cifras y referencias válidas: exige reparación local única
+o bloqueo, cache del rechazo y separación de privacidad. Prueba citas inexistentes,
+rutas de campo inválidas, veredictos incoherentes y cambios posteriores del
+candidato o del paquete certificado. Los dobles LLM devuelven explícitamente el
+cotejo sintético; ninguna prueba de la suite llama a un proveedor real.

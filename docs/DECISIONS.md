@@ -225,3 +225,13 @@ se archiva sin borrar sus firmas en `docs/reviews/phase-2-before-hierarchical.md
 la ficha vigente queda pendiente de revisión formal y firma humana. Las muestras
 reales se generan en un directorio privado de validación, sin entrega ni ejecución
 de contenido observado.
+
+
+### Validación de fidelidad dentro de IN-11 (2026-11-08)
+
+El cotejo real detectó una nota de artefactos producidos interpretada como trabajo
+pendiente, además de límites metodológicos ausentes del móvil. Se concreta D-047
+con un cotejo automático por pieza y una reparación local acotada, usando la ruta
+`contrast` y las mismas políticas de privacidad. Es una comprobación adicional a
+los validadores de código y a la firma humana; no prueba la verdad del resultado.
+Se preservan SQLite y archivos humanos, sin añadir dependencias ni entregas.

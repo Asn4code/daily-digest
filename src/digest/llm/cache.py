@@ -42,7 +42,7 @@ class Nodes:
     ) -> str:
         validators = b"".join(
             files("digest.llm").joinpath(name).read_bytes()
-            for name in ("validator.py", "schemas.py")
+            for name in ("validator.py", "schemas.py", "grounding.py")
         )
         scope = {
             p.id: {"external_allowed": p.external_allowed}
