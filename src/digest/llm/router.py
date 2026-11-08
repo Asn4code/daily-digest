@@ -61,18 +61,16 @@ class Router:
         section: str | None = None,
         deadline: float | None = None,
         package: dict[str, Any] | None = None,
-        provider_order: list[str] | None = None,
     ) -> Routed | None:
         projects = {p.id: p for p in self.config.projects}
         if not project_ids or not project_ids <= projects.keys():
             raise ValueError("Unknown or missing project scope")
         external_allowed = all(projects[ident].external_allowed for ident in project_ids)
-        routes = list(getattr(self.config.llm.routing, task))
-        if provider_order is not None:
-            if sorted(provider_order) != sorted(routes):
-                raise ValueError("Provider order must preserve configured routes")
-            routes = provider_order
-        eligible = [name for name in routes if name == "internal" or external_allowed]
+        eligible = [
+            name
+            for name in getattr(self.config.llm.routing, task)
+            if name == "internal" or external_allowed
+        ]
         nodes = Nodes(self.config)
         clean_package = redact_tree(package, known_secrets(self.config))
         cache_key = nodes.key(

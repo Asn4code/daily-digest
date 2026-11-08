@@ -295,3 +295,16 @@ def test_review_origin_requires_actual_human_context(package):
         validate(plan, package)
     package.has_human_context = True
     validate(plan, package)
+
+
+def test_sentence_after_count_is_not_a_compound_unit(package):
+    package.evidence["ev_control"].excerpt = "Se compararon 50 ligandos."
+    validate(
+        schemas.Claim(text="Se compararon 50 ligandos. Es una nota.", evidence=["ev_control"]),
+        package,
+    )
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(
+            schemas.Claim(text="Se compararon 50 ligandos Es", evidence=["ev_control"]),
+            package,
+        )

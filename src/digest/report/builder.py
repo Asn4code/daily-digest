@@ -403,7 +403,6 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                 section="check:" + key,
                 package=audit_package,
                 deadline=deadline,
-                provider_order=order,
             )
             if audited is None:
                 mark_pending(key, "grounding", "grounding_unavailable")

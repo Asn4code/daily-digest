@@ -308,6 +308,8 @@ def unit_at(text: str) -> str | None:
     # A slash followed by another quantity separates counts (51 structures/30
     # pairs); it is not part of a compound unit such as kcal/mol.
     parts = [re.split(r"/(?=\d)", matched.group(1).rstrip(".!?\"'"))[0]]
+    if matched.group(1).endswith((".", "!", "?")):
+        return parts[0]
     tail = text[matched.end() :]
     while (suffix := COMPOUND_UNIT.match(tail)) is not None:
         parts.append(suffix.group(1))

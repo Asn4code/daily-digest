@@ -494,9 +494,9 @@ siguen viajando completos.
 ### Fidelidad frente a las fuentes
 
 Cada nodo generado (fuente, balance, orientación, plan, crítica y semanal) necesita
-una comprobación `GroundingAudit` antes de integrarse. La ruta `contrast` prefiere
-otro proveedor configurado cuando la privacidad lo permite; el respaldo puede ser
-el mismo modelo. Recibe el candidato y las fuentes originales completas, incluidos
+una comprobación `GroundingAudit` antes de integrarse. Se respeta el orden de proveedores configurado en `contrast` y la privacidad
+del ámbito; puede coincidir con el modelo generador. No se presupone independencia
+entre modelos. Recibe el candidato y las fuentes originales completas, incluidos
 los controles, con un máximo de 128 000 caracteres escapados o el límite de ámbito
 configurado si es menor. No elige archivos adicionales ni ejecuta análisis.
 
