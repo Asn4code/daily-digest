@@ -315,3 +315,75 @@ def test_sentence_after_count_is_not_a_compound_unit(package):
             schemas.Claim(text="Se compararon 50 ligandos Es", evidence=["ev_control"]),
             package,
         )
+
+
+def test_file_classifier_preserves_artifact_label_and_compound_units(package):
+    package.evidence["ev_control"].excerpt = "Se guardaron 14/14 conf."
+    for text in ("Se guardaron 14/14 ficheros conf.", "Se guardaron 14/14 archivos conf."):
+        validate(schemas.Claim(text=text, evidence=["ev_control"]), package)
+    for text in (
+        "Se guardaron 14/14 ficheros PDB.",
+        "Se guardaron 14/14 ficheros conf nm.",
+        "Se guardaron 14/14 ficheros conf MB.",
+        "Se guardaron 14/14 ficheros conf kcal/mol.",
+        "Se guardaron 14/14 ficheros conf %.",
+        "Se guardaron 14/14 ficheros conf °C.",
+        "Se guardaron 14/14 ficheros de nm.",
+    ):
+        with pytest.raises(ValidationError, match="unsupported_number"):
+            validate(schemas.Claim(text=text, evidence=["ev_control"]), package)
+
+
+@pytest.mark.parametrize("unit", ["nm", "kg", "kcal/mol", "mol L^-1", "s^-1", "Å", "MB", "widgets"])
+@pytest.mark.parametrize("reverse", [False, True])
+def test_file_classifier_cannot_convert_measurements_into_artifact_counts(package, unit, reverse):
+    measured = f"El valor es 14 {unit}."
+    counted = f"Se guardaron 14 ficheros {unit}."
+    source, candidate = (counted, measured) if reverse else (measured, counted)
+    package.evidence["ev_control"].excerpt = source
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(schemas.Claim(text=candidate, evidence=["ev_control"]), package)
+
+
+@pytest.mark.parametrize(
+    "source_unit,wrong_unit",
+    [
+        ("MB", "GB"),
+        ("kJ/mol", "kJ/kg"),
+        ("%", "°C"),
+        ("mol L^-1", "mol L^-2"),
+        ("nm²", "nm³"),
+        ("kJ / mol", "kJ / kg"),
+        ("kJ/ mol", "kJ/ kg"),
+        ("KiB", "MiB"),
+    ],
+)
+def test_file_count_suffix_keeps_dimensions_powers_and_denominators(
+    package, source_unit, wrong_unit
+):
+    package.evidence["ev_control"].excerpt = f"Se guardaron 14 conf {source_unit}."
+    validate(
+        schemas.Claim(
+            text=f"Se guardaron 14 ficheros conf {source_unit}.", evidence=["ev_control"]
+        ),
+        package,
+    )
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(
+            schemas.Claim(
+                text=f"Se guardaron 14 ficheros conf {wrong_unit}.", evidence=["ev_control"]
+            ),
+            package,
+        )
+
+
+@pytest.mark.parametrize("separator", ["/", " / ", "/ ", " /", "\t/\t", "  /  "])
+def test_direct_unit_preserves_denominator_with_any_slash_spacing(package, separator):
+    source = f"La energía es 14 kJ{separator}mol."
+    package.evidence["ev_control"].excerpt = source
+    validate(schemas.Claim(text=source, evidence=["ev_control"]), package)
+    with pytest.raises(ValidationError, match="unsupported_number"):
+        validate(
+            schemas.Claim(text=f"La energía es 14 kJ{separator}kg.", evidence=["ev_control"]),
+            package,
+        )

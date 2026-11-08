@@ -241,3 +241,9 @@ o bloqueo, cache del rechazo y separación de privacidad. Prueba citas inexisten
 rutas de campo inválidas, veredictos incoherentes y cambios posteriores del
 candidato o del paquete certificado. Los dobles LLM devuelven explícitamente el
 cotejo sintético; ninguna prueba de la suite llama a un proveedor real.
+
+Las regresiones de clasificadores de fichero comprueban el recuento equivalente
+y rechazan conversiones entre medidas físicas y artefactos en ambos sentidos.
+Incluyen sufijos con bytes, prefijos binarios, porcentajes, temperatura, potencias
+y denominadores con distintos espacios; una paráfrasis no puede esconder una
+unidad diferente detrás de la etiqueta del artefacto.

@@ -1143,6 +1143,11 @@
           "at": "2026-11-08T01:25:20Z",
           "by": "codex",
           "text": "El cotejo de fuentes detectó artefactos producidos interpretados como pendientes. Añadida comprobación de fidelidad por nodo, reparación local única y bloqueo sin cotejo; el revisor independiente comprobó privacidad y corrigió un vínculo incompleto del certificado. Pasan 260 tests; muestras reales regenerándose sin entrega. Móvil conserva condiciones metodológicas incluso sin destacados."
+        },
+        {
+          "at": "2026-11-08T02:16:13Z",
+          "by": "codex",
+          "text": "El cotejo independiente ya verifica dos referencias reales completas y focos concretos. Se corrigió una presuposición falsa en preguntas y se sigue afinando la conservación de condiciones en móvil. En los recuentos se reproducían falsos rechazos de clasificadores de fichero; su corrección incluye regresiones de dimensiones, prefijos, potencias y denominadores. La revalidación independiente no deja hallazgos abiertos de unidades y make check pasa con 295 tests. Diario conjunto y semanales se regeneran con las reglas actuales, sin entrega ni cierre."
         }
       ]
     },

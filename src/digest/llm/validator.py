@@ -221,7 +221,10 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
 
 # LLM output checks are independent of rendering and run again at publication.
 TOKEN = re.compile(r"(?<![\w.])[-+]?(?>\d+(?:[.,]\d+)?|\.\d+)(?:[eE][-+]?\d+)?(?!\d)")
-UNIT = re.compile(r"^\s*([%°]?(?:[^\W\d_][^\s,;:()\[\]{}<>]*)|%)")
+UNIT = re.compile(
+    r"^\s*((?:[%°]?(?:[^\W\d_][^\s,;:()\[\]{}<>/]*)|%)"
+    r"(?:\s*/\s*[^\s,;:()\[\]{}<>/]+)*)"
+)
 CONNECTORS = {
     "en",
     "de",
@@ -294,27 +297,39 @@ SPANISH_DATE = re.compile(
 
 
 COMPOUND_UNIT = re.compile(
-    r"^\s+((?:[YZEPTGMkhdcmuµμnpfa]?)(?:mol|kg|cd|rad|sr|Hz|Pa|Da|m|s|g|K|A|L|l|J|W|N|C|V|Å)"
-    r"(?:\^?[-−+]?\d+|[⁻⁺⁰¹²³⁴⁵⁶⁷⁸⁹]+)?)(?!\w)"
+    r"^\s+((?:(?:[YZEPTGMkhdcmuµμnpfa]?|[KMGTPEZY]i)"
+    r"(?:mol|kg|byte|bit|cal|eV|cd|rad|sr|Hz|Pa|Da|m|s|g|K|A|B|L|l|J|W|N|C|V|Å)"
+    r"(?:\^?[-−+]?\d+|[⁻⁺⁰¹²³⁴⁵⁶⁷⁸⁹]+)?(?=$|[\W\d_])|%|°C|°F)"
+    r"[^\s,;:()\[\]{}<>/]*(?:\s*/\s*[^\s,;:()\[\]{}<>/]+)*)"
 )
+
+FILE_LABELS = {"conf", "pdb", "mmcif", "npz", "csv", "json", "png", "pdf", "svg"}
 
 
 def unit_at(text: str) -> str | None:
     text = text.lstrip().lstrip("\"'")
     text = re.sub(r"^de\s+(?:esas|esos|estas|estos|las|los)\s+", "", text)
+    classifier = re.match(r"^(?:ficheros|archivos)\s+([^\W\d_][^\s,;:()\[\]{}<>]*)", text)
+    if classifier and classifier[1].rstrip(".!?\"'").casefold() in FILE_LABELS:
+        # File classifiers do not change the following artifact's count label:
+        # "14 ficheros conf" and "14 conf" retain the same label. Keep physical
+        # suffixes and reject a different artifact or an intervening connector.
+        text = text[classifier.start(1) :]
     matched = UNIT.match(text)
     if not matched or matched.group(1).rstrip(".!?\"'") in CONNECTORS:
         return None
     # A slash followed by another quantity separates counts (51 structures/30
     # pairs); it is not part of a compound unit such as kcal/mol.
-    parts = [re.split(r"/(?=\d)", matched.group(1).rstrip(".!?\"'"))[0]]
+    parts = [re.split(r"\s*/\s*(?=\d)", matched.group(1).rstrip(".!?\"'"))[0]]
     if matched.group(1).endswith((".", "!", "?")):
-        return parts[0]
+        return " ".join(parts[0].split())
     tail = text[matched.end() :]
     while (suffix := COMPOUND_UNIT.match(tail)) is not None:
-        parts.append(suffix.group(1))
+        parts.append(suffix.group(1).rstrip(".!?\"'"))
+        if suffix.group(1).endswith((".", "!", "?")):
+            break
         tail = tail[suffix.end() :]
-    return " ".join(parts)
+    return " ".join(" ".join(parts).split())
 
 
 @dataclass

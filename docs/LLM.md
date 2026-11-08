@@ -526,3 +526,10 @@ invalida el conjunto. Los prompts procuran condiciones y destacados breves
 (unas 220 letras por campo); es una preferencia editorial, no permiso para
 eliminar una condición decisiva ni una garantía automática de legibilidad.
 El cotejo conoce qué campos llegan al móvil para detectar pérdidas de significado.
+
+Los recuentos admiten «ficheros/archivos» delante de una etiqueta de artefacto
+reconocida, conservando la etiqueta original. No se aplica esa equivalencia a
+unidades físicas arbitrarias. Las unidades compuestas conservan prefijos, potencias
+y denominadores, también con espacios alrededor de `/`; cambiar MB por GB o
+kJ/mol por kJ/kg sigue rechazándose. El reconocimiento de prosa no acredita por
+sí solo la relación científica entre una cifra y su sujeto.
