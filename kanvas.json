@@ -1153,6 +1153,16 @@
           "at": "2026-11-08T11:20:27Z",
           "by": "codex",
           "text": "Se han corregido falsos rechazos de identificadores de estructura y de unidades entre comillas, con revalidación independiente de denominadores/sufijos y make check 310 tests. El diario r6 ya conserva la fuente VCD validada; Benchmark tiene candidato corregido pero su cotejo agotó el plazo de pieza. Se reanuda con el presupuesto de 60 minutos previsto, reutilizando nodos; no se publica ni entrega un informe incompleto. Fuente y agrupaciones siguen acotadas y explícitas."
+        },
+        {
+          "at": "2026-11-08T14:23:26Z",
+          "by": "codex",
+          "text": "Prueba de modelos autorizada por D-024: el catálogo de la misma clave NaN permite GLM5.3-flash y Qwen3.8-flash. Sonda sintética: GLM valida tras 1 reparación en 12,37 s; Qwen agota 45 s. Se ensaya GLM solo para rehacer la extracción VCD pendiente, con idénticos validadores y DeepSeek para el cotejo. Se conserva la extracción Benchmark ya válida y se registra el modelo real por llamada. No cambia config.yaml de producción. La documentación actual de NaN declara schemas hasta 16 KB; los de este ensayo son menores, sin adaptar ni omitir restricciones."
+        },
+        {
+          "at": "2026-11-08T19:50:18Z",
+          "by": "codex",
+          "text": "La extracción VCD con GLM r10 fue rechazada por mezclar límites antiguos con capacidades actualizadas y atribuir comprobaciones de navegador a notas que no las declaraban. Source v9 precisa cronología por capacidad y atribución por nota; no cambia los validadores ni permite publicar piezas rechazadas. Se regenera la muestra con el mismo ámbito acotado."
         }
       ]
     },

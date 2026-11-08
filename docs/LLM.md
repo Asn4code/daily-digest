@@ -326,7 +326,11 @@ Cada paquete mantiene IDs, tiempos, metadatos, cobertura, objetivo y ámbito de
 privacidad. El router recibe el proyecto real; abstraer una fuente privada no
 permite enviarla al proveedor externo.
 
-Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v5.
+Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v9.
+Una limitación antigua se conserva con su fecha, sin presentarla como vigente
+cuando una nota posterior documenta su resolución. Las capacidades sin actualización
+siguen separadas; las comprobaciones solo se atribuyen a las notas que las declaran.
+Las pruebas de software no acreditan por sí solas calidad científica.
 Las piezas válidas se guardan en `sections[source:...]` y se enumeran en
 `source_units`. El ensamblado v3 conserva las piezas completas en `ResultFiche`,
 sin concatenar sus resúmenes en un campo limitado ni generar conclusiones nuevas.
