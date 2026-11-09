@@ -17,20 +17,34 @@ from digest.llm.validator import ValidationError, validate_report
 from digest.publish.email import compose
 from digest.report.model import Report
 from digest.worker import enqueue, execute
+from tests.fixtures.doubles import FakeLLM
 from tests.fixtures.llm import fake_response
 from tests.fixtures.make_projects import build_projects
 from tests.fixtures.work import add_current_work
 
 
+@pytest.mark.parametrize("broken_json", [False, True], ids=["normal", "T17_broken_json"])
 def test_complete_daily_has_validated_sections_and_auditable_packages(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    broken_json: bool,
 ) -> None:
     config = load_config(build_projects(tmp_path / "projects"))
     config.projects = config.projects[:1]
     add_current_work(config)
     monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
-    client = Client(transport=httpx.MockTransport(fake_response))
+    requests = []
+    broken = FakeLLM("broken_json")
+
+    def respond(request):
+        requests.append(json.loads(request.content))
+        if broken_json and len(requests) == 1:
+            return httpx.Response(
+                200, json={"choices": [{"message": {"content": broken.generate({})}}]}
+            )
+        return fake_response(request)
+
+    client = Client(transport=httpx.MockTransport(respond))
     original = Router.__init__
 
     def setup(self, *args, **kwargs):
@@ -73,6 +87,16 @@ def test_complete_daily_has_validated_sections_and_auditable_packages(
         assert db.execute("SELECT status FROM report").fetchone() == ("ready",)
         assert db.execute("SELECT accepted FROM plan_item").fetchall() == [(0,)]
         assert db.execute("SELECT count(*) FROM llm_call WHERE ok=1").fetchone()[0] >= 3
+        if broken_json:
+            assert [
+                r["response_format"]["json_schema"]["schema"]["title"] for r in requests[:2]
+            ] == [
+                "SourceFindings",
+                "SourceFindings",
+            ]
+            failures = db.execute("SELECT error FROM llm_call WHERE ok=0").fetchall()
+            assert [json.loads(row[0])["rule"] for row in failures] == ["invalid_json"]
+            assert db.execute("SELECT closed FROM interval").fetchone() == (1,)
     typed.sections["conceptual"]["highlights"][0]["observation"]["evidence"] = ["ev_unknown"]
     with pytest.raises(ValidationError):
         validate_report(typed, {e.id for e in typed.evidence})

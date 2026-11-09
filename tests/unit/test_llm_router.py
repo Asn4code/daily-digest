@@ -343,7 +343,7 @@ def test_private_project_never_reaches_external_provider(
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
-def test_broken_json_gets_one_repair_and_no_raw_error_in_audit(
+def test_T17_broken_json_gets_one_repair_and_no_raw_error_in_audit(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

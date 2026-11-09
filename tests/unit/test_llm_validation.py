@@ -54,7 +54,7 @@ def test_T12_invented_evidence_is_rejected(package: EvidencePackage) -> None:
 
 
 @pytest.mark.parametrize(("number", "unit"), [(9.9, "Å"), (1.4, "nm"), (1400.0, "pm")])
-def test_T13_invented_value_or_changed_unit_is_rejected(
+def test_T12_invented_value_or_changed_unit_is_rejected(
     package: EvidencePackage,
     number: float,
     unit: str,
@@ -180,7 +180,7 @@ def test_capitalized_unit_is_not_mistaken_for_a_spanish_connector(package, unit)
         validate(schemas.ResultExtraction.model_validate(value), package)
 
 
-def test_T17_project_instructions_remain_escaped_data() -> None:
+def test_T13_project_instructions_remain_escaped_data() -> None:
     for task in ["extract", "conceptual", "plan", "weekly", "contrast"]:
         prompt = load(task)
         output = messages(
