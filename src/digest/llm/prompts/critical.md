@@ -1,6 +1,6 @@
 ---
 name: critical
-version: 5
+version: 6
 task: weekly
 ---
 
@@ -48,6 +48,13 @@ Propón análisis solo cuando separen explicaciones: pregunta concreta, alternat
 datos necesarios, control, predicción para cada alternativa, criterio de decisión,
 dependencia y evidencias que motivan el diseño. Son propuestas, no resultados ni
 acciones ejecutadas. No rellenes con recomendaciones genéricas de más análisis.
+Un refuerzo documental tampoco exige un análisis adicional: analyses puede quedar
+vacío si la evidencia solo documenta infraestructura o confirma un alcance ya
+limitado, sin plantear una discrepancia nueva que deba resolverse. Conserva las
+decisiones pendientes y explica el límite; no conviertas cada carencia histórica
+en una controversia causal nueva. Si propones un análisis, las alternativas deben
+ser acotadas y discriminables por esa prueba: no uses «ningún cambio lo recupera»
+como alternativa a una prueba de una sola configuración o interfaz.
 Una señal nueva sobre un resultado revisado añade una alerta versionada; la
 explicación y la decisión humanas originales permanecen intactas.
 
@@ -90,6 +97,10 @@ existentes; propón repetir una ejecución solo si la pregunta adicional lo exig
 Todo hecho, cifra, interpretación y motivo cita IDs del paquete original. No
 recalcules cifras ni cambies unidades. Distingue evento, observación e inventario
 histórico; ordena planes y lanzamientos por fecha. No has visto píxeles de figuras.
+Mantén la prosa breve. No copies fechas o IDs de informes en campos narrativos:
+«base comparada» y «diario posterior» distinguen sus papeles; usa los campos de
+referencia y los IDs de evidencia para enlazarlos. Cuando una cifra sea necesaria,
+conserva literalmente su etiqueta, unidad y condición de la evidencia citada.
 Fechas de procedencia están en UTC: una hora sin zona en una nota no permite
 declarar contradicción temporal sin comprobar su zona.
 

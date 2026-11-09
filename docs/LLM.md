@@ -604,3 +604,10 @@ descubrimiento, pero no la convierte en información conocida por aquella base.
 La precisión de representación y la conservación del orden tampoco establecen
 por sí solas la utilidad científica: faltando análisis y tolerancia definidos,
 deben seguir siendo requisitos previos a esa decisión.
+
+Un refuerzo documental no obliga a proponer análisis: si no hay una discrepancia
+nueva que resolver, el semanal puede explicar el alcance y conservar decisiones
+pendientes con `analyses: []`. Los análisis propuestos deben separar alternativas
+que la prueba pueda distinguir; una prueba finita no resuelve una alternativa
+universal. La prosa evita repetir fechas e IDs de informes que ya están en las
+referencias del contraste.
