@@ -14,8 +14,11 @@ El diario que ha superado el cotejo independiente es
 y [vista extensa](../../build/in11-validation/data/reports/rep_in11_daily_levels_r17/report.html).
 El semanal de VCD cotejado es
 [`rep_in11_weekly_vcd_r11`](../../build/in11-validation/data/reports/rep_in11_weekly_vcd_r11/report.html).
-Benchmark sigue pendiente de resolver el cotejo semanal; estas dos muestras no
-constituyen por sí solas la aprobación de la fase.
+El semanal de Benchmark cotejado es
+[`rep_in11_weekly_benchmark_r13`](../../build/in11-validation/data/reports/rep_in11_weekly_benchmark_r13/report.html)
+y su [móvil](../../build/in11-validation/data/reports/rep_in11_weekly_benchmark_r13/mobile.html).
+Las tres muestras están completas y cotejadas independientemente; la aprobación
+de la fase requiere además la puerta y tu firma.
 
 En el diario, comprueba que la carga 0 frente a la formal +1 solo afecta al ligando
 ZINC000027515227; que la comparación del scatter es por ligando y mejor pose de
@@ -27,6 +30,12 @@ En el semanal de VCD, «sin cambio material» conserva el alcance moderado de la
 conclusión anterior. La interfaz y la selección de poses no aportan una nueva
 medición del acuerdo ni una dinámica ejecutada. La auditoría de archivos propuesta
 es opcional y distingue reproducción, discrepancia y resultado no evaluable.
+
+En Benchmark, la disponibilidad desigual ya tenía una auditoría declarada en la
+base. La novedad respecto a esa base es la retención posterior de confianzas en
+la prueba del humo, ya recogida también en un diario posterior. Ese refuerzo no
+acredita retención en todo el conjunto, calidad predictiva ni respuesta mutacional.
+Las propuestas no autorizan cambiar el lanzador ni borrar los archivos crudos.
 
 Son muestras retrospectivas acotadas de notas reales de Benchmark y VCD. Conservan
 sus fechas y distinguen declaraciones de agentes de resultados verificados.

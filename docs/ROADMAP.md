@@ -57,7 +57,7 @@ Rediseño D-047/D-048/D-049 aprobado; avance por tareas:
 - [IN-09] Nodos validados persistidos y generación reanudable — implementado
 - [IN-10] Seguimiento diario de resultados y próximo foco, con niveles por canal — implementado
 - [IN-12] Contraste crítico semanal de conclusiones y evidencia nueva — implementado
-- [IN-11] Validación del flujo jerárquico con fallos y proyectos reales
+- [IN-11] Validación del flujo jerárquico con fallos y proyectos reales — muestras completas y cotejadas; firma humana en la puerta
 - [IN-06] Puerta de fase 2: espera la nueva validación
 
 Aceptación: escenarios T12–T18 adaptados al requisito vigente, sin referencias ni

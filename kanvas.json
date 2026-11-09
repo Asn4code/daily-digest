@@ -766,7 +766,7 @@
     {
       "id": "IN-06",
       "title": "Puerta de fase 2",
-      "state": "todo",
+      "state": "doing",
       "group": "IN",
       "deps": ["IN-01", "IN-02", "IN-03", "IN-04", "IN-05", "IN-11"],
       "yolo": true,
@@ -813,6 +813,11 @@
           "at": "2026-11-05T15:41:04Z",
           "by": "codex",
           "text": "La persona considera razonable que el digest ayude a seguir la evolución de resultados y decidir el próximo foco, y solicita actualizar las tareas. Registrado D-049. Revisadas IN-08/09/10/11/12 y, para sus fases posteriores, WA-03 y PL-02: prioridad argumentada por objetivo/decisión/dependencias/compromisos, misión ejecutable, niveles móvil-vault coherentes y crítica semanal que oriente contrastes concretos. Criterios de utilidad comprobables y elección final humana. Roadmap y diseño sincronizados; no se ha iniciado implementación ni cambiado el estado de aprobación de las propuestas."
+        },
+        {
+          "at": "2026-11-09T15:58:09Z",
+          "by": "codex",
+          "text": "Plan: ejecutar puerta automática completa con IN-11 cerrada, obtener revisión formal independiente según VALIDATION §4 y dejar muestras concretas para firma humana. No aprobar la fase ni empezar webapp sin esa firma."
         }
       ]
     },
@@ -1127,7 +1132,7 @@
     {
       "id": "IN-11",
       "title": "Validación del flujo jerárquico con fallos y proyectos reales",
-      "state": "doing",
+      "state": "done",
       "group": "IN",
       "deps": ["IN-10", "IN-12"],
       "at": "2026-11-05T14:54:06Z",
@@ -1208,6 +1213,21 @@
           "at": "2026-11-09T11:26:55Z",
           "by": "codex",
           "text": "Diario17 y semanal VCD11 cotejados independientemente sin defectos materiales; guía con enlaces en ffa6f36. Benchmark7 rechazado por el revisor pese a cotejo de modelo positivo: novedad atribuida a la base histórica y criterio científico insuficiente. Critical5 precisa ambas condiciones y actor de verificación, sin cambiar esquema/validadores. make check:317 PASS; commit f44ca16 subido. Benchmark8 en generación y cotejo, sin entrega; se conservan las muestras correctas y todas las revisiones rechazadas."
+        },
+        {
+          "at": "2026-11-09T15:49:20Z",
+          "by": "codex",
+          "text": "La capa de auditoría semanal específica6.1 detecta y rechaza la falsa novedad de la cobertura ya auditada. Regresión: cambiar capa requiere solo1HTTPaudit; no regenera fuentes, crítica ni agregado válidos. make check318PASS, commit59647de subido, revisión preparatoria sin bypass. Benchmark11 permanece borrador: también la reparación fue rechazada; agregado y entrega bloqueados. Se ensaya MiniMaxH3 de NaN para esa crítica, sin modificar producción ni modelos de las muestras ya cotejadas."
+        },
+        {
+          "at": "2026-11-09T15:51:24Z",
+          "by": "codex",
+          "text": "Ensayo MiniMaxH3 devuelve HTTP401 para ese modelo, sin salida y sin entrega; no se adapta el contrato ni se cambian credenciales. El catálogo no prueba permiso efectivo de la clave. Qwen interno vuelve a agotar plazo. Se continúa con DeepSeek y auditoríaGLM6.1 en perfil privado, reutilizando fuentes; producción conserva rutas y timeouts. La auditoría actual ya rechaza el error histórico de Benchmark en vez de permitir completar el informe."
+        },
+        {
+          "at": "2026-11-09T15:58:09Z",
+          "by": "codex",
+          "text": "El diario por niveles y los dos semanales críticos están completos y cotejados independientemente: principal17, VCD11 y Benchmark13. Conservan alcance, condiciones en móvil/vault, misión con criterio previo, base histórica frente a retención nueva y decisiones humanas pendientes. Cinco afirmaciones trazadas en build/in11-validation/source-checks.md; índice y hashes privados adjuntos a docs/reviews/phase-2.md. make check318PASS; puerta automática pasa todas las reglas, comandos y escenarios y solo señala esta tarea aún doing antes de cerrarla. Reanudación y cotejo semanal específico probados sin regenerar fuentes; candidatos rechazados nunca sustituyen secciones ni se entregan. Muestras retrospectivas y agrupación curada, sin acreditar relaciones científicas automáticas entre tareas. No hubo SMTP, Drive ni escritura en proyectos/vault. La valoración humana de utilidad, legibilidad y foco y la firma se mantienen pendientes en IN-06."
         }
       ]
     },

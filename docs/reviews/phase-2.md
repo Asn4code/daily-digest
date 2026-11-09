@@ -14,8 +14,8 @@ no aprueba este rediseño. Protocolo en [VALIDATION.md](../VALIDATION.md).
 
 ## Informe automático
 
-[Puerta automática](../../build/gates/phase-2.md). La tarea IN-11 está en validación;
-no se da por aprobada la fase. Última suite del constructor: 318 tests pasan,
+[Puerta automática](../../build/gates/phase-2.md). Las muestras de IN-11 están
+completas y cotejadas; no se da por aprobada la fase. Última suite del constructor: 318 tests pasan,
 con lint, formato y tipos. La auditoría preparatoria independiente está en
 [review-hierarchical-precheck.md](../../build/review-hierarchical-precheck.md) y
 [review-grounding-precheck.md](../../build/review-grounding-precheck.md).
@@ -35,7 +35,7 @@ correcciones y regresiones; el revisor debe registrar su verificación final.
 
 ## Muestras reales y límites
 
-Se están preparando en `build/in11-validation/`, con notas originales de los dos
+Están en `build/in11-validation/`, con notas originales de los dos
 proyectos y fechas originales. Son muestras retrospectivas y de cobertura parcial;
 no verifican ejecuciones ni representan toda la producción de los proyectos.
 No se envía correo, no se copia a Drive y no se escriben proyectos observados.
@@ -49,17 +49,23 @@ Sus cinco afirmaciones y campos se identifican en
 [independiente del diario](../../build/review-in11-main-r17.md).
 El semanal de VCD cotejado es
 [`rep_in11_weekly_vcd_r11`](../../build/in11-validation/data/reports/rep_in11_weekly_vcd_r11/report.html).
-El de Benchmark sigue pendiente: el revisor detectó atribuciones temporales y un
-criterio de utilidad científica incorrectos incluso con un cotejo de modelo positivo.
-El registro se conserva en
+El semanal de Benchmark cotejado es
+[`rep_in11_weekly_benchmark_r13`](../../build/in11-validation/data/reports/rep_in11_weekly_benchmark_r13/report.html).
+El revisor detectó y volvió a comprobar las correcciones de atribución temporal y
+criterio de utilidad científica, incluso ante cotejos de modelo positivos.
+El registro, incluidos rechazos y cierre de la muestra final, se conserva en
 [review-weekly-benchmark-critical-precheck.md](../../build/review-weekly-benchmark-critical-precheck.md).
 
 En estas muestras privadas se usaron modelos de NaN: extracción Mimo-v2.6-flash
 para Benchmark y GLM5.3-flash para VCD; balances, orientación y plan del diario con
 DeepSeek-v4-flash. La crítica semanal de VCD usa GLM5.3-flash y su agregado y
-cotejos DeepSeek-v4-flash. Cada `report.json` conserva el modelo efectivo y qué
+cotejos DeepSeek-v4-flash. En Benchmark, crítica y agregado usan DeepSeek-v4-flash
+y sus cotejos GLM5.3-flash; la crítica declara el suplemento de auditoría 6.1.
+Cada `report.json` conserva el modelo efectivo y qué
 piezas se reutilizaron. La configuración de producción no cambia por este ensayo.
 No se infiere comprensión humana de la validación automática ni de estos cotejos.
+La [verificación final privada](../../build/in11-validation/final-validation.json)
+identifica evidencias, estados pendientes, modelos, prompts y hashes de los archivos.
 
 ## Excepciones «gate: allow» revisadas
 
