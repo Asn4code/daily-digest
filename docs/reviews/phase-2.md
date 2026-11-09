@@ -1,8 +1,8 @@
 ---
 phase: 2
 builder: codex
-reviewer:
-verdict: pendiente
+reviewer: codex-independent
+verdict: aprobada
 date: 2026-11-09
 ---
 
@@ -15,8 +15,12 @@ no aprueba este rediseño. Protocolo en [VALIDATION.md](../VALIDATION.md).
 ## Informe automático
 
 [Puerta automática](../../build/gates/phase-2.md). Las muestras de IN-11 están
-completas y cotejadas; no se da por aprobada la fase. Última suite del constructor: 318 tests pasan,
-con lint, formato y tipos. La auditoría preparatoria independiente está en
+completas y cotejadas; no se da por aprobada la fase. Revisión formal independiente sobre `07a3940` (producción `59647de`):
+319 tests pasan en 56,01 s, con lint, formato y tipos ejecutados por el revisor.
+La puerta ejecutada por esta sesión devuelve PROVISIONAL (exit 3), todo automático
+PASS; revisión y firma se omiten únicamente por `--no-manual`.
+El detalle reproducible, mapa completo de FR y pruebas está en
+[review-phase-two-formal.md](../../build/review-phase-two-formal.md). La auditoría preparatoria independiente está en
 [review-hierarchical-precheck.md](../../build/review-hierarchical-precheck.md) y
 [review-grounding-precheck.md](../../build/review-grounding-precheck.md).
 La revisión de unidades está en
@@ -28,10 +32,70 @@ y los contrastes semanales, incluidos rechazos y falsos positivos del modelo, en
 
 ## Hallazgos y revalidación independiente
 
-Pendiente de la pasada formal del revisor. La auditoría preparatoria detectó
-ámbitos humanos incompletos, procedencia temporal alterable, recuperación de
-versiones sustituidas y pérdida de privacidad ancestral. Se han incorporado
-correcciones y regresiones; el revisor debe registrar su verificación final.
+Revisor `codex-independent`, sesión `review_hierarchical_phase_two`, 2026-11-09.
+Sesión distinta de la construcción; no ha modificado producción, proyectos,
+Kanvas ni estados humanos. Leídos los documentos exigidos por VALIDATION §4.
+
+- **Importante, corregido y revalidado:** los IDs de pruebas no correspondían a
+  TESTING: T13 estaba asignado a unidades y T17 a delimitación de instrucciones;
+  la reparación JSON quedaba fuera de la selección T17. Repro inicial:
+  `pytest --collect-only -q -k T17`. Corrección `07a3940` en
+  `tests/unit/test_llm_validation.py:57`, `:183`, `tests/unit/test_llm_router.py:346`
+  y `tests/e2e/test_llm_report.py:26`: T12 cubre cifras/unidades, T13 inyección,
+  T17 reparación JSON y publicación local completa. La selección T12/T13/T17
+  ejecuta siete pruebas correctas; la puerta repetida es PROVISIONAL.
+- **Menor, opcional:** `src/digest/report/render_md.py:16` escapa el `#` de la
+  entidad creada para un apóstrofo: `escape("'14/14 conf guardados'")` produce
+  `&\#x27;14/14 conf guardados&\#x27;`, que MarkdownIt muestra como texto de
+  entidades. Se observa en el Markdown de Benchmark13. Afecta legibilidad;
+  no altera citas, cifras, unidades o seguridad, ni el HTML/correo directo.
+  Test sugerido: texto visible de una afirmación con apóstrofos tras renderizar
+  Markdown, conservando el rechazo/escapado de HTML malicioso. Seguimiento
+  propuesto por el constructor: WA-07 (dependiente de IN-06), sin aprobar ni
+  implementar esa tarea futura.
+
+No quedan hallazgos bloqueantes o importantes abiertos. H1–H4 (ámbito humano,
+fechas/localizador, versiones sustituidas y privacidad ancestral) y G1 (certificado
+sin fuentes/contexto exactos) están corregidos y revalidados por pruebas y ataques
+nuevos. S1/S3/S10 están cerrados en el diario17 final; S7/S8/S9 y atribución están
+cerrados en Benchmark13 final. VCD11 conserva decisiones humanas, alcance y
+contraste sin cambio material sin fabricar una alerta nueva. Los rechazos y
+aprobaciones automáticas equivocadas se conservan en los prechecks enlazados:
+un cotejo de modelo no demuestra verdad científica ni comprensión humana.
+
+### Requisitos, implementación y pruebas
+
+| Requisitos de fase 2 y regresión | Código | Verificación |
+| --- | --- | --- |
+| FR-02/03/04, nuevas fuentes sin ejecución | `collectors/notebooks.py`, `structures.py`, `agent_sessions.py`, `results.py` | `test_phase_two_collectors`, T11/T30, hashes de árboles incluidos `.git` |
+| FR-10–15/19, ventanas, plazos, fallos y reanudación | `worker.py`, `intervals.py`, `builder.py`, `completeness.py`, `loading.py` | T16/T18, `test_resumable_generation`, fallos parciales y entrega incompleta rechazada |
+| FR-16/17 y D-049, interpretación/inventario/foco | `report/activity.py`, `daily.py`, `assembly.py`, `context.py`, `validator.py` | T01/T02, `test_daily_levels`, plan humano preservado y tareas por proyecto |
+| FR-18, crítica versionada desde evidencias | `report/conclusions.py`, `weekly.py`, `schemas.py`, `validator.py` | `test_weekly_critical`, `test_weekly_baselines`, ambas líneas de evidencia, texto/estado humano intactos |
+| FR-20–24, móvil/vault y entrega | `views.py`, renders/plantillas, `publish/email.py` | condiciones sin destacados, texto/HTML, quiet semanal, cinco afirmaciones y tres muestras finales |
+| NFR-02/04, identidad/caché/linaje | `llm/cache.py`, `router.py`, `grounding.py`, `contracts.py` | `test_node_cache`, ramas independientes, auditar de nuevo solo la capa cambiada |
+| Privacidad, secretos y publicación obligatoriamente validada | `context.human_scope`, `conclusions.py`, `util/redact.py`, `validator.py`, `deliveries.py` | política ausente bloquea texto humano, privado solo internal, secretos fuera de nodos/wire, T12/T13/T15/T17 |
+
+Mapa ampliado y referencias a nombres de prueba en el
+[informe formal](../../build/review-phase-two-formal.md).
+
+### Intentos deliberados
+
+Se ejecutó FakeLLM con ID/cifra inventados y cifra correcta con otra unidad;
+se revisó delimitación de instrucciones maliciosas y ausencia de herramientas
+o acciones controladas por el modelo. La caída de proveedor conserva el modelo
+real efectivo; un ámbito privado no llama a NaN. La caída total deja borrador
+sin entrega/cierre y la recuperación revalida antes de publicar.
+
+Además de la suite, **40 alteraciones rechazadas** sobre tres informes finales y
+contratos numéricos: cambiar fechas/localizador/calidad temporal, quitar o alterar
+certificado, candidato, contexto o fuentes, y ocultar unidades/denominadores tras
+clasificadores. Registro en
+[review-phase-two-formal-adversarial.json](../../build/review-phase-two-formal-adversarial.json).
+Un recorrido nuevo sobre fixtures usa solo MockTransport, conserva hashes de los
+tres árboles incluidos `.git`, no crea entregas ni planes aceptados. Cinco
+afirmaciones seleccionadas con semilla fija se cotejaron con sus evidencias; son
+frases genéricas del doble, no una prueba de calidad científica de modelos.
+La semántica científica se cotejó independientemente en las muestras reales.
 
 ## Muestras reales y límites
 
@@ -69,11 +133,25 @@ identifica evidencias, estados pendientes, modelos, prompts y hashes de los arch
 
 ## Excepciones «gate: allow» revisadas
 
-Pendiente de revisión independiente.
+No existen excepciones en `src/` ni plantillas. Las dos anotaciones de
+`scripts/phase_gate.py:155` y `:212` justifican subprocess del script de puerta
+(comandos fijos de comprobación y pytest), fuera del código del servicio. Usan
+listas y timeout, sin shell ni ejecución de contenido recogido de proyectos.
+No exceptúan publicación, privacidad, secretos o HTML. Revisión aceptada.
 
 ## Veredicto del revisor
 
-Pendiente. La auditoría preparatoria no sustituye el protocolo formal de la puerta.
+**Aprobada técnicamente** por `codex-independent` (sesión
+`review_hierarchical_phase_two`) el 2026-11-09, sobre `07a3940` y producción
+`59647de`. Puerta independiente PROVISIONAL, calidad y 319 pruebas pasan,
+intentos adversariales y cotejo final documentados. Hallazgo importante de
+selección de escenarios corregido; queda un menor opcional de presentación.
+
+Esta aprobación corresponde a la capa independiente de VALIDATION §4. La fase
+sigue pendiente de las comprobaciones y firma de la persona: no se declara
+comprensión, utilidad humana aprobada ni autorización de entrega por esta ficha.
+Las muestras son retrospectivas y curadas; no validan captura completa ni
+asociaciones científicas automáticas entre tareas distintas.
 
 ## Firma de la persona
 

@@ -818,6 +818,21 @@
           "at": "2026-11-09T15:58:09Z",
           "by": "codex",
           "text": "Plan: ejecutar puerta automática completa con IN-11 cerrada, obtener revisión formal independiente según VALIDATION §4 y dejar muestras concretas para firma humana. No aprobar la fase ni empezar webapp sin esa firma."
+        },
+        {
+          "at": "2026-11-09T15:58:53Z",
+          "by": "codex",
+          "text": "Puerta automática 2 --no-manual: PROVISIONAL exit3, todas las comprobaciones técnicas PASS y tablero IN completo. make check318PASS. Muestras finales completas y cotejadas: diario17, VCD11, Benchmark13; enlaces y cinco afirmaciones en docs/reviews/phase-2-pilot.md y phase-2.md. Revisión formal independiente solicitada a sesión review_hierarchical_phase_two según VALIDATION§4. La firma humana sigue sin marcar y no se inicia fase3."
+        },
+        {
+          "at": "2026-11-09T16:08:10Z",
+          "by": "codex",
+          "text": "Revisión formal independiente aprobada técnicamente en docs/reviews/phase-2.md, sesión review_hierarchical_phase_two, sobre correcciones07a3940. make check319PASS y gatePROVISIONAL independientes;40alteraciones rechazadas,5afirmacionesfixtures cotejadas,18hashes de muestras intactos. Importante IDs T13/T17 corregido y revalidado, incluido T17 de informe completo; menorMarkdown propuesto WA07 sin bloquear. No quedan bloqueantes/importantes abiertos. Diario17 y semanalesVCD11/BM13 completos y cotejados, guía phase-2-pilot.md. Falta la comprobación y firma humana obligatoria de VALIDATION; se conserva IN06doing, no finish ni fase3 hasta puertaAPROBADA."
+        },
+        {
+          "at": "2026-11-09T16:08:11Z",
+          "by": "codex",
+          "text": "Question: Revisa las tres muestras con docs/reviews/phase-2-pilot.md y completa las comprobaciones humanas y Apruebo la fase en docs/reviews/phase-2.md si estás conforme. ¿Apruebas la fase 2? La firma humana es obligatoria según docs/VALIDATION.md §1 antes de iniciar la webapp; la revisión técnica ya está aprobada y no se te pide confirmar commits."
         }
       ]
     },
@@ -1267,6 +1282,16 @@
       "at": "2026-11-08T02:29:03Z",
       "by": "codex",
       "desc": "El contraste actual compara evidencia posterior del mismo resultado. Durante el piloto, registrar casos en los que otra tarea aporte evidencia relevante para una conclusión previa y medir qué queda fuera. Conservar un caso natural del mismo resultado y el mapeo de tareas/evidencias en cada ensayo curado. Proponer una política explícita de relaciones, con procedencia, controles y privacidad, para revisión humana antes de implementarla; no mezclar tareas automáticamente por parecido textual. Terminado cuando la evaluación documenta casos reales y la persona puede decidir si ampliar la relación merece una tarea de implementación."
+    },
+    {
+      "id": "WA-07",
+      "title": "Conservar las comillas literales al renderizar Markdown",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["IN-06"],
+      "at": "2026-11-09T16:06:19Z",
+      "by": "codex",
+      "desc": "Al abrir el Markdown generado en la vault, los apóstrofos deben mostrarse como comillas y no como texto de entidad HTML. El cotejo formal de fase 2 reproduce escape seguido de MarkdownIt mostrando &#x27; en vez de la comilla. Corregir el orden o alcance del escapado sin permitir HTML, enlaces o Markdown ejecutable de las fuentes; probar apóstrofos, comillas, entidades y cargas XSS. Regenerar en una revisión nueva y conservar los archivos anteriores y el texto humano. Hallazgo menor de legibilidad, sin pérdida de referencias ni bloqueo de fase 2."
     }
   ]
 }
