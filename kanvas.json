@@ -1183,6 +1183,11 @@
           "at": "2026-11-08T20:43:52Z",
           "by": "codex",
           "text": "Corregido el diagnóstico del cotejo: los cuatro códigos seguros de rutas/citas/referencias/veredicto se preservan; excepciones arbitrarias siguen saneadas. El fallo real era una ruta checks[0].hypotheses_changed inexistente (campo de raíz). El nuevo test permite reparar esa ruta y obtener auditoría negativa válida sin filtrar contenido. Suite315 pasa, revisión independiente85tests y20 casos adversariales sin impedimentos. Diario conjunto r14 ya pasó fuente y balance Benchmark numérico; semanales siguen pendientes de cotejo/reparación. Sin publicación ni entrega."
+        },
+        {
+          "at": "2026-11-09T10:10:44Z",
+          "by": "codex",
+          "text": "El diario r14 está completo y S3 se corrigió en móvil: carga 0/+1 y alcance por compuesto visibles. El cotejo independiente detectó S10 importante en la vault: dos lanzamientos por motor frente a dos en total, uno por motor. Project6 precisa recuentos y alternativas; r15 se genera reutilizando fuentes. Critical3 separa explícitamente lo ya conocido en cada base de new_evidence para corregir S9 (auditoría antigua presentada como nueva). VCD7 y Benchmark4 se regeneran desde nodos, sin entregas ni firma humana. Producción mantiene proveedores y timeouts; solo el ensayo limita la espera interna a30s para evitar gastar minutos en un respaldo no disponible."
         }
       ]
     },

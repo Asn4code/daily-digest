@@ -439,6 +439,10 @@ valida un uso posterior. El criterio se fija antes del análisis; la falta de
 insumos deja una comprobación no evaluable, sin favorecer una explicación.
 Se empieza por auditar y recalcular datos existentes antes de proponer repetir
 una ejecución. El cotejo automático comprueba también estas distinciones.
+La novedad se determina respecto a los IDs ya cubiertos por cada versión previa,
+no por pertenecer al intervalo semanal. Una prueba posterior no acredita las
+condiciones que una fuente anterior no especificó. En todos los niveles se
+conserva la distribución de recuentos: totales y cantidades por grupo son distintos.
 
 En las fichas de fuente, una condición explícita y citada puede estar en límites,
 controles o preguntas; el cotejo no exige repetirla en cada resumen. Esto no

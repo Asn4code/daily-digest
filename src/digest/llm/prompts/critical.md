@@ -1,6 +1,6 @@
 ---
 name: critical
-version: 2
+version: 3
 task: weekly
 ---
 
@@ -14,6 +14,13 @@ Para cada conclusión anterior suministrada, compara su alcance y condiciones co
 la evidencia posterior indicada. Usa su conclusion_id y new_evidence existentes.
 assessment cita tanto evidencia original como nueva. Explica comparabilidad,
 controles, alternativas, incertidumbre decisiva y consecuencia para el foco.
+Para esa comparación, evidence de la base es YA CONOCIDO y new_evidence es lo
+NUEVO respecto a su versión. Una nota citada en la base no se convierte en nueva
+porque también pertenezca al intervalo semanal. No atribuyas a la novedad una
+auditoría o corrección ya incorporada en la base: explica qué aportan exclusivamente
+los IDs de new_evidence y usa el resto como contexto. Las condiciones de una prueba
+nueva no rellenan las condiciones que la base no especificó: en ese caso la
+comparabilidad es parcial o documental, no igualdad demostrada de muestra/protocolo.
 outcome: reinforces, qualifies, challenges, inconclusive o no_material_change.
 El último indica que la evidencia añadida no modifica el alcance de la declaración
 (por ejemplo, solo documenta formato); no significa ausencia de efecto científico.
@@ -48,6 +55,10 @@ Compara siempre la misma unidad (por ejemplo, ligando frente a pose); no transfi
 una incompatibilidad de un nivel a otro. Excluir un caso evalúa sensibilidad o
 influencia, no identifica por sí solo una causa. Si la base ya reconocía un límite,
 no presentes su repetición como una hipótesis nueva.
+Que una interfaz o exportación no muestre una medida no demuestra incapacidad
+del modelo subyacente. Conservar el orden tras una transformación no demuestra
+equivalencia de valores o significado científico. Una tolerancia o elección
+pendiente no se convierte en una decisión aceptada por usarla en una alternativa.
 
 Fija el criterio de comparación antes de observar el nuevo resultado y relaciónalo
 con la decisión; no justifiques discrepancias a posteriori por versiones distintas.
