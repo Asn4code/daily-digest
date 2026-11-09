@@ -597,3 +597,10 @@ visibles del móvil. Se agrupan límites de una misma decisión y se evita gasta
 los campos en repetir cifras o cobertura genérica. La revisión de fidelidad no
 da por conservado ese aviso solo porque esté en la ficha técnica; la proyección
 final sigue necesitando cotejo independiente y humano.
+
+En el contraste semanal, la novedad se mide respecto a la versión histórica
+comparada. Que un diario posterior ya la incorpore evita anunciarla otra vez como
+descubrimiento, pero no la convierte en información conocida por aquella base.
+La precisión de representación y la conservación del orden tampoco establecen
+por sí solas la utilidad científica: faltando análisis y tolerancia definidos,
+deben seguir siendo requisitos previos a esa decisión.

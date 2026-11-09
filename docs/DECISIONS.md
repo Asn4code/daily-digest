@@ -248,3 +248,10 @@ rechazado y fallaban inmediatamente por otro. La misma pasada recoge ahora
 hasta veinte fallos independientes y devuelve solo reglas y rutas de esquema
 filtradas a la reparación existente. No se añaden reintentos, no se transforman
 afirmaciones y cualquier error pendiente sigue bloqueando la pieza.
+
+En el semanal de Benchmark, otro cotejo positivo del modelo dejó pasar dos
+errores que detectó el revisor independiente: atribuir a una base histórica
+información de una interpretación posterior y considerar suficiente un control
+de precisión para aceptar un uso científico sin definirlo. La candidata se
+retiene como rechazada en la validación privada. Se precisa el prompt crítico
+sin cambiar el contrato, aflojar validadores ni sustituir la revisión humana.

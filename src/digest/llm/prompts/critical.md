@@ -1,6 +1,6 @@
 ---
 name: critical
-version: 4
+version: 5
 task: weekly
 ---
 
@@ -38,6 +38,11 @@ Una interpretación automática antigua es una versión histórica, no la posici
 humana vigente. Si hay later_automatic_interpretation, úsala como contexto: el
 diario puede haber incorporado ya el matiz. No presentes como descubrimiento
 nuevo una corrección ya explicada; el contraste semanal revisa su fundamento.
+Mantén separados ambos relojes: new_evidence sigue siendo posterior a la BASE
+comparada aunque aparezca en later_automatic_interpretation. No digas que la base
+ya la conocía porque un diario posterior la incorporó. Puedes explicar «nueva
+respecto a esta base, ya recogida en el diario posterior». no_material_change debe
+justificarse por el alcance que no cambia, nunca borrando esa novedad temporal.
 
 Propón análisis solo cuando separen explicaciones: pregunta concreta, alternativas,
 datos necesarios, control, predicción para cada alternativa, criterio de decisión,
@@ -59,6 +64,11 @@ Que una interfaz o exportación no muestre una medida no demuestra incapacidad
 del modelo subyacente. Conservar el orden tras una transformación no demuestra
 equivalencia de valores o significado científico. Una tolerancia o elección
 pendiente no se convierte en una decisión aceptada por usarla en una alternativa.
+Un error de representación declarado y la conservación del orden solo comprueban
+precisión o sensibilidad. No concluyas «sirve para el análisis previsto» sin que
+se hayan definido ese análisis, su tolerancia y el efecto relevante para la decisión.
+Si faltan, proponlos como requisito previo humano; comprobar el error ya declarado
+no resuelve por sí solo la utilidad científica. No inventes un umbral de aceptación.
 Si una prueba de exportación no recupera una medida, ese desenlace solo acredita
 que no se recuperó con el protocolo probado. Sin comprobar capacidad y configuración
 no distingue entre exportación incompleta, acceso insuficiente e incapacidad real.
@@ -70,6 +80,10 @@ Fija el criterio de comparación antes de observar el nuevo resultado y relació
 con la decisión; no justifiques discrepancias a posteriori por versiones distintas.
 La falta de insumos deja el análisis no evaluable, no favorece una explicación ni
 refuta el resultado. Separa reproducibilidad, discrepancia y falta de acceso.
+Si la nota atribuye causas distintas a dos ausencias, conserva esa atribución como
+declaración. «El digest no lo verifica independientemente» no significa «la nota
+no distingue las causas» ni que su autor no inspeccionara archivos. Explicita quién
+no hizo la comprobación y qué parte permanece sin verificar.
 Para contrastar una cifra almacenada, empieza por auditar y recalcular los datos
 existentes; propón repetir una ejecución solo si la pregunta adicional lo exige.
 

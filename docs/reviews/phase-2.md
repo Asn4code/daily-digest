@@ -41,9 +41,25 @@ no verifican ejecuciones ni representan toda la producción de los proyectos.
 No se envía correo, no se copia a Drive y no se escriben proyectos observados.
 
 La muestra previa de IN-10 se conserva en `build/in10-sample/sample-r3/`.
-Las rutas concretas, las cinco afirmaciones cotejadas y la comparación móvil/vault
-se adjuntarán al completar esta validación. No se infiere comprensión humana de
-la validación automática ni del cotejo del constructor.
+El diario cotejado es `rep_in11_daily_levels_r17`, con
+[móvil](../../build/in11-validation/data/reports/rep_in11_daily_levels_r17/mobile.html)
+y [vault](../../build/in11-validation/data/reports/rep_in11_daily_levels_r17/report.html).
+Sus cinco afirmaciones y campos se identifican en
+[source-checks.md](../../build/in11-validation/source-checks.md), con cotejo
+[independiente del diario](../../build/review-in11-main-r17.md).
+El semanal de VCD cotejado es
+[`rep_in11_weekly_vcd_r11`](../../build/in11-validation/data/reports/rep_in11_weekly_vcd_r11/report.html).
+El de Benchmark sigue pendiente: el revisor detectó atribuciones temporales y un
+criterio de utilidad científica incorrectos incluso con un cotejo de modelo positivo.
+El registro se conserva en
+[review-weekly-benchmark-critical-precheck.md](../../build/review-weekly-benchmark-critical-precheck.md).
+
+En estas muestras privadas se usaron modelos de NaN: extracción Mimo-v2.6-flash
+para Benchmark y GLM5.3-flash para VCD; balances, orientación y plan del diario con
+DeepSeek-v4-flash. La crítica semanal de VCD usa GLM5.3-flash y su agregado y
+cotejos DeepSeek-v4-flash. Cada `report.json` conserva el modelo efectivo y qué
+piezas se reutilizaron. La configuración de producción no cambia por este ensayo.
+No se infiere comprensión humana de la validación automática ni de estos cotejos.
 
 ## Excepciones «gate: allow» revisadas
 
