@@ -453,6 +453,13 @@ controles o preguntas; el cotejo no exige repetirla en cada resumen. Esto no
 compensa una afirmación contradictoria en otro campo. En el balance móvil y en
 el contraste semanal siguen vigentes sus requisitos específicos de condiciones.
 
+El cotejo de la orientación añade instrucciones propias de esa capa a las reglas
+comunes. Evalúa el candidato junto con las condiciones acompañantes de los balances,
+sin tratar campos del contexto como rutas del candidato. Su versión registra la
+base y el suplemento (por ejemplo, `6.1`); modificar solo ese suplemento invalida
+su cotejo, sin repetir fuentes ni balances ya válidos. El paquete de generación
+completo permanece ligado al certificado y no se modifica para aprobarlo.
+
 Tras las fuentes y fichas, `WeeklyCritical` construye un balance por proyecto y
 contrasta declaraciones previas con evidencia posterior del mismo resultado.
 Cada base conserva texto, versión, fecha, alcance/controles/límites, autor

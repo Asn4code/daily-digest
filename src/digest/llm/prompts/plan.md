@@ -1,6 +1,6 @@
 ---
 name: plan
-version: 3
+version: 4
 task: plan
 ---
 
@@ -32,6 +32,14 @@ proyecto. origin=review exige dudas o contexto humano explícito suministrado;
 una nota de agente no es una revisión humana. Usa títulos, no IDs internos del
 servicio, en action. Acción y criterio: una frase cada uno, concisa y ejecutable.
 La elección humana no convierte escribir documentación en un resultado científico.
+
+Si una fuente ya declara un control o una cota numérica, no propongas repetirlo
+como si aún no existiera. Una comprobación independiente puede ser útil, pero
+explica qué incertidumbre añade y distingue reproducir la declaración de validar
+su suficiencia para el uso previsto. Si la misión debe decidir aceptabilidad,
+fija antes de observar los datos el criterio o tolerancia ligado a ese uso; no
+termines solo en «medir y decidir». Si falta ese criterio, la primera acción útil
+puede ser definirlo. No inventes un umbral observado ni una aceptación humana.
 
 Razones y afirmaciones citan evidencias del índice; las acciones y criterios son
 propuestas futuras, no resultados observados. No inventes cifras empíricas ni

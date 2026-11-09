@@ -204,7 +204,7 @@ def test_T17_project_instructions_remain_escaped_data() -> None:
             == {
                 "extract": "1",
                 "conceptual": "4",
-                "plan": "3",
+                "plan": "4",
                 "weekly": "3",
                 "contrast": "1",
             }[task]

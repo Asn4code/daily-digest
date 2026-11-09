@@ -5,6 +5,7 @@ import json
 import re
 from contextlib import closing
 from copy import deepcopy
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
@@ -31,6 +32,65 @@ def wire_context(request):
     wire = json.loads(request.content)
     raw = re.search(r"<context>(.*?)</context>", wire["messages"][1]["content"], re.S).group(1)
     return wire["response_format"]["json_schema"]["schema"]["title"], json.loads(html.unescape(raw))
+
+
+def test_overview_audit_change_reuses_valid_sources_and_project_balances(
+    daily, tmp_path, monkeypatch
+):
+    from digest.report import builder
+
+    config, inventory = daily
+    requests = []
+
+    def respond(request):
+        title, package = wire_context(request)
+        requests.append((title, package))
+        return fake_response(request)
+
+    client = Client(transport=httpx.MockTransport(respond))
+    with closing(connect(tmp_path / "db")) as db:
+        first = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
+        require_complete(first)
+        overview = next(
+            p
+            for t, p in requests
+            if t == "GroundingAudit" and p["context"]["target_section"] == "conceptual"
+        )
+        for pid, balance in overview["context"]["generation_context"]["balances"].items():
+            assert (
+                balance["reading_conditions"]
+                == first.sections["project:" + pid]["reading_conditions"]
+            )
+        original = builder.load
+
+        def changed(task, *, name=None):
+            prompt = original(task, name=name)
+            return (
+                replace(
+                    prompt,
+                    version=prompt.version + ".test",
+                    body=prompt.body + "\nCoteja la capa actual.",
+                )
+                if name == "grounding_overview"
+                else prompt
+            )
+
+        monkeypatch.setattr(builder, "load", changed)
+        requests.clear()
+        second = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
+        require_complete(second)
+        validate_report(second, {e.id for e in second.evidence})
+        assert [(title, p["context"].get("target_section")) for title, p in requests] == [
+            ("GroundingAudit", "conceptual")
+        ]
+        assert second.sections == first.sections
+        assert (
+            second.prompt_versions["check:conceptual"] != first.prompt_versions["check:conceptual"]
+        )
+        for key in first.sections:
+            if key != "check:conceptual":
+                assert second.model_info[key].get("reused") == "true" or key.startswith("extract:")
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
 @pytest.mark.parametrize("repair", [True, False])

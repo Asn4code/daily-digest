@@ -165,6 +165,10 @@ aprobar el contenido cuestionado ni exponer candidatos o excepciones privadas.
 La reparación de `origin=review` sin contexto humano exige una propuesta nueva
 con procedencia `model`; no crea revisiones ni modifica el contexto humano para
 aceptar una etiqueta incorrecta.
+Una prueba cambia solo las instrucciones de cotejo de la orientación y exige una
+única llamada nueva, correspondiente a ese cotejo: las fuentes, balances y plan
+se reutilizan tras validarlos. Comprueba además que las condiciones acompañantes
+del paquete son las del balance mostrado, sin sustituir el contexto almacenado.
 
 ## Unidades de evidencia (IN-08)
 

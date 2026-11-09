@@ -13,7 +13,7 @@ from digest.config import Config
 from digest.llm import schemas
 from digest.llm.contracts import evidence_schema
 from digest.llm.grounding import check as check_grounding
-from digest.llm.prompts import load, messages
+from digest.llm.prompts import Prompt, load, messages
 from digest.llm.router import Router, Task
 from digest.llm.validator import EvidencePackage, validate
 from digest.report.activity import active_results, classify, current_evidence_ids
@@ -351,6 +351,14 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             )
         )
         grounding_prompt = load("contrast", name="grounding")
+        if schema is schemas.DailyOverview:
+            layer = load("contrast", name="grounding_overview")
+            grounding_prompt = Prompt(
+                layer.name,
+                grounding_prompt.version + "." + layer.version,
+                "contrast",
+                grounding_prompt.body + "\n\n" + layer.body,
+            )
         for attempt in range(2):
             response = router.generate(
                 task,
