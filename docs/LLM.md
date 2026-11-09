@@ -443,6 +443,10 @@ La novedad se determina respecto a los IDs ya cubiertos por cada versión previa
 no por pertenecer al intervalo semanal. Una prueba posterior no acredita las
 condiciones que una fuente anterior no especificó. En todos los niveles se
 conserva la distribución de recuentos: totales y cantidades por grupo son distintos.
+La ausencia de una medida tras probar una exportación solo demuestra que no se
+recuperó con ese protocolo; sin verificar capacidad y configuración no permite
+concluir incapacidad del modelo. Una propuesta de sesión de revisión conserva
+`origin=model`: `review` identifica procedencia humana explícita, no la actividad.
 
 En las fichas de fuente, una condición explícita y citada puede estar en límites,
 controles o preguntas; el cotejo no exige repetirla en cada resumen. Esto no

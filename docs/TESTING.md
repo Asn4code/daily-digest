@@ -162,6 +162,9 @@ número de reparaciones ni se corrige el contenido automáticamente.
 El transporte de cotejo prueba también una ruta inexistente seguida de un
 veredicto negativo válido: el diagnóstico permite reparar la comprobación sin
 aprobar el contenido cuestionado ni exponer candidatos o excepciones privadas.
+La reparación de `origin=review` sin contexto humano exige una propuesta nueva
+con procedencia `model`; no crea revisiones ni modifica el contexto humano para
+aceptar una etiqueta incorrecta.
 
 ## Unidades de evidencia (IN-08)
 

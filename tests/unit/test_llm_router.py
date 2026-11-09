@@ -232,6 +232,84 @@ def test_invalid_audit_path_can_be_repaired_without_exposing_candidate(tmp_path,
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
+def test_review_activity_is_repaired_as_model_proposal_without_human_context(tmp_path, monkeypatch):
+    from digest.llm.schemas import TomorrowPlan
+    from digest.llm.validator import EvidencePackage, validate
+    from digest.report.model import EvidenceEntry
+
+    config = load_config(build_projects(tmp_path / "projects"))
+    config.llm.routing.plan = ["internal"]
+    monkeypatch.setenv("DIGEST_FIXTURE_UNUSED_KEY", "synthetic-key")
+    pid = config.projects[0].id
+    scope = EvidencePackage(
+        {
+            "ev_test": EvidenceEntry(
+                "ev_test",
+                pid,
+                "doc_change",
+                "note",
+                "Control pendiente",
+                "2026-11-04T19:00:00+00:00",
+                None,
+                "observed",
+                {},
+            )
+        },
+        {pid},
+        set(),
+    )
+    requests = []
+
+    def respond(request):
+        wire = json.loads(request.content)
+        requests.append(wire)
+        repair = wire["messages"][-1]["content"] if wire["messages"] else ""
+        value = {
+            "mission": None,
+            "carry_forward_id": None,
+            "change_reason": None,
+            "no_mission_reason": {"text": "Solo preparar la revisión", "evidence": ["ev_test"]},
+            "warmups": [
+                {
+                    "kind": "warmup",
+                    "project_id": pid,
+                    "action": "Revisar el control",
+                    "done_criterion": "Control contrastado",
+                    "dependency": None,
+                    "reason": "Preparar la revisión",
+                    "origin": "model" if "origin=model" in repair else "review",
+                    "kanvas_task_id": None,
+                    "evidence": ["ev_test"],
+                }
+            ],
+        }
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
+
+    def check(value):
+        result = TomorrowPlan.model_validate(value)
+        validate(result, scope)
+        return result
+
+    with closing(connect(tmp_path / "db.sqlite")) as db:
+        result = Router(db, config, client=Client(transport=httpx.MockTransport(respond))).generate(
+            "plan",
+            project_ids={pid},
+            prompt_name="plan",
+            prompt_version="test",
+            messages=[],
+            schema=TomorrowPlan.model_json_schema(),
+            validate=check,
+        )
+        assert result is not None and result.value.warmups[0].origin == "model"
+        assert len(requests) == 2 and not scope.has_human_context
+        assert db.execute("SELECT count(*) FROM review").fetchone()[0] == 0
+        error = json.loads(
+            db.execute("SELECT error FROM llm_call ORDER BY id LIMIT 1").fetchone()[0]
+        )
+        assert error["rule"] == "human_review_origin_missing"
+    (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
+
+
 def test_private_project_never_reaches_external_provider(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

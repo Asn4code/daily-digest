@@ -229,6 +229,13 @@ class Router:
                                     + "; campo: "
                                     + detail["field"]
                                     + (
+                                        ". origin=review indica procedencia humana explícita "
+                                        "en el contexto, no una actividad de revisión. Una "
+                                        "revisión propuesta por el modelo usa origin=model."
+                                        if detail["rule"] == "human_review_origin_missing"
+                                        else ""
+                                    )
+                                    + (
                                         ". En el cotejo, source_quote es una cita breve y "
                                         "contigua de una única fuente: no unas fragmentos "
                                         "ni normalices espacios o saltos de línea. field "

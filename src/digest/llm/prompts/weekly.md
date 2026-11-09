@@ -1,6 +1,6 @@
 ---
 name: weekly
-version: 2
+version: 3
 task: weekly
 ---
 
@@ -23,3 +23,8 @@ objetivo indica project_id, acción, dependencia, motivo y criterio de terminado
 critical_ids puede estar vacío si no deriva de un contraste. No ejecutes análisis,
 no crees tareas en proyectos ni sustituyas planes humanos aceptados. Distingue
 ausencia de bases anteriores, falta de evidencia nueva y ausencia probada de cambio.
+
+origin describe la procedencia, no el tipo de actividad: origin=review exige una
+duda o revisión humana explícita del contexto. Una sesión de revisión propuesta
+por el modelo usa origin=model, aunque la acción consista en revisar resultados.
+Las notas de agentes y las revisiones técnicas automáticas no son revisión humana.

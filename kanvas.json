@@ -1188,6 +1188,11 @@
           "at": "2026-11-09T10:10:44Z",
           "by": "codex",
           "text": "El diario r14 está completo y S3 se corrigió en móvil: carga 0/+1 y alcance por compuesto visibles. El cotejo independiente detectó S10 importante en la vault: dos lanzamientos por motor frente a dos en total, uno por motor. Project6 precisa recuentos y alternativas; r15 se genera reutilizando fuentes. Critical3 separa explícitamente lo ya conocido en cada base de new_evidence para corregir S9 (auditoría antigua presentada como nueva). VCD7 y Benchmark4 se regeneran desde nodos, sin entregas ni firma humana. Producción mantiene proveedores y timeouts; solo el ensayo limita la espera interna a30s para evitar gastar minutos en un respaldo no disponible."
+        },
+        {
+          "at": "2026-11-09T10:37:14Z",
+          "by": "codex",
+          "text": "Critical4 precisa que una prueba de exportación sin matriz no demuestra incapacidad del modelo (S7). Weekly3 y diagnóstico de origin distinguen revisión propuesta por el modelo de procedencia humana; nuevo test repara la etiqueta sin crear revisiones ni contexto humano. make check316 pasa. Main16 tiene balance VCD numérico/cotejo aprobados y cotejo independiente favorable: dos lanzamientos en total, uno por motor; S10 queda pendiente solo de comprobar la proyección final. Fuentes y BMbalance reutilizados. Experimentos semanales se ejecutarán en serie con tiempo GLM ampliado para respuesta larga, sin alterar producción, número de reparaciones ni tope de60min."
         }
       ]
     },

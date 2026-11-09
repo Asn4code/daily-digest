@@ -1,6 +1,6 @@
 ---
 name: critical
-version: 3
+version: 4
 task: weekly
 ---
 
@@ -59,6 +59,12 @@ Que una interfaz o exportación no muestre una medida no demuestra incapacidad
 del modelo subyacente. Conservar el orden tras una transformación no demuestra
 equivalencia de valores o significado científico. Una tolerancia o elección
 pendiente no se convierte en una decisión aceptada por usarla en una alternativa.
+Si una prueba de exportación no recupera una medida, ese desenlace solo acredita
+que no se recuperó con el protocolo probado. Sin comprobar capacidad y configuración
+no distingue entre exportación incompleta, acceso insuficiente e incapacidad real.
+No uses la ausencia en esa prueba para aceptar «el modelo no la produce» o «ningún
+cambio la recuperaría»: deja esa atribución no concluyente. El criterio debe poder
+separar las alternativas, no asignar la misma ausencia a una causa sin identificarla.
 
 Fija el criterio de comparación antes de observar el nuevo resultado y relaciónalo
 con la decisión; no justifiques discrepancias a posteriori por versiones distintas.
