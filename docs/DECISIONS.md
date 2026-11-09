@@ -255,3 +255,10 @@ información de una interpretación posterior y considerar suficiente un control
 de precisión para aceptar un uso científico sin definirlo. La candidata se
 retiene como rechazada en la validación privada. Se precisa el prompt crítico
 sin cambiar el contrato, aflojar validadores ni sustituir la revisión humana.
+
+La repetición del falso positivo al presentar una auditoría antigua como nueva
+comprobación se aborda también en una capa de cotejo específica de WeeklyCritical.
+Comparte el validador y la política del cotejo común; su versión independiente
+permite reutilizar las piezas generadas y volver a comprobar solo la crítica.
+Una regresión comprueba esa invalidación acotada. Se mantienen la reparación
+local única y el requisito de revisión independiente y humana.

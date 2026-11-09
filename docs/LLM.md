@@ -611,3 +611,9 @@ pendientes con `analyses: []`. Los análisis propuestos deben separar alternativ
 que la prueba pueda distinguir; una prueba finita no resuelve una alternativa
 universal. La prosa evita repetir fechas e IDs de informes que ya están en las
 referencias del contraste.
+
+La auditoría de `WeeklyCritical` compone el prompt común con una capa propia:
+contrasta cada afirmación de novedad con la evidencia que ya sustentaba la base,
+sin confundir confianza moderada con ausencia de auditoría ni asumir identidad
+de muestras. Cambiar esta capa invalida solo ese cotejo, sin regenerar las fuentes
+ni la crítica; si rechaza la candidata se aplica la reparación local ya prevista.

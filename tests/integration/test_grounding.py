@@ -93,6 +93,51 @@ def test_overview_audit_change_reuses_valid_sources_and_project_balances(
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
 
 
+def test_weekly_audit_change_rechecks_critical_without_regenerating_sources(
+    daily, tmp_path, monkeypatch
+):
+    from digest.report import builder
+
+    config, inventory = daily
+    inventory.kind = "weekly"
+    requests = []
+
+    def respond(request):
+        requests.append(wire_context(request))
+        return fake_response(request)
+
+    client = Client(transport=httpx.MockTransport(respond))
+    with closing(connect(tmp_path / "db")) as db:
+        first = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
+        require_complete(first)
+        target = "critical:" + config.projects[0].id
+        original = builder.load
+
+        def changed(task, *, name=None):
+            prompt = original(task, name=name)
+            return (
+                replace(
+                    prompt, version=prompt.version + ".test", body=prompt.body + "\nCoteja la base."
+                )
+                if name == "grounding_critical"
+                else prompt
+            )
+
+        monkeypatch.setattr(builder, "load", changed)
+        requests.clear()
+        second = enrich(db, config, deepcopy(inventory), Router(db, config, client=client))
+        require_complete(second)
+        validate_report(second, {e.id for e in second.evidence})
+        assert [(title, p["context"].get("target_section")) for title, p in requests] == [
+            ("GroundingAudit", target)
+        ]
+        assert second.sections == first.sections
+        assert second.prompt_versions["check:" + target] != first.prompt_versions["check:" + target]
+        for key in first.sections:
+            if key != "check:" + target:
+                assert second.model_info[key].get("reused") == "true" or key.startswith("extract:")
+
+
 @pytest.mark.parametrize("repair", [True, False])
 @pytest.mark.parametrize("in_question", [False, True])
 def test_unsupported_status_is_repaired_once_or_stays_pending(daily, tmp_path, repair, in_question):

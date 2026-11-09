@@ -351,8 +351,15 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             )
         )
         grounding_prompt = load("contrast", name="grounding")
-        if schema is schemas.DailyOverview:
-            layer = load("contrast", name="grounding_overview")
+        layer_name = (
+            "grounding_overview"
+            if schema is schemas.DailyOverview
+            else "grounding_critical"
+            if schema is schemas.WeeklyCritical
+            else None
+        )
+        if layer_name is not None:
+            layer = load("contrast", name=layer_name)
             grounding_prompt = Prompt(
                 layer.name,
                 grounding_prompt.version + "." + layer.version,
