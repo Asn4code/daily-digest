@@ -9,6 +9,25 @@ El [índice privado](../../build/in11-validation/README.md) identifica las revis
 completas y sus vistas. No firmes una revisión anterior ni un borrador pendiente.
 La comprobación técnica no marca las casillas humanas.
 
+El diario que ha superado el cotejo independiente es
+[`rep_in11_daily_levels_r17`: móvil](../../build/in11-validation/data/reports/rep_in11_daily_levels_r17/mobile.html)
+y [vista extensa](../../build/in11-validation/data/reports/rep_in11_daily_levels_r17/report.html).
+El semanal de VCD cotejado es
+[`rep_in11_weekly_vcd_r11`](../../build/in11-validation/data/reports/rep_in11_weekly_vcd_r11/report.html).
+Benchmark sigue pendiente de resolver el cotejo semanal; estas dos muestras no
+constituyen por sí solas la aprobación de la fase.
+
+En el diario, comprueba que la carga 0 frente a la formal +1 solo afecta al ligando
+ZINC000027515227; que la comparación del scatter es por ligando y mejor pose de
+cada motor; y que simular ambos motores requeriría dos lanzamientos en total,
+uno por motor. La misión propone fijar primero el criterio de carga y después
+contrastar preparaciones del mismo compuesto. Sigue siendo una propuesta para ti.
+
+En el semanal de VCD, «sin cambio material» conserva el alcance moderado de la
+conclusión anterior. La interfaz y la selección de poses no aportan una nueva
+medición del acuerdo ni una dinámica ejecutada. La auditoría de archivos propuesta
+es opcional y distingue reproducción, discrepancia y resultado no evaluable.
+
 Son muestras retrospectivas acotadas de notas reales de Benchmark y VCD. Conservan
 sus fechas y distinguen declaraciones de agentes de resultados verificados.
 No representan toda la actividad actual y no han enviado correo ni escrito en
