@@ -460,6 +460,11 @@ base y el suplemento (por ejemplo, `6.1`); modificar solo ese suplemento invalid
 su cotejo, sin repetir fuentes ni balances ya válidos. El paquete de generación
 completo permanece ligado al certificado y no se modifica para aprobarlo.
 
+El correo semanal muestra también las decisiones de los balances críticos como
+condiciones acompañantes, aunque no haya destacado ni cambio material. Son las
+mismas afirmaciones validadas que ya figuran en el informe completo; no se crea
+una alerta ni se modifica una decisión humana para mostrarlas.
+
 Tras las fuentes y fichas, `WeeklyCritical` construye un balance por proyecto y
 contrasta declaraciones previas con evidencia posterior del mismo resultado.
 Cada base conserva texto, versión, fecha, alcance/controles/límites, autor

@@ -27,6 +27,8 @@ from tests.fixtures.llm import fake_response
 from tests.fixtures.make_projects import _kanvas, build_projects
 from tests.fixtures.work import add_current_work
 
+PENDING_DECISION = "La decisión sobre la preparación queda pendiente de la persona"
+
 ASSESSMENTS = {
     "reinforces": "El control independiente reproduce la diferencia bajo las mismas condiciones",
     "qualifies": "El efecto parece restringido a la condición analizada y no permite generalizar",
@@ -89,6 +91,13 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
                     else "Interpretación automática inicial",
                 }
         if title == "WeeklyCritical":
+            if value["checks"]:
+                value["decisions"] = [
+                    {
+                        "text": PENDING_DECISION,
+                        "evidence": value["checks"][0]["assessment"]["evidence"],
+                    }
+                ]
             for check in value["checks"]:
                 prior = package["conclusions"][check["conclusion_id"]]
                 refs = check["assessment"]["evidence"]
@@ -134,6 +143,10 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
                     ]
                 assert prior["author"] == ("human" if human else "automatic")
         elif title == "WeeklyReport" and package["critical"]:
+            if outcome == "no_material_change":
+                value["patterns"] = []
+                for item in value["next_week"]:
+                    item["reason"] = "Preparar una comprobación del control sin inferir cambios"
             cid = next(iter(package["critical"]))
             prior = package["conclusions"][cid]
             value["next_week"][0].update(
@@ -188,7 +201,7 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
         def add(board):
             kanvas.add_note(
                 kanvas.find_task(board, "AN-01"),
-                ASSESSMENTS[outcome] + ". " + LIMIT,
+                ASSESSMENTS[outcome] + ". " + LIMIT + ". " + PENDING_DECISION,
                 "fixture-agent",
             )
 
@@ -250,6 +263,10 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
                 ASSESSMENTS[outcome]
                 not in quiet_message.get_body(preferencelist=("plain",)).get_content()
             )
+            for kind in ("plain", "html"):
+                assert (
+                    PENDING_DECISION in quiet_message.get_body(preferencelist=(kind,)).get_content()
+                )
         broken = deepcopy(report)
         broken.sections[critical_key]["checks"][0]["assessment"]["evidence"] = check["new_evidence"]
         with pytest.raises(ValidationError, match="lineage_missing"):

@@ -169,6 +169,9 @@ Una prueba cambia solo las instrucciones de cotejo de la orientación y exige un
 única llamada nueva, correspondiente a ese cotejo: las fuentes, balances y plan
 se reutilizan tras validarlos. Comprueba además que las condiciones acompañantes
 del paquete son las del balance mostrado, sin sustituir el contexto almacenado.
+El semanal sin destacados ni patrones conserva las decisiones pendientes en
+correo HTML y texto plano, sin añadir una alerta de cambio material. El mismo
+escenario comprueba que una revisión humana cerrada conserva su estado y texto.
 
 ## Unidades de evidencia (IN-08)
 

@@ -3,6 +3,7 @@
 import smtplib
 import ssl
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import datetime
 from email.message import EmailMessage
 from email.policy import SMTP
@@ -32,6 +33,16 @@ def compose(
     validate_report(report, {e.id for e in report.evidence})
     require_complete(report)
     view = daily_view(report)
+    if report.kind == "weekly":
+        view = replace(
+            view,
+            reading_conditions=[
+                {"project_id": balance["project_id"], "condition": decision}
+                for key, balance in sorted(report.sections.items())
+                if key.startswith("critical:")
+                for decision in balance["decisions"]
+            ],
+        )
     message = EmailMessage(policy=SMTP)
     message["Message-ID"] = f"<{report.id}@daily-digest.local>"
     message["Date"] = format_datetime(datetime.fromisoformat(report.created_at))
