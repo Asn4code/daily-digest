@@ -28,6 +28,11 @@ respuestas humanas. El original mantiene todos los resultados del intervalo; la
 ampliación identifica expresamente las frases solicitadas y su cobertura parcial.
 No reserva ni cierra otro intervalo diario, ni modifica el horario del servicio.
 
+La ampliación procesa solo las frases, fuentes y nodos necesarios para la
+solicitud. Aclarar una gráfica de VCD no obliga a regenerar Benchmark. Los nodos
+ajenos que se reutilicen conservan su versión de prompt, modelo, contexto y cotejo
+efectivos; nunca se presentan como regenerados con el modelo o prompt nuevos.
+
 ## Qué cuenta como comprobación
 
 Releer una nota permite confirmar qué declaró su autor, pero no verifica por sí
@@ -98,6 +103,9 @@ se presentará antes de implementarla, según AGENTS.md.
   se etiqueta como verificación del cálculo.
 - El servidor web solo encola; el worker conserva los estados y texto humanos.
 - Una solicitud duplicada produce un único trabajo y una única entrega lógica.
+- Pedir una explicación sobre un proyecto no vuelve a generar otro sin cambios;
+  la reutilización comprueba paquete, políticas, contratos y certificados, y
+  conserva las versiones efectivas de cada pieza.
 - IDs o campos ajenos, acceso no autorizado, ausencia de CSRF, rutas maliciosas
   e instrucciones en preguntas o proyectos no amplían el ámbito permitido.
 - Un proyecto privado no llega al proveedor externo; las credenciales no aparecen
