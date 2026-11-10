@@ -868,6 +868,11 @@
           "at": "2026-11-10T12:31:47Z",
           "by": "codex",
           "text": "R21 completó validadores y cotejos automáticos, con fuentes/Benchmark6 idénticos a R17 y VCD8 nuevo. El revisor independiente encontró importante de claridad: la vault explicaba punto=ligando y ejes=puntuaciones, pero el móvil no. No se solicita firma sobre R21. Project9 exige esos tres elementos juntos en reading_conditions; se genera R22, conserva fuentes y Benchmark6 y usa GLM para cotejos VCD/orientación/plan. R17 y semanales no se sobrescriben; propuestas de foco siguen sin aceptación humana."
+        },
+        {
+          "at": "2026-11-10T12:45:49Z",
+          "by": "codex",
+          "text": "La persona confirma D050: quiere una ampliación centrada en las frases solicitadas, conservando el original. R23 reparó precisión/cobertura pero propuso RMSD como proxy de trazabilidad y selección mezclada no definida; revisor lo rechaza y no se pide firma. Plan6 separa control de decisión y permite revision_mode editorial_only con propuesta automática previa sin aceptarla. El ensayo privado R24 conserva el foco automático de cargas de R17 como referencia explícita no aceptada, ámbito heredado comprobado y paquete≤32000; lo vuelve a generar/validar/cotejar sobre los padres actuales, sin copiar una respuesta al caché ni fingir aceptación humana. Solo se rehace plan; resto R22 se reutiliza. FeatureWA08sigueproposed."
         }
       ]
     },

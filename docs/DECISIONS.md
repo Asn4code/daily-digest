@@ -74,6 +74,10 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-050 | 2026-11-10 | La persona solicita una opción al final del diario para pedir más información sobre sus frases, solicitar comprobaciones y recibir un nuevo informe | Propuesta para fase 3: formulario ligado a la revisión y frases originales, trabajo a petición en worker y entrega de una ampliación validada por correo. Distinguir aclaración, comprobación efectivamente realizada sobre datos existentes y necesidad de ejecución externa. Se conservan originales, privacidad y estados humanos; no se autoriza ejecutar contenido de proyectos. Diseño en ON_DEMAND_FOLLOWUPS.md, pendiente de implementación y de concretar persistencia sin alterar a escondidas SQLite ni formatos publicados. |
 
+La persona confirmó para D-050 que prefiere «una ampliación centrada en las frases
+solicitadas», conservando el original, frente a una nueva versión completa del
+diario. La aclaración no debe volver a elegir el foco del informe original.
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

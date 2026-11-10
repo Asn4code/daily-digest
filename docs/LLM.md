@@ -626,3 +626,9 @@ coincidencia estructural; el balance conserva el límite en las condiciones de
 lectura. En esas condiciones deben aparecer juntos el objeto del punto y los
 valores de los ejes: explicarlos solo en la parte extensa no resuelve la duda del
 móvil. Una corrección se genera como revisión nueva, conservando la anterior.
+
+Una misión separa precisión de valores disponibles y cobertura de modelos sin
+datos: fijar una tolerancia numérica no decide si se puede excluir un modelo que
+no tiene la medida. El control y la finalización deben responder a la decisión
+declarada, con criterios independientes si hay varias. Las cotas mantienen su
+rango y condiciones originales también en el mensaje móvil.

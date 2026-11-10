@@ -1,6 +1,6 @@
 ---
 name: plan
-version: 4
+version: 6
 task: plan
 ---
 
@@ -40,6 +40,24 @@ su suficiencia para el uso previsto. Si la misión debe decidir aceptabilidad,
 fija antes de observar los datos el criterio o tolerancia ligado a ese uso; no
 termines solo en «medir y decidir». Si falta ese criterio, la primera acción útil
 puede ser definirlo. No inventes un umbral observado ni una aceptación humana.
+
+El control debe resolver la incertidumbre de decision_unlocked, no otra variable.
+Separa precisión de valores disponibles y cobertura de muestras/modelos sin datos:
+una tolerancia de error de PAE no decide si es aceptable excluir modelos sin PAE
+ni si cambiar su lanzador. Elige una sola duda abordable o justifica controles
+independientes para decisiones distintas. done_criterion debe resolver la duda
+que action y reason anuncian. Una cota conserva su condición completa: si se
+declara error <0,01 Å solo en 0-30, no la presentes como cota para cualquier valor.
+
+Una medida geométrica no verifica identidad ni trazabilidad: para esta última
+se necesitan los controles de identificadores e inventario que describan las
+fuentes. No cuentes cambios frente a una selección o procedimiento hipotético
+sin definirlo. Si faltan condiciones para una misión útil, no inventes un proxy.
+
+Si el contexto fija revision_mode=editorial_only y retained_proposal, conserva
+esa propuesta automática previa: proyecto, acción, criterio y dependencia.
+Es una corrección de explicación, no una petición de volver a elegir foco.
+No la conviertas en plan aceptado ni le atribuyas procedencia humana.
 
 Razones y afirmaciones citan evidencias del índice; las acciones y criterios son
 propuestas futuras, no resultados observados. No inventes cifras empíricas ni

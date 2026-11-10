@@ -2,6 +2,8 @@
 
 Diseño para la fase 3, solicitado por la persona durante la validación del diario
 (D-050). Todavía no implementado. No sustituye la firma pendiente de fase 2.
+La persona confirma el formato: **una ampliación centrada en las frases
+solicitadas**, conservando el original, en lugar de otro diario completo.
 
 ## Recorrido
 
@@ -27,6 +29,9 @@ Se conserva y copia por los canales configurados, sin sobrescribir el diario ni
 respuestas humanas. El original mantiene todos los resultados del intervalo; la
 ampliación identifica expresamente las frases solicitadas y su cobertura parcial.
 No reserva ni cierra otro intervalo diario, ni modifica el horario del servicio.
+Pedir una aclaración tampoco vuelve a elegir la misión del diario. Si una
+comprobación aporta motivos para reconsiderarla, la ampliación los explica como
+propuesta separada, sin sustituir el foco anterior ni atribuir aceptación humana.
 
 La ampliación procesa solo las frases, fuentes y nodos necesarios para la
 solicitud. Aclarar una gráfica de VCD no obliga a regenerar Benchmark. Los nodos
