@@ -2,8 +2,8 @@
 phase: 2
 builder: codex
 reviewer: codex-independent
-verdict: pendiente
-date: 2026-11-09
+verdict: aprobada
+date: 2026-11-10
 ---
 
 # Revisión de la fase 2: digest jerárquico y contraste científico
@@ -13,6 +13,37 @@ se conserva en [phase-2-before-hierarchical.md](phase-2-before-hierarchical.md);
 no aprueba este rediseño. Protocolo en [VALIDATION.md](../VALIDATION.md).
 
 ## Informe automático
+
+**Revalidación formal final: aprobada técnicamente (2026-11-10).**
+Revisor `codex-independent`, sesión `review_hierarchical_phase_two`, sobre
+`8f3c8d82162d5a4a2de5a1a48c8570df0a64d81a` (Project9/Plan6). La puerta ejecutada
+independientemente después de terminar la del constructor devuelve **PROVISIONAL,
+exit3**, todos los controles automáticos PASS. El constructor registra la suite
+completa de 319 pruebas PASS (60,21s); la puerta independiente vuelve a ejecutar
+lint, formato, tipos, fixtures y escenarios exigidos. La revisión formal base ya
+incluyó 319 pruebas completas ejecutadas por esta sesión el 9 de noviembre.
+
+Muestra principal vigente: **diario 24**, con gráfico explicado en móvil/vault y
+propuesta de cargas conservada explícitamente sin aceptación humana. No quedan
+hallazgos importantes/bloqueantes abiertos para esta muestra y semanales VCD11/BM13.
+[Revalidación final: cinco afirmaciones, misión, canales, paquetes y presupuesto](../../build/review-in11-main-r24.md).
+La aprobación técnica no marca las comprobaciones ni firma de la persona.
+
+### Historial de revalidación (conservado)
+
+**Revalidación independiente de R22 (2026-11-10): cambios.** La puerta actual
+sobre `e0f1ee2` devuelve PROVISIONAL (exit3), todo automático PASS. Project9 ya
+conserva en móvil punto=ligando, valores de ejes y poses posiblemente distintas.
+El foco nuevo, generado por DeepSeek, mezcla tolerancia de precisión de float16
+con la decisión de trabajar sin PAE de ciertos modelos; esa tolerancia no resuelve
+la cobertura incompleta. También omite el rango0-30 de la cota<0,01Å citada.
+Hallazgo **importante** en `plan.mission.action/reason/done_criterion`, reproducible
+en `rep_in11_daily_levels_r22/mobile.txt:16` y `report.md:211`. Test sugerido:
+criterios separados para precisión y cobertura y conservación del rango de cota.
+[Cotejo completo de cinco afirmaciones, canales, metadatos y misión](../../build/review-in11-main-r22.md).
+No se aplica a este foco la respuesta humana sobre la misión de cargas de R17.
+La aprobación técnica del 9 de noviembre se conserva debajo como histórica;
+la versión nueva queda pendiente de corrección y cotejo, sin firmas humanas.
 
 **Revalidación de claridad en curso (2026-11-10).** La persona indicó que la frase
 sobre comparabilidad de poses no le permitía interpretar la gráfica. Confirmó
@@ -73,6 +104,33 @@ contraste sin cambio material sin fabricar una alerta nueva. Los rechazos y
 aprobaciones automáticas equivocadas se conservan en los prechecks enlazados:
 un cotejo de modelo no demuestra verdad científica ni comprensión humana.
 
+### Cierre de la revalidación de claridad y foco (2026-11-10)
+
+- **Importante, corregido en R24:** R21 dejaba punto/ejes solo en la vault.
+  Project9 los conserva juntos en la condición móvil: punto=ligando,
+  eje=puntuación de mejor pose en su motor, poses posiblemente distintas y
+  puntuaciones no prueban coincidencia estructural. [Cotejo R21](../../build/review-in11-main-r21.md).
+- **Importantes, corregidos en R24:** el focoR22 mezclaba precisión con cobertura
+  y omitía el rango de la cota; R23 usaba RMSD como control de trazabilidad y
+  selección mezclada no definida. Se conservan [R22](../../build/review-in11-main-r22.md)
+  y [R23](../../build/review-in11-main-r23.md) como intentos devueltos, no aprobados
+  retroactivamente. Plan6 distingue controles/decisiones y el modo editorial
+  genera la propuesta de cargas R17 exacta, con control y criterio previos propios.
+- **Retención editorial acotada:** el driver privado suministra propuesta y
+  report_id/cache_key originales, `accepted_by_human=False`, scope anterior⊆actual
+  y mensajes de25.067 caracteres (tope32.000), con Router/validación/cotejo normales.
+  El paquete y certificado conservan ese contexto; no se monta como texto humano
+  ni como plan aceptado. No acredita una función nueva de retención en producción.
+
+R17/R22/R24 revalidados; las secciones/paquetes ajenos al plan son idénticos aR22 y el
+plan final es idéntico aR17. Cuatro manipulaciones nuevas de binding rechazadas,
+correo completo igual a sus vistas TXT/HTML; dos resultados pending. No se
+repiten40 ataques de base sin cambios que lo requieran. Sigue solo el menor WA-07.
+La [revisión asistida](phase-2-assisted.md) contiene respuestas con alcance propio;
+no es firma global ni aceptación/ejecución del informe nuevo. D-050/WA-08 permanece
+solo diseño futuro de un suplemento sobre frases seleccionadas, sin reescribir
+el diario original ni implementar la funcionalidad durante esta fase.
+
 ### Requisitos, implementación y pruebas
 
 | Requisitos de fase 2 y regresión | Código | Verificación |
@@ -115,12 +173,15 @@ no verifican ejecuciones ni representan toda la producción de los proyectos.
 No se envía correo, no se copia a Drive y no se escriben proyectos observados.
 
 La muestra previa de IN-10 se conserva en `build/in10-sample/sample-r3/`.
-El diario cotejado es `rep_in11_daily_levels_r17`, con
-[móvil](../../build/in11-validation/data/reports/rep_in11_daily_levels_r17/mobile.html)
-y [vault](../../build/in11-validation/data/reports/rep_in11_daily_levels_r17/report.html).
-Sus cinco afirmaciones y campos se identifican en
-[source-checks.md](../../build/in11-validation/source-checks.md), con cotejo
-[independiente del diario](../../build/review-in11-main-r17.md).
+El diario vigente cotejado es `rep_in11_daily_levels_r24`, con
+[móvil](../../build/in11-validation/data/reports/rep_in11_daily_levels_r24/mobile.html)
+y [vault](../../build/in11-validation/data/reports/rep_in11_daily_levels_r24/report.html).
+Las cinco afirmaciones, condiciones y foco se cotejan en
+[review-in11-main-r24.md](../../build/review-in11-main-r24.md).
+La muestraR17 conserva su [cotejo histórico](../../build/review-in11-main-r17.md)
+y [source-checks.md](../../build/in11-validation/source-checks.md); la misión de
+cargas permanece propuesta automática sin aceptación/ejecución. La revalidación
+no se aplica a los focos distintos de R21/R22/R23 que se devolvieron.
 El semanal de VCD cotejado es
 [`rep_in11_weekly_vcd_r11`](../../build/in11-validation/data/reports/rep_in11_weekly_vcd_r11/report.html).
 El semanal de Benchmark cotejado es
@@ -138,8 +199,11 @@ y sus cotejos GLM5.3-flash; la crítica declara el suplemento de auditoría 6.1.
 Cada `report.json` conserva el modelo efectivo y qué
 piezas se reutilizaron. La configuración de producción no cambia por este ensayo.
 No se infiere comprensión humana de la validación automática ni de estos cotejos.
-La [verificación final privada](../../build/in11-validation/final-validation.json)
-identifica evidencias, estados pendientes, modelos, prompts y hashes de los archivos.
+La [verificación final privada de R24](../../build/in11-validation/final-validation-r24.json)
+identifica evidencias, estados pendientes, modelos, prompts y seis hashes de
+archivos, comprobados independientemente. El
+[manifiesto original del 9 de noviembre](../../build/in11-validation/final-validation.json)
+se conserva intacto como histórico de diario17 y semanales vigentes.
 
 ## Excepciones «gate: allow» revisadas
 
@@ -150,6 +214,21 @@ listas y timeout, sin shell ni ejecución de contenido recogido de proyectos.
 No exceptúan publicación, privacidad, secretos o HTML. Revisión aceptada.
 
 ## Veredicto del revisor
+
+**Aprobada técnicamente**, revalidada el 2026-11-10 por `codex-independent`, sesión
+`review_hierarchical_phase_two`, sobre `8f3c8d8` y diario 24. Puerta independiente
+PROVISIONAL, todo automático PASS; cotejo final sin defectos materiales abiertos.
+El menor WA-07 de presentación continúa opcional. Project9 corrige claridad y
+Plan6 mantiene foco validado como propuesta automática explícita, sin aceptación.
+
+Esta es la aprobación de la capa independiente de VALIDATION §4. Quedan
+exclusivamente las comprobaciones y firma humanas de la ficha, sin marcar por el
+revisor. No se declara comprensión global, orden de ejecutar la misión ni
+aprobación de fase completa. Muestras retrospectivas, parciales y agrupadas de
+forma curada: no demuestran captura completa o asociaciones científicas naturales
+entre tareas distintas; el modo editorial privado tampoco implementa WA-08.
+
+### Aprobación técnica histórica del 9 de noviembre
 
 **Aprobada técnicamente** por `codex-independent` (sesión
 `review_hierarchical_phase_two`) el 2026-11-09, sobre `07a3940` y producción

@@ -873,6 +873,16 @@
           "at": "2026-11-10T12:45:49Z",
           "by": "codex",
           "text": "La persona confirma D050: quiere una ampliación centrada en las frases solicitadas, conservando el original. R23 reparó precisión/cobertura pero propuso RMSD como proxy de trazabilidad y selección mezclada no definida; revisor lo rechaza y no se pide firma. Plan6 separa control de decisión y permite revision_mode editorial_only con propuesta automática previa sin aceptarla. El ensayo privado R24 conserva el foco automático de cargas de R17 como referencia explícita no aceptada, ámbito heredado comprobado y paquete≤32000; lo vuelve a generar/validar/cotejar sobre los padres actuales, sin copiar una respuesta al caché ni fingir aceptación humana. Solo se rehace plan; resto R22 se reutiliza. FeatureWA08sigueproposed."
+        },
+        {
+          "at": "2026-11-10T12:53:04Z",
+          "by": "codex",
+          "text": "Revalidación formal Nov10 aprobada técnicamente por codex-independent sobre8f3c8d8/R24: makecheck319PASS60.21s, gateconstructor e independientePROVISIONALtodoPASS. R24 aclara punto/ejes/poses distintas en móvil y vault y conserva EXACTO el plan automático de cargasR17, regenerado/cotejado sobre contexto editorial explícito no aceptado. HistóricoR21claridad yR22/R23criterioserróneosconservado; sin importantes/bloqueantes abiertos, menorWA07opcional. La retención editorial la suministra el driver privado, no se declara implementada como función de producción. Muestras/guía/manifiesto actualizados, estados humanos siguenpending yFirma intacta. WA08 propuesta con formato confirmado: ampliación solo frases, original preservado. Falta exclusivamente comprobación/firma humana de fase2 antes de empezar webapp."
+        },
+        {
+          "at": "2026-11-10T12:53:04Z",
+          "by": "codex",
+          "text": "Question: Completa las comprobaciones humanas y la firma en docs/reviews/phase-2.md si estás conforme con la muestra R24 y la lectura asistida. La revisión técnica ya está aprobada; VALIDATION.md exige tu firma antes de iniciar la webapp, donde se implementará WA-08. ¿Apruebas la fase 2?"
         }
       ]
     },
@@ -1341,7 +1351,14 @@
       "deps": ["WA-01", "WA-04"],
       "at": "2026-11-10T12:05:04Z",
       "by": "codex",
-      "desc": "Al final del diario móvil/web/vault, ofrecer un enlace para seleccionar frases de su revisión exacta y pedir una explicación o comprobación sobre datos disponibles. El formulario encola el trabajo y llega un nuevo informe de ampliación por correo con original, pregunta, evidencias, comprobaciones realizadas, resultado y límites. Distinguir declaración de nota de verificación real; si faltan datos se indica no verificable, sin inferir falsedad. Solo comprobaciones implementadas de lectura/cálculo acotados: sin ejecutar scripts/notebooks de proyectos ni lanzar simulaciones. Mantener originales, texto/estados humanos y privacidad ancestral; identidad propia de ampliación y reintentos de correo seguros, sin cerrar otro intervalo ni duplicar solicitudes. Antes de implementar concretar persistencia y consultar migraciones/formato publicado si son necesarias. Terminado cuando pasan los escenarios de docs/ON_DEMAND_FOLLOWUPS.md con dobles y desde el móvil se recibe la ampliación solicitada. Diseño D-050/FR-36; no implementado todavía."
+      "desc": "Al final del diario móvil/web/vault, ofrecer un enlace para seleccionar frases de su revisión exacta y pedir una explicación o comprobación sobre datos disponibles. El formulario encola el trabajo y llega un nuevo informe de ampliación por correo con original, pregunta, evidencias, comprobaciones realizadas, resultado y límites. Distinguir declaración de nota de verificación real; si faltan datos se indica no verificable, sin inferir falsedad. Solo comprobaciones implementadas de lectura/cálculo acotados: sin ejecutar scripts/notebooks de proyectos ni lanzar simulaciones. Mantener originales, texto/estados humanos y privacidad ancestral; identidad propia de ampliación y reintentos de correo seguros, sin cerrar otro intervalo ni duplicar solicitudes. Antes de implementar concretar persistencia y consultar migraciones/formato publicado si son necesarias. Terminado cuando pasan los escenarios de docs/ON_DEMAND_FOLLOWUPS.md con dobles y desde el móvil se recibe la ampliación solicitada. Diseño D-050/FR-36; no implementado todavía.",
+      "notes": [
+        {
+          "at": "2026-11-10T12:48:59Z",
+          "by": "codex",
+          "text": "Formato confirmado por la persona: una ampliación centrada en las frases solicitadas, conservando el original. No se vuelve a generar el diario completo ni a elegir su misión por pedir una aclaración. Si una comprobación aconseja cambiar el foco, se explica como propuesta separada. Diseño y pruebas de aceptación en docs/ON_DEMAND_FOLLOWUPS.md. La preferencia confirma el alcance de la propuesta, no implica que la función esté implementada ni firma la fase 2."
+        }
+      ]
     }
   ]
 }

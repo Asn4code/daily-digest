@@ -10,8 +10,8 @@ completas y sus vistas. No firmes una revisión anterior ni un borrador pendient
 La comprobación técnica no marca las casillas humanas.
 
 El diario que ha superado el cotejo independiente es
-[`rep_in11_daily_levels_r17`: móvil](../../build/in11-validation/data/reports/rep_in11_daily_levels_r17/mobile.html)
-y [vista extensa](../../build/in11-validation/data/reports/rep_in11_daily_levels_r17/report.html).
+[`rep_in11_daily_levels_r24`: móvil](../../build/in11-validation/data/reports/rep_in11_daily_levels_r24/mobile.html)
+y [vista extensa](../../build/in11-validation/data/reports/rep_in11_daily_levels_r24/report.html).
 El semanal de VCD cotejado es
 [`rep_in11_weekly_vcd_r11`](../../build/in11-validation/data/reports/rep_in11_weekly_vcd_r11/report.html).
 El semanal de Benchmark cotejado es
@@ -23,7 +23,9 @@ de la fase requiere además la puerta y tu firma.
 En el diario, comprueba que la carga 0 frente a la formal +1 solo afecta al ligando
 ZINC000027515227; que la comparación del scatter es por ligando y mejor pose de
 cada motor; y que simular ambos motores requeriría dos lanzamientos en total,
-uno por motor. La misión propone fijar primero el criterio de carga y después
+uno por motor. La revisión nueva conserva la misma misión de la muestra comentada en conversación;
+la anterior R17 sigue disponible. No se ha aceptado el foco por generar esta versión.
+La misión propone fijar primero el criterio de carga y después
 contrastar preparaciones del mismo compuesto. Sigue siendo una propuesta para ti.
 
 En el semanal de VCD, «sin cambio material» conserva el alcance moderado de la

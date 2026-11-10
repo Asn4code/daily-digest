@@ -40,3 +40,7 @@ La persona pidió una opción al final del diario para solicitar más informaci�
 sobre sus frases, pedir comprobaciones y recibir un nuevo informe. Registrada en
 D-050 y WA-08; [diseño](../ON_DEMAND_FOLLOWUPS.md) para la fase de webapp, todavía
 no implementado. Esa petición tampoco constituye firma de fase 2.
+
+Ante la elección entre ampliación y diario completo, la persona confirmó:
+«Una ampliación centrada en las frases solicitadas». El original se conserva y
+el seguimiento no vuelve a elegir su misión.
