@@ -766,7 +766,7 @@
     {
       "id": "IN-06",
       "title": "Puerta de fase 2",
-      "state": "doing",
+      "state": "review",
       "group": "IN",
       "deps": ["IN-01", "IN-02", "IN-03", "IN-04", "IN-05", "IN-11"],
       "yolo": true,
@@ -883,6 +883,16 @@
           "at": "2026-11-10T12:53:04Z",
           "by": "codex",
           "text": "Question: Completa las comprobaciones humanas y la firma en docs/reviews/phase-2.md si estás conforme con la muestra R24 y la lectura asistida. La revisión técnica ya está aprobada; VALIDATION.md exige tu firma antes de iniciar la webapp, donde se implementará WA-08. ¿Apruebas la fase 2?"
+        },
+        {
+          "at": "2026-11-10T13:22:22Z",
+          "by": "codex",
+          "text": "La persona aprueba expresamente la fase 2 en conversación: «Apruebo», tras revisar las explicaciones y recibir la ficha R24 revalidada. Aprobación transcrita en la firma de docs/reviews/phase-2.md con fecha y procedencia. No se aceptan planes ni se cierran revisiones de resultados en SQLite. Se ejecuta ahora la puerta completa con firma humana e informe independiente."
+        },
+        {
+          "at": "2026-11-10T13:23:58Z",
+          "by": "codex",
+          "text": "La fase 2 queda aprobada: diario multinivel con claridad corregida en móvil/vault, foco propuesto y semanales con contraste crítico, evidencias y límites validados. La persona aprobó expresamente en conversación; firma y procedencia registradas en docs/reviews/phase-2.md. Puerta completa scripts/phase_gate.py 2: APROBADA, código0, con revisión y firma PASS; informe build/gates/phase-2.md. Última suite319PASS y revalidación independiente sin importantes/bloqueantes. Se conservan originales y texto/estados humanos; no se aceptan planes ni se cierran resultados en SQLite. El menor Markdown queda propuesto en WA07. WA08 registra la ampliación solicitada centrada en frases y sin cambiar el original, todavía no implementada. Siguiente fase: webapp y cola de solicitudes, con sus tareas aún propuestas."
         }
       ]
     },

@@ -125,6 +125,7 @@ Rellenar en CB-06 con lo comprobado (versiones, salidas reales, límites).
 | 2026-11-05 | Revisión de fase 2 | El revisor reprodujo fugas de secretos desde fuentes/contexto, bypass numéricos con unidades y puntuación, pérdida de etiqueta de interpretación semanal y reordenación de revisiones pendientes. Corregidos mediante frontera común de redacción y regresiones E2E de wire/almacenamiento, comprobación de tokens numéricos completos, marcado explícito y orden validado. Revalidación independiente y puerta en curso. |
 
 | 2026-11-05 | Revalidación de fase 2 | La sesión independiente reejecutó las reproducciones de secretos, cifras/unidades, Markdown y orden de revisiones: corregidas. make check: 168 tests pasan; puerta automática PROVISIONAL y ficha técnica aprobada. Pendientes las tres comprobaciones y firma humanas con diario y semanal reales. |
+| 2026-11-10 | Cierre de fase 2 tras el rediseño | Diario R24 y semanales VCD11/Benchmark13 cotejados independientemente; 319 tests pasan. Tras la lectura asistida y la revalidación, la persona responde «Apruebo» a la fase 2. Aprobación transcrita con procedencia en phase-2.md; puerta completa APROBADA (código 0), incluida revisión y firma. No se cierran resultados ni se aceptan misiones automáticamente. D-050/WA-08 sigue como diseño de fase 3, no como función implementada. |
 
 
 ### Avance de D-047: IN-07 (2026-11-06)

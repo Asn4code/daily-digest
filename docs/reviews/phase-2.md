@@ -12,6 +12,14 @@ Esta ficha corresponde a D-047/D-048/D-049 e IN-07 a IN-12. La revisión anterio
 se conserva en [phase-2-before-hierarchical.md](phase-2-before-hierarchical.md);
 no aprueba este rediseño. Protocolo en [VALIDATION.md](../VALIDATION.md).
 
+**Estado actual de la puerta: APROBADA (2026-11-10).** Tras la aprobación expresa
+de la persona, el constructor ejecutó `scripts/phase_gate.py 2` sin omitir revisión
+ni firma: código 0, todos los controles PASS. Informe en
+[build/gates/phase-2.md](../../build/gates/phase-2.md).
+La firma y su procedencia están al final de esta ficha. Las menciones a firma
+pendiente en los veredictos conservados describen el momento de esas revisiones,
+anterior a esta aprobación humana; no son el estado actual de la puerta.
+
 ## Informe automático
 
 **Revalidación formal final: aprobada técnicamente (2026-11-10).**
@@ -246,16 +254,21 @@ asociaciones científicas automáticas entre tareas distintas.
 
 Solo la persona marca estas casillas:
 
-- [ ] En una muestra de 5 afirmaciones de un informe real, todas se sostienen al abrir sus evidencias
-- [ ] El plan de mañana es ejecutable: cada tarea tiene acción y criterio de finalización claros
-- [ ] El informe semanal de prueba aporta algo que no estaba en los diarios
+Registro de la aprobación expresa en conversación: 2026-11-10, 13:21:55 UTC.
+«Apruebo», en respuesta a la solicitud de aprobar la fase 2 tras la lectura
+asistida y la revalidación de R24. Codex transcribe esa aprobación en esta ficha;
+no marca resultados como comprendidos ni acepta la misión en la base de datos.
+
+- [x] En una muestra de 5 afirmaciones de un informe real, todas se sostienen al abrir sus evidencias
+- [x] El plan de mañana es ejecutable: cada tarea tiene acción y criterio de finalización claros
+- [x] El informe semanal de prueba aporta algo que no estaba en los diarios
 
 Al comprobarlas, revisa también que móvil y vault conservan condiciones y límites,
 que se distingue historia de actividad nueva y que la crítica permite entender
 por qué una interpretación se mantiene o cambia. La elección del foco y el estado
 de comprensión siguen siendo tuyos.
 
-- [ ] Apruebo la fase
+- [x] Apruebo la fase
 
 
 Las notas de distintas tareas se agrupan de forma curada en una unidad de

@@ -44,3 +44,11 @@ no implementado. Esa petición tampoco constituye firma de fase 2.
 Ante la elección entre ampliación y diario completo, la persona confirmó:
 «Una ampliación centrada en las frases solicitadas». El original se conserva y
 el seguimiento no vuelve a elegir su misión.
+
+## Aprobación de fase
+
+Tras la corrección de claridad, la revalidación independiente de R24 y la
+solicitud explícita de aprobar la fase 2, la persona respondió «Apruebo».
+La aprobación se transcribió con su procedencia en [phase-2.md](phase-2.md).
+La puerta completa pasó a APROBADA; los estados de comprensión de resultados y
+la aceptación de la misión en SQLite permanecen sin cambios.
