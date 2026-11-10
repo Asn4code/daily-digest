@@ -283,3 +283,18 @@ HTML, enlaces y bloques Markdown de fuentes se lean como texto, incluso con HTML
 habilitado en el visor. T24 regenera una nota `-r2` con apóstrofos legibles y
 conserva los bytes del informe anterior y las anotaciones humanas. El cambio de
 escapado (WA-07) solo afecta a revisiones nuevas: no reescribe notas existentes.
+
+## Revisión activa (WA-02)
+
+`tests/e2e/test_active_review.py` recorre formulario, envío duplicado, trabajo de
+contraste, decisión explícita y entrega a vault/remoto local. Prueba los tres
+modos, preservación del texto, fallo y reintento, ausencia de cotejo, modificación
+posterior del contraste y políticas conservadoras del texto humano. T21 mantiene
+pendientes los resultados sin revisión; T25 permite corregir el resumen y señala
+la corrección sin cambiar el original; T26 ignora `estado: pendiente`, importa
+`lista` una sola vez y conserva los bytes humanos incluso tras entregar el
+contraste. Una cifra humana equivocada puede citarse para cuestionarla, pero una
+cita fabricada se rechaza. Todos los transportes de modelo son falsos.
+El reenvío tardío desde un segundo formulario tampoco reabre una revisión que
+la persona ya pospuso. Las fichas registradas que sean enlaces simbólicos se
+ignoran incluso si apuntan a otra nota dentro de la misma vault.

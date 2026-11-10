@@ -63,6 +63,9 @@ def execute(
     config: Config, job_id: int | None = None, *, now: datetime | None = None
 ) -> str | None:
     with lock(config) as db:
+        from digest.review.notes import import_ready
+
+        import_ready(db, config)
         instant = now or datetime.now(UTC)
         deadline = time.monotonic() + config.schedule.max_generation_minutes * 60
         row = db.execute(
@@ -78,10 +81,29 @@ def execute(
         db.execute("UPDATE job SET state='running',started_at=? WHERE id=?", (utc(instant), ident))
         report_id: str | None = None
         try:
+            if kind == "contrast":
+                from digest.llm.router import Router
+                from digest.review.contrast import execute as contrast_review
+
+                contrast_review(
+                    db,
+                    config,
+                    params["review"],
+                    Router(db, config, job_id=ident, deadline=deadline),
+                )
+                db.execute(
+                    "UPDATE job SET state='done',finished_at=? WHERE id=?",
+                    (utc(datetime.now(UTC)), ident),
+                )
+                return str(params["review"])
             if kind == "deliver":
                 from digest.publish.deliveries import deliver_report, retry
 
-                if params.get("report"):
+                if params.get("review"):
+                    from digest.review.notes import publish as publish_review
+
+                    outcomes = {str(params["review"]): publish_review(db, config, params["review"])}
+                elif params.get("report"):
                     outcomes = {
                         params["report"]: deliver_report(
                             db,

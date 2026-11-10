@@ -527,6 +527,17 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
                 if not _present(value["value"], value["unit"], entries(refs)):
                     raise ValidationError("unsupported_number_or_unit")
             for key, item in value.items():
+                if (
+                    isinstance(output, schemas.Contrast)
+                    and path
+                    and path[0] in {"unsupported", "unverifiable"}
+                    and key == "text"
+                    and isinstance(item, str)
+                ):
+                    # This field quotes a human assertion that may be wrong;
+                    # review.contrast separately requires an exact human quote.
+                    text(item, refs, measurements=False)
+                    continue
                 if key in {
                     "evidence",
                     "value",

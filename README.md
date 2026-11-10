@@ -34,7 +34,8 @@ Estado de implementación: fases 0, 1 y 2 aprobadas; fase 3 en desarrollo.
 Funcionan la captura de solo lectura, SQLite, los informes con LLM validados,
 el plan propuesto, el contraste crítico semanal y las entregas a correo,
 Obsidian y Drive. La webapp ya permite consultar Hoy, Semana, resultados e
-Historial; sus acciones de revisión y generación se incorporan en esta fase.
+Historial, escribir una explicación propia y contrastarla antes de decidir.
+El plan editable y los botones de generación se incorporan en esta fase.
 Los servicios systemd pertenecen a la fase 4.
 
 ```bash

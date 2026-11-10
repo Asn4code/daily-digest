@@ -1,5 +1,7 @@
 {% extends "base.html" %}{% from "claims.html" import claim, card, evidence %}
 {% block content %}<div class="page-heading"><a href="/reports/{{ report.id }}">← Volver al informe</a><p class="eyebrow">{{ item.project }} · {{ item.task_id or 'Fuera del tablero' }}</p><h1>{{ item.title }}</h1><span class="badge">{{ review_label(states.get(item.id,item.review_state)) }}</span></div>
+{% if corrections %}<section class="panel limit"><h2>Resumen automático corregido en la revisión</h2>{% for review_id,result_id in corrections %}<a href="/review/{{ review_id }}/result">Ver correcciones y evidencias</a>{% endfor %}</section>{% endif %}
+<p><a class="button" href="/review/{{ item.id }}?report_id={{ report.id }}">Revisar con mis palabras</a></p>
 <div class="panel">{% set c=view.cards.get(item.id) %}{% if c %}{{ card(c) }}{% else %}<p>Referencia histórica; consulta las evidencias originales.</p>{% endif %}
 {% for f in item.figures %}<figure><img src="/reports/{{ report.id }}/figures/{{ f.evidence }}.png" alt="{{ f.caption }}"><figcaption>{{ f.caption }} · {{ f.evidence }}</figcaption></figure>{% endfor %}</div>
 <section class="panel"><h2>Evidencias de este resultado</h2>{{ evidence(report.evidence|selectattr('id','in',item.evidence)|list,report) }}</section>{% endblock %}

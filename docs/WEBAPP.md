@@ -31,8 +31,8 @@ El enlace del correo es `{web.public_base_url}/r/{fecha}`; el del semanal, `/w/{
 `digest --config config.yaml web` abre la aplicación en `127.0.0.1:{web.port}`.
 Están disponibles Hoy, Semana, detalle de resultados e Historial. Los enlaces
 por fecha redirigen a `/reports/{id}`, que conserva la revisión exacta; el detalle
-canónico es `/reports/{id}/results/{result_id}`. Las acciones de revisión, plan y
-generación se incorporan en las tareas siguientes de esta fase.
+canónico es `/reports/{id}/results/{result_id}`. La revisión activa está disponible
+en WA-02; plan editable y generación se incorporan en las tareas siguientes.
 
 Antes de mostrar un informe se vuelven a validar su contenido, completitud y
 vínculo con las evidencias. Solo se sirven JSON de informes bajo `data_dir/reports`
@@ -68,11 +68,41 @@ todavía no implementado. No se interpreta leer el informe como solicitar trabaj
    - **Completo:** cuatro campos cortos: propósito, observación, límites, consecuencia.
    - **Breve:** tres frases guiadas: qué muestra, por qué importa, qué no sabes.
    - **Mínimo:** una duda en una línea o «posponer». No se contrasta.
-3. Al enviar, el estado pasa a `submitted` y se encola `contrast`. La página consulta el estado cada pocos segundos (htmx) hasta que llega el contraste.
+3. Al enviar, el estado pasa a `submitted` y se encola `contrast`. La página consulta el estado cada cinco segundos con JavaScript propio hasta que llega el contraste; también ofrece un enlace para actualizar sin JavaScript.
 4. Con el contraste visible (`contrasted`), la persona decide: `closed` → `closed_by_human`; `needs_clarification`; `postponed`. Las dudas escritas pasan como `origin = "review"` al plan siguiente.
 5. Se escriben la ficha de Obsidian y la copia en Drive.
 
 Reglas: ningún resultado se oculta por no estar revisado; nada se marca comprendido sin la decisión humana; no se crea una revisión nueva de un resultado con una abierta.
+
+### Flujo disponible (WA-02)
+
+El informe propone un resultado sin retirar los demás del inventario; una revisión
+abierta tiene prioridad. Cada detalle permite «Revisar con mis palabras». El
+formulario recibe `report_id` para fijar la revisión exacta y muestra título y
+figuras, sin la ficha automática. Los campos enviados se guardan una sola vez:
+un reenvío del formulario no crea otro trabajo y un texto distinto no pisa una
+revisión abierta. Modos completo y breve exigen todos sus campos; el mínimo
+guarda una duda o una decisión de posponer sin llamar al modelo.
+
+El worker usa exclusivamente las evidencias del resultado y su ficha automática
+validada. Aplica presupuesto, redacción de secretos y las políticas de todos los
+proyectos que podría mencionar el texto humano; una política ausente bloquea el
+envío a proveedores. El contraste pasa por esquema, referencias, cifras y cotejo
+de fidelidad antes de guardarse como `contrasted`. Las categorías sin respaldo
+y no verificable citan literalmente un campo humano, incluso si contiene una
+cifra equivocada; no se inventan palabras atribuidas a la persona. La lectura
+revalida y comprueba la vinculación del contraste con la explicación guardada.
+
+`/review/{id}/status` ofrece un estado acotado para la consulta periódica.
+`POST /review/{id}/retry` permite volver a encolar un contraste fallido sin
+reescribir la explicación. Solo `POST /review/{id}/decide` puede cerrar la revisión:
+antes del contraste únicamente se permite posponer. Si la persona pospone mientras
+el modelo trabaja, la respuesta posterior no modifica esa decisión.
+
+Los errores del resumen automático se señalan en el informe y en el detalle,
+con enlace al contraste; el archivo original permanece intacto. La decisión y
+las dudas se copian por un trabajo de entrega a Obsidian y Drive, con estado
+independiente por canal. No se envía un correo adicional por cerrar una revisión.
 
 ## 3. Diseño
 
@@ -80,7 +110,8 @@ Reglas: ningún resultado se oculta por no estar revisado; nada se marca compren
 - Modo oscuro de bajo contraste por defecto por la noche (`prefers-color-scheme` y conmutador).
 - PWA: `manifest.webmanifest` con nombre «Digest», iconos, `display: standalone`. Service worker opcional solo para la página sin conexión; no cachea informes.
 - Figuras como miniaturas que se amplían al tocarlas.
-- Sin dependencias de terceros en el navegador: htmx copiado en `static/` con su versión anotada.
+- Sin dependencias de terceros en el navegador: JavaScript propio en `static/`,
+  sin CDN; los formularios y enlaces funcionan sin JavaScript.
 
 ## 4. Seguridad
 
@@ -110,3 +141,14 @@ modo: breve
 ```
 
 El worker procesa la ficha solo si `estado: lista`, copia el texto a `review.human_text` y nunca reescribe esa sección; el contraste se añade en un archivo aparte `…-contraste.md`.
+
+Al entregar un informe a Obsidian se crea la ficha del resultado propuesto si
+todavía no existe y se conserva su vínculo con la revisión original. Solo se
+importan esas fichas registradas (hasta doscientas recientes por pasada), con
+lecturas acotadas a 32 KB. No se rastrean ni interpretan otras notas de la vault.
+Un hash evita importar dos veces los mismos bytes. `modo` acepta `breve`,
+`completo` o `mínimo`; los campos son los rótulos de su formulario. Para el modo
+mínimo, `- Mi duda:` admite una duda o vacío para posponer. Cambiar `estado` a
+`lista` envía la explicación, nunca declara comprensión ni cierra automáticamente.
+El contraste se entrega tras la decisión humana; revisiones posteriores usan
+`…-contraste-r2.md`, etc., conservando la ficha y los contrastes anteriores.

@@ -72,10 +72,12 @@ nueva y reutilización incremental comprobada; detalles en HIERARCHICAL_DIGEST.m
 
 ## Fase 3. Webapp y revisión activa
 
-- [WA-01] Webapp base: Hoy, detalle e historial
-- [WA-02] Revisión activa y contraste
+- [WA-01] Webapp base: Hoy, detalle e historial — implementado
+- [WA-02] Revisión activa y contraste — implementado
 - [WA-03] Plan editable y dudas al plan
 - [WA-04] Pantalla Generar y cola de trabajos
+- [WA-06] Configurar modelos por tarea desde la webapp
+- [WA-07] Conservar comillas y entidades literales en Markdown — implementado
 - [WA-08] Ampliaciones y comprobaciones a petición desde el final del diario (D-050)
 - [WA-05] Puerta de fase 3
 

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-heading"><a href="/reports/{{ report.id }}">← Volver al informe</a><p class="eyebrow">Tu explicación</p><h1>{{ item.title }}</h1><p>Describe qué entiendes con tus palabras. La explicación automática aparecerá después de enviar.</p></div>
+<section class="panel"><nav class="review-modes" aria-label="Modo de revisión">{% for value,label in [('full','Completo'),('short','Breve'),('minimal','Una duda o posponer')] %}<a {% if value==mode %}aria-current="page"{% endif %} href="/review/{{ item.id }}?report_id={{ report.id }}&amp;mode={{ value }}">{{ label }}</a> {% endfor %}</nav>
+{% for f in item.figures %}<figure><img src="/reports/{{ report.id }}/figures/{{ f.evidence }}.png" alt="{{ f.caption }}"><figcaption>{{ f.caption }}</figcaption></figure>{% endfor %}
+<form method="post" action="/review/{{ item.id }}/submit"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="report_id" value="{{ report.id }}"><input type="hidden" name="mode" value="{{ mode }}"><input type="hidden" name="submission_id" value="{{ submission_id }}">
+{% for field,label in fields.items() %}<label for="{{ field }}">{{ label }}</label><textarea id="{{ field }}" name="{{ field }}" maxlength="2000" rows="4" {% if mode!='minimal' %}required{% endif %}></textarea>{% endfor %}
+<p>No incluyas contraseñas ni claves. La revisión no ejecuta análisis sobre tus proyectos.</p><button name="action" value="submit">{% if mode=='minimal' %}Guardar duda{% else %}Enviar y contrastar{% endif %}</button>{% if mode=='minimal' %} <button name="action" value="postpone" class="quiet">Posponer</button>{% endif %}</form></section>
+{% endblock %}

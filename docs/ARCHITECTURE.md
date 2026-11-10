@@ -54,7 +54,7 @@ daily-digest/
       email.py  obsidian.py  drive.py  deliveries.py
     web/
       app.py                 # FastAPI
-      routes/  templates/  static/   # htmx copiado localmente, manifest.webmanifest, icons
+      routes/  templates/  static/   # JavaScript propio local, manifest.webmanifest, icons
     extensions/              # fase 6, ver EXTENSIONS.md
       registry.py            # descubre extensiones internas y por entry points
       pack.py                # construye y valida el paquete de contexto

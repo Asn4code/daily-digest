@@ -4,6 +4,8 @@
 <h1>{{ 'Una mirada a la semana' if report.kind=='weekly' else 'Lo que merece tu atención' }}</h1>
 <p class="meta">{{ report.start_at|localtime(report.timezone) }} — {{ report.end_at|localtime(report.timezone) }}</p></div>
 <div class="report-grid"><div class="reading">
+{% if chosen %}<section class="panel"><h2>Un resultado para revisar</h2><p>{{ chosen.why }}</p>{% if chosen.review_id %}<a href="/review/{{ chosen.review_id }}/result">Retomar mi explicación</a>{% else %}<a href="/review/{{ chosen.result_id }}?report_id={{ report.id }}">Explicarlo con mis palabras</a>{% endif %}</section>{% endif %}
+{% if corrections %}<section class="panel limit"><h2>Resumen automático corregido en la revisión</h2><p>El informe original se conserva. Consulta las correcciones y sus evidencias antes de usarlo.</p>{% for review_id,result_id in corrections %}<p><a href="/review/{{ review_id }}/result">Ver corrección · {{ result_id }}</a></p>{% endfor %}</section>{% endif %}
 <section class="panel lead" id="orientation"><p class="eyebrow">Lo esencial</p>
 {% if report.kind=='weekly' %}
 {% for c in critical if c.outcome!='no_material_change' %}<h2>{{ c.label }} · {{ c.prior.project_id }}</h2>{{ interpretation(c.assessment) }}<p class="limit">{{ claim(c.decisive_limit) }}</p>{% else %}{{ claims(report.sections.weekly.patterns[:3]) }}{% endfor %}

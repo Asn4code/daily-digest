@@ -28,6 +28,14 @@ def fake_response(request: httpx.Request) -> httpx.Response:
     title = wire["response_format"]["json_schema"]["schema"]["title"]
     if title == "GroundingAudit":
         value = {"approved": True, "issues": []}
+    elif title == "Contrast":
+        value = {
+            "supported": [claim],
+            "omissions": [],
+            "unsupported": [],
+            "unverifiable": [],
+            "summary_errors": [],
+        }
     elif title == "SourceFindings":
         value = {
             "result_id": package["context"]["result_id"],

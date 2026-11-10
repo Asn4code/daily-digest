@@ -206,7 +206,7 @@ def test_T13_project_instructions_remain_escaped_data() -> None:
                 "conceptual": "4",
                 "plan": "6",
                 "weekly": "3",
-                "contrast": "1",
+                "contrast": "2",
             }[task]
         )
 

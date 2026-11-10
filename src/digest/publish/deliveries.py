@@ -63,6 +63,9 @@ def deliver_report(
         try:
             if name == "obsidian":
                 remote = obsidian.publish(config, report, path.parent)
+                from digest.review.notes import template as review_template
+
+                review_template(db, config, report)
                 db.execute("UPDATE delivery SET remote_ref=? WHERE id=?", (remote, did))
                 update("sent")
             elif name == "drive":

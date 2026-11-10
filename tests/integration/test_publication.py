@@ -155,7 +155,7 @@ def test_T24_revision_keeps_human_text_and_remote_original(config: Config) -> No
         assert deliver_report(db, config, first, channel="obsidian")["obsidian"] == "sent"
         assert deliver_report(db, config, first, channel="drive")["drive"] == "sent"
         root = Path(config.paths.obsidian_vault) / config.paths.obsidian_reviews_dir
-        root.mkdir()
+        root.mkdir(exist_ok=True)
         human = root / "human.md"
         human.write_text("Mi interpretación personal")
         original = (

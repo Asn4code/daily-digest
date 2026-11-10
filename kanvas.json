@@ -921,12 +921,29 @@
     {
       "id": "WA-02",
       "title": "Revisión activa y contraste",
-      "state": "todo",
+      "state": "done",
       "group": "WA",
       "deps": ["WA-01"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Selección del resultado propuesto, modos completo, breve y mínimo, explicación automática oculta hasta enviar, contraste encolado, decisión humana, ficha de Obsidian y respaldo con `estado: lista` (WEBAPP.md §2 y §5).\n\nTerminado cuando: pasan T21, T25 y T26; ningún camino marca un resultado como cerrado sin acción humana."
+      "desc": "Selección del resultado propuesto, modos completo, breve y mínimo, explicación automática oculta hasta enviar, contraste encolado, decisión humana, ficha de Obsidian y respaldo con `estado: lista` (WEBAPP.md §2 y §5).\n\nTerminado cuando: pasan T21, T25 y T26; ningún camino marca un resultado como cerrado sin acción humana.",
+      "notes": [
+        {
+          "at": "2026-11-10T14:48:41Z",
+          "by": "codex",
+          "text": "Plan: selección de revisión pendiente, formularios completos/breves/mínimos, persistencia transaccional sin duplicados, worker de contraste validado y decisión humana explícita; notas Obsidian separadas sin pisar texto y pruebas T21/T25/T26."
+        },
+        {
+          "at": "2026-11-10T15:04:03Z",
+          "by": "codex",
+          "text": "Recorrido sintético y precheck independiente correctos. La lectura revalida citas y vinculación con texto/fuentes originales; importación de fichas solo registradas, estado lista y sin symlinks a otras notas. Captura móvil del formulario: build/wa01-preview/review-mobile.png. No se han enviado explicaciones ni correos reales durante estas pruebas."
+        },
+        {
+          "at": "2026-11-10T15:06:27Z",
+          "by": "codex",
+          "text": "Ya puedes explicar un resultado en modo completo, breve o mínimo, contrastarlo con sus fuentes y decidir cerrar, pedir aclaración o posponer. La explicación automática permanece oculta en el formulario; los errores detectados se señalan conservando el original. El worker procesa contraste y entrega separada a Obsidian/Drive; estado lista importa fichas registradas sin reescribirlas. Solo la acción humana cierra; duplicados, fallos y decisiones concurrentes conservan texto y estado. make check: 360 tests pasan, lint/formato/tipos correctos; T21/T25/T26 incluidos. Precheck independiente sin hallazgos abiertos tras corregir reenvío tardío de segundo formulario; no es revisión formal de fase. Captura móvil: build/wa01-preview/review-mobile.png. Queda para la puerta probar desde teléfono físico y valorar utilidad/tiempo con un contraste real."
+        }
+      ]
     },
     {
       "id": "WA-03",
