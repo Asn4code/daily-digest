@@ -858,6 +858,11 @@
           "at": "2026-11-10T12:05:04Z",
           "by": "codex",
           "text": "La persona solicita un mecanismo al final del diario para pedir explicaciones y comprobaciones de frases y recibir un nuevo informe. Registrado D-050/FR-36, diseño ON_DEMAND_FOLLOWUPS.md y propuesta WA-08 dependiente de webapp/cola; la puerta de fase3 la incluye. No se presenta como implementado ni se interpreta como firma de fase2. Se conserva la corrección de claridad del diario en curso y el alcance de las respuestas humanas previas."
+        },
+        {
+          "at": "2026-11-10T12:09:34Z",
+          "by": "codex",
+          "text": "Project7 añadió la explicación solicitada pero el test40tareas detectó derived_package_budget_exceeded. Se mantiene el mismo límite y se compacta el prompt como Project8, conservando reglas previas y explicación punto/ejes/poses. Escenario T02 de publicación40tareas vuelve a pasar. R18 detenida antes de mezclar prompts y conservada como intento fallido; se genera R19 reutilizando fuentes, sin entrega ni cambio de estados humanos. Revalidación técnica vigente pendiente hasta muestra completa y nueva suite."
         }
       ]
     },

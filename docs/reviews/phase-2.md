@@ -2,7 +2,7 @@
 phase: 2
 builder: codex
 reviewer: codex-independent
-verdict: aprobada
+verdict: pendiente
 date: 2026-11-09
 ---
 
@@ -13,6 +13,15 @@ se conserva en [phase-2-before-hierarchical.md](phase-2-before-hierarchical.md);
 no aprueba este rediseño. Protocolo en [VALIDATION.md](../VALIDATION.md).
 
 ## Informe automático
+
+**Revalidación de claridad en curso (2026-11-10).** La persona indicó que la frase
+sobre comparabilidad de poses no le permitía interpretar la gráfica. Confirmó
+que la explicación de punto/ligando, ejes por motor y posibles poses distintas
+sí resultaba clara. Project8 incorpora esa exigencia con texto compacto; se prepara una revisión
+nueva del diario. La aprobación técnica del 9 de noviembre conservada debajo
+corresponde a las versiones anteriores y no sustituye esta revalidación ni la
+firma humana. D-050/WA-08 recoge además la ampliación a petición para fase 3,
+todavía no implementada.
 
 [Puerta automática](../../build/gates/phase-2.md). Las muestras de IN-11 están
 completas y cotejadas; no se da por aprobada la fase. Revisión formal independiente sobre `07a3940` (producción `59647de`):

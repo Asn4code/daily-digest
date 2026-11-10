@@ -617,3 +617,10 @@ contrasta cada afirmación de novedad con la evidencia que ya sustentaba la base
 sin confundir confianza moderada con ausencia de auditoría ni asumir identidad
 de muestras. Cambiar esta capa invalida solo ese cotejo, sin regenerar las fuentes
 ni la crítica; si rechaza la candidata se aplica la reparación local ya prevista.
+
+La validación humana de claridad exige explicar qué representa cada punto y qué
+comparan los ejes cuando las fuentes lo describen. «Los rankings no son
+comparables» no basta para comprender una gráfica que empareja puntuaciones del
+mismo objeto pero de representantes o poses distintos. Esa comparación no prueba
+coincidencia estructural; el balance conserva el límite en las condiciones de
+lectura. Una corrección se genera como revisión nueva, conservando la anterior.
