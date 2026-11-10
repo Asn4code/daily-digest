@@ -17,7 +17,8 @@ no aprueba este rediseño. Protocolo en [VALIDATION.md](../VALIDATION.md).
 **Revalidación de claridad en curso (2026-11-10).** La persona indicó que la frase
 sobre comparabilidad de poses no le permitía interpretar la gráfica. Confirmó
 que la explicación de punto/ligando, ejes por motor y posibles poses distintas
-sí resultaba clara. Project8 incorpora esa exigencia con texto compacto; se prepara una revisión
+sí resultaba clara. Project9 exige esa unidad y los ejes juntos en las condiciones
+visibles del móvil, manteniendo el paquete acotado; se prepara una revisión
 nueva del diario. La aprobación técnica del 9 de noviembre conservada debajo
 corresponde a las versiones anteriores y no sustituye esta revalidación ni la
 firma humana. D-050/WA-08 recoge además la ampliación a petición para fase 3,

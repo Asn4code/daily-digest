@@ -863,6 +863,11 @@
           "at": "2026-11-10T12:09:34Z",
           "by": "codex",
           "text": "Project7 añadió la explicación solicitada pero el test40tareas detectó derived_package_budget_exceeded. Se mantiene el mismo límite y se compacta el prompt como Project8, conservando reglas previas y explicación punto/ejes/poses. Escenario T02 de publicación40tareas vuelve a pasar. R18 detenida antes de mezclar prompts y conservada como intento fallido; se genera R19 reutilizando fuentes, sin entrega ni cambio de estados humanos. Revalidación técnica vigente pendiente hasta muestra completa y nueva suite."
+        },
+        {
+          "at": "2026-11-10T12:31:47Z",
+          "by": "codex",
+          "text": "R21 completó validadores y cotejos automáticos, con fuentes/Benchmark6 idénticos a R17 y VCD8 nuevo. El revisor independiente encontró importante de claridad: la vault explicaba punto=ligando y ejes=puntuaciones, pero el móvil no. No se solicita firma sobre R21. Project9 exige esos tres elementos juntos en reading_conditions; se genera R22, conserva fuentes y Benchmark6 y usa GLM para cotejos VCD/orientación/plan. R17 y semanales no se sobrescriben; propuestas de foco siguen sin aceptación humana."
         }
       ]
     },

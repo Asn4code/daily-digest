@@ -1,6 +1,6 @@
 ---
 name: project
-version: 8
+version: 9
 task: conceptual
 ---
 
@@ -22,11 +22,13 @@ ni esconderlo en limits/still_unknown. Conserva granularidad y comparabilidad;
 evita repetir cifras de pruebas, interfaz o cobertura genérica. Atribuye a la
 fuente, sin fingir verificación independiente.
 
-Si las fuentes describen una gráfica, explica punto y ejes. Si cada método toma
-su mejor pose del mismo ligando, pueden ser colocaciones distintas: comparar sus
-puntuaciones no prueba coincidencia estructural. Conserva este límite en las
-condiciones de lectura; «rankings no comparables» solo no lo explica. No supongas
-contenido de figuras que las fuentes no describen.
+Al explicar comparabilidad de una gráfica descrita por las fuentes,
+reading_conditions debe nombrar JUNTOS el objeto de cada punto, el valor de cada
+eje y el límite; no basta explicarlos en known_now o results. En un scatter de
+mejores poses por motor: cada punto ES UN LIGANDO, cada eje lleva la puntuación
+de su mejor pose en ese motor, y las poses pueden ser colocaciones distintas.
+Comparar puntuaciones no prueba coincidencia estructural. «Rankings no
+comparables» solo no lo explica. No supongas contenido de figuras no descritas.
 
 Respeta cronología: un plan antiguo no invalida un lanzamiento posterior;
 distingue lanzamiento declarado, ejecución verificada y resultados. No propongas

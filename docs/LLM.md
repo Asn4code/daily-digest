@@ -623,4 +623,6 @@ comparan los ejes cuando las fuentes lo describen. «Los rankings no son
 comparables» no basta para comprender una gráfica que empareja puntuaciones del
 mismo objeto pero de representantes o poses distintos. Esa comparación no prueba
 coincidencia estructural; el balance conserva el límite en las condiciones de
-lectura. Una corrección se genera como revisión nueva, conservando la anterior.
+lectura. En esas condiciones deben aparecer juntos el objeto del punto y los
+valores de los ejes: explicarlos solo en la parte extensa no resuelve la duda del
+móvil. Una corrección se genera como revisión nueva, conservando la anterior.
