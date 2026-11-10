@@ -833,6 +833,16 @@
           "at": "2026-11-09T16:08:11Z",
           "by": "codex",
           "text": "Question: Revisa las tres muestras con docs/reviews/phase-2-pilot.md y completa las comprobaciones humanas y Apruebo la fase en docs/reviews/phase-2.md si estás conforme. ¿Apruebas la fase 2? La firma humana es obligatoria según docs/VALIDATION.md §1 antes de iniciar la webapp; la revisión técnica ya está aprobada y no se te pide confirmar commits."
+        },
+        {
+          "at": "2026-11-10T07:40:11Z",
+          "by": "codex",
+          "text": "Validación humana asistida en curso: la persona dice que la explicación del defecto de carga y misión le ayuda; esto no acepta la misión ni firma la fase. La explicación de comparabilidad entre poses/ligandos no le permite entender qué comparar. Se registra como problema de claridad pendiente y se contrasta la nota original ev_75a784d36b4f para reformularla; ninguna casilla humana marcada."
+        },
+        {
+          "at": "2026-11-10T07:41:41Z",
+          "by": "codex",
+          "text": "La persona confirma que la reformulación de ev_75a784d36b4f sí aclara la gráfica: cada punto es un ligando, cada eje usa la puntuación de su mejor pose en ese motor; las poses pueden diferir, la coincidencia en valoración no prueba coincidencia de colocación y el clic abre la pose del eje X. La frase original resultó insuficiente; la mejora queda pendiente de incorporar en una revisión nueva sin sobrescribir la muestra ni texto humano. No se infiere aceptación de la misión ni firma de fase."
         }
       ]
     },
