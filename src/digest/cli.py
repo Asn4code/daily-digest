@@ -162,9 +162,20 @@ def worker(ctx: typer.Context, once: Annotated[bool, typer.Option("--once")] = F
 
 
 @app.command()
-def web() -> None:
-    """Arrancar la webapp local (pendiente: fase 3)."""
-    pending("web")
+def web(ctx: typer.Context) -> None:
+    """Arrancar la webapp local de lectura y revisión."""
+    import uvicorn
+
+    from digest.web.app import create_app
+
+    config = configuration(ctx)
+    uvicorn.run(
+        create_app(config),
+        host=config.web.bind,
+        port=config.web.port,
+        proxy_headers=False,
+        access_log=False,
+    )
 
 
 @app.command()

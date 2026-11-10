@@ -30,18 +30,19 @@ Servicio personal que, al final de cada día (o cuando lo pidas), reúne lo que 
 
 ## Empezar
 
-Estado de implementación: fases 0 y 1 aprobadas; fase 2 en rediseño de construcción jerárquica (D-047). Ya funcionan
-la captura de solo lectura, el registro SQLite, los informes mecánicos en Markdown,
-HTML y PDF y las entregas independientes a correo, Obsidian y Drive.
-La fase 2 añade extracción y síntesis LLM validadas, plan, semanal y lectura de
-notebooks, estructuras y sesiones de Codex/OpenCode/Hermes. La webapp y los
-servicios systemd pertenecen a fases posteriores.
+Estado de implementación: fases 0, 1 y 2 aprobadas; fase 3 en desarrollo.
+Funcionan la captura de solo lectura, SQLite, los informes con LLM validados,
+el plan propuesto, el contraste crítico semanal y las entregas a correo,
+Obsidian y Drive. La webapp ya permite consultar Hoy, Semana, resultados e
+Historial; sus acciones de revisión y generación se incorporan en esta fase.
+Los servicios systemd pertenecen a la fase 4.
 
 ```bash
 kanvas init                                        # tablero y skill para agentes
 kanvas batch --file docs/backlog.kanvas.json       # backlog inicial como propuestas
 make setup && make check
-python scripts/phase_gate.py 1 --no-manual        # estado de la puerta de la fase actual
+python scripts/phase_gate.py 3 --no-manual        # estado de la puerta de la fase actual
+.venv/bin/digest --config config.yaml web        # lectura local en 127.0.0.1:8090
 ```
 
 Tras `make setup`, usa `.venv/bin/digest --help` o activa el entorno con

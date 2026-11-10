@@ -78,6 +78,8 @@ La persona confirmó para D-050 que prefiere «una ampliación centrada en las f
 solicitadas», conservando el original, frente a una nueva versión completa del
 diario. La aclaración no debe volver a elegir el foco del informe original.
 
+| D-051 | 2026-11-10 | WA-01 incorpora FastAPI 0.162.2 y Uvicorn 0.54.0, previstos en D-016, con versiones menores acotadas | Webapp ASGI con plantillas Jinja2 existentes y servidor local en 127.0.0.1. Pruebas mediante httpx ASGITransport sin sockets ni dependencias de red reales; no necesita python-multipart para formularios URL-encoded acotados. Recursos propios locales, sin CDN. Documentación primaria: https://fastapi.tiangolo.com/advanced/templates/ y https://starlette.dev/requests/. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#163c39"><meta name="csrf-token" content="{{ csrf_token }}">
+<link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/static/icon-192.png">
+<link rel="stylesheet" href="/static/app.css"><script defer src="/static/app.js"></script>
+<title>{{ title }} · Digest</title></head><body>
+<a class="skip" href="#main">Ir al contenido</a>
+<header class="masthead"><a class="brand" href="/"><span class="brand-icon">D</span> Digest</a>
+<nav aria-label="Principal"><a href="/">Hoy</a><a href="/week">Semana</a><a href="/history">Historial</a></nav>
+<button type="button" id="theme" class="quiet" aria-label="Cambiar tema">Cambiar tema</button></header>
+<main id="main">{% block content %}{% endblock %}</main>
+<footer>Un lugar para entender lo que cambia y elegir el siguiente paso.</footer>
+</body></html>

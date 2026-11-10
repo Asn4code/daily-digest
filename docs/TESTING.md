@@ -265,3 +265,15 @@ y rechazan conversiones entre medidas físicas y artefactos en ambos sentidos.
 Incluyen sufijos con bytes, prefijos binarios, porcentajes, temperatura, potencias
 y denominadores con distintos espacios; una paráfrasis no puede esconder una
 unidad diferente detrás de la etiqueta del artefacto.
+
+## Lectura web y seguridad (WA-01)
+
+`tests/e2e/test_web_reading.py` genera diario y semanal con el proveedor falso y
+recorre Hoy, detalle, aliases por fecha, Semana, búsqueda y recursos PWA mediante
+ASGI, sin sockets. Comprueba que los GET conservan informes y estados humanos.
+T14 prueba texto malicioso escapado y bloqueo de un informe manipulado; T19,
+identidad errónea, cabeceras duplicadas y un cliente remoto que intenta suplantar
+Tailscale; T20, token vinculado a la sesión, origen ajeno y cuerpo sobredimensionado.
+Se rechazan rutas fuera del directorio de informes y figuras desconocidas.
+La instalación vacía y una SQLite corrupta devuelven salud degradada sin crear
+ni modificar la base y sin revelar su contenido.

@@ -39,12 +39,29 @@ def test_command_help(command: str) -> None:
     assert runner.invoke(app, [command, "--help"]).exit_code == 0
 
 
+def test_web_cli_uses_local_bind_without_proxy_trust_or_query_logging(tmp_path, monkeypatch):
+    from tests.fixtures.make_projects import build_projects
+
+    path = build_projects(tmp_path / "projects")
+    called = []
+    monkeypatch.setattr("uvicorn.run", lambda application, **kwargs: called.append(kwargs))
+    try:
+        result = runner.invoke(app, ["--config", str(path), "web"])
+        assert result.exit_code == 0, result.output
+        assert called == [
+            {"host": "127.0.0.1", "port": 8090, "proxy_headers": False, "access_log": False}
+        ]
+    finally:
+        (path.parent / "proj-fail/no-access").chmod(0o700)
+
+
 @pytest.mark.parametrize(
     "args",
     [
         args
         for args in COMMANDS
-        if args[0] not in {"doctor", "capture", "run", "enqueue", "worker", "deliver", "resume"}
+        if args[0]
+        not in {"doctor", "capture", "run", "enqueue", "worker", "deliver", "resume", "web"}
     ],
 )
 def test_unimplemented_commands_fail_without_writing(

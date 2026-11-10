@@ -1,0 +1,18 @@
+{% macro claim(c) -%}
+<span>{{ c.text }}</span><span class="refs">{% for eid in c.evidence %} <a href="#{{ eid }}" aria-label="Abrir evidencia {{ eid }}">{{ eid }}</a>{% endfor %}</span>
+{%- endmacro %}
+{% macro claims(items) %}{% for c in items %}<p>{{ claim(c) }}</p>{% endfor %}{% endmacro %}
+{% macro interpretation(c) %}<p>{{ claim(c) }} <span class="confidence">Confianza {{ c.confidence|confidence }}</span></p>{% endmacro %}
+{% macro evidence(items, report) %}
+{% for e in items %}<details class="evidence" id="{{ e.id }}"><summary>{{ e.id }} · {{ e.kind }}</summary>
+<p class="meta">{{ e.project }} · {{ e.locator }}</p>
+<p>{{ (e.event_at or e.observed_at)|localtime(report.timezone) }} · {{ 'Hora del evento' if e.time_quality=='event' else 'Hora de observación' }}</p>
+<pre>{{ e.excerpt }}</pre></details>{% endfor %}
+{% endmacro %}
+{% macro card(c) %}
+{% if c.question %}<p><strong>Pregunta:</strong> {{ claim(c.question) }}</p>{% endif %}
+{{ claims(c.observations) }}{% if c.meaning %}{{ interpretation(c.meaning) }}{% endif %}
+<details><summary>Controles y límites</summary><h4>Controles</h4>{{ claims(c.controls) }}<h4>Límites</h4>{{ claims(c.limits) }}</details>
+{% if c.decision_impact %}<p><strong>Decisión afectada:</strong> {{ claim(c.decision_impact) }}</p>{% endif %}
+{% if c.next_question %}<p><strong>Pregunta pendiente:</strong> {{ claim(c.next_question) }}</p>{% endif %}
+{% endmacro %}

@@ -766,7 +766,7 @@
     {
       "id": "IN-06",
       "title": "Puerta de fase 2",
-      "state": "review",
+      "state": "done",
       "group": "IN",
       "deps": ["IN-01", "IN-02", "IN-03", "IN-04", "IN-05", "IN-11"],
       "yolo": true,
@@ -899,17 +899,29 @@
     {
       "id": "WA-01",
       "title": "Webapp base: Hoy, detalle e historial",
-      "state": "proposed",
+      "state": "done",
       "group": "WA",
       "deps": ["IN-03", "IN-06"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "FastAPI con las rutas de lectura de WEBAPP.md §1 (Hoy, detalle, Semana, Historial), diseño adaptable, PWA, modo oscuro, cabeceras de seguridad, CSRF y comprobación de la cabecera de Tailscale.\n\nTerminado cuando: el enlace del correo abre el informe en móvil y escritorio (capturas en la nota de cierre); pasan T14, T19 y T20."
+      "desc": "FastAPI con las rutas de lectura de WEBAPP.md §1 (Hoy, detalle, Semana, Historial), diseño adaptable, PWA, modo oscuro, cabeceras de seguridad, CSRF y comprobación de la cabecera de Tailscale.\n\nTerminado cuando: el enlace del correo abre el informe en móvil y escritorio (capturas en la nota de cierre); pasan T14, T19 y T20.",
+      "notes": [
+        {
+          "at": "2026-11-10T14:13:36Z",
+          "by": "codex",
+          "text": "Plan: implementar app FastAPI de lectura con Hoy, detalle, Semana e Historial; cargar solo informes completos revalidados y datos controlados del servicio; plantillas adaptables, PWA y recursos locales, identidad/host y CSRF desde el inicio. Probar XSS, rutas/IDs, acceso y formularios sin token, y adjuntar capturas a390px y escritorio sobre fixtures, sin ejecutar proyectos ni llamar a proveedores reales."
+        },
+        {
+          "at": "2026-11-10T14:44:24Z",
+          "by": "codex",
+          "text": "Hoy, Semana, detalle e Historial ya muestran las revisiones validadas, con lectura por niveles, búsqueda, tema oscuro y PWA local. GET no modifica informes ni estados humanos. Seguridad probada: T14/T19/T20, rutas confinadas y CSRF; healthz comprueba SQLite sin crearla. make check: 337 tests pasan, lint/formato/tipos correctos. Precheck independiente cerrado sin hallazgos abiertos; no sustituye el cotejo final de fase. Capturas verificadas: build/wa01-preview/mobile.png (390px) y desktop.png (1440px). Pendiente comprobar teléfono físico en puerta/despliegue. Las acciones humanas se implementan en WA-02 y siguientes."
+        }
+      ]
     },
     {
       "id": "WA-02",
       "title": "Revisión activa y contraste",
-      "state": "proposed",
+      "state": "todo",
       "group": "WA",
       "deps": ["WA-01"],
       "at": "2026-11-04T11:20:37Z",
@@ -919,7 +931,7 @@
     {
       "id": "WA-03",
       "title": "Plan editable y dudas al plan",
-      "state": "proposed",
+      "state": "todo",
       "group": "WA",
       "deps": ["WA-02"],
       "at": "2026-11-04T11:20:37Z",
@@ -929,7 +941,7 @@
     {
       "id": "WA-04",
       "title": "Pantalla Generar y cola de trabajos",
-      "state": "proposed",
+      "state": "todo",
       "group": "WA",
       "deps": ["WA-01"],
       "at": "2026-11-04T11:20:37Z",
@@ -939,12 +951,20 @@
     {
       "id": "WA-05",
       "title": "Puerta de fase 3",
-      "state": "proposed",
+      "state": "todo",
       "group": "WA",
-      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08"],
+      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07"],
+      "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Validar que la fase 3 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 3 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-3.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 3` da APROBADA y el informe build/gates/phase-3.md va en la nota de cierre."
+      "desc": "Validar que la fase 3 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 3 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-3.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 3` da APROBADA y el informe build/gates/phase-3.md va en la nota de cierre.",
+      "notes": [
+        {
+          "at": "2026-11-10T14:17:57Z",
+          "by": "codex",
+          "text": "La persona dejó aprobadas también WA06 y WA07 en el tablero. Se añaden como dependencias explícitas de la puerta: la validación de fase exige terminar todas las tareas WA, y ambas forman parte del alcance ya solicitado (modelos configurables desde webapp y comillas Markdown). Esto las integra en el YOLO existente de la fase, sin aprobar trabajo nuevo ni cambiar las exigencias de gates.toml."
+        }
+      ]
     },
     {
       "id": "OP-01",
@@ -1099,7 +1119,7 @@
     {
       "id": "WA-06",
       "title": "Configurar modelos por tarea desde la webapp",
-      "state": "proposed",
+      "state": "todo",
       "group": "WA",
       "deps": ["WA-01", "CB-02"],
       "at": "2026-11-04T11:35:18Z",
@@ -1346,7 +1366,7 @@
     {
       "id": "WA-07",
       "title": "Conservar las comillas literales al renderizar Markdown",
-      "state": "proposed",
+      "state": "todo",
       "group": "WA",
       "deps": ["IN-06"],
       "at": "2026-11-09T16:06:19Z",
@@ -1356,7 +1376,7 @@
     {
       "id": "WA-08",
       "title": "Ampliar y comprobar frases del diario a petición",
-      "state": "proposed",
+      "state": "todo",
       "group": "WA",
       "deps": ["WA-01", "WA-04"],
       "at": "2026-11-10T12:05:04Z",

@@ -26,6 +26,34 @@ Webapp adaptable a móvil y ordenador, a la que se llega desde el enlace del cor
 
 El enlace del correo es `{web.public_base_url}/r/{fecha}`; el del semanal, `/w/{AAAA-Wss}`.
 
+### Base disponible (WA-01)
+
+`digest --config config.yaml web` abre la aplicación en `127.0.0.1:{web.port}`.
+Están disponibles Hoy, Semana, detalle de resultados e Historial. Los enlaces
+por fecha redirigen a `/reports/{id}`, que conserva la revisión exacta; el detalle
+canónico es `/reports/{id}/results/{result_id}`. Las acciones de revisión, plan y
+generación se incorporan en las tareas siguientes de esta fase.
+
+Antes de mostrar un informe se vuelven a validar su contenido, completitud y
+vínculo con las evidencias. Solo se sirven JSON de informes bajo `data_dir/reports`
+y PNG generados que figuren en ellos. Consultar estas pantallas no crea la base
+ni modifica informes o estados humanos. `/healthz` comprueba la apertura de SQLite
+en modo lectura y el acceso al catálogo: devuelve 503 si falta o falla, sin
+exponer detalles internos.
+
+Historial pagina veinte revisiones. La búsqueda literal en títulos y resúmenes
+se limita a las dos mil revisiones recientes y avisa si hay más; sin filtro se
+puede seguir paginando. Los enlaces por fecha buscan primero en su día o semana
+en la zona configurada. La PWA dispone de manifiesto e iconos locales y no cachea
+informes. La sesión usa una cookie firmada `HttpOnly`/`SameSite=Strict` y el token
+CSRF se vincula a ella; se rechazan cuerpos de más de 64 KB, orígenes ajenos,
+identidades incorrectas y conexiones fuera de loopback.
+
+Capturas de comprobación locales: `build/wa01-preview/mobile.png` (390 px) y
+`build/wa01-preview/desktop.png` (1440 px), sobre una muestra retrospectiva de
+fase 2. Son comprobaciones de navegador; el acceso desde un teléfono físico
+se verifica en la puerta de fase y en el despliegue.
+
 Al final del informe se prevé «¿Quieres ampliar o comprobar algo?» (D-050,
 fase 3): abre un formulario vinculado a su revisión exacta para señalar frases,
 pedir una explicación o solicitar una comprobación. El formulario encola el
