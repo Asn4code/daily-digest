@@ -72,6 +72,8 @@ Registro de decisiones de diseño. Una decisión no se reabre sin preguntar a la
 
 | D-049 | 2026-11-05 | La persona considera razonable orientar el digest al seguimiento cotidiano de resultados y a elegir el próximo foco, y pide actualizar las tareas | Las misiones deben justificar prioridad por valor científico, decisiones o trabajo que desbloquean, incertidumbres, dependencias, Kanvas y compromisos humanos, con acción y criterio de finalización. Móvil/vault conservan significado y límites; el semanal alimenta el foco con críticas y contrastes concretos. La elección final y las ediciones siguen siendo humanas. Actualizadas las propuestas IN-08/09/10/11/12, WA-03 y PL-02. |
 
+| D-050 | 2026-11-10 | La persona solicita una opción al final del diario para pedir más información sobre sus frases, solicitar comprobaciones y recibir un nuevo informe | Propuesta para fase 3: formulario ligado a la revisión y frases originales, trabajo a petición en worker y entrega de una ampliación validada por correo. Distinguir aclaración, comprobación efectivamente realizada sobre datos existentes y necesidad de ejecución externa. Se conservan originales, privacidad y estados humanos; no se autoriza ejecutar contenido de proyectos. Diseño en ON_DEMAND_FOLLOWUPS.md, pendiente de implementación y de concretar persistencia sin alterar a escondidas SQLite ni formatos publicados. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

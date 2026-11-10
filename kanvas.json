@@ -843,6 +843,21 @@
           "at": "2026-11-10T07:41:41Z",
           "by": "codex",
           "text": "La persona confirma que la reformulación de ev_75a784d36b4f sí aclara la gráfica: cada punto es un ligando, cada eje usa la puntuación de su mejor pose en ese motor; las poses pueden diferir, la coincidencia en valoración no prueba coincidencia de colocación y el clic abre la pose del eje X. La frase original resultó insuficiente; la mejora queda pendiente de incorporar en una revisión nueva sin sobrescribir la muestra ni texto humano. No se infiere aceptación de la misión ni firma de fase."
+        },
+        {
+          "at": "2026-11-10T11:54:21Z",
+          "by": "codex",
+          "text": "Validación humana asistida: la persona confirma que entiende la distinción entre selección de poses preparada, dinámica no ejecutada y decisión pendiente sobre trabajar por motor; también distingue retención declarada del humo frente a validación científica y cobertura completa. Ante la explicación de float16 y pLDDT por átomo/residuo responde «vale la nota», registrado como conformidad de claridad de esa nota, sin aceptar precisión, granularidad, arquitectura de dinámica ni misión. Continúan pendientes contraste semanal, revisión de foco y firma humana de fase. La reformulación de la gráfica sigue pendiente de incorporarse en una nueva revisión."
+        },
+        {
+          "at": "2026-11-10T12:01:09Z",
+          "by": "codex",
+          "text": "La persona aclara expresamente que sabría empezar la misión propuesta sobre la carga del ligando. Se registra ese alcance exacto; no se infiere que haya ejecutado la misión, aceptado resultados técnicos ni firmado la fase. El balance semanal VCD recibió «ok» en la revisión asistida. Se incorpora ahora la reformulación de la gráfica que sí le resultó clara en una revisión nueva del diario, conservando la anterior; se revalidará antes de solicitar firma de fase."
+        },
+        {
+          "at": "2026-11-10T12:05:04Z",
+          "by": "codex",
+          "text": "La persona solicita un mecanismo al final del diario para pedir explicaciones y comprobaciones de frases y recibir un nuevo informe. Registrado D-050/FR-36, diseño ON_DEMAND_FOLLOWUPS.md y propuesta WA-08 dependiente de webapp/cola; la puerta de fase3 la incluye. No se presenta como implementado ni se interpreta como firma de fase2. Se conserva la corrección de claridad del diario en curso y el alcance de las respuestas humanas previas."
         }
       ]
     },
@@ -891,7 +906,7 @@
       "title": "Puerta de fase 3",
       "state": "proposed",
       "group": "WA",
-      "deps": ["WA-01", "WA-02", "WA-03", "WA-04"],
+      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
       "desc": "Validar que la fase 3 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 3 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-3.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 3` da APROBADA y el informe build/gates/phase-3.md va en la nota de cierre."
@@ -1302,6 +1317,16 @@
       "at": "2026-11-09T16:06:19Z",
       "by": "codex",
       "desc": "Al abrir el Markdown generado en la vault, los apóstrofos deben mostrarse como comillas y no como texto de entidad HTML. El cotejo formal de fase 2 reproduce escape seguido de MarkdownIt mostrando &#x27; en vez de la comilla. Corregir el orden o alcance del escapado sin permitir HTML, enlaces o Markdown ejecutable de las fuentes; probar apóstrofos, comillas, entidades y cargas XSS. Regenerar en una revisión nueva y conservar los archivos anteriores y el texto humano. Hallazgo menor de legibilidad, sin pérdida de referencias ni bloqueo de fase 2."
+    },
+    {
+      "id": "WA-08",
+      "title": "Ampliar y comprobar frases del diario a petición",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["WA-01", "WA-04"],
+      "at": "2026-11-10T12:05:04Z",
+      "by": "codex",
+      "desc": "Al final del diario móvil/web/vault, ofrecer un enlace para seleccionar frases de su revisión exacta y pedir una explicación o comprobación sobre datos disponibles. El formulario encola el trabajo y llega un nuevo informe de ampliación por correo con original, pregunta, evidencias, comprobaciones realizadas, resultado y límites. Distinguir declaración de nota de verificación real; si faltan datos se indica no verificable, sin inferir falsedad. Solo comprobaciones implementadas de lectura/cálculo acotados: sin ejecutar scripts/notebooks de proyectos ni lanzar simulaciones. Mantener originales, texto/estados humanos y privacidad ancestral; identidad propia de ampliación y reintentos de correo seguros, sin cerrar otro intervalo ni duplicar solicitudes. Antes de implementar concretar persistencia y consultar migraciones/formato publicado si son necesarias. Terminado cuando pasan los escenarios de docs/ON_DEMAND_FOLLOWUPS.md con dobles y desde el móvil se recibe la ampliación solicitada. Diseño D-050/FR-36; no implementado todavía."
     }
   ]
 }

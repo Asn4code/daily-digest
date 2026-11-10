@@ -76,6 +76,7 @@ nueva y reutilización incremental comprobada; detalles en HIERARCHICAL_DIGEST.m
 - [WA-02] Revisión activa y contraste
 - [WA-03] Plan editable y dudas al plan
 - [WA-04] Pantalla Generar y cola de trabajos
+- [WA-08] Ampliaciones y comprobaciones a petición desde el final del diario (D-050)
 - [WA-05] Puerta de fase 3
 
 Aceptación: T03, T04, T14, T19–T21, T25, T26; el enlace del correo abre el informe en móvil y ordenador; desde el móvil se revisa y se lanza un informe.

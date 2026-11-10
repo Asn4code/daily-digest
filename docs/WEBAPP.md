@@ -26,6 +26,13 @@ Webapp adaptable a móvil y ordenador, a la que se llega desde el enlace del cor
 
 El enlace del correo es `{web.public_base_url}/r/{fecha}`; el del semanal, `/w/{AAAA-Wss}`.
 
+Al final del informe se prevé «¿Quieres ampliar o comprobar algo?» (D-050,
+fase 3): abre un formulario vinculado a su revisión exacta para señalar frases,
+pedir una explicación o solicitar una comprobación. El formulario encola el
+trabajo y la persona recibe un informe de ampliación por correo. Diseño y
+criterios de aceptación en [ON_DEMAND_FOLLOWUPS.md](ON_DEMAND_FOLLOWUPS.md);
+todavía no implementado. No se interpreta leer el informe como solicitar trabajos.
+
 ## 2. Revisión
 
 1. La pantalla Hoy destaca el resultado propuesto (`review/select.py`): el de mayor relevancia sin revisión abierta. Si hay una revisión abierta de días anteriores, se ofrece esa primero.

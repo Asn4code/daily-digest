@@ -66,6 +66,7 @@ La persona produce mucho trabajo (propio y de agentes) pero no tiene tiempo de r
 - **FR-33** Decisión humana: cerrar, requiere aclaración o posponer. Las dudas pasan como propuestas al plan siguiente.
 - **FR-34** Una revisión abierta no genera fichas nuevas encima; la webapp vuelve a ofrecerla o deja elegir otra.
 - **FR-35** Los botones de generar encolan trabajos; nunca ejecutan nada en el proceso web.
+- **FR-36** Ampliaciones a petición (fase 3, D-050): al final del diario, un enlace permite señalar frases de su revisión exacta y pedir explicación o comprobaciones acotadas sobre datos disponibles. El worker prepara un informe de ampliación validado y lo entrega por correo, conservando el original, la procedencia, la privacidad y los estados humanos. Distingue una declaración de agente de una comprobación realizada y de una ejecución externa pendiente. Diseño en `ON_DEMAND_FOLLOWUPS.md`; aún no implementado.
 
 ### Obsidian
 
