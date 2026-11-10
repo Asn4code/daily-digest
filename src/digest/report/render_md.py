@@ -1,6 +1,5 @@
 """Render orientation, conceptual understanding and expandable technical evidence."""
 
-import html
 import json
 import re
 from typing import Any
@@ -12,7 +11,10 @@ from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_check
 
 
 def escape(text: str) -> str:
-    return re.sub(r"([\\`*_{}\[\]()#+.!|>~-])", r"\\\1", html.escape(text))
+    # Escape Markdown syntax directly: escaping HTML first corrupts numeric
+    # entities when their '#' is subsequently treated as Markdown punctuation.
+    # Escaping '<', '>' and '&' also neutralizes raw HTML, autolinks and entities.
+    return re.sub(r"([\\`*_{}\[\]()#+.!|>~<&$=-])", r"\\\1", text)
 
 
 def claim(value: dict[str, Any]) -> str:

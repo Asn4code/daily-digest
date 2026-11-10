@@ -1366,12 +1366,24 @@
     {
       "id": "WA-07",
       "title": "Conservar las comillas literales al renderizar Markdown",
-      "state": "todo",
+      "state": "done",
       "group": "WA",
       "deps": ["IN-06"],
       "at": "2026-11-09T16:06:19Z",
       "by": "codex",
-      "desc": "Al abrir el Markdown generado en la vault, los apóstrofos deben mostrarse como comillas y no como texto de entidad HTML. El cotejo formal de fase 2 reproduce escape seguido de MarkdownIt mostrando &#x27; en vez de la comilla. Corregir el orden o alcance del escapado sin permitir HTML, enlaces o Markdown ejecutable de las fuentes; probar apóstrofos, comillas, entidades y cargas XSS. Regenerar en una revisión nueva y conservar los archivos anteriores y el texto humano. Hallazgo menor de legibilidad, sin pérdida de referencias ni bloqueo de fase 2."
+      "desc": "Al abrir el Markdown generado en la vault, los apóstrofos deben mostrarse como comillas y no como texto de entidad HTML. El cotejo formal de fase 2 reproduce escape seguido de MarkdownIt mostrando &#x27; en vez de la comilla. Corregir el orden o alcance del escapado sin permitir HTML, enlaces o Markdown ejecutable de las fuentes; probar apóstrofos, comillas, entidades y cargas XSS. Regenerar en una revisión nueva y conservar los archivos anteriores y el texto humano. Hallazgo menor de legibilidad, sin pérdida de referencias ni bloqueo de fase 2.",
+      "notes": [
+        {
+          "at": "2026-11-10T14:44:33Z",
+          "by": "codex",
+          "text": "Plan: corregir el escapado de texto Markdown conservando comillas y entidades literales, probar cargas HTML/enlaces, y comprobar una revisión nueva sin sobrescribir notas anteriores ni humanas."
+        },
+        {
+          "at": "2026-11-10T14:48:38Z",
+          "by": "codex",
+          "text": "Las notas nuevas muestran apóstrofos y comillas correctamente y conservan las entidades literales como texto. HTML, autolinks y sintaxis Markdown de fuentes quedan inertes. make check: 344 tests pasan; T24 regenera una nota -r2 con la corrección, mantiene el informe anterior y las anotaciones humanas. No se reescriben notas ya publicadas."
+        }
+      ]
     },
     {
       "id": "WA-08",

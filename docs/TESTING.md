@@ -277,3 +277,9 @@ Tailscale; T20, token vinculado a la sesión, origen ajeno y cuerpo sobredimensi
 Se rechazan rutas fuera del directorio de informes y figuras desconocidas.
 La instalación vacía y una SQLite corrupta devuelven salud degradada sin crear
 ni modificar la base y sin revelar su contenido.
+
+`tests/unit/test_markdown_text.py` verifica que comillas, entidades literales,
+HTML, enlaces y bloques Markdown de fuentes se lean como texto, incluso con HTML
+habilitado en el visor. T24 regenera una nota `-r2` con apóstrofos legibles y
+conserva los bytes del informe anterior y las anotaciones humanas. El cambio de
+escapado (WA-07) solo afecta a revisiones nuevas: no reescribe notas existentes.

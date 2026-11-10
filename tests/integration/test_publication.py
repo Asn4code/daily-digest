@@ -140,9 +140,17 @@ def test_T22_email_failure_does_not_repeat_successful_channels(config: Config) -
 
 
 def test_T24_revision_keeps_human_text_and_remote_original(config: Config) -> None:
+    title = 'L\'apóstrofo conserva las "comillas" y &#x27; literal'
+
+    def change_title(board):
+        board["tasks"][0]["title"] = title
+
+    _kanvas().mutate(str(Path(config.projects[0].root) / "kanvas.json"), change_title)
     start = NOW.replace(hour=0)
     end = NOW
     first = build(config, since=start, until=end)
+    first_artifact = Path(config.paths.data_dir) / "reports/daily" / first / "report.md"
+    first_raw = first_artifact.read_bytes()
     with closing(connect(Path(config.paths.data_dir) / "digest.db")) as db:
         assert deliver_report(db, config, first, channel="obsidian")["obsidian"] == "sent"
         assert deliver_report(db, config, first, channel="drive")["drive"] == "sent"
@@ -163,7 +171,14 @@ def test_T24_revision_keeps_human_text_and_remote_original(config: Config) -> No
         assert deliver_report(db, config, second, channel="drive")["drive"] == "sent"
     assert original.read_text() == "Anotación humana que no se pisa"
     assert human.read_text() == "Mi interpretación personal"
-    assert original.with_name("2026-11-04-r2.md").is_file()
+    revised = original.with_name("2026-11-04-r2.md")
+    assert revised.is_file()
+    assert first_artifact.read_bytes() == first_raw
+    from markdown_it import MarkdownIt
+
+    rendered = MarkdownIt("commonmark", {"html": True}).render(revised.read_text())
+    assert "L'apóstrofo conserva las &quot;comillas&quot;" in rendered
+    assert "&amp;#x27; literal" in rendered
 
 
 def test_pdf_fetcher_rejects_network_and_external_files(tmp_path: Path) -> None:
