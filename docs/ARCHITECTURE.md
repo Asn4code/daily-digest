@@ -36,6 +36,7 @@ daily-digest/
     results.py               # agrupación de evidencias en resultados
     intervals.py             # apertura y cierre de intervalos
     planning.py              # elección humana, ajustes e instantáneas inmutables
+    queue.py                 # peticiones transaccionales y reintentos acotados
     llm/
       client.py              # cliente OpenAI-compatible (httpx)
       router.py              # proveedor por tarea, respaldo, registro llm_call

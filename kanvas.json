@@ -985,19 +985,41 @@
     {
       "id": "WA-04",
       "title": "Pantalla Generar y cola de trabajos",
-      "state": "todo",
+      "state": "done",
       "group": "WA",
       "deps": ["WA-01"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Tabla job, `digest worker` con bloqueo, pantalla Generar (generar ahora, avance, semanal, reintentar canal) y estados por canal.\n\nTerminado cuando: pasan T03 y T04; desde el móvil se lanza un informe y llega el correo."
+      "desc": "Tabla job, `digest worker` con bloqueo, pantalla Generar (generar ahora, avance, semanal, reintentar canal) y estados por canal.\n\nTerminado cuando: pasan T03 y T04; desde el móvil se lanza un informe y llega el correo.",
+      "notes": [
+        {
+          "at": "2026-11-11T10:20:05Z",
+          "by": "codex",
+          "text": "Plan: pantalla Generar con diario/semanal/avance, encolado idempotente y lectura acotada de progreso/canales; reintentos explícitos de un canal sin correos inciertos; probar concurrencia web/temporizador T03/T04 y SMTP local, sin ejecutar trabajo en web."
+        },
+        {
+          "at": "2026-11-11T10:22:10Z",
+          "by": "codex",
+          "text": "La persona propone reutilizar patrones de Kanvas: paneles de tarjetas y flechas de dependencias. Se incorpora esa presentación a Generar, manteniendo estados reales y dependencias del servicio. Pendiente aclarar si fecha/prioridad editable y aumento por antigüedad se refieren a trabajos del servicio, tareas de proyectos o ambos; no se modifica Kanvas de los proyectos."
+        },
+        {
+          "at": "2026-11-11T10:42:20Z",
+          "by": "codex",
+          "text": "Verificado make check con 386 tests, incluidos T03/T04 y SMTP local. Precheck independiente: concurrencia, idempotencia, reanudación, privacidad de metadatos y rechazo de inciertos sin hallazgos abiertos. Capturas locales del tablero móvil/escritorio y flechas en build/wa04-preview. La fecha/prioridad personal de tareas de proyectos se ha concretado aparte en WA-09, pendiente de aprobación humana del tablero; no se han escrito proyectos observados."
+        },
+        {
+          "at": "2026-11-11T10:42:54Z",
+          "by": "codex",
+          "text": "Generar ya solicita diario/semanal/avance, muestra tarjetas por estado y fechas, progreso verificable e inventario paginado y etapas con flechas. Web solo encola; CLI/timer/web comparten transacciones y peticiones equivalentes. Permite continuar la generación congelada y reintentar un solo canal de informe/revisión/plan; nunca un correo incierto. make check: 386 tests pasan, lint/formato/mypy correctos. T03 prueba un único correo al SMTP local y timer sin novedades skipped; T04 demuestra deduplicación y segundo worker esperando al bloqueo. Precheck independiente sin hallazgos abiertos del alcance revisado. Capturas en build/wa04-preview/{mobile,desktop,dependencies}.png. Queda para la puerta la solicitud y recepción desde teléfono físico. WA-09 recoge aparte el cuaderno personal solicitado y sigue pendiente de aprobación en Kanvas."
+        }
+      ]
     },
     {
       "id": "WA-05",
       "title": "Puerta de fase 3",
       "state": "todo",
       "group": "WA",
-      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07"],
+      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09"],
       "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
@@ -1445,6 +1467,16 @@
           "text": "Formato confirmado por la persona: una ampliación centrada en las frases solicitadas, conservando el original. No se vuelve a generar el diario completo ni a elegir su misión por pedir una aclaración. Si una comprobación aconseja cambiar el foco, se explica como propuesta separada. Diseño y pruebas de aceptación en docs/ON_DEMAND_FOLLOWUPS.md. La preferencia confirma el alcance de la propuesta, no implica que la función esté implementada ni firma la fase 2."
         }
       ]
+    },
+    {
+      "id": "WA-09",
+      "title": "Cuaderno personal de tareas: tarjetas, dependencias y prioridades",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["WA-03", "WA-04"],
+      "at": "2026-11-11T10:29:49Z",
+      "by": "codex",
+      "desc": "Organizar en la webapp las tareas capturadas de Kanvas, con notas personales versionadas, vistas de tarjetas y dependencias, fecha real de creación cuando existe y seguimiento observado cuando falta. Prioridad base editable 0–100 (50 inicial), aumento sugerido de 1 punto/día con máximo 20, ajustable/desactivable y visible por separado; terminar o bloquear nunca se altera por prioridad. Sin escribir Kanvas ni cambiar la prioridad de los jobs técnicos. Diseño concreto en docs/PERSONAL_NOTEBOOK.md. Terminado cuando se puede editar una tarea ya existente, los ajustes sobreviven a nuevas capturas y alimentan el plan como preferencias humanas, IDs iguales no se mezclan entre proyectos y las pruebas demuestran tableros intactos, límites de antigüedad/fechas y privacidad. Cualquier cambio de esquema o formato publicado se presenta previamente."
     }
   ]
 }

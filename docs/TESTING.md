@@ -316,3 +316,24 @@ evidencias llegan al siguiente plan como contexto histórico, sin cambiar las
 declaraciones humanas. Capturas locales de navegador de la pantalla Plan en
 390 y 1440 px: `build/wa03-preview/mobile.png` y `desktop.png`; no sustituyen
 la prueba de la puerta desde un teléfono físico.
+
+## Generación y cola (WA-04)
+
+`tests/e2e/test_generation_queue.py` recorre POST web, worker y SMTP local. T03
+prueba un diario manual entregado seguido de un temporizador sin novedades:
+un solo correo, el segundo trabajo `skipped`. T04 enfrenta botón y temporizador,
+verifica que comparten la solicitud y hace llegar dos workers al bloqueo: el
+segundo espera, no genera otro informe ni repite correo.
+
+Se instrumenta el POST para fallar si llama a captura, worker o proveedor.
+Avance no cierra ni entrega; las peticiones sin envío no se mezclan con las que
+envían. Se prueban reanudación con inventario congelado, parámetros/errores
+privados ocultos, fechas de revisión explícitas, límites de páginas y base
+redirigida por symlink. El reintento apunta a un solo canal de informe, revisión
+o plan; una entrega sin destino no se convierte en un reintento global, y los
+correos inciertos o canales ya entregados se rechazan. Todas las cuentas y
+fuentes son sintéticas; SMTP usa aiosmtpd y Drive el remoto local de fixtures.
+
+Capturas de navegador: `build/wa04-preview/mobile.png`, `desktop.png` y
+`dependencies.png`. La entrega solicitada desde un teléfono físico sigue
+siendo una comprobación humana de la puerta de fase 3.

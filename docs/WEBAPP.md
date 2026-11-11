@@ -32,7 +32,7 @@ El enlace del correo es `{web.public_base_url}/r/{fecha}`; el del semanal, `/w/{
 Están disponibles Hoy, Semana, detalle de resultados e Historial. Los enlaces
 por fecha redirigen a `/reports/{id}`, que conserva la revisión exacta; el detalle
 canónico es `/reports/{id}/results/{result_id}`. La revisión activa está disponible
-en WA-02 y el plan editable en WA-03; Generar se incorpora en WA-04.
+en WA-02, el plan editable en WA-03 y Generar en WA-04.
 
 Antes de mostrar un informe se vuelven a validar su contenido, completitud y
 vínculo con las evidencias. Solo se sirven JSON de informes bajo `data_dir/reports`
@@ -133,7 +133,51 @@ en [PLAN_ACCEPTANCE.md](PLAN_ACCEPTANCE.md). Las copias no se sobrescriben; cada
 canal conserva su estado e intentos de forma independiente. No se envía correo
 por elegir un foco y ningún resultado se marca comprendido por esa acción.
 
-## 4. Diseño
+## 4. Generar y seguir la cola (WA-04)
+
+`/generate` permite solicitar diario, semanal o avance. La web solo guarda la
+petición; el worker captura, genera, valida y entrega. La primera petición puede
+preparar la base del servicio, pero consultar la pantalla no la crea. Las tarjetas
+se agrupan por estado con fecha de creación y acceso al detalle. Se muestran
+cuarenta por página; los recuentos abarcan toda la cola y se puede abrir el resto.
+
+`/jobs/{id}` muestra fechas, piezas guardadas, llamadas al modelo, enlace al
+informe completo cuando valida y estados por canal. Los resultados de una
+generación pendiente se pueden consultar en su inventario verificado, paginado
+de cien en cien; no se muestra texto de modelo sin validar. El esquema con
+flechas explica las etapas del servicio y los trabajos de entrega enlazan con su
+informe de origen cuando ese trabajo consta en el registro. No es una estimación
+porcentual. La consulta automática de estado ocurre cada cinco segundos, con
+enlaces de actualización que funcionan sin JavaScript.
+
+El identificador de formulario evita duplicar una solicitud incluso tras
+terminar. Peticiones equivalentes sin límites explícitos reutilizan un trabajo
+en cola o en curso; diario de web y temporizador comparten esa protección.
+`--no-send` mantiene su propia petición y las revisiones con fechas explícitas
+se conservan. Semanales automáticos y manuales mantienen distintas clases de
+ventana porque sus cierres pueden diferir.
+
+Un trabajo pendiente puede continuarse desde la web en su ventana e inventario
+originales. Una revisión completa posterior impide reanudar un intento superado.
+El proceso web no toma el bloqueo largo del worker: usa una transacción SQLite
+corta para encolar y responde con el enlace al trabajo.
+
+El reintento de `/deliveries/{id}/retry` afecta solo al canal pendiente o fallido,
+también en las revisiones humanas. Los planes usan
+`/plans/{id}/deliveries/{canal}/retry`, con el mismo criterio. Lo ya entregado se
+conserva; el correo incierto no ofrece reenvío en la web. Destinos y canales se
+obtienen del registro y de la configuración, no de campos libres del navegador.
+Los parámetros y errores internos de jobs nunca se muestran en HTML ni JSON.
+
+### Cuaderno de tareas solicitado (WA-09, propuesta)
+
+La persona pide además organizar las tareas de sus proyectos de Kanvas como
+cuaderno personal, con tarjetas, dependencias, fechas y prioridad editable con
+antigüedad. Diseño concreto en [PERSONAL_NOTEBOOK.md](PERSONAL_NOTEBOOK.md).
+Esta propuesta está separada de la cola técnica y conserva los proyectos en
+solo lectura. No se han implementado aún las notas ni prioridades personales.
+
+## 5. Diseño
 
 - Una columna en móvil (≤ 640 px), dos en escritorio (contenido + panel de evidencias). Tipografía del sistema, tamaño base 17 px en móvil.
 - Modo oscuro de bajo contraste por defecto por la noche (`prefers-color-scheme` y conmutador).
@@ -142,7 +186,7 @@ por elegir un foco y ningún resultado se marca comprendido por esa acción.
 - Sin dependencias de terceros en el navegador: JavaScript propio en `static/`,
   sin CDN; los formularios y enlaces funcionan sin JavaScript.
 
-## 5. Seguridad
+## 6. Seguridad
 
 - Escucha solo en `127.0.0.1:{web.port}`. El acceso remoto lo da `tailscale serve` (ver `OPERATIONS.md`).
 - Si la petición trae la cabecera de identidad de Tailscale (`Tailscale-User-Login`), debe coincidir con `web.allowed_tailscale_login`; si no coincide, 403. Verificar en la fase 0 que `tailscale serve` añade esa cabecera en la versión instalada.
@@ -153,7 +197,7 @@ por elegir un foco y ningún resultado se marca comprendido por esa acción.
 - El proceso web no ejecuta trabajos: inserta filas en `job` y responde. El worker los ejecuta con el mismo bloqueo que los temporizadores.
 - Rutas de archivos servidas solo desde `data_dir/reports/` por ID, nunca por ruta recibida del cliente.
 
-## 6. Respaldo en Obsidian
+## 7. Respaldo en Obsidian
 
 Si la webapp no está disponible, la ficha `Revisiones/AAAA-MM-DD-<result_id>.md` incluye un bloque para responder:
 

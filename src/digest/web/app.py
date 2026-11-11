@@ -13,13 +13,14 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
-from digest import planning
+from digest import planning, queue
 from digest.config import Config
 from digest.report.model import Report, ResultEntry
 from digest.report.timeutil import display
 from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
 from digest.review import records
 from digest.review.select import select as select_review
+from digest.web import jobs
 from digest.web.security import Security, form_values
 from digest.web.store import Store
 
@@ -239,6 +240,124 @@ def create_app(config: Config) -> FastAPI:
             return {k: v[0] for k, v in fields.items() if k != "csrf_token"}
         except (UnicodeError, ValueError):
             raise HTTPException(400) from None
+
+    @app.get("/generate", response_class=HTMLResponse)
+    def generate_page(request: Request, page_number: int = 1) -> HTMLResponse:
+        try:
+            state = jobs.board(store, page_number)
+        except ValueError:
+            raise HTTPException(400) from None
+        return page(
+            request,
+            "generate.html",
+            title="Generar",
+            board=state,
+            submission_ids={k: secrets.token_hex(16) for k in queue.REPORT_KINDS},
+            signature=jobs.signature(state),
+        )
+
+    @app.get("/generate/status")
+    def generate_status(page_number: int = 1) -> JSONResponse:
+        try:
+            return JSONResponse({"signature": jobs.signature(jobs.board(store, page_number))})
+        except ValueError:
+            raise HTTPException(400) from None
+
+    @app.post("/generate")
+    async def generate_report(request: Request) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        if set(fields) != {"kind", "submission_id"}:
+            raise HTTPException(400)
+
+        def save() -> int:
+            try:
+                with queue.writing(config) as db:
+                    return queue.generate(db, fields["kind"], fields["submission_id"])
+            except (ValueError, OSError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        ident = await run_in_threadpool(save)
+        return RedirectResponse(f"/jobs/{ident}", status_code=303)
+
+    def job_state(job_id: int, page_number: int = 1) -> dict[str, Any]:
+        try:
+            return jobs.detail(store, config, job_id, page_number)
+        except (ValueError, OSError, sqlite3.Error):
+            raise HTTPException(404) from None
+
+    @app.get("/jobs/{job_id}", response_class=HTMLResponse)
+    def job_page(request: Request, job_id: int, page_number: int = 1) -> HTMLResponse:
+        state = job_state(job_id, page_number)
+        return page(
+            request,
+            "job.html",
+            title="Estado del trabajo",
+            job=state,
+            submission_id=secrets.token_hex(16),
+            submission_ids={str(d["id"]): secrets.token_hex(16) for d in state["deliveries"]},
+            signature=jobs.signature(state),
+        )
+
+    @app.get("/jobs/{job_id}/status")
+    def job_status(job_id: int, page_number: int = 1) -> JSONResponse:
+        state = job_state(job_id, page_number)
+        return JSONResponse({"signature": jobs.signature(state), "state": state["state"]})
+
+    @app.post("/jobs/{job_id}/resume")
+    async def resume_job(request: Request, job_id: int) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        if set(fields) != {"submission_id"}:
+            raise HTTPException(400)
+
+        def save() -> int:
+            try:
+                with queue.writing(config) as db:
+                    return queue.resume(db, job_id, fields["submission_id"])
+            except (ValueError, OSError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        await run_in_threadpool(save)
+        return RedirectResponse(f"/jobs/{job_id}", status_code=303)
+
+    @app.post("/deliveries/{delivery_id}/retry")
+    async def retry_delivery(request: Request, delivery_id: int) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        if set(fields) != {"submission_id"}:
+            raise HTTPException(400)
+
+        def save() -> int:
+            try:
+                with queue.writing(config) as db:
+                    return queue.retry_delivery(db, delivery_id, fields["submission_id"])
+            except (ValueError, OSError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        ident = await run_in_threadpool(save)
+        return RedirectResponse(f"/jobs/{ident}", status_code=303)
+
+    @app.post("/plans/{plan_id}/deliveries/{channel}/retry")
+    async def retry_plan_delivery(request: Request, plan_id: str, channel: str) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        if set(fields) != {"submission_id"}:
+            raise HTTPException(400)
+
+        def save() -> int:
+            try:
+                with queue.writing(config) as db:
+                    return queue.retry_plan(db, config, plan_id, channel, fields["submission_id"])
+            except (ValueError, OSError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        ident = await run_in_threadpool(save)
+        return RedirectResponse(f"/jobs/{ident}", status_code=303)
 
     @app.get("/plan", response_class=HTMLResponse)
     def current_plan(request: Request) -> Response:

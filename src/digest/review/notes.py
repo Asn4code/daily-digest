@@ -125,7 +125,11 @@ def import_ready(db: sqlite3.Connection, config: Config) -> int:
     return count
 
 
-def publish(db: sqlite3.Connection, config: Config, review_id: str) -> dict[str, str]:
+def publish(
+    db: sqlite3.Connection, config: Config, review_id: str, *, channel: str | None = None
+) -> dict[str, str]:
+    if channel is not None and channel not in {"obsidian", "drive"}:
+        raise ValueError("Unknown review channel")
     record, report = records.read(db, config, review_id)
     if record["decision"] is None:
         raise ValueError("A human decision is required")
@@ -176,7 +180,10 @@ def publish(db: sqlite3.Connection, config: Config, review_id: str) -> dict[str,
     create(directory / "review.md", ("\n\n".join(lines) + "\n").encode())
     create(directory / "review.json", canonical(record).encode())
     outcomes = {}
+    selected = {channel} if channel else {"obsidian", "drive"}
     for channel in ("obsidian", "drive"):
+        if channel not in selected:
+            continue
         row = db.execute(
             "SELECT id,state FROM delivery WHERE review_id=? AND channel=? ORDER BY id LIMIT 1",
             (review_id, channel),

@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from digest import queue
 from digest.capture import capture, validate_data_directory
 from digest.collectors.base import canonical, utc
 from digest.config import Config
@@ -30,15 +31,8 @@ from digest.util.fs import read_bounded
 def enqueue(
     config: Config, kind: str, *, requested_by: str = "cli", params: dict[str, Any] | None = None
 ) -> int:
-    data = validate_data_directory(config)
-    data.mkdir(parents=True, exist_ok=True)
-    with closing(connect(data / "digest.db")) as db:
-        cursor = db.execute(
-            "INSERT INTO job(kind,params,requested_by,state,created_at) VALUES (?,?,?,?,?)",
-            (kind, canonical(params or {}), requested_by, "queued", utc(datetime.now(UTC))),
-        )
-        assert cursor.lastrowid is not None
-        return cursor.lastrowid
+    with queue.writing(config) as db:
+        return queue.insert(db, kind, params or {}, requested_by)
 
 
 @contextmanager
@@ -102,11 +96,19 @@ def execute(
                 if params.get("plan"):
                     from digest.publish.plan import publish as publish_plan
 
-                    outcomes = {str(params["plan"]): publish_plan(db, config, params["plan"])}
+                    outcomes = {
+                        str(params["plan"]): publish_plan(
+                            db, config, params["plan"], channel=params.get("channel")
+                        )
+                    }
                 elif params.get("review"):
                     from digest.review.notes import publish as publish_review
 
-                    outcomes = {str(params["review"]): publish_review(db, config, params["review"])}
+                    outcomes = {
+                        str(params["review"]): publish_review(
+                            db, config, params["review"], channel=params.get("channel")
+                        )
+                    }
                 elif params.get("report"):
                     outcomes = {
                         params["report"]: deliver_report(

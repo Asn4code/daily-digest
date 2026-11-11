@@ -36,7 +36,8 @@ el plan propuesto, el contraste crítico semanal y las entregas a correo,
 Obsidian y Drive. La webapp ya permite consultar Hoy, Semana, resultados e
 Historial, escribir una explicación propia y contrastarla antes de decidir.
 La pantalla Plan permite ajustar, aceptar o descartar el foco y conserva cada
-decisión en Obsidian/Drive. Los botones de generación se incorporan en esta fase.
+decisión en Obsidian/Drive. Generar permite solicitar diario, semanal o avance,
+seguir los trabajos y reintentar solo un canal fallido desde la web.
 Los servicios systemd pertenecen a la fase 4.
 
 ```bash

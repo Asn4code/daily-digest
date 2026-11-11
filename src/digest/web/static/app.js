@@ -17,6 +17,20 @@
   }
   addEventListener("hashchange", reveal);
   if (location.hash) reveal();
+  const queuePanel = document.querySelector("[data-queue-status]");
+  if (queuePanel) {
+    let attempts = 0, dirty = false;
+    queuePanel.addEventListener("input", () => { dirty = true; });
+    const timer = setInterval(async () => {
+      if (++attempts > 720) { clearInterval(timer); return; }
+      if (document.hidden || dirty) return;
+      try {
+        const response = await fetch(queuePanel.dataset.queueStatus, {credentials: "same-origin", cache: "no-store"});
+        if (!response.ok) { clearInterval(timer); return; }
+        if ((await response.json()).signature !== queuePanel.dataset.signature) location.reload();
+      } catch { clearInterval(timer); }
+    }, 5000);
+  }
   const pending = document.querySelector("[data-review-state=pending]");
   if (pending) {
     let attempts = 0;

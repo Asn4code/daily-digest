@@ -70,14 +70,21 @@ def render(value: dict[str, Any], config: Config) -> str:
     return "\n\n".join(lines) + "\n"
 
 
-def publish(db: sqlite3.Connection, config: Config, ident: str) -> dict[str, str]:
+def publish(
+    db: sqlite3.Connection, config: Config, ident: str, *, channel: str | None = None
+) -> dict[str, str]:
+    if channel is not None and channel not in {"obsidian", "drive"}:
+        raise ValueError("Unknown plan channel")
     value = snapshot(db, config, ident)
     directory = destination(config, Path(config.paths.data_dir), "plans/" + ident)
     create(directory / "plan.json", canonical(value).encode())
     create(directory / "plan.md", render(value, config).encode())
     date = datetime.fromisoformat(value["created_at"]).astimezone(ZoneInfo(config.timezone)).date()
     outcomes = {}
+    selected = {channel} if channel else {"obsidian", "drive"}
     for channel in ("obsidian", "drive"):
+        if channel not in selected:
+            continue
         key = f"plan_delivery:{ident}:{channel}"
         prior = meta(db, key, {"state": "pending", "attempts": 0})
         if prior["state"] == "sent":
