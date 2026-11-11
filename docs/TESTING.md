@@ -337,3 +337,26 @@ fuentes son sintéticas; SMTP usa aiosmtpd y Drive el remoto local de fixtures.
 Capturas de navegador: `build/wa04-preview/mobile.png`, `desktop.png` y
 `dependencies.png`. La entrega solicitada desde un teléfono físico sigue
 siendo una comprobación humana de la puerta de fase 3.
+
+## Cuaderno personal de tareas (WA-09)
+
+Los 19 casos de `tests/e2e/test_personal_notebook.py` cubren creación y seguimiento
+observado, fechas futuras, aumento acotado, tareas terminadas y bloqueadas,
+prioridad manual y reglas generales. Se comprueban IDs iguales entre proyectos,
+persistencia tras capturas, fichas retiradas, IDs reutilizados, historial íntegro,
+reenvíos idempotentes y dos ediciones concurrentes. Los formularios requieren CSRF.
+
+Los tests verifican que los árboles de proyectos no cambian, que los GET no
+ejecutan procesos ni workers y que solo la petición explícita encola una captura.
+Se rechazan snapshots externos o manipulados y revisiones personales alteradas;
+HTML de notas y títulos queda escapado. La hoja CSS se sirve con su tipo correcto
+y no contiene accidentalmente una plantilla HTML.
+
+El plan se prueba con un modelo falso: recibe notas completas dentro del
+presupuesto, avisa de omisiones, conserva ámbitos privados aunque un proyecto no
+se haya registrado y bloquea antes de llamar al proveedor si falta una política.
+Las preferencias nunca desbloquean candidatas ni aceptan misiones.
+
+Capturas locales con proyectos sintéticos: `build/wa09-preview/mobile.png`,
+`desktop.png`, `dependencies.png` y `task-mobile.png`. La comprobación en un
+teléfono físico permanece en la puerta de fase 3.

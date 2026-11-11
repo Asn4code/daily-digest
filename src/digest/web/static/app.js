@@ -17,6 +17,17 @@
   }
   addEventListener("hashchange", reveal);
   if (location.hash) reveal();
+  const graph = document.querySelector("[data-notebook-graph]");
+  if (graph) {
+    let scale = 1;
+    document.querySelectorAll("[data-graph-zoom]").forEach(button => {
+      button.addEventListener("click", () => {
+        scale = button.dataset.graphZoom === "reset" ? 1 : Math.max(.3, Math.min(2, scale * (button.dataset.graphZoom === "in" ? 1.2 : 1/1.2)));
+        graph.setAttribute("width", Math.round(Number(graph.dataset.width) * scale));
+        graph.setAttribute("height", Math.round(Number(graph.dataset.height) * scale));
+      });
+    });
+  }
   const queuePanel = document.querySelector("[data-queue-status]");
   if (queuePanel) {
     let attempts = 0, dirty = false;

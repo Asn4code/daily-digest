@@ -169,13 +169,26 @@ conserva; el correo incierto no ofrece reenvío en la web. Destinos y canales se
 obtienen del registro y de la configuración, no de campos libres del navegador.
 Los parámetros y errores internos de jobs nunca se muestran en HTML ni JSON.
 
-### Cuaderno de tareas solicitado (WA-09, propuesta)
+### Cuaderno de tareas (WA-09)
 
-La persona pide además organizar las tareas de sus proyectos de Kanvas como
-cuaderno personal, con tarjetas, dependencias, fechas y prioridad editable con
-antigüedad. Diseño concreto en [PERSONAL_NOTEBOOK.md](PERSONAL_NOTEBOOK.md).
-Esta propuesta está separada de la cola técnica y conserva los proyectos en
-solo lectura. No se han implementado aún las notas ni prioridades personales.
+«Tareas» abre `/notebook`: tarjetas por estado o grafo con flechas desde la tarea
+previa hacia su dependiente, zoom y enlaces a las fichas. Se puede buscar por texto
+y filtrar por proyecto, estado, disponibilidad o prioridad mínima. Hasta 60 tareas
+por página; las dependencias fuera de página se indican expresamente. Las tarjetas
+se desplazan horizontalmente en móvil. No se cambia el estado arrastrándolas.
+
+`/notebook/{proyecto}/{tarea}` muestra creación o seguimiento observado, prioridad
+base, aumento aplicado, bloqueos y notas de origen separadas de «Mis notas y
+ajustes». Guardar por POST añade una versión personal, con protección CSRF,
+reenvíos idempotentes y rechazo de formularios obsoletos. No cambia Kanvas ni
+declara comprensión. Las fichas retiradas de la captura conservan notas e historial.
+El historial muestra 20 versiones por página y las evidencias, 50 por página.
+
+`/notebook/settings` permite editar las reglas generales. El POST
+`/notebook/refresh` solicita una captura al worker; abrir páginas no la ejecuta.
+Las preferencias se usan en el siguiente plan diario, respetando privacidad y
+dependencias. No cambian la prioridad de los jobs técnicos. Persistencia, límites
+y fórmula en [PERSONAL_NOTEBOOK.md](PERSONAL_NOTEBOOK.md).
 
 ## 5. Diseño
 

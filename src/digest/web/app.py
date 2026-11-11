@@ -13,14 +13,16 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
-from digest import planning, queue
+from digest import notebook, planning, queue
 from digest.config import Config
 from digest.report.model import Report, ResultEntry
 from digest.report.timeutil import display
 from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
 from digest.review import records
 from digest.review.select import select as select_review
+from digest.util.fs import ReadError
 from digest.web import jobs
+from digest.web.notebook_graph import layout as notebook_layout
 from digest.web.security import Security, form_values
 from digest.web.store import Store
 
@@ -28,6 +30,14 @@ ENV = Environment(loader=PackageLoader("digest.web", "templates"), autoescape=se
 ENV.filters.update(
     localtime=display, confidence=lambda v: CONFIDENCE[v], priority=lambda v: PRIORITIES[v]
 )
+ENV.filters["task_state"] = lambda v: {
+    "proposed": "Propuesta",
+    "todo": "Pendiente",
+    "doing": "En curso",
+    "review": "En revisión",
+    "done": "Terminada",
+    "archived": "Fuera de captura",
+}.get(v, "No disponible")
 ASSETS = {
     "app.css": "text/css",
     "app.js": "text/javascript",
@@ -240,6 +250,253 @@ def create_app(config: Config) -> FastAPI:
             return {k: v[0] for k, v in fields.items() if k != "csrf_token"}
         except (UnicodeError, ValueError):
             raise HTTPException(400) from None
+
+    @app.get("/notebook", response_class=HTMLResponse)
+    def notebook_page(
+        request: Request,
+        project: str = "",
+        state: str = "open",
+        q: str = "",
+        minimum: int = 0,
+        page_number: int = 1,
+        view: str = "cards",
+    ) -> HTMLResponse:
+        if (
+            project
+            and project not in {p.id for p in config.projects}
+            or state not in notebook.STATES | {"all", "open", "available", "blocked", "archived"}
+            or len(q) > 200
+            or not 0 <= minimum <= 100
+            or not 1 <= page_number <= 10000
+            or view not in {"cards", "graph"}
+        ):
+            raise HTTPException(400)
+        try:
+            with store.database() as db:
+                db.execute("BEGIN")
+                tasks, sources = notebook.catalogue(db, config)
+        except (OSError, ReadError):
+            tasks, sources = [], []
+        except (ValueError, sqlite3.Error):
+            raise HTTPException(409) from None
+        selected = [
+            t
+            for t in tasks
+            if (not project or t["project_id"] == project)
+            and (
+                state == "all"
+                or state == "open"
+                and t["state"] not in {"done", "archived"}
+                or state == "available"
+                and t["available"]
+                or state == "blocked"
+                and bool(t["blockers"])
+                and t["state"] != "done"
+                or state == t["state"]
+            )
+            and t["suggested"] >= minimum
+            and (
+                not q
+                or q.casefold()
+                in (
+                    t["id"]
+                    + " "
+                    + t["title"]
+                    + " "
+                    + t["description"]
+                    + " "
+                    + t["personal"]["note"]
+                ).casefold()
+            )
+        ]
+        visible = selected[(page_number - 1) * 60 : page_number * 60]
+        from urllib.parse import urlencode
+
+        base = {"project": project, "state": state, "q": q, "minimum": minimum}
+        return page(
+            request,
+            "notebook.html",
+            title="Cuaderno personal",
+            tasks=visible,
+            sources=sources,
+            projects=[{"id": p.id, "name": p.name} for p in config.projects],
+            selected_project=project,
+            state=state,
+            query=q,
+            minimum=minimum,
+            view=view,
+            total=len(selected),
+            all_count=len(tasks),
+            archived_count=sum(t["state"] == "archived" for t in tasks),
+            page_number=page_number,
+            graph=notebook_layout(visible),
+            refresh_nonce=secrets.token_hex(16),
+            cards_url="/notebook?"
+            + urlencode({**base, "view": "cards", "page_number": page_number}),
+            graph_url="/notebook?"
+            + urlencode({**base, "view": "graph", "page_number": page_number}),
+            previous_url="/notebook?"
+            + urlencode({**base, "view": view, "page_number": page_number - 1})
+            if page_number > 1
+            else None,
+            next_url="/notebook?"
+            + urlencode({**base, "view": view, "page_number": page_number + 1})
+            if len(selected) > page_number * 60
+            else None,
+        )
+
+    @app.post("/notebook/refresh")
+    async def refresh_notebook(request: Request) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        if set(fields) != {"submission_id"}:
+            raise HTTPException(400)
+
+        def save() -> int:
+            try:
+                with queue.writing(config) as db:
+                    return queue.refresh_notebook(db, fields["submission_id"])
+            except (OSError, ValueError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        ident = await run_in_threadpool(save)
+        return RedirectResponse(f"/jobs/{ident}", status_code=303)
+
+    @app.get("/notebook/settings", response_class=HTMLResponse)
+    def notebook_settings(request: Request) -> HTMLResponse:
+        try:
+            with store.database() as db:
+                rule, revision = notebook.settings(db)
+        except (OSError, ReadError):
+            rule, revision = notebook.Settings(), None
+        except (ValueError, sqlite3.Error):
+            raise HTTPException(409) from None
+        return page(
+            request,
+            "notebook_settings.html",
+            title="Reglas de prioridad",
+            rule=rule,
+            expected=revision or "",
+            submission_id=secrets.token_hex(16),
+        )
+
+    @app.post("/notebook/settings")
+    async def update_notebook_settings(request: Request) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        if set(fields) != {
+            "base",
+            "daily_step",
+            "cap",
+            "enabled",
+            "expected",
+            "submission_id",
+        } or fields["enabled"] not in {"0", "1"}:
+            raise HTTPException(400)
+
+        def save() -> None:
+            try:
+                with queue.writing(config) as db:
+                    notebook.save_settings(
+                        db,
+                        {
+                            "base": int(fields["base"]),
+                            "daily_step": int(fields["daily_step"]),
+                            "cap": int(fields["cap"]),
+                            "enabled": fields["enabled"] == "1",
+                        },
+                        fields["expected"] or None,
+                        fields["submission_id"],
+                    )
+            except (OSError, ValueError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        await run_in_threadpool(save)
+        return RedirectResponse("/notebook/settings", status_code=303)
+
+    @app.get("/notebook/{project_id}/{task_id}", response_class=HTMLResponse)
+    def notebook_task(
+        request: Request,
+        project_id: str,
+        task_id: str,
+        history_page: int = 1,
+        evidence_page: int = 1,
+    ) -> HTMLResponse:
+        if not 1 <= evidence_page <= 10000:
+            raise HTTPException(400)
+        try:
+            with store.database() as db:
+                db.execute("BEGIN")
+                item = notebook.task(db, config, project_id, task_id)
+                versions, more = notebook.history(db, project_id, task_id, history_page)
+                rows = db.execute(
+                    "SELECT id,kind,locator,excerpt FROM evidence WHERE project_id=? AND task_id=? "
+                    "ORDER BY observed_at DESC,id DESC LIMIT 51 OFFSET ?",
+                    (project_id, task_id, (evidence_page - 1) * 50),
+                ).fetchall()
+                related = notebook.source(
+                    db, config, next(p for p in config.projects if p.id == project_id)
+                )
+                dependents = [ident for ident, t in related.tasks.items() if task_id in t["deps"]]
+        except (OSError, ValueError, sqlite3.Error):
+            raise HTTPException(404) from None
+        return page(
+            request,
+            "notebook_task.html",
+            title=item["title"],
+            item=item,
+            versions=versions,
+            history_more=more,
+            history_page=history_page,
+            evidence=[
+                {"id": r[0], "kind": r[1], "locator": r[2], "excerpt": r[3]} for r in rows[:50]
+            ],
+            evidence_more=len(rows) > 50,
+            evidence_page=evidence_page,
+            dependencies=[
+                {
+                    "id": ident,
+                    "title": related.tasks.get(ident, {}).get("title"),
+                    "state": related.tasks.get(ident, {}).get("state"),
+                }
+                for ident in item["deps"]
+            ],
+            dependents=dependents,
+            submission_id=secrets.token_hex(16),
+        )
+
+    @app.post("/notebook/{project_id}/{task_id}")
+    async def update_notebook_task(request: Request, project_id: str, task_id: str) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        if set(fields) != {"base", "aging", "note", "expected", "submission_id"}:
+            raise HTTPException(400)
+
+        def save() -> None:
+            try:
+                values = {
+                    "base": int(fields["base"]) if fields["base"] else None,
+                    "aging": fields["aging"],
+                    "note": fields["note"],
+                }
+                with queue.writing(config) as db:
+                    notebook.save(
+                        db,
+                        config,
+                        project_id,
+                        task_id,
+                        values,
+                        fields["expected"],
+                        fields["submission_id"],
+                    )
+            except (OSError, ValueError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        await run_in_threadpool(save)
+        return RedirectResponse(f"/notebook/{project_id}/{task_id}", status_code=303)
 
     @app.get("/generate", response_class=HTMLResponse)
     def generate_page(request: Request, page_number: int = 1) -> HTMLResponse:

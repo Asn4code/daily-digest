@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any, Protocol
 from zoneinfo import ZoneInfo
 
+from digest import notebook
 from digest.config import Config
 from digest.llm.router import Task
 from digest.report.activity import active_results, current_evidence_ids
@@ -120,33 +121,54 @@ def frontier(
     candidates: list[dict[str, Any]] = []
     states: dict[str, dict[str, str]] = {}
     auxiliary: set[str] = set()
-    for project in sorted(config.projects, key=lambda p: (p.priority, p.id)):
-        latest = db.execute(
-            "SELECT status FROM snapshot WHERE project_id=? AND source='kanvas' "
-            "ORDER BY id DESC LIMIT 1",
-            (project.id,),
-        ).fetchone()
-        if not latest or latest[0] != "ok":
-            continue
-        available = sorted(
-            (t for t in tasks.get(project.id, []) if t["state"] in {"todo", "doing"}),
-            key=lambda t: (t["state"] != "doing", t["id"]),
+    personal_tasks, _ = notebook.catalogue(
+        db, config, now=datetime.fromisoformat(report.created_at)
+    )
+    personal_by_key = {(t["project_id"], t["id"]): t for t in personal_tasks}
+    priorities = {p.id: p.priority for p in config.projects}
+    all_available = [
+        (project.id, task)
+        for project in config.projects
+        for task in tasks.get(project.id, [])
+        if task["state"] in {"todo", "doing"}
+        and personal_by_key.get((project.id, task["id"]), {}).get("available")
+    ]
+    all_available.sort(
+        key=lambda pair: (
+            -personal_by_key[(pair[0], pair[1]["id"])]["suggested"],
+            priorities[pair[0]],
+            pair[1]["state"] != "doing",
+            pair[0],
+            pair[1]["id"],
         )
-        known = {t["id"]: t["state"] for t in tasks.get(project.id, [])}
-        for task in available:
-            if len(candidates) >= MAX_CANDIDATES:
-                report.warnings.append(
-                    "El plan usa una frontera acotada; no evalúa todo el backlog."
-                )
-                break
-            entry = task_evidence(db, project.id, task["id"])
-            if not entry:
-                continue
-            attach_context(report, entry, config)
-            auxiliary.add(entry.id)
-            states.setdefault(project.id, {})[task["id"]] = task["state"]
-            states[project.id].update({dep: known[dep] for dep in task["deps"] if dep in known})
-            candidates.append({**task, "project_id": project.id, "evidence": [entry.id]})
+    )
+    known_by_project = {pid: {t["id"]: t["state"] for t in group} for pid, group in tasks.items()}
+    for project_id, task in all_available:
+        if len(candidates) >= MAX_CANDIDATES:
+            report.warnings.append("El plan usa una frontera acotada; no evalúa todo el backlog.")
+            break
+        entry = task_evidence(db, project_id, task["id"])
+        if not entry:
+            continue
+        attach_context(report, entry, config)
+        auxiliary.add(entry.id)
+        states.setdefault(project_id, {})[task["id"]] = task["state"]
+        known = known_by_project[project_id]
+        states[project_id].update({dep: known[dep] for dep in task["deps"] if dep in known})
+        personal_task = personal_by_key[(project_id, task["id"])]
+        candidates.append(
+            {
+                **task,
+                "project_id": project_id,
+                "evidence": [entry.id],
+                "notebook": {k: personal_task[k] for k in ("base", "aging_bonus", "suggested")}
+                | {
+                    "revision": None
+                    if personal_task["identity_changed"]
+                    else personal_task["revision"]
+                },
+            }
+        )
     return candidates, states, auxiliary
 
 
@@ -265,8 +287,22 @@ def build(
         pending(report, "plan", "human_scope_missing", "input")
         return
     candidates, states, auxiliary = frontier(db, config, report, tasks)
+    personal_context, personal_scope, personal_omitted = notebook.preferences(
+        db, config, candidates
+    )
+    if not personal_scope <= {p.id for p in config.projects}:
+        pending(report, "plan", "notebook_scope_missing", "input")
+        return
+    if personal_context and human_scope(db, config) is None:
+        pending(report, "plan", "human_scope_missing", "input")
+        return
+    if personal_omitted:
+        report.warnings.append(
+            "Algunas notas personales no caben en el paquete del plan; consúltalas en el cuaderno."
+        )
     accepted = report.human_context.get("accepted_plan")
     scope = set(by_project) | {item["project_id"] for item in candidates}
+    scope.update(personal_scope)
     critical, critical_ids, critical_scope = weekly_focus(db, config, report)
     if critical and critical.get("unavailable"):
         pending(report, "plan", "weekly_scope_missing", "input")
@@ -334,6 +370,7 @@ def build(
             "task_candidates": candidates,
             "human_context": report.human_context,
             "human_doubts": doubts,
+            "notebook_preferences": personal_context,
             "weekly_focus": critical,
             "planning_for": planning_for,
             "evidence_cutoff": report.end_at,

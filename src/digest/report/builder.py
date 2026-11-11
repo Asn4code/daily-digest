@@ -95,6 +95,7 @@ def package_scope(payload: dict[str, Any]) -> EvidencePackage:
         bool(
             payload.get("human_plan_ids")
             or payload.get("context", {}).get("human_doubts")
+            or payload.get("context", {}).get("notebook_preferences")
             or payload.get("context", {}).get("accepted_plans")
             or payload.get("context", {}).get("current_human_plan", {}).get("accepted_plan")
             or any(p["author"] == "human" for p in payload.get("conclusions", {}).values())

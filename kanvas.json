@@ -1020,7 +1020,6 @@
       "state": "todo",
       "group": "WA",
       "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09"],
-      "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
       "desc": "Validar que la fase 3 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 3 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-3.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 3` da APROBADA y el informe build/gates/phase-3.md va en la nota de cierre.",
@@ -1035,7 +1034,7 @@
     {
       "id": "OP-01",
       "title": "Unidades systemd y despliegue",
-      "state": "proposed",
+      "state": "todo",
       "group": "OP",
       "deps": ["WA-04", "CP-08", "WA-05"],
       "at": "2026-11-04T11:20:37Z",
@@ -1045,7 +1044,7 @@
     {
       "id": "OP-02",
       "title": "Acceso con Tailscale",
-      "state": "proposed",
+      "state": "todo",
       "group": "OP",
       "deps": ["OP-01"],
       "at": "2026-11-04T11:20:37Z",
@@ -1055,7 +1054,7 @@
     {
       "id": "OP-03",
       "title": "Copia remota completa, entregas y reintentos",
-      "state": "proposed",
+      "state": "todo",
       "group": "OP",
       "deps": ["CP-08", "WA-02", "WA-05"],
       "at": "2026-11-04T11:20:37Z",
@@ -1065,7 +1064,7 @@
     {
       "id": "OP-04",
       "title": "Copias de SQLite y restauración",
-      "state": "proposed",
+      "state": "todo",
       "group": "OP",
       "deps": ["OP-03"],
       "at": "2026-11-04T11:20:37Z",
@@ -1075,9 +1074,10 @@
     {
       "id": "OP-05",
       "title": "Puerta de fase 4",
-      "state": "proposed",
+      "state": "todo",
       "group": "OP",
       "deps": ["OP-01", "OP-02", "OP-03", "OP-04"],
+      "yolo": true,
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
       "desc": "Validar que la fase 4 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 4 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-4.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 4` da APROBADA (con `--host` en el equipo de Rocky) y el informe build/gates/phase-4.md va en la nota de cierre."
@@ -1471,12 +1471,39 @@
     {
       "id": "WA-09",
       "title": "Cuaderno personal de tareas: tarjetas, dependencias y prioridades",
-      "state": "proposed",
+      "state": "done",
       "group": "WA",
       "deps": ["WA-03", "WA-04"],
       "at": "2026-11-11T10:29:49Z",
       "by": "codex",
-      "desc": "Organizar en la webapp las tareas capturadas de Kanvas, con notas personales versionadas, vistas de tarjetas y dependencias, fecha real de creación cuando existe y seguimiento observado cuando falta. Prioridad base editable 0–100 (50 inicial), aumento sugerido de 1 punto/día con máximo 20, ajustable/desactivable y visible por separado; terminar o bloquear nunca se altera por prioridad. Sin escribir Kanvas ni cambiar la prioridad de los jobs técnicos. Diseño concreto en docs/PERSONAL_NOTEBOOK.md. Terminado cuando se puede editar una tarea ya existente, los ajustes sobreviven a nuevas capturas y alimentan el plan como preferencias humanas, IDs iguales no se mezclan entre proyectos y las pruebas demuestran tableros intactos, límites de antigüedad/fechas y privacidad. Cualquier cambio de esquema o formato publicado se presenta previamente."
+      "desc": "Organizar en la webapp las tareas capturadas de Kanvas, con notas personales versionadas, vistas de tarjetas y dependencias, fecha real de creación cuando existe y seguimiento observado cuando falta. Prioridad base editable 0–100 (50 inicial), aumento sugerido de 1 punto/día con máximo 20, ajustable/desactivable y visible por separado; terminar o bloquear nunca se altera por prioridad. Sin escribir Kanvas ni cambiar la prioridad de los jobs técnicos. Diseño concreto en docs/PERSONAL_NOTEBOOK.md. Terminado cuando se puede editar una tarea ya existente, los ajustes sobreviven a nuevas capturas y alimentan el plan como preferencias humanas, IDs iguales no se mezclan entre proyectos y las pruebas demuestran tableros intactos, límites de antigüedad/fechas y privacidad. Cualquier cambio de esquema o formato publicado se presenta previamente.",
+      "notes": [
+        {
+          "at": "2026-11-11T17:07:00Z",
+          "by": "codex",
+          "text": "Plan: cuaderno personal sobre capturas verificadas de Kanvas, tarjetas y grafo de dependencias por proyecto, fechas con procedencia, prioridad base y aumento acotado editables, notas e historial inmutable en datos del servicio y preferencias humanas para el plan; probar proyectos intactos, fechas, IDs repetidos, XSS, concurrencia y privacidad."
+        },
+        {
+          "at": "2026-11-11T17:22:52Z",
+          "by": "codex",
+          "text": "El precheck detectó una suposición demasiado estricta del lector nuevo: el serializador Kanvas ya omite deps cuando no hay dependencias. Se alinea con task_context existente usando ausencia=lista vacía; no cambia el contrato ni se adapta un formato externo nuevo. Se añade cobertura de tableros normales sin deps."
+        },
+        {
+          "at": "2026-11-11T17:28:43Z",
+          "by": "codex",
+          "text": "Persistencia concretada sin DDL ni cambios de formatos publicados: nb_revision/nb_hash inmutables y punteros por proyecto+ID en meta, con nonce, control de edición obsoleta y ámbito histórico de privacidad. El respaldo será el de SQLite previsto en operación. Se conservan fichas de tareas retiradas como fuera de captura, sin aumento ni disponibilidad para el plan."
+        },
+        {
+          "at": "2026-11-11T17:37:17Z",
+          "by": "codex",
+          "text": "El cuaderno pasa make check: lint, formato, mypy y 405 tests, incluidos 19 casos nuevos. Comprobadas capturas sintéticas de móvil (390 px), escritorio y dependencias en build/wa09-preview. Documentados persistencia sin migración, límites, fichas retiradas, privacidad y contexto para el plan diario. La prueba desde un teléfono físico queda en la puerta WA-05."
+        },
+        {
+          "at": "2026-11-11T17:37:38Z",
+          "by": "codex",
+          "text": "Ya puedes organizar tareas de Kanvas en tarjetas y dependencias, guardar notas con historial y ajustar prioridad y aumento por antigüedad. Las notas sobreviven a capturas y tareas retiradas; el plan diario respeta preferencias, bloqueos y privacidad sin escribir los proyectos. Verificado con make check (405 tests), capturas móvil/escritorio y precheck independiente sin bloqueantes (27 tests propios). Para comprobarlo: abre Tareas, edita una ficha y consulta sus dependencias; la validación desde un teléfono físico queda para WA-05."
+        }
+      ]
     }
   ]
 }

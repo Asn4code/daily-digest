@@ -79,7 +79,7 @@ nueva y reutilización incremental comprobada; detalles en HIERARCHICAL_DIGEST.m
 - [WA-06] Configurar modelos por tarea desde la webapp
 - [WA-07] Conservar comillas y entidades literales en Markdown — implementado
 - [WA-08] Ampliaciones y comprobaciones a petición desde el final del diario (D-050)
-- [WA-09] Cuaderno personal sobre las tareas de Kanvas, con prioridades y antigüedad — propuesto a petición de la persona
+- [WA-09] Cuaderno personal sobre las tareas de Kanvas, con prioridades y antigüedad — implementado
 - [WA-05] Puerta de fase 3
 
 Aceptación: T03, T04, T14, T19–T21, T25, T26; el enlace del correo abre el informe en móvil y ordenador; desde el móvil se revisa y se lanza un informe.

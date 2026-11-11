@@ -99,6 +99,12 @@ proveedores por tarea en `llm.routing`. Inicialmente se usa el Qwen interno para
 extracción y DeepSeek de NaN para síntesis, plan, semanal y contraste, con respaldo
 mutuo. La edición de modelos desde la webapp está propuesta en WA-06.
 
+La sección **Tareas** de la webapp ofrece tarjetas y un grafo de dependencias de
+Kanvas. Permite guardar notas personales y editar prioridades con aumento acotado
+por antigüedad; los proyectos permanecen en solo lectura. Estas preferencias
+alimentan el siguiente plan diario. Consulta [el cuaderno personal](docs/PERSONAL_NOTEBOOK.md)
+para conocer sus reglas, historial y límites.
+
 
 > La generación actual conserva el respaldo mecánico anterior: todavía no cumple
 > el requisito nuevo de D-047. Las pruebas reales están detenidas mientras se

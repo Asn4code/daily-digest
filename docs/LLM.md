@@ -650,3 +650,19 @@ Se hereda el ámbito de privacidad del semanal y el presupuesto habitual puede
 dejar la generación pendiente si no cabe. Las dudas humanas conservan su origen;
 no se convierten mecánicamente en una lista de tareas. El modelo puede motivar
 otro foco, pero no acepta propuestas ni altera una decisión humana.
+
+## 18. Preferencias del cuaderno personal (WA-09)
+
+Plan versión 8 añade `notebook_preferences`: reglas generales modificadas y
+ajustes de las tareas candidatas disponibles. Base, aumento y prioridad sugerida
+son preferencias organizativas calculadas, no resultados científicos. Las notas
+humanas están delimitadas y no autorizan instrucciones sobre rutas o herramientas.
+Una intención humana explícita admite `origin=review`; cualquier afirmación sobre
+el proyecto sigue citando evidencias existentes y pasando el validador.
+
+El presupuesto es de 6000 caracteres de notas completas, con aviso si una no cabe;
+cada nota admite hasta 4000. Se heredan los proyectos configurados, registrados e
+históricos de cada ajuste. Una política ausente deja el plan pendiente antes de
+llamar al proveedor. Los bloqueos siguen excluyendo candidatas y la antigüedad no
+justifica por sí sola sustituir una misión aceptada. Este contexto solo alimenta
+el plan diario, sin cambiar automáticamente estados humanos.

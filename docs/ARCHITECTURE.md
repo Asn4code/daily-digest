@@ -36,6 +36,7 @@ daily-digest/
     results.py               # agrupación de evidencias en resultados
     intervals.py             # apertura y cierre de intervalos
     planning.py              # elección humana, ajustes e instantáneas inmutables
+    notebook.py              # notas personales versionadas y prioridad sobre capturas Kanvas
     queue.py                 # peticiones transaccionales y reintentos acotados
     llm/
       client.py              # cliente OpenAI-compatible (httpx)
@@ -56,6 +57,7 @@ daily-digest/
       email.py  obsidian.py  drive.py  deliveries.py  plan.py
     web/
       app.py                 # FastAPI
+      notebook_graph.py      # disposición de dependencias; SVG generado por el servicio
       routes/  templates/  static/   # JavaScript propio local, manifest.webmanifest, icons
     extensions/              # fase 6, ver EXTENSIONS.md
       registry.py            # descubre extensiones internas y por entry points

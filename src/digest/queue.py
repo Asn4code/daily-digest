@@ -114,6 +114,19 @@ def generate(db: sqlite3.Connection, kind: str, ident: str) -> int:
     return remember(db, ident, request, job)
 
 
+def refresh_notebook(db: sqlite3.Connection, ident: str) -> int:
+    request = {"notebook_refresh": True}
+    prior = submission(db, ident, request)
+    if prior is not None:
+        return prior
+    existing = db.execute(
+        "SELECT id FROM job WHERE kind='capture' AND state IN ('queued','running') "
+        "AND json_extract(params,'$.project') IS NULL ORDER BY id LIMIT 1"
+    ).fetchone()
+    job = int(existing[0]) if existing else insert(db, "capture", {}, "web")
+    return remember(db, ident, request, job)
+
+
 def retry_delivery(db: sqlite3.Connection, delivery_id: int, ident: str) -> int:
     request = {"delivery": delivery_id}
     prior = submission(db, ident, request)
