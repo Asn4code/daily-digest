@@ -99,7 +99,11 @@ def execute(
             if kind == "deliver":
                 from digest.publish.deliveries import deliver_report, retry
 
-                if params.get("review"):
+                if params.get("plan"):
+                    from digest.publish.plan import publish as publish_plan
+
+                    outcomes = {str(params["plan"]): publish_plan(db, config, params["plan"])}
+                elif params.get("review"):
                     from digest.review.notes import publish as publish_review
 
                     outcomes = {str(params["review"]): publish_review(db, config, params["review"])}

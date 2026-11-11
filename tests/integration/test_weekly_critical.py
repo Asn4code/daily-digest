@@ -340,4 +340,22 @@ def test_weekly_critical_comparison_preserves_human_version_and_both_evidence_si
                 assert statement["version"] == report.id
                 assert statement["author"] == "automatic"
                 assert statement["text"] == check["assessment"]["text"]
+        if outcome == "qualifies" and human and not private_scope:
+            kanvas.now_iso = lambda: "2026-11-08T15:00:00+00:00"
+            kanvas.mutate(str(Path(config.projects[0].root) / "kanvas.json"), add)
+            next_daily = enqueue(config, "daily", params={"no_send": True})
+            daily_path = Path(
+                execute(config, next_daily, now=datetime(2026, 11, 8, 19, tzinfo=UTC))
+            )
+            following = TypeAdapter(Report).validate_json(
+                daily_path.with_suffix(".json").read_bytes()
+            )
+            assert daily_path.name == "report.md"
+            carried = following.packages["plan"]["context"]["weekly_focus"]
+            assert carried["report_id"] == report.id
+            assert carried["checks"][0]["analyses"] == check["analyses"]
+            assert set(check["assessment"]["evidence"]) <= {e.id for e in following.evidence}
+            validate_report(following, {e.id for e in following.evidence})
+            with closing(connect(data / "digest.db")) as db:
+                assert db.execute("SELECT * FROM review").fetchall() == before
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)

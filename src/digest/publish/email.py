@@ -117,6 +117,15 @@ def compose(
             plain.append("Se conserva el plan aceptado.")
     if view.change_reason:
         plain.append("Motivo para reconsiderar el foco: " + cited(view.change_reason))
+    for warmup in view.accepted_warmups:
+        plain.extend(
+            [
+                "Calentamiento aceptado: " + (warmup["edited_text"] or warmup["action"]),
+                "Terminado cuando: " + warmup["done_criterion"],
+            ]
+        )
+        if warmup.get("dependency"):
+            plain.append("Dependencia: " + warmup["dependency"])
     proposed = (
         weekly["next_week"] if weekly else ([view.mission] if view.mission else []) + view.warmups
     )

@@ -4,3 +4,5 @@ label {display:block;font-weight:650;margin-top:1rem}
 .human-text {white-space:pre-wrap}
 
 .review-modes{display:flex;flex-wrap:wrap;gap:.4rem}.review-modes a{padding:.35rem .6rem;min-height:44px;display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:.5rem}.review-modes a[aria-current=page]{background:var(--soft);font-weight:650}
+
+.actions{display:flex;flex-wrap:wrap;gap:.6rem}.plan-page{max-width:56rem;margin:auto}

@@ -632,3 +632,21 @@ datos: fijar una tolerancia numérica no decide si se puede excluir un modelo qu
 no tiene la medida. El control y la finalización deben responder a la decisión
 declarada, con criterios independientes si hay varias. Las cotas mantienen su
 rango y condiciones originales también en el mensaje móvil.
+
+## 17. Continuidad del foco elegido (WA-03)
+
+El próximo informe recibe acción humana, criterio y dependencia efectivos,
+incluidos los calentamientos aceptados aunque no haya una misión. Las propuestas
+originales conservan sus campos; solo la persona cambia la selección vigente.
+Los ajustes y sus ámbitos de privacidad permanecen en el historial incluso si
+se retira de la configuración un proyecto que podían mencionar: una política
+faltante bloquea la síntesis del plan antes de llamar al proveedor.
+
+Plan versión 7 añade `weekly_focus` cuando el último semanal pertinente contiene
+análisis críticos. El contexto conserva revisión, valoración, limitación decisiva,
+alternativas, datos, controles y criterios; sus evidencias históricas se adjuntan
+como referencias, nunca como actividad nueva ni como transiciones de Kanvas.
+Se hereda el ámbito de privacidad del semanal y el presupuesto habitual puede
+dejar la generación pendiente si no cabe. Las dudas humanas conservan su origen;
+no se convierten mecánicamente en una lista de tareas. El modelo puede motivar
+otro foco, pero no acepta propuestas ni altera una decisión humana.

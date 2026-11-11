@@ -35,7 +35,8 @@ Funcionan la captura de solo lectura, SQLite, los informes con LLM validados,
 el plan propuesto, el contraste crítico semanal y las entregas a correo,
 Obsidian y Drive. La webapp ya permite consultar Hoy, Semana, resultados e
 Historial, escribir una explicación propia y contrastarla antes de decidir.
-El plan editable y los botones de generación se incorporan en esta fase.
+La pantalla Plan permite ajustar, aceptar o descartar el foco y conserva cada
+decisión en Obsidian/Drive. Los botones de generación se incorporan en esta fase.
 Los servicios systemd pertenecen a la fase 4.
 
 ```bash

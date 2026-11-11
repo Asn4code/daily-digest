@@ -78,8 +78,11 @@ La persona confirmó para D-050 que prefiere «una ampliación centrada en las f
 solicitadas», conservando el original, frente a una nueva versión completa del
 diario. La aclaración no debe volver a elegir el foco del informe original.
 
+| ID | Fecha | Decisión | Motivo |
+| --- | --- | --- | --- |
 | D-051 | 2026-11-10 | WA-01 incorpora FastAPI 0.162.2 y Uvicorn 0.54.0, previstos en D-016, con versiones menores acotadas | Webapp ASGI con plantillas Jinja2 existentes y servidor local en 127.0.0.1. Pruebas mediante httpx ASGITransport sin sockets ni dependencias de red reales; no necesita python-multipart para formularios URL-encoded acotados. Recursos propios locales, sin CDN. Documentación primaria: https://fastapi.tiangolo.com/advanced/templates/ y https://starlette.dev/requests/. |
 | D-052 | 2026-11-10 | WA-02 conserva cada explicación enviada, fija su revisión de origen y exige decisión humana para cerrar; usa las tablas publicadas sin migración | La cita de una afirmación humana equivocada en `unsupported`/`unverifiable` se coteja literalmente contra un campo humano, sin exigir que su cifra errónea aparezca en las evidencias. El motivo y las afirmaciones automáticas mantienen sus validaciones. El contraste exige cotejo de fidelidad y una vinculación en `meta` con texto, fuentes y ficha originales, comprobada al reabrir. El texto humano hereda todas las políticas configuradas y se bloquea si falta alguna registrada. La consulta de estado usa JavaScript propio y conserva enlaces/formularios sin JavaScript; no añade una dependencia de navegador. |
+| D-053 | 2026-11-11 | La persona aprueba las instantáneas nuevas del plan en `Planes/fecha-id.md` y Drive `plans/id/{plan.md,plan.json}`, descritas en PLAN_ACCEPTANCE.md | WA-03 conserva decisiones y versiones en `meta`, acción ajustada en `plan_item.edited_text` y selección vigente en `accepted`, sin migración SQLite. Ajustes de criterio/dependencia y entregas por canal tienen metadatos separados; el worker exporta la decisión exacta y no sobrescribe notas anteriores. Formularios obsoletos se rechazan; quitar un proyecto no reduce su ámbito de privacidad histórico. |
 
 ## Preguntas abiertas
 

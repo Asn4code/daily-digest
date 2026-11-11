@@ -12,6 +12,7 @@
 {% if view.accepted %}<p><strong>Plan aceptado:</strong> {{ view.accepted.edited_text or view.accepted.action }}<br>Terminado cuando: {{ view.accepted.done_criterion }}</p>
 {% if view.accepted.dependency %}<p>Dependencia: {{ view.accepted.dependency }}</p>{% endif %}{% if view.carry_forward %}<p>Se conserva el plan aceptado.</p>{% endif %}{% endif %}
 {% if view.change_reason %}<p>Motivo para reconsiderar el foco: {{ claim(view.change_reason) }}</p>{% endif %}
+{% for w in view.accepted_warmups %}<p><strong>Calentamiento aceptado:</strong> {{ w.edited_text or w.action }}<br>Terminado cuando: {{ w.done_criterion }}{% if w.dependency %}<br>Dependencia: {{ w.dependency }}{% endif %}</p>{% endfor %}
 {% set proposed=weekly.next_week if weekly else ([view.mission] if view.mission else []) + view.warmups %}
 {% for p in proposed %}<p><strong>Propuesta: {{ p.action }}</strong><br>Terminado cuando: {{ p.done_criterion }}<br>Para: {{ p.decision_unlocked or p.reason }} — {{ p.evidence|join(', ') }}</p>
 {% if p.dependency %}<p>Dependencia: {{ p.dependency }}</p>{% endif %}

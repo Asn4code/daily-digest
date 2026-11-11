@@ -50,6 +50,7 @@ summary{cursor:pointer;font-weight:600;padding:.5rem}details{margin-block:.5rem;
 {% if view.accepted %}<section><h3>Plan aceptado por la persona</h3><p>{{ view.accepted.edited_text or view.accepted.action }}</p><p>Terminado cuando: {{ view.accepted.done_criterion }}</p>
 {% if view.accepted.dependency %}<p>Dependencia: {{ view.accepted.dependency }}</p>{% endif %}{% if view.carry_forward %}<p>Se conserva el plan aceptado.</p>{% endif %}</section>{% endif %}
 {% if view.change_reason %}<p>Motivo para reconsiderar el foco: {{ claim(view.change_reason) }}</p>{% endif %}
+{% for w in view.accepted_warmups %}<p><strong>Calentamiento aceptado:</strong> {{ w.edited_text or w.action }}<br>Terminado cuando: {{ w.done_criterion }}{% if w.dependency %}<br>Dependencia: {{ w.dependency }}{% endif %}</p>{% endfor %}
 {% set proposed=weekly.next_week if weekly else ([view.mission] if view.mission else []) + view.warmups %}
 {% for p in proposed %}<article><h3>Propuesta: {{ p.action }}</h3>{% if p.project_id %}<p>Proyecto: {{ p.project_id }}</p>{% endif %}
 <p>Terminado cuando: {{ p.done_criterion }}</p><p>Dependencia: {{ p.dependency or 'Ninguna declarada' }}</p><p>Motivo: {{ p.reason }} — {{ p.evidence|join(', ') }}</p><p>Origen: {{ p.origin }}</p>

@@ -25,6 +25,31 @@ def human_scope(db: sqlite3.Connection, config: Config) -> set[str] | None:
 def human_context(
     db: sqlite3.Connection, config: Config, tasks: dict[str, list[dict[str, Any]]]
 ) -> dict[str, Any]:
+    warmups = []
+    warmup_scope: set[str] = set()
+    for item in db.execute(
+        "SELECT id,action,done_criterion,edited_text,dependency FROM plan_item "
+        "WHERE accepted=1 AND kind='warmup' ORDER BY id LIMIT 2"
+    ):
+        extra = db.execute(
+            "SELECT value FROM meta WHERE key=?", (f"plan_human:{item[0]}",)
+        ).fetchone()
+        adjustment = json.loads(extra[0]) if extra else {}
+        stored_scope = db.execute(
+            "SELECT value FROM meta WHERE key=?", (f"plan_scope:{item[0]}",)
+        ).fetchone()
+        warmup_scope.update(
+            json.loads(stored_scope[0]) if stored_scope else {p.id for p in config.projects}
+        )
+        warmups.append(
+            {
+                "id": item[0],
+                "action": item[1],
+                "done_criterion": adjustment.get("done_criterion", item[2]),
+                "edited_text": item[3],
+                "dependency": adjustment.get("dependency", item[4]),
+            }
+        )
     row = db.execute(
         "SELECT p.id,p.report_id,p.action,p.done_criterion,p.dependency,"
         "p.edited_text,p.reason,p.origin,"
@@ -33,7 +58,14 @@ def human_context(
         "ORDER BY i.end_at DESC,r.revision DESC,p.id DESC LIMIT 1"
     ).fetchone()
     if not row:
-        return {"accepted_plan": None, "accepted_warmups": [], "scope_available": True}
+        available = not warmups or (
+            human_scope(db, config) is not None and warmup_scope <= {p.id for p in config.projects}
+        )
+        empty_context: dict[str, Any] = redact_tree(
+            {"accepted_plan": None, "accepted_warmups": warmups, "scope_available": available},
+            known_secrets(config),
+        )
+        return empty_context
     plan = dict(
         zip(
             [
@@ -52,6 +84,12 @@ def human_context(
             strict=True,
         )
     )
+    adjustment_row = db.execute(
+        "SELECT value FROM meta WHERE key=?", (f"plan_human:{row[0]}",)
+    ).fetchone()
+    adjustment = json.loads(adjustment_row[0]) if adjustment_row else {}
+    plan["done_criterion"] = adjustment.get("done_criterion", plan["done_criterion"])
+    plan["dependency"] = adjustment.get("dependency", plan["dependency"])
     scope_row = db.execute(
         "SELECT value FROM meta WHERE key=?", (f"plan_scope:{row[0]}",)
     ).fetchone()
@@ -70,6 +108,13 @@ def human_context(
     if plan["edited_text"] is not None or not scope:
         scope.update(r[0] for r in db.execute("SELECT id FROM project"))
     configured = {p.id for p in config.projects}
+    if warmups:
+        scope.update(warmup_scope)
+        warm_scope = human_scope(db, config)
+        if warm_scope is None:
+            scope.update(r[0] for r in db.execute("SELECT id FROM project"))
+        else:
+            scope.update(warm_scope)
     if not scope <= configured:
         return {
             "accepted_plan": None,
@@ -92,14 +137,6 @@ def human_context(
         ]
         if len(candidates) != 1 or candidates[0] in {"done", "review", "blocked"}:
             plan["availability"] = "unavailable_task"
-    warmups = [
-        dict(zip(["id", "action", "done_criterion", "edited_text"], item, strict=True))
-        for item in db.execute(
-            "SELECT id,action,done_criterion,edited_text FROM plan_item "
-            "WHERE report_id=? AND accepted=1 AND kind='warmup' ORDER BY id LIMIT 2",
-            (row[1],),
-        )
-    ]
     result: dict[str, Any] = {
         "accepted_plan": plan,
         "accepted_warmups": warmups,
@@ -120,6 +157,53 @@ def attach_context(report: Report, entry: EvidenceEntry, config: Config) -> None
     )
     report.evidence.append(copied)
     report.observations[copied.id] = normalize(copied)
+
+
+def weekly_focus(
+    db: sqlite3.Connection, config: Config, report: Report
+) -> tuple[dict[str, Any] | None, set[str], set[str]]:
+    """Carry bounded critical analyses forward, with their original privacy scope."""
+    from digest.report.daily import references
+    from digest.report.views import weekly_checks
+
+    rows = db.execute(
+        "SELECT r.id FROM report r JOIN interval i ON i.id=r.interval_id "
+        "WHERE r.status='ready' AND i.kind='weekly' AND i.end_at<=? "
+        "ORDER BY i.end_at DESC,r.revision DESC LIMIT 3",
+        (report.end_at,),
+    ).fetchall()
+    for (ident,) in rows:
+        try:
+            previous, _, _ = load_ready(db, config, ident)
+        except (ValueError, OSError):
+            continue
+        checks = [
+            {
+                "project_id": c["prior"]["project_id"],
+                "assessment": c["assessment"],
+                "decisive_limit": c["decisive_limit"],
+                "analyses": c["analyses"],
+            }
+            for c in weekly_checks(previous)
+            if c["analyses"]
+        ][:3]
+        if not checks:
+            return None, set(), set()
+        data = {"report_id": ident, "end_at": previous.end_at, "checks": checks}
+        ids = references(data)
+        scope = {
+            pid
+            for key, package in previous.packages.items()
+            if key == "weekly" or key.startswith("critical:")
+            for pid in package["project_ids"]
+        }
+        if not scope <= {p.id for p in config.projects}:
+            return {"unavailable": True}, set(), set()
+        entries = {e.id: e for e in previous.evidence}
+        for eid in ids:
+            attach_context(report, entries[eid], config)
+        return data, ids, scope
+    return None, set(), set()
 
 
 def prior_balance(

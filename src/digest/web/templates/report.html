@@ -36,9 +36,9 @@
 {% for item in report.results %}<article class="result-row"><div><span class="tag">{{ item.project }}</span><span class="badge">{{ review_label(states.get(item.id,item.review_state)) }}</span></div>
 <h3><a href="/reports/{{ report.id }}/results/{{ item.id }}">{{ item.title }}</a></h3><p class="meta">{{ item.task_id or 'Fuera del tablero' }}{% if item.reference_only %} · Referencia histórica; no acredita actividad nueva{% endif %}</p>
 {% set c=view.cards.get(item.id) %}{% if c and c.meaning %}<p>{{ claim(c.meaning) }}</p>{% endif %}</article>{% else %}<p>Sin resultados verificables; esto no demuestra que no se haya trabajado.</p>{% endfor %}</section>
-<section class="panel focus" id="focus"><p class="eyebrow">El siguiente paso</p><h2>{{ 'Propuesta de semana' if report.kind=='weekly' else 'Propuesta para mañana' }}</h2>
+<section class="panel focus" id="focus"><p><a href="/reports/{{ report.id }}/plan">Elegir o ajustar mi foco</a></p><p class="eyebrow">El siguiente paso</p><h2>{{ 'Propuesta de semana' if report.kind=='weekly' else 'Propuesta para mañana' }}</h2>
 {% if view.accepted %}<h3>Plan aceptado por ti</h3><p>{{ view.accepted.edited_text or view.accepted.action }}</p><p>Terminado cuando: {{ view.accepted.done_criterion }}</p>{% endif %}
-{% if view.change_reason %}<p>{{ claim(view.change_reason) }}</p>{% endif %}
+{% for w in view.accepted_warmups %}<p><strong>Calentamiento aceptado:</strong> {{ w.edited_text or w.action }} · {{ w.done_criterion }}</p>{% endfor %}{% if view.change_reason %}<p>{{ claim(view.change_reason) }}</p>{% endif %}
 {% set proposed=report.sections.weekly.next_week if report.kind=='weekly' else ([view.mission] if view.mission else []) + view.warmups %}
 {% for p in proposed %}<article><h3>{{ p.action }}</h3><p><strong>Terminado cuando:</strong> {{ p.done_criterion }}</p><p><strong>Dependencia:</strong> {{ p.dependency or 'Ninguna declarada' }}</p><p>{{ p.reason }}</p>
 {% if p.decision_unlocked %}<p><strong>Decisión que ayudaría a tomar:</strong> {{ p.decision_unlocked }}</p>{% endif %}<p class="refs">{{ p.evidence|join(', ') }}</p><p class="meta">Origen: {{ p.origin }} · Propuesta pendiente de tu elección</p></article>

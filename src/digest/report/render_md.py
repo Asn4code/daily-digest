@@ -237,6 +237,16 @@ def render(report: Report) -> str:
             lines.append("Dependencia: " + escape(accepted["dependency"]))
         if view.carry_forward:
             lines.append("Se conserva el plan aceptado.")
+    for warmup in view.accepted_warmups:
+        lines.extend(
+            [
+                "### Calentamiento aceptado por la persona",
+                escape(warmup["edited_text"] or warmup["action"]),
+                "Terminado cuando: " + escape(warmup["done_criterion"]),
+            ]
+        )
+        if warmup.get("dependency"):
+            lines.append("Dependencia: " + escape(warmup["dependency"]))
     if view.change_reason:
         lines.append("Motivo para reconsiderar el foco: " + claim(view.change_reason))
     proposed = (

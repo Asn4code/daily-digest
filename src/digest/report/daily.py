@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 from digest.config import Config
 from digest.llm.router import Task
 from digest.report.activity import active_results, current_evidence_ids
-from digest.report.context import attach_context, human_scope, prior_balance
+from digest.report.context import attach_context, human_scope, prior_balance, weekly_focus
 from digest.report.model import EvidenceEntry, Report
 
 PROJECT_CHARS = 48_000
@@ -267,6 +267,19 @@ def build(
     candidates, states, auxiliary = frontier(db, config, report, tasks)
     accepted = report.human_context.get("accepted_plan")
     scope = set(by_project) | {item["project_id"] for item in candidates}
+    critical, critical_ids, critical_scope = weekly_focus(db, config, report)
+    if critical and critical.get("unavailable"):
+        pending(report, "plan", "weekly_scope_missing", "input")
+        return
+    if critical:
+        report.human_context["weekly_focus"] = critical
+        scope.update(critical_scope)
+    if report.human_context.get("accepted_warmups"):
+        warm_scope = human_scope(db, config)
+        if warm_scope is None:
+            pending(report, "plan", "human_scope_missing", "input")
+            return
+        scope.update(warm_scope)
     if accepted:
         scope.update(accepted["project_ids"])
         if accepted["project_id"] and accepted["kanvas_task_id"]:
@@ -309,7 +322,7 @@ def build(
     generate(
         "plan",
         "plan",
-        sorted(ids | auxiliary),
+        sorted(ids | auxiliary | critical_ids),
         scope,
         {
             "orientation": report.sections["conceptual"],
@@ -321,6 +334,7 @@ def build(
             "task_candidates": candidates,
             "human_context": report.human_context,
             "human_doubts": doubts,
+            "weekly_focus": critical,
             "planning_for": planning_for,
             "evidence_cutoff": report.end_at,
             "_project_task_states": states,
@@ -333,6 +347,7 @@ def build(
             else None,
             "_parents": [*project_keys, "conceptual"],
             "_auxiliary": sorted(auxiliary),
+            "_reference_evidence": sorted(critical_ids),
         },
         [r.id for r in results],
         wire_mode="references",

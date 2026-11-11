@@ -298,3 +298,21 @@ cita fabricada se rechaza. Todos los transportes de modelo son falsos.
 El reenvío tardío desde un segundo formulario tampoco reabre una revisión que
 la persona ya pospuso. Las fichas registradas que sean enlaces simbólicos se
 ignoran incluso si apuntan a otra nota dentro de la misma vault.
+
+## Decisiones sobre el plan (WA-03)
+
+`tests/e2e/test_plan_decisions.py` genera propuestas con el modelo falso y
+recorre consulta, ajuste sin aceptación, aceptación, descarte, reenvío y
+formulario obsoleto. Comprueba que una regeneración conserva texto, criterio y
+dependencia humanos; los calentamientos pueden elegirse sin misión y siguen
+limitados a dos entre revisiones. El worker entrega la instantánea original
+aunque exista una decisión posterior; una copia fallida no repite el canal que
+ya funcionó. Las instantáneas manipuladas y las redirecciones por symlink en
+la carpeta Planes se rechazan. Quitar un proyecto privado no estrecha el ámbito
+histórico de una misión ni de un calentamiento ajustados.
+
+La integración semanal comprueba además que los análisis críticos y sus
+evidencias llegan al siguiente plan como contexto histórico, sin cambiar las
+declaraciones humanas. Capturas locales de navegador de la pantalla Plan en
+390 y 1440 px: `build/wa03-preview/mobile.png` y `desktop.png`; no sustituyen
+la prueba de la puerta desde un teléfono físico.

@@ -1,6 +1,6 @@
 ---
 name: plan
-version: 6
+version: 7
 task: plan
 ---
 
@@ -32,6 +32,12 @@ proyecto. origin=review exige dudas o contexto humano explícito suministrado;
 una nota de agente no es una revisión humana. Usa títulos, no IDs internos del
 servicio, en action. Acción y criterio: una frase cada uno, concisa y ejecutable.
 La elección humana no convierte escribir documentación en un resultado científico.
+
+Si se aporta weekly_focus, considera sus análisis críticos como propuestas
+pendientes, con controles, alternativas y criterios originales. Son contexto del
+semanal indicado, no resultados nuevos de hoy. Prioriza lo que pueda aclarar una
+conclusión o desbloquear una decisión; no conviertas todas las dudas en tareas ni
+repitas comprobaciones resueltas. Conserva los compromisos y ajustes humanos.
 
 Si una fuente ya declara un control o una cota numérica, no propongas repetirlo
 como si aún no existiera. Una comprobación independiente puede ser útil, pero

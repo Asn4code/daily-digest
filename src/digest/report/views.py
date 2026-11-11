@@ -62,6 +62,7 @@ class DailyView:
     no_mission_reason: dict[str, Any] | None
     change_reason: dict[str, Any] | None
     planning_for: str | None
+    accepted_warmups: list[dict[str, Any]]
 
 
 def daily_view(report: Report) -> DailyView:
@@ -95,4 +96,5 @@ def daily_view(report: Report) -> DailyView:
         plan.get("no_mission_reason"),
         plan.get("change_reason"),
         report.human_context.get("planning_for"),
+        report.human_context.get("accepted_warmups", []),
     )

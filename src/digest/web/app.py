@@ -1,5 +1,6 @@
 """Validated report screens and explicit, CSRF-protected human review actions."""
 
+import json
 import re
 import secrets
 import sqlite3
@@ -12,6 +13,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
+from digest import planning
 from digest.config import Config
 from digest.report.model import Report, ResultEntry
 from digest.report.timeutil import display
@@ -237,6 +239,126 @@ def create_app(config: Config) -> FastAPI:
             return {k: v[0] for k, v in fields.items() if k != "csrf_token"}
         except (UnicodeError, ValueError):
             raise HTTPException(400) from None
+
+    @app.get("/plan", response_class=HTMLResponse)
+    def current_plan(request: Request) -> Response:
+        ident = store.select("daily")
+        return (
+            RedirectResponse(f"/reports/{ident}/plan", status_code=303)
+            if ident
+            else page(request, "empty.html", title="Plan")
+        )
+
+    @app.get("/plan/{date}")
+    def dated_plan(date: str) -> Response:
+        ident = store.select("daily", date)
+        if ident is None:
+            raise HTTPException(404)
+        return RedirectResponse(f"/reports/{ident}/plan", status_code=303)
+
+    @app.get("/reports/{report_id}/plan", response_class=HTMLResponse)
+    def plan_page(request: Request, report_id: str) -> HTMLResponse:
+        document, _ = report(report_id)
+        try:
+            with store.database() as db:
+                entries = planning.items(db, document)
+                selected = planning.active(db, config)
+                expected = planning.token(db, config, document)
+                doubts = db.execute(
+                    "SELECT v.id,v.result_id,v.doubts FROM review v "
+                    "JOIN result r ON r.id=v.result_id "
+                    "WHERE v.doubts!='[]' AND v.id=(SELECT latest.id FROM review latest "
+                    "WHERE latest.result_id=v.result_id "
+                    "ORDER BY submitted_at DESC,id DESC LIMIT 1) "
+                    "ORDER BY v.submitted_at DESC,v.id DESC LIMIT 40"
+                ).fetchall()
+                last = db.execute(
+                    "SELECT value FROM meta WHERE key LIKE 'plan_snapshot:%' "
+                    "ORDER BY json_extract(value,'$.created_at') DESC,key DESC LIMIT 1"
+                ).fetchone()
+        except (ValueError, OSError, sqlite3.Error):
+            raise HTTPException(409) from None
+        weekly_id = store.select("weekly")
+        weekly = report(weekly_id)[0] if weekly_id else None
+
+        return page(
+            request,
+            "plan.html",
+            title="Próximo foco",
+            report=document,
+            entries=entries,
+            selected=selected,
+            expected=expected,
+            submission_ids={i["id"]: secrets.token_hex(16) for i in entries},
+            view=daily_view(document),
+            doubts=[{"id": r[0], "result_id": r[1], "text": json.loads(r[2])} for r in doubts],
+            weekly=weekly,
+            critical=weekly_checks(weekly)[:3] if weekly else [],
+            latest=json.loads(last[0]) if last else None,
+        )
+
+    @app.post("/reports/{report_id}/plan")
+    async def update_plan(request: Request, report_id: str) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        if set(fields) != {
+            "item_id",
+            "decision",
+            "action",
+            "done_criterion",
+            "dependency",
+            "expected",
+            "submission_id",
+        }:
+            raise HTTPException(400)
+
+        def save() -> str:
+            try:
+                with records.writing(config) as db:
+                    return planning.decide(
+                        db,
+                        config,
+                        report_id,
+                        int(fields["item_id"]),
+                        fields["decision"],
+                        {k: fields[k] for k in ("action", "done_criterion", "dependency")},
+                        fields["expected"],
+                        fields["submission_id"],
+                    )
+            except (ValueError, OSError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        ident = await run_in_threadpool(save)
+        return RedirectResponse(f"/plans/{ident}", status_code=303)
+
+    @app.post("/plan/{date}")
+    async def update_dated_plan(request: Request, date: str) -> Response:
+        ident = store.select("daily", date)
+        if ident is None:
+            raise HTTPException(404)
+        return await update_plan(request, ident)
+
+    @app.get("/plans/{snapshot_id}", response_class=HTMLResponse)
+    def plan_snapshot(request: Request, snapshot_id: str) -> HTMLResponse:
+        try:
+            with store.database() as db:
+                value = planning.snapshot(db, config, snapshot_id)
+                deliveries = {
+                    name: planning.meta(
+                        db, f"plan_delivery:{snapshot_id}:{name}", {"state": "pending"}
+                    )
+                    for name in ("obsidian", "drive")
+                }
+        except (OSError, ValueError, sqlite3.Error):
+            raise HTTPException(404) from None
+        return page(
+            request,
+            "plan_snapshot.html",
+            title="Tu decisión de foco",
+            snapshot=value,
+            deliveries=deliveries,
+        )
 
     @app.post("/review/{result_id}/submit")
     async def submit_review(request: Request, result_id: str) -> Response:

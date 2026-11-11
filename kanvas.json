@@ -948,12 +948,39 @@
     {
       "id": "WA-03",
       "title": "Plan editable y dudas al plan",
-      "state": "todo",
+      "state": "done",
       "group": "WA",
       "deps": ["WA-02"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "Pantalla Plan para elegir el próximo foco con argumentos: mostrar misión y calentamientos con motivo de prioridad, resultado/objetivo al que contribuyen, dependencias y criterio de finalización. Incorporar dudas humanas con origin=review y propuestas de contraste de la crítica semanal, sin aceptar, ejecutar ni cambiar tareas automáticamente. Respetar compromisos y ajustes expresos de la persona; conservar su decisión final.\n\nTerminado cuando se puede aceptar, editar o descartar una propuesta, el texto editado se conserva en plan_item.edited_text y las versiones generadas no lo pisan. El plan aceptado aparece en Obsidian/Drive y alimenta el siguiente informe; una evidencia nueva puede motivar otra propuesta o alerta, sin modificar silenciosamente el plan ya aceptado ni cerrar revisiones. La interfaz móvil permite decidir con la vista breve y abrir la explicación conceptual y las evidencias al necesitarlas. D-049."
+      "desc": "Pantalla Plan para elegir el próximo foco con argumentos: mostrar misión y calentamientos con motivo de prioridad, resultado/objetivo al que contribuyen, dependencias y criterio de finalización. Incorporar dudas humanas con origin=review y propuestas de contraste de la crítica semanal, sin aceptar, ejecutar ni cambiar tareas automáticamente. Respetar compromisos y ajustes expresos de la persona; conservar su decisión final.\n\nTerminado cuando se puede aceptar, editar o descartar una propuesta, el texto editado se conserva en plan_item.edited_text y las versiones generadas no lo pisan. El plan aceptado aparece en Obsidian/Drive y alimenta el siguiente informe; una evidencia nueva puede motivar otra propuesta o alerta, sin modificar silenciosamente el plan ya aceptado ni cerrar revisiones. La interfaz móvil permite decidir con la vista breve y abrir la explicación conceptual y las evidencias al necesitarlas. D-049.",
+      "notes": [
+        {
+          "at": "2026-11-11T09:58:52Z",
+          "by": "codex",
+          "text": "Plan: pantalla de foco por revisión, decisiones explícitas de aceptar/editar/descartar sin pisar planes humanos, entrega inmutable por worker y continuidad de dudas/crítica semanal; verificar seguridad, persistencia y regeneración con dobles locales."
+        },
+        {
+          "at": "2026-11-11T10:00:19Z",
+          "by": "codex",
+          "text": "Formato concreto propuesto en docs/PLAN_ACCEPTANCE.md: notas nuevas Planes/fecha-id.md, Drive plans/id/{plan.md,plan.json}, instantáneas inmutables sin tocar informes ni texto existente. AGENTS.md exige consultar cambios de formato; solicito aprobación del formato mientras continúo con interfaz y persistencia, independientes de la exportación."
+        },
+        {
+          "at": "2026-11-11T10:02:30Z",
+          "by": "codex",
+          "text": "La persona aprueba expresamente el formato de docs/PLAN_ACCEPTANCE.md: Planes/fecha-id.md y Drive plans/id, manteniendo originales. Se implementa la exportación dentro del alcance aprobado."
+        },
+        {
+          "at": "2026-11-11T10:16:34Z",
+          "by": "codex",
+          "text": "Pantalla Plan verificada a 390 y1440px (build/wa03-preview/mobile.png y desktop.png). Precheck independiente: concurrencia, idempotencia, privacidad histórica y entrega de instantánea antigua correctas; sin hallazgos abiertos. Pruebas del diario siguiente confirman recepción de crítica semanal con referencias históricas y conservación de los ajustes humanos. Sin llamadas reales a proveedores ni entregas a cuentas reales."
+        },
+        {
+          "at": "2026-11-11T10:17:21Z",
+          "by": "codex",
+          "text": "Plan ya permite ajustar acción, criterio y dependencia, guardar sin aceptar, aceptar o descartar; muestra objetivo, evidencias, dudas humanas y crítica semanal. Conserva selección vigente e historial por decisión; la regeneración no pisa ajustes humanos y el siguiente plan recibe controles del semanal como contexto histórico. Worker exporta la instantánea exacta a Obsidian/Drive con el formato aprobado, sin sobrescribir ni enviar correo. make check: 373 tests pasan, lint/formato/mypy correctos. Precheck independiente de privacidad, concurrencia, idempotencia y exportación sin hallazgos abiertos. Capturas 390/1440px en build/wa03-preview/{mobile,desktop}.png. Comprobar en puerta de fase la comodidad en teléfono físico y utilidad del plan real; no se ha firmado la fase."
+        }
+      ]
     },
     {
       "id": "WA-04",

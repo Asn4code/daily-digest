@@ -32,7 +32,7 @@ El enlace del correo es `{web.public_base_url}/r/{fecha}`; el del semanal, `/w/{
 Están disponibles Hoy, Semana, detalle de resultados e Historial. Los enlaces
 por fecha redirigen a `/reports/{id}`, que conserva la revisión exacta; el detalle
 canónico es `/reports/{id}/results/{result_id}`. La revisión activa está disponible
-en WA-02; plan editable y generación se incorporan en las tareas siguientes.
+en WA-02 y el plan editable en WA-03; Generar se incorpora en WA-04.
 
 Antes de mostrar un informe se vuelven a validar su contenido, completitud y
 vínculo con las evidencias. Solo se sirven JSON de informes bajo `data_dir/reports`
@@ -104,7 +104,36 @@ con enlace al contraste; el archivo original permanece intacto. La decisión y
 las dudas se copian por un trabajo de entrega a Obsidian y Drive, con estado
 independiente por canal. No se envía un correo adicional por cerrar una revisión.
 
-## 3. Diseño
+## 3. Elegir y ajustar el próximo foco (WA-03)
+
+`/plan` abre el plan del último diario; `/plan/AAAA-MM-DD` fija su fecha y
+redirige a `/reports/{id}/plan`. Cada informe conserva su revisión exacta.
+La selección vigente aparece primero, seguida de sus propuestas con motivo,
+criterio y dependencia. Objetivo, balance conceptual y evidencias se pueden
+abrir al necesitar más contexto. Las dudas humanas vigentes y los análisis
+críticos del semanal aparecen como contexto, sin aceptarse como tareas.
+
+Guardar un ajuste conserva acción, criterio y dependencia sin aceptar la
+propuesta. Aceptar una misión diferente sustituye expresamente el foco vigente;
+descartarla lo retira si estaba elegido. Se permiten hasta dos calentamientos,
+también sin misión. Los cambios se envían a `POST /reports/{id}/plan` (o al alias
+por fecha); el formulario incluye control de concurrencia y un identificador
+que evita duplicados incluso después de otra decisión. Si cambió la selección,
+el formulario obsoleto se rechaza con 409 y debe recargarse.
+
+Cada acción conserva una instantánea en `/plans/{id}`. La siguiente generación
+recibe la acción humana de `edited_text` y sus ajustes de criterio/dependencia,
+sin cambiar las propuestas originales. La privacidad de los ajustes retiene
+también los proyectos que después se retiran de la configuración. Un cambio
+motivado del modelo sigue siendo una propuesta hasta otra acción humana.
+
+El worker copia la instantánea exacta a Obsidian y Drive; no exporta una elección
+posterior por error si la cola se procesa tarde. Formato aprobado por la persona
+en [PLAN_ACCEPTANCE.md](PLAN_ACCEPTANCE.md). Las copias no se sobrescriben; cada
+canal conserva su estado e intentos de forma independiente. No se envía correo
+por elegir un foco y ningún resultado se marca comprendido por esa acción.
+
+## 4. Diseño
 
 - Una columna en móvil (≤ 640 px), dos en escritorio (contenido + panel de evidencias). Tipografía del sistema, tamaño base 17 px en móvil.
 - Modo oscuro de bajo contraste por defecto por la noche (`prefers-color-scheme` y conmutador).
@@ -113,7 +142,7 @@ independiente por canal. No se envía un correo adicional por cerrar una revisi�
 - Sin dependencias de terceros en el navegador: JavaScript propio en `static/`,
   sin CDN; los formularios y enlaces funcionan sin JavaScript.
 
-## 4. Seguridad
+## 5. Seguridad
 
 - Escucha solo en `127.0.0.1:{web.port}`. El acceso remoto lo da `tailscale serve` (ver `OPERATIONS.md`).
 - Si la petición trae la cabecera de identidad de Tailscale (`Tailscale-User-Login`), debe coincidir con `web.allowed_tailscale_login`; si no coincide, 403. Verificar en la fase 0 que `tailscale serve` añade esa cabecera en la versión instalada.
@@ -124,7 +153,7 @@ independiente por canal. No se envía un correo adicional por cerrar una revisi�
 - El proceso web no ejecuta trabajos: inserta filas en `job` y responde. El worker los ejecuta con el mismo bloqueo que los temporizadores.
 - Rutas de archivos servidas solo desde `data_dir/reports/` por ID, nunca por ruta recibida del cliente.
 
-## 5. Respaldo en Obsidian
+## 6. Respaldo en Obsidian
 
 Si la webapp no está disponible, la ficha `Revisiones/AAAA-MM-DD-<result_id>.md` incluye un bloque para responder:
 

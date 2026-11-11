@@ -74,7 +74,7 @@ nueva y reutilización incremental comprobada; detalles en HIERARCHICAL_DIGEST.m
 
 - [WA-01] Webapp base: Hoy, detalle e historial — implementado
 - [WA-02] Revisión activa y contraste — implementado
-- [WA-03] Plan editable y dudas al plan
+- [WA-03] Plan editable y dudas al plan — implementado
 - [WA-04] Pantalla Generar y cola de trabajos
 - [WA-06] Configurar modelos por tarea desde la webapp
 - [WA-07] Conservar comillas y entidades literales en Markdown — implementado

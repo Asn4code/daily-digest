@@ -35,6 +35,7 @@ daily-digest/
       notebooks.py  structures.py  agent_sessions.py   # fase 2
     results.py               # agrupación de evidencias en resultados
     intervals.py             # apertura y cierre de intervalos
+    planning.py              # elección humana, ajustes e instantáneas inmutables
     llm/
       client.py              # cliente OpenAI-compatible (httpx)
       router.py              # proveedor por tarea, respaldo, registro llm_call
@@ -51,7 +52,7 @@ daily-digest/
       select.py              # resultado propuesto del día
       contrast.py            # contraste explicación ↔ evidencias
     publish/
-      email.py  obsidian.py  drive.py  deliveries.py
+      email.py  obsidian.py  drive.py  deliveries.py  plan.py
     web/
       app.py                 # FastAPI
       routes/  templates/  static/   # JavaScript propio local, manifest.webmanifest, icons
