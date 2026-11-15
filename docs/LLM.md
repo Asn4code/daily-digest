@@ -20,11 +20,37 @@ Dos proveedores con API compatible con OpenAI: **Qwen/Qwen3.8-27B** interno (con
 | `weekly` | Fichas semanales + declaraciones previas y nuevas fuentes; luego balances críticos | `nan`, luego `internal` | `WeeklyCritical` por proyecto, después `WeeklyReport` |
 | `contrast` | Explicación humana + paquete del resultado + resumen automático | A decidir en el piloto | `Contrast` |
 
-- La configuración (`llm.routing`) asigna proveedores por tarea; `llm.providers` asigna modelo, URL y timeout.
+- La configuración (`llm.routing`) asigna proveedores por tarea; `llm.providers` asigna modelo por defecto, URL y timeout. `llm.task_models.<tarea>.<proveedor>` permite elegir otro modelo para una etapa sin cambiar las demás.
 - **Respaldo:** si el primer proveedor falla (error de red, HTTP ≥ 500, timeout) o devuelve una salida que no valida tras un reintento de reparación, se usa el segundo. El informe indica qué proveedor generó cada sección.
 - Si fallan ambos proveedores, la sección queda pendiente. Las extracciones independientes pueden continuar; la síntesis espera a todas y el plan espera a la síntesis. No se publica ni entrega el informe final hasta completar las secciones requeridas.
 - `project.external_allowed = false` excluye a NaN para las evidencias de ese proyecto (por defecto `true`).
 - Cada llamada se registra en `llm_call` (proveedor, modelo, prompt y versión, tokens, latencia, error). Nunca se registra el contenido del prompt con secretos; el paquete se guarda en `data_dir/reports/<id>/` para auditoría.
+
+### Preferencias web y selección por trabajo (WA-06)
+
+Las preferencias de `/settings/models` prevalecen por etapa sobre el YAML hasta
+restablecerlas. Solo contienen proveedor y modelo: las direcciones y referencias
+de credenciales se siguen tomando del YAML. No se consultan catálogos ni se
+presuponen capacidades a partir del nombre del modelo.
+
+Se guardan revisiones inmutables `model_revision:<id>` con `model_hash:<id>`,
+puntero `model_current` y peticiones idempotentes `model_submission:<nonce>` en
+`meta`. El etag incluye la revisión y la configuración LLM del proceso para
+rechazar formularios obsoletos. Volver al YAML añade otra revisión, sin borrar.
+Los cambios del archivo YAML requieren reiniciar los procesos que lo cargaron.
+
+Al iniciar un trabajo de informe o contraste, el worker fija las cinco rutas y
+modelos en `model_job:<id>`, con huella separada. Guarda únicamente la huella de
+destinos, nombres de variables y timeouts; no guarda esos valores ni credenciales.
+Las reanudaciones conservan la selección, aunque cambien preferencias o modelos
+por defecto. Cambiar o retirar un destino elegido bloquea la reutilización.
+Las reglas de privacidad se evalúan con la configuración vigente y nunca se
+congelan como un permiso para enviar datos al exterior.
+
+Cada llamada y pieza reutilizada conserva su modelo efectivo. El caché usa la
+configuración de la etapa con su modelo elegido: cambiar un modelo invalida sus
+piezas, conservando las de etapas sin cambios. No se alteran prompts, validadores,
+estados humanos ni formatos entregados.
 
 ## 2. Cliente
 

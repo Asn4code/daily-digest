@@ -97,7 +97,11 @@ o de `$CREDENTIALS_DIRECTORY/secrets.env`; no se importan desde OpenCode.
 Puedes elegir los modelos editando `llm.providers.<nombre>.model` y el orden de
 proveedores por tarea en `llm.routing`. Inicialmente se usa el Qwen interno para
 extracción y DeepSeek de NaN para síntesis, plan, semanal y contraste, con respaldo
-mutuo. La edición de modelos desde la webapp está propuesta en WA-06.
+mutuo. Puedes cambiar modelos y orden de proveedores desde **Generar → Elegir
+modelos por tarea**, y volver al YAML por tarea o globalmente. Los trabajos fijan
+su selección al empezar y la conservan al reanudarse. En YAML, `llm.task_models`
+permite distinguir modelos por tarea y proveedor, conservando `llm.providers`
+como valor por defecto.
 
 La sección **Tareas** de la webapp ofrece tarjetas y un grafo de dependencias de
 Kanvas. Permite guardar notas personales y editar prioridades con aumento acotado

@@ -1185,12 +1185,29 @@
     {
       "id": "WA-06",
       "title": "Configurar modelos por tarea desde la webapp",
-      "state": "todo",
+      "state": "done",
       "group": "WA",
       "deps": ["WA-01", "CB-02"],
       "at": "2026-11-04T11:35:18Z",
       "by": "codex",
-      "desc": "Permitir cambiar proveedor y modelo para extracción, síntesis, plan, semanal y contraste desde la webapp, además del YAML. Mantener secretos fuera de formularios y registros; validar cambios, respetar external_allowed y aplicar una configuración consistente por trabajo. Petición explícita de la persona durante la fase 0. Terminado cuando los cambios persisten, se pueden revertir y tienen tests de autorización, CSRF y validación."
+      "desc": "Permitir cambiar proveedor y modelo para extracción, síntesis, plan, semanal y contraste desde la webapp, además del YAML. Mantener secretos fuera de formularios y registros; validar cambios, respetar external_allowed y aplicar una configuración consistente por trabajo. Petición explícita de la persona durante la fase 0. Terminado cuando los cambios persisten, se pueden revertir y tienen tests de autorización, CSRF y validación.",
+      "notes": [
+        {
+          "at": "2026-11-15T18:51:56Z",
+          "by": "codex",
+          "text": "Plan: preferencias versionadas de proveedor/modelo por etapa, formularios sin secretos ni destinos libres, restauración de YAML y configuración efectiva congelada por trabajo; comprobar CSRF, privacidad, persistencia y consistencia sin llamadas reales."
+        },
+        {
+          "at": "2026-11-15T19:01:14Z",
+          "by": "codex",
+          "text": "Modelos por etapa disponibles en Generar → Elegir modelos por tarea, con orden editable, restauración por etapa o global e historial sin secretos. Persistencia concretada en meta sin migración ni formatos nuevos. La selección se fija al empezar cada informe/contraste y se conserva tras interrupción; cambios de destino se rechazan. Precheck independiente: sin hallazgos abiertos (22 tests). La validación YAML y web usa el mismo contrato de identificador y rechaza proveedores repetidos."
+        },
+        {
+          "at": "2026-11-15T19:04:34Z",
+          "by": "codex",
+          "text": "Ya puedes elegir modelo y orden de proveedores para cada etapa desde Generar → Elegir modelos por tarea, con restauración por etapa o global e historial. Los trabajos conservan su selección al reanudarse y las reglas de privacidad siguen prevaleciendo. Verificado con make check: lint, formato, mypy y 425 tests (20 nuevos); precheck independiente sin hallazgos abiertos y capturas sintéticas a 390/1440 px. Para comprobarlo: cambia una etapa, vuelve al YAML y confirma su historial. La disponibilidad real del modelo y la prueba en un teléfono físico se verifican en la puerta; guardar no llama al proveedor."
+        }
+      ]
     },
     {
       "id": "IN-07",

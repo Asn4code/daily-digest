@@ -76,7 +76,7 @@ nueva y reutilización incremental comprobada; detalles en HIERARCHICAL_DIGEST.m
 - [WA-02] Revisión activa y contraste — implementado
 - [WA-03] Plan editable y dudas al plan — implementado
 - [WA-04] Pantalla Generar y cola de trabajos — implementado
-- [WA-06] Configurar modelos por tarea desde la webapp
+- [WA-06] Configurar modelos por tarea desde la webapp — implementado
 - [WA-07] Conservar comillas y entidades literales en Markdown — implementado
 - [WA-08] Ampliaciones y comprobaciones a petición desde el final del diario (D-050)
 - [WA-09] Cuaderno personal sobre las tareas de Kanvas, con prioridades y antigüedad — implementado

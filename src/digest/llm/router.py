@@ -13,6 +13,7 @@ from digest.config import Config
 from digest.llm.cache import Nodes
 from digest.llm.client import Client, ClientError, Completion
 from digest.llm.diagnostics import error_category, repair_issues, validation_issue
+from digest.llm.settings import for_task
 from digest.util.redact import known_secrets, redact_tree
 
 Task = Literal["extract", "conceptual", "plan", "weekly", "contrast"]
@@ -62,17 +63,18 @@ class Router:
         deadline: float | None = None,
         package: dict[str, Any] | None = None,
     ) -> Routed | None:
-        projects = {p.id: p for p in self.config.projects}
+        config = for_task(self.config, task)
+        projects = {p.id: p for p in config.projects}
         if not project_ids or not project_ids <= projects.keys():
             raise ValueError("Unknown or missing project scope")
         external_allowed = all(projects[ident].external_allowed for ident in project_ids)
         eligible = [
             name
-            for name in getattr(self.config.llm.routing, task)
+            for name in getattr(config.llm.routing, task)
             if name == "internal" or external_allowed
         ]
-        nodes = Nodes(self.config)
-        clean_package = redact_tree(package, known_secrets(self.config))
+        nodes = Nodes(config)
+        clean_package = redact_tree(package, known_secrets(config))
         cache_key = nodes.key(
             task, project_ids, messages, schema, prompt_name, prompt_version, clean_package
         )
@@ -90,7 +92,7 @@ class Router:
                     )
 
         def check_cached(value: dict[str, Any]) -> Any:
-            return validate(redact_tree(value, known_secrets(self.config)))
+            return validate(redact_tree(value, known_secrets(config)))
 
         cached = nodes.load(
             cache_key,
@@ -110,7 +112,7 @@ class Router:
             )
         call_deadline = min(self.deadline, deadline) if deadline is not None else self.deadline
         for index, name in enumerate(eligible):
-            provider = self.config.llm.providers[name]
+            provider = config.llm.providers[name]
             remaining = max(0.0, call_deadline - time.monotonic())
             provider_deadline = min(
                 call_deadline, time.monotonic() + remaining / (len(eligible) - index)
@@ -170,7 +172,7 @@ class Router:
                         observer=observe,
                     )
                     try:
-                        sanitized = redact_tree(result.value, known_secrets(self.config))
+                        sanitized = redact_tree(result.value, known_secrets(config))
                         value = validate(sanitized)
                     except ValueError as invalid:
                         rejected_fields = repair_issues(invalid, schema)

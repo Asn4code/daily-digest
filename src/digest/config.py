@@ -2,7 +2,7 @@
 
 import re
 from pathlib import Path
-from typing import Annotated, Self
+from typing import Annotated, Literal, Self
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -12,6 +12,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 PositiveInt = Annotated[int, Field(gt=0)]
 Text = Annotated[str, Field(min_length=1)]
 EnvName = Annotated[str, Field(pattern=r"^[A-Za-z_][A-Za-z0-9_]*$")]
+ModelName = Annotated[str, Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9._:/@+\-]{0,199}$")]
+LLMTask = Literal["extract", "conceptual", "plan", "weekly", "contrast"]
 
 
 class ConfigError(ValueError):
@@ -125,7 +127,7 @@ class LimitsConfig(StrictModel):
 
 class ProviderConfig(StrictModel):
     base_url: Text
-    model: Text
+    model: ModelName
     api_key_env: EnvName
     timeout_s: PositiveInt = 180
 
@@ -157,10 +159,18 @@ class RoutingConfig(StrictModel):
     weekly: Annotated[list[Text], Field(min_length=1)] = ["nan", "internal"]
     contrast: Annotated[list[Text], Field(min_length=1)] = ["nan", "internal"]
 
+    @field_validator("extract", "conceptual", "plan", "weekly", "contrast")
+    @classmethod
+    def unique_route(cls, value: list[str]) -> list[str]:
+        if len(value) != len(set(value)):
+            raise ValueError("un proveedor no se puede repetir en la misma ruta")
+        return value
+
 
 class LLMConfig(StrictModel):
     providers: dict[str, ProviderConfig]
     routing: RoutingConfig = Field(default_factory=RoutingConfig)
+    task_models: dict[LLMTask, dict[str, ModelName]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def known_providers(self) -> Self:
@@ -173,6 +183,10 @@ class LLMConfig(StrictModel):
         ):
             if any(name not in self.providers for name in route):
                 raise ValueError("el enrutado referencia un proveedor no configurado")
+        if any(
+            name not in self.providers for models in self.task_models.values() for name in models
+        ):
+            raise ValueError("el modelo por tarea referencia un proveedor no configurado")
         return self
 
 
@@ -256,6 +270,8 @@ def load_config(path: Path) -> Config:
                 loc = loc[:-1]
             if len(loc) > 2 and loc[:2] == ("llm", "providers"):
                 loc = (*loc[:2], "<proveedor>", *loc[3:])
+            if len(loc) > 2 and loc[:2] == ("llm", "task_models"):
+                loc = (*loc[:2], "<tarea>", *(("<proveedor>",) if len(loc) > 3 else ()))
             field = ".".join(str(part) for part in loc) or "configuración"
             reason = "campo desconocido" if error["type"] == "extra_forbidden" else error["msg"]
             errors.append(f"{field}: {reason}")

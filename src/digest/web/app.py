@@ -6,7 +6,7 @@ import secrets
 import sqlite3
 from importlib.resources import files
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from fastapi import FastAPI, Request
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -14,13 +14,16 @@ from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
 from digest import notebook, planning, queue
-from digest.config import Config
+from digest.collectors.base import canonical, content_hash
+from digest.config import Config, LLMTask
+from digest.llm import settings as model_settings
 from digest.report.model import Report, ResultEntry
 from digest.report.timeutil import display
 from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
 from digest.review import records
 from digest.review.select import select as select_review
 from digest.util.fs import ReadError
+from digest.util.redact import known_secrets, redact
 from digest.web import jobs
 from digest.web.notebook_graph import layout as notebook_layout
 from digest.web.security import Security, form_values
@@ -250,6 +253,131 @@ def create_app(config: Config) -> FastAPI:
             return {k: v[0] for k, v in fields.items() if k != "csrf_token"}
         except (UnicodeError, ValueError):
             raise HTTPException(400) from None
+
+    @app.get("/settings/models", response_class=HTMLResponse)
+    def models_page(request: Request) -> HTMLResponse:
+        problem = False
+        routes = model_settings.baseline(config)
+        custom: dict[LLMTask, list[model_settings.Choice]] = {}
+        versions: list[dict[str, Any]] = []
+        etag = content_hash(canonical([None, config.llm.model_dump()]))
+        try:
+            with store.database() as db:
+                db.execute("BEGIN")
+                etag = model_settings.expected(db, config)
+                custom, _ = model_settings.overrides(db)
+                versions = model_settings.history(db)
+                try:
+                    routes, _ = model_settings.selection(db, config)
+                except ValueError:
+                    problem = True
+        except (OSError, ReadError):
+            pass
+        except (ValueError, sqlite3.Error):
+            raise HTTPException(409) from None
+        hidden = known_secrets(config)
+        names = sorted(config.llm.providers)
+        stages = []
+        for task, label in model_settings.TASKS.items():
+            chosen = {c.provider: c for c in routes[task]}
+            order = {c.provider: i + 1 for i, c in enumerate(routes[task])}
+            rows = [
+                {
+                    "index": i,
+                    "label": redact(name, hidden),
+                    "order": order.get(name, 0),
+                    "model": redact(
+                        chosen[name].model
+                        if name in chosen
+                        else config.llm.task_models.get(task, {}).get(
+                            name, config.llm.providers[name].model
+                        ),
+                        hidden,
+                    ),
+                    "internal": name == "internal",
+                }
+                for i, name in enumerate(names)
+            ]
+            stages.append(
+                {
+                    "id": task,
+                    "label": label,
+                    "custom": task in custom,
+                    "rows": rows,
+                    "nonce": secrets.token_hex(16),
+                    "reset_nonce": secrets.token_hex(16),
+                }
+            )
+        return page(
+            request,
+            "models.html",
+            title="Modelos por tarea",
+            stages=stages,
+            expected=etag,
+            reset_nonce=secrets.token_hex(16),
+            problem=problem,
+            versions=versions,
+            labels=model_settings.TASKS,
+            editable=len(names) <= 24,
+        )
+
+    @app.post("/settings/models")
+    async def update_models(request: Request) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        common = {"action", "stage", "expected", "submission_id"}
+        action, stage = fields.get("action"), fields.get("stage", "")
+        names = sorted(config.llm.providers)
+        if action not in {"save", "reset", "reset_all"} or (
+            stage not in model_settings.TASKS if action != "reset_all" else stage != ""
+        ):
+            raise HTTPException(400)
+        required = common | (
+            {f"{field}_{i}" for i in range(len(names)) for field in ("order", "model")}
+            if action == "save"
+            else set()
+        )
+        if set(fields) != required or (action == "save" and len(names) > 24):
+            raise HTTPException(400)
+        choices = None
+        if action == "save":
+            try:
+                ordered = []
+                for i, name in enumerate(names):
+                    position = int(fields[f"order_{i}"])
+                    if not 0 <= position <= len(names):
+                        raise ValueError("Invalid order")
+                    if position:
+                        ordered.append(
+                            (
+                                position,
+                                model_settings.Choice(provider=name, model=fields[f"model_{i}"]),
+                            )
+                        )
+                if len({position for position, _ in ordered}) != len(ordered):
+                    raise ValueError("Repeated order")
+                choices = [choice for _, choice in sorted(ordered, key=lambda item: item[0])]
+                model_settings.validate_choices(config, choices)
+            except ValueError:
+                raise HTTPException(400) from None
+
+        def save() -> None:
+            try:
+                with queue.writing(config) as db:
+                    model_settings.save(
+                        db,
+                        config,
+                        cast(LLMTask, stage) if stage else None,
+                        choices,
+                        fields["expected"],
+                        fields["submission_id"],
+                    )
+            except (OSError, ValueError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        await run_in_threadpool(save)
+        return RedirectResponse("/settings/models", status_code=303)
 
     @app.get("/notebook", response_class=HTMLResponse)
     def notebook_page(

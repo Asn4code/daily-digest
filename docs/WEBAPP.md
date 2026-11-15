@@ -17,6 +17,7 @@ Webapp adaptable a móvil y ordenador, a la que se llega desde el enlace del cor
 | `GET /w/{AAAA-Wss}` | Semana | Informe semanal; pendientes por antigüedad | Elegir resultados para revisar |
 | `GET /history?q=` | Historial | Informes por fecha, búsqueda en títulos y resúmenes | Abrir |
 | `GET /generate` · `POST /generate` | Generar | Estado del último informe, de la cola y de cada canal | Generar ahora, ver avance, generar semanal |
+| `GET /settings/models` · `POST /settings/models` | Modelos por tarea | Proveedores, modelos y orden por etapa | Guardar, volver al YAML por tarea o en conjunto |
 | `POST /deliveries/{id}/retry` | — | Reintenta un canal (no inciertos) | — |
 | `GET /opportunities` | Oportunidades (fase 6) | Propuestas de las extensiones con su motivo y resultados | Aceptar, descartar, crear brief |
 | `POST /opportunities/{id}/brief` | — | Encola la creación del brief | — |
@@ -189,6 +190,30 @@ El historial muestra 20 versiones por página y las evidencias, 50 por página.
 Las preferencias se usan en el siguiente plan diario, respetando privacidad y
 dependencias. No cambian la prioridad de los jobs técnicos. Persistencia, límites
 y fórmula en [PERSONAL_NOTEBOOK.md](PERSONAL_NOTEBOOK.md).
+
+### Modelos por tarea (WA-06)
+
+Desde Generar se abre «Elegir modelos por tarea». Cada etapa tiene un formulario
+con los proveedores configurados: posición 1 para el primer intento, posiciones
+posteriores para respaldos y 0 para excluir. No se admiten posiciones repetidas ni
+una ruta vacía. El identificador del modelo admite hasta 200 caracteres: letras,
+números y `._:/@+-`, con letra o número inicial. La misma regla se valida en YAML.
+La interfaz permite hasta 24 proveedores; para listas mayores se usa YAML.
+
+Guardar cambia solo esa etapa. Las opciones para volver al YAML por etapa o en
+conjunto conservan el historial; se muestran las últimas 20 versiones. CSRF,
+sesión, identidad, nonce y control de edición obsoleta protegen todos los cambios.
+La web no muestra ni permite editar direcciones, nombres de variables de
+credenciales o claves, y guardar no ejecuta una petición de prueba al proveedor.
+
+Los trabajos en cola usan la selección vigente cuando empiezan. Los trabajos en
+curso o reanudados mantienen su selección inicial; los valores nuevos no cambian
+las piezas pendientes de ese trabajo. Si se retira un proveedor elegido, los
+trabajos nuevos se bloquean hasta corregir la preferencia o volver al YAML. Si
+cambia el destino de un proveedor ya fijado, se rechaza su reanudación; para usar
+otra selección se solicita un trabajo nuevo sobre la ventana correspondiente.
+La privacidad actual sigue aplicándose incluso a selecciones antiguas: excluir el
+proveedor interno puede dejar sin proveedor elegible a un proyecto privado.
 
 ## 5. Diseño
 

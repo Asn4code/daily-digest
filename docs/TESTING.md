@@ -360,3 +360,22 @@ Las preferencias nunca desbloquean candidatas ni aceptan misiones.
 Capturas locales con proyectos sintéticos: `build/wa09-preview/mobile.png`,
 `desktop.png`, `dependencies.png` y `task-mobile.png`. La comprobación en un
 teléfono físico permanece en la puerta de fase 3.
+
+## Modelos por tarea (WA-06)
+
+`tests/e2e/test_model_settings.py` recorre guardado web, reenvío sin duplicación,
+restauración de una etapa o de todas y control de formularios obsoletos. Rechaza
+órdenes duplicados, rutas vacías, modelos inválidos y campos inyectados. Se
+comprueban autorización local, identidad, origen y CSRF, ausencia de claves,
+direcciones o variables de credenciales en HTML, y proyectos intactos.
+
+Un transporte HTTP falso prueba modelos distintos por tarea, registro del modelo
+real, reutilización de piezas y privacidad que excluye proveedores externos. Un
+cambio de preferencias durante una generación no modifica sus llamadas; una
+interrupción seguida de recuperación mantiene modelos e inventario y reutiliza
+piezas anteriores. Otro trabajo recibe la preferencia nueva. Se rechazan cambios
+de destino de proveedor y selecciones/revisiones manipuladas. No se consulta un
+proveedor real ni se envían informes en estos tests.
+
+Capturas sintéticas a 390 y 1440 px: `build/wa06-preview/mobile.png` y
+`desktop.png`. La prueba desde un teléfono físico sigue en la puerta de fase 3.

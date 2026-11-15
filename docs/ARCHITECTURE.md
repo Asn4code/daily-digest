@@ -41,6 +41,7 @@ daily-digest/
     llm/
       client.py              # cliente OpenAI-compatible (httpx)
       router.py              # proveedor por tarea, respaldo, registro llm_call
+      settings.py            # preferencias web versionadas y modelos congelados por trabajo
       schemas.py             # modelos pydantic de las salidas
       validator.py           # IDs, cifras, límites
       prompts/*.md           # con front matter: name, version

@@ -75,6 +75,16 @@ def execute(
         db.execute("UPDATE job SET state='running',started_at=? WHERE id=?", (utc(instant), ident))
         report_id: str | None = None
         try:
+            if kind in {"daily", "weekly", "preview", "contrast"}:
+                from digest.llm.settings import freeze
+
+                db.execute("BEGIN IMMEDIATE")
+                try:
+                    config = freeze(db, config, ident)
+                    db.commit()
+                except BaseException:
+                    db.rollback()
+                    raise
             if kind == "contrast":
                 from digest.llm.router import Router
                 from digest.review.contrast import execute as contrast_review

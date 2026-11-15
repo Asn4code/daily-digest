@@ -50,6 +50,9 @@ llm:
     plan:       [nan, internal]
     weekly:     [nan, internal]
     contrast:   [nan, internal]
+  task_models: {}                 # opcional: modelos distintos por tarea y proveedor
+  # task_models:
+  #   plan: { nan: "deepseek-v4-flash", internal: "Qwen/Qwen3.8-27B" }
 
 email:
   smtp_host: smtp.gmail.com
