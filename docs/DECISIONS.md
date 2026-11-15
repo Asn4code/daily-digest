@@ -89,6 +89,8 @@ diario. La aclaración no debe volver a elegir el foco del informe original.
 
 | D-057 | 2026-11-15 | WA-06 permite elegir proveedor, modelo y orden por etapa desde web y YAML, con restauración de valores YAML | `llm.task_models` complementa el modelo por defecto del proveedor. Preferencias y selecciones por trabajo se versionan con huellas en `meta`, sin migración, dependencia nueva ni cambios de formatos de Obsidian/Drive. El worker fija los modelos al empezar y al reanudar verifica que el destino y la referencia de credencial no cambiaron; no persiste esos valores. No hay catálogo ni comprobación remota automática: guardar no acredita disponibilidad ni capacidad. Solo proveedores configurados, sin secretos ni URL en formularios; privacidad vigente y validadores prevalecen. |
 
+| D-058 | 2026-11-15 | WA-08 prepara un núcleo de selección exacta y recálculo acotado, separado de la generación y entrega | La selección no admite rutas del navegador. El comprobador solo usa columnas y archivos métricos configurados: 256 KB, 10 000 filas y veinte columnas como máximos. Distingue discrepancia sobre el mismo archivo de datos cambiados; no demuestra validez científica. Sin dependencia ni migración. La propuesta concreta de nuevos archivos en Obsidian/Drive se documenta en ON_DEMAND_FOLLOWUPS.md y requiere consulta antes de conectarla. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

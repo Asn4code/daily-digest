@@ -1471,7 +1471,7 @@
     {
       "id": "WA-08",
       "title": "Ampliar y comprobar frases del diario a petición",
-      "state": "todo",
+      "state": "doing",
       "group": "WA",
       "deps": ["WA-01", "WA-04"],
       "at": "2026-11-10T12:05:04Z",
@@ -1482,6 +1482,36 @@
           "at": "2026-11-10T12:48:59Z",
           "by": "codex",
           "text": "Formato confirmado por la persona: una ampliación centrada en las frases solicitadas, conservando el original. No se vuelve a generar el diario completo ni a elegir su misión por pedir una aclaración. Si una comprobación aconseja cambiar el foco, se explica como propuesta separada. Diseño y pruebas de aceptación en docs/ON_DEMAND_FOLLOWUPS.md. La preferencia confirma el alcance de la propuesta, no implica que la función esté implementada ni firma la fase 2."
+        },
+        {
+          "at": "2026-11-15T19:25:31Z",
+          "by": "codex",
+          "text": "Plan: ampliar solo campos y evidencias de una revisión exacta, con selección validada, comprobaciones deterministas de solo lectura y respuesta validada en worker. Concretar artefactos nuevos para Obsidian/Drive antes de implementarlos, conservando SQLite publicado, originales y estados humanos."
+        },
+        {
+          "at": "2026-11-15T19:30:54Z",
+          "by": "codex",
+          "text": "Preparado núcleo aislado: selección de campos citados vinculada a revisión/texto exactos, recálculo solo en rutas y columnas métricas configuradas y recibos que separan datos cambiados de discrepancias sobre el mismo archivo. 16 tests propios pasan; integración web/worker/LLM y entregas aún pendientes. Propuesta concreta de persistencia sin DDL y nuevos archivos en Obsidian/Drive en docs/ON_DEMAND_FOLLOWUPS.md; no se han creado exportaciones ni alterado formatos publicados."
+        },
+        {
+          "at": "2026-11-15T19:33:18Z",
+          "by": "codex",
+          "text": "El precheck detectó una tolerancia absoluta que podía aprobar cifras pequeñas incorrectas. Corregido con comparación exacta para el mismo método y archivo, y regresión de un error relativo de 250 veces. Los 17 tests del núcleo pasan; revalidación independiente y make check completos en curso. No se ha conectado ninguna generación ni entrega."
+        },
+        {
+          "at": "2026-11-15T19:33:52Z",
+          "by": "codex",
+          "text": "Revalidación independiente del núcleo cerrada sin hallazgos abiertos: 20 tests (17 de producción y 3 privados), incluida la discrepancia numérica a escala pequeña. La función completa y sus exportaciones siguen pendientes; no es una aprobación de fase."
+        },
+        {
+          "at": "2026-11-15T19:34:58Z",
+          "by": "codex",
+          "text": "make check completo pasa: lint, formato, mypy y 442 tests. Núcleo preparatorio listo y revisión independiente sin hallazgos abiertos. Antes de conectar el formulario y las entregas falta aprobar únicamente el nuevo formato concreto de archivos descrito en docs/ON_DEMAND_FOLLOWUPS.md; WA-08 no está terminada."
+        },
+        {
+          "at": "2026-11-15T19:34:58Z",
+          "by": "codex",
+          "text": "Question: ¿Apruebas el formato de docs/ON_DEMAND_FOLLOWUPS.md: nota nueva Ampliaciones/AAAA-MM-DD-<id>-rN.md y copias inmutables en Drive followups/<id>/rN/ (Markdown, JSON y PDF), conservando los originales y añadiendo el enlace de solicitud al final de diarios nuevos? AGENTS.md exige consultar cambios del formato de Obsidian/Drive; no se pide confirmación para los commits ni se cambia SQLite."
         }
       ]
     },

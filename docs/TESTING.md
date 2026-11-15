@@ -379,3 +379,19 @@ proveedor real ni se envían informes en estos tests.
 
 Capturas sintéticas a 390 y 1440 px: `build/wa06-preview/mobile.png` y
 `desktop.png`. La prueba desde un teléfono físico sigue en la puerta de fase 3.
+
+## Núcleo preparatorio de ampliaciones (WA-08, integración pendiente)
+
+`tests/unit/test_followup_core.py` cubre selección vinculada a ID de informe,
+campo, texto y evidencias; rechaza rutas, IDs ajenos, duplicados y exceso de
+selecciones. Solo se incluyen evidencias citadas. El comprobador recalcula
+estadísticos sintéticos, distingue discrepancias de cambios de archivo y declara
+falta de datos sin inferir falsedad. Se prueban symlinks externos, exclusiones,
+límites de bytes/filas, columnas no autorizadas, filas inválidas y secretos.
+
+Una regresión exige detectar discrepancias también en magnitudes muy pequeñas,
+sin una tolerancia absoluta que oculte errores relativos grandes.
+
+Estos 17 casos prueban únicamente el núcleo aislado: todavía no acreditan la
+solicitud web, validación LLM, entrega por correo ni copias de WA-08. El formato
+concreto propuesto para esas copias está en ON_DEMAND_FOLLOWUPS.md.

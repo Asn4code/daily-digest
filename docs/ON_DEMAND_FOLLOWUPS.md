@@ -1,7 +1,9 @@
 # Ampliaciones y comprobaciones a petición
 
 Diseño para la fase 3, solicitado por la persona durante la validación del diario
-(D-050). Todavía no implementado. No sustituye la firma pendiente de fase 2.
+(D-050). En preparación: selección de frases y comprobador numérico implementados
+como núcleo aislado, todavía sin formulario, worker ni entregas conectados. La
+fase 2 ya está aprobada; esta función pertenece a la fase 3.
 La persona confirma el formato: **una ampliación centrada en las frases
 solicitadas**, conservando el original, en lugar de otro diario completo.
 
@@ -97,6 +99,97 @@ Antes de implementar se concretarán el tipo de trabajo, su persistencia y los
 artefactos versionados. No se modifica ahora el esquema SQLite publicado ni los
 formatos de Obsidian/Drive. Si hace falta una migración o cambiar esos formatos,
 se presentará antes de implementarla, según AGENTS.md.
+
+## Propuesta concreta de persistencia y exportación — pendiente de aprobación
+
+La propuesta conserva el esquema SQLite. La solicitud usaría el trabajo existente
+`contrast`, con un subtipo explícito `params.followup`; nunca se trataría como una
+revisión humana ni se insertaría en `review`. Solicitudes, versiones, huellas y
+estados de entrega por canal se guardarían en `meta`: `followup_request:<id>`,
+`followup_submission:<nonce>`, `followup_revision:<id>:rN`, su `followup_hash` y
+`followup_delivery:<id>:rN:<canal>`, siguiendo el patrón de instantáneas de planes.
+No se crearía ni cerraría un
+intervalo y no se modificaría el registro del diario. El worker fijaría sus modelos
+al empezar, con las preferencias de WA-06.
+
+Cada petición tendría un ID aleatorio `fu_<32 dígitos hexadecimales>` y versiones
+inmutables `r1`, `r2`… Los borradores fallidos quedarían privados; solo una versión
+completa, validada y cotejada podría entregarse. Reenviar el formulario devolvería
+la misma petición. Un correo tendría Message-ID estable formado por el ID completo
+y la revisión, por ejemplo `<fu_0123456789abcdef0123456789abcdef-r1@daily-digest.local>`,
+distinto del diario. La incertidumbre SMTP se
+registraría antes de DATA, usando el mecanismo existente de envío seguro.
+
+Archivos nuevos propuestos:
+
+| Destino | Ruta |
+| --- | --- |
+| Datos locales | `followups/<id>/rN/followup.{json,md,html,pdf}` |
+| Obsidian | `Ampliaciones/AAAA-MM-DD-<id>-rN.md` |
+| Drive | `followups/<id>/rN/followup.{json,md,pdf}` mediante `rclone copy --immutable` |
+
+La fecha del nombre usaría la zona configurada y las horas del JSON serían UTC.
+Los documentos enlazarían a la revisión original; sus figuras y evidencias se
+abrirían desde ese informe. No se sobrescribirían informes, notas humanas ni
+versiones anteriores. Las entregas fallidas se reintentarían por canal y las
+inciertas no se reenviarían automáticamente.
+
+El JSON versión `1` conservaría: ID y revisión de ampliación; hora de creación;
+ID, revisión y huella del informe original; selecciones exactas (ID opaco, campo,
+texto y evidencias); pregunta humana saneada y modalidad; ámbito de privacidad;
+explicación y valoración validadas; comprobaciones con método, fecha, hashes,
+valores y límites; evidencias nuevas si cambian los datos; y linaje de modelos,
+prompts y cotejo. Pregunta y selección quedarían separadas de afirmaciones del
+modelo. La ampliación declararía expresamente su cobertura parcial.
+
+Ejemplo sintético del contenido de la nota propuesta:
+
+```markdown
+# Ampliación · comprobar una afirmación
+
+Informe original: rep_daily_ejemplo_r1 · revisión 1
+Frase seleccionada: «La media registrada es 2.» [ev_ejemplo]
+Pregunta de la persona: ¿Se puede reproducir con los datos disponibles?
+
+## Qué se ha comprobado
+Se han recalculado los estadísticos de la columna declarada. [ev_comprobacion]
+Método: metric_summary_v1 · fecha UTC · hashes histórico y actual.
+
+## Resultado y límites
+La media registrada se reproduce sobre el mismo archivo. [ev_comprobacion]
+Esto comprueba el cálculo almacenado, no la validez del experimento. [ev_comprobacion]
+
+## Consecuencia para el foco
+No se cambia ninguna misión ni estado humano por solicitar esta ampliación.
+```
+
+Los diarios nuevos añadirían al final el enlace «¿Quieres ampliar o comprobar
+algo?» en web, correo y Markdown de la vault. El enlace fijaría el ID del informe;
+no se reescribirían diarios ya generados solo para incorporarlo.
+
+Esta sección hace revisable el formato; todavía no autoriza ni implementa esas
+exportaciones. La consulta se debe a la regla de `AGENTS.md` sobre formatos de
+Obsidian/Drive, no a los commits.
+
+## Núcleo preparatorio comprobado
+
+`followups.selection` enumera campos citados del informe exacto y deriva IDs de
+selección de informe, campo, texto y referencias. El navegador no elige rutas.
+Admite hasta ocho selecciones distintas y conserva solo sus evidencias citadas.
+
+`followups.checks.metric_summary` recalcula `n`, media, mediana, mínimo y máximo
+en columnas métricas configuradas. No acepta columnas ni rutas de la pregunta:
+usa la evidencia original y vuelve a comprobar configuración, exclusiones, ruta
+segura y límites de lectura. Máximo 256 KB, 10 000 filas y veinte columnas, o el
+límite configurado de bytes si es menor. No ejecuta contenido de los proyectos.
+
+El recibo distingue cálculo reproducido, discrepancia sobre el mismo archivo,
+datos actuales cambiados y ausencia de datos verificables. Conserva hashes
+histórico/actual, método, fecha y filas inválidas omitidas. Un archivo cambiado no
+demuestra que el cálculo histórico sea falso. Los recibos se sanean de secretos;
+su conversión en evidencias nuevas y la generación/entrega quedan para el worker.
+Con el mismo método y archivo, los valores se comparan exactamente: no se aplica
+un umbral absoluto que pueda ocultar discrepancias en cifras pequeñas.
 
 ## Aceptación de WA-08
 
