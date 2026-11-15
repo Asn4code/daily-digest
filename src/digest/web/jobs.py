@@ -52,7 +52,7 @@ def summary(row: tuple[Any, ...]) -> dict[str, Any]:
     return {
         "id": ident,
         "kind": kind,
-        "label": KINDS.get(kind, "Trabajo"),
+        "label": "Ampliación" if params.get("followup") else KINDS.get(kind, "Trabajo"),
         "state": state,
         "state_label": STATES.get(state, "No disponible"),
         "created_at": created,
@@ -167,6 +167,7 @@ def detail(store: Store, config: Config, job_id: int, page: int = 1) -> dict[str
         report=None,
         review=None,
         snapshot=None,
+        followup=None,
         resumable=result["state"] == "failed"
         and result["kind"] in {"daily", "weekly", "preview"}
         and bool(params.get("interval_id"))
@@ -177,6 +178,12 @@ def detail(store: Store, config: Config, job_id: int, page: int = 1) -> dict[str
         inventory_page=page,
         parents=[{"id": source[0], "label": "Informe de origen"}] if source else [],
     )
+    if params.get("followup"):
+        from digest.followups.records import request as followup_request
+
+        with store.database() as db:
+            value, _ = followup_request(db, config, params["followup"])
+            result["followup"] = value["id"]
     if report_id:
         try:
             document, _ = store.load(report_id)

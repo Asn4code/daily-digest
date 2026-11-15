@@ -24,4 +24,4 @@
 {% if not report.results %}<p>Sin resultados verificables; esto no demuestra que no se haya trabajado.</p>{% endif %}
 {% if selected %}<h2>Resultado para revisar</h2><p>{{ selected.title }}</p>{% endif %}
 {% for image in images %}<img src="cid:{{ image.cid }}" alt="{{ image.caption }}" style="max-width:100%;height:auto">{% endfor %}
-<h2>Cobertura</h2><p>{{ warning }}</p></body></html>
+<h2>Cobertura</h2><p>{{ warning }}</p>{% if report.kind=="daily" %}<h2>¿Quieres ampliar o comprobar algo?</h2><p><a href="{{ followup_url }}">Pedir una ampliación de este diario</a></p>{% endif %}</body></html>

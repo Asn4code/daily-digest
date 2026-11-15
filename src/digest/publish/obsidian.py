@@ -33,5 +33,5 @@ def publish(config: Config, report: Report, directory: Path) -> str:
             target = destination(config, vault, f"{folder}/{relative}")
             create(target, source.read_bytes())
             figure.path = relative
-    create(note, render(rendered).encode())
+    create(note, render(rendered, base_url=config.web.public_base_url).encode())
     return str(note)

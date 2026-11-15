@@ -55,12 +55,19 @@ Capturas de comprobación locales: `build/wa01-preview/mobile.png` (390 px) y
 fase 2. Son comprobaciones de navegador; el acceso desde un teléfono físico
 se verifica en la puerta de fase y en el despliegue.
 
-Al final del informe se prevé «¿Quieres ampliar o comprobar algo?» (D-050,
-fase 3): abre un formulario vinculado a su revisión exacta para señalar frases,
-pedir una explicación o solicitar una comprobación. El formulario encola el
-trabajo y la persona recibe un informe de ampliación por correo. Diseño y
-criterios de aceptación en [ON_DEMAND_FOLLOWUPS.md](ON_DEMAND_FOLLOWUPS.md);
-todavía no implementado. No se interpreta leer el informe como solicitar trabajos.
+Al final del diario, «¿Quieres ampliar o comprobar algo?» (WA-08) abre
+`/reports/<id>/followup`, vinculado a su revisión exacta. Permite buscar frases,
+elegir hasta ocho y enviar una pregunta de hasta 2000 caracteres para explicar
+o comprobar. Solo el POST guarda y encola; un GET no ejecuta nada.
+
+`/followups/<id>` muestra el progreso y permite continuar un intento fallido.
+La respuesta validada se abre en `/followups/<id>/rN`, con pregunta, frases,
+explicación, comprobaciones, límites, procedencia y entregas por canal. Desde
+esa ficha se reintenta un solo canal pendiente o fallido. El correo incierto no
+tiene botón de reenvío. Las solicitudes repetidas no crean otro trabajo, y los
+formularios ajenos a esa revisión se rechazan. La ampliación conserva originales,
+planes y estados humanos. Contratos y límites en
+[ON_DEMAND_FOLLOWUPS.md](ON_DEMAND_FOLLOWUPS.md).
 
 ## 2. Revisión
 

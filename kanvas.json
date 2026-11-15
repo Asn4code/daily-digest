@@ -1471,7 +1471,7 @@
     {
       "id": "WA-08",
       "title": "Ampliar y comprobar frases del diario a petición",
-      "state": "doing",
+      "state": "done",
       "group": "WA",
       "deps": ["WA-01", "WA-04"],
       "at": "2026-11-10T12:05:04Z",
@@ -1512,6 +1512,21 @@
           "at": "2026-11-15T19:34:58Z",
           "by": "codex",
           "text": "Question: ¿Apruebas el formato de docs/ON_DEMAND_FOLLOWUPS.md: nota nueva Ampliaciones/AAAA-MM-DD-<id>-rN.md y copias inmutables en Drive followups/<id>/rN/ (Markdown, JSON y PDF), conservando los originales y añadiendo el enlace de solicitud al final de diarios nuevos? AGENTS.md exige consultar cambios del formato de Obsidian/Drive; no se pide confirmación para los commits ni se cambia SQLite."
+        },
+        {
+          "at": "2026-11-15T19:37:17Z",
+          "by": "codex",
+          "text": "La persona responde «ok» a la consulta del formato concreto de docs/ON_DEMAND_FOLLOWUPS.md: aprueba notas nuevas en Ampliaciones/fecha-id-rN.md y copias Markdown/JSON/PDF inmutables en Drive followups/id/rN, con enlace al final de diarios nuevos, preservando originales. Continúo la integración sobre ese formato; no es una firma de fase."
+        },
+        {
+          "at": "2026-11-15T20:06:45Z",
+          "by": "codex",
+          "text": "Integradas solicitud web, worker, esquema/cotejo de respuesta, evidencias y recibos fijados, copias inmutables y reintentos por canal. Las regresiones detectadas en precheck sobre outbox/PDF se corrigieron con bindings de bytes ligados a la revisión y escritura atómica valor/huella. Las vistas móvil y escritorio están en build/wa08-preview. Puerta automática previa ejecutada: los escenarios pasan; se repite con PATH de .venv para evitar ruff global antiguo y queda pendiente el propio estado doing de WA-08."
+        },
+        {
+          "at": "2026-11-15T20:08:11Z",
+          "by": "codex",
+          "text": "Ya puedes elegir frases de una revisión exacta del diario y pedir explicación o comprobación; el worker entrega una ampliación independiente por correo, Obsidian y Drive. Conserva originales, datos históricos, planes y estados humanos; fija comprobaciones/modelos y permite reintentos seguros por canal. Verificado con make check (467 tests, incluidos 25 de flujo y 17 de núcleo), pruebas de SMTP/Drive locales, vistas a 390/1440 px y precheck independiente sin hallazgos abiertos. Puerta previa: todo técnico pasa; el único bloqueo era el estado doing de esta tarea. La recepción desde un teléfono físico y utilidad de la respuesta se comprueban en WA-05; no se firma la fase aquí."
         }
       ]
     },

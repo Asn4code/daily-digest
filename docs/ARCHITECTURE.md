@@ -38,9 +38,12 @@ daily-digest/
     planning.py              # elección humana, ajustes e instantáneas inmutables
     notebook.py              # notas personales versionadas y prioridad sobre capturas Kanvas
     queue.py                 # peticiones transaccionales y reintentos acotados
-    followups/               # núcleo preparatorio WA-08; aún sin web/worker/entregas
+    followups/               # ampliaciones a petición con identidad independiente
       selection.py           # campos citados de la revisión original
       checks.py              # comprobaciones numéricas acotadas de solo lectura
+      records.py             # solicitudes, entradas fijadas y reintentos en meta
+      generate.py            # esquema, validación y cotejo antes de publicar
+      publish.py             # copias inmutables y correo ligado al documento validado
     llm/
       client.py              # cliente OpenAI-compatible (httpx)
       router.py              # proveedor por tarea, respaldo, registro llm_call

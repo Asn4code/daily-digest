@@ -89,21 +89,45 @@ def execute(
                 from digest.llm.router import Router
                 from digest.review.contrast import execute as contrast_review
 
-                contrast_review(
-                    db,
-                    config,
-                    params["review"],
-                    Router(db, config, job_id=ident, deadline=deadline),
-                )
+                if params.get("followup"):
+                    from digest.followups.generate import execute as generate_followup
+                    from digest.followups.publish import publish as publish_followup
+
+                    value = generate_followup(
+                        db,
+                        config,
+                        params["followup"],
+                        Router(db, config, job_id=ident, deadline=deadline),
+                    )
+                    publish_followup(db, config, value["id"], value["revision"])
+                else:
+                    contrast_review(
+                        db,
+                        config,
+                        params["review"],
+                        Router(db, config, job_id=ident, deadline=deadline),
+                    )
                 db.execute(
                     "UPDATE job SET state='done',finished_at=? WHERE id=?",
                     (utc(datetime.now(UTC)), ident),
                 )
-                return str(params["review"])
+                return str(params.get("followup") or params["review"])
             if kind == "deliver":
                 from digest.publish.deliveries import deliver_report, retry
 
-                if params.get("plan"):
+                if params.get("followup"):
+                    from digest.followups.publish import publish as publish_followup
+
+                    outcomes = {
+                        params["followup"]: publish_followup(
+                            db,
+                            config,
+                            params["followup"],
+                            params["revision"],
+                            channel=params.get("channel"),
+                        )
+                    }
+                elif params.get("plan"):
                     from digest.publish.plan import publish as publish_plan
 
                     outcomes = {
@@ -296,8 +320,8 @@ def execute(
                     figure.path = "figures/" + original.name
             for name, text in [
                 (basename + ".json", json.dumps(asdict(report), ensure_ascii=False, indent=2)),
-                (basename + ".md", render_md(report)),
-                (basename + ".html", render_html(report)),
+                (basename + ".md", render_md(report, base_url=config.web.public_base_url)),
+                (basename + ".html", render_html(report, base_url=config.web.public_base_url)),
             ]:
                 with (directory / name).open("x", encoding="utf-8") as stream:
                     stream.write(text)

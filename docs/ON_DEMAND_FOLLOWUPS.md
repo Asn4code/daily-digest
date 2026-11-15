@@ -1,8 +1,9 @@
 # Ampliaciones y comprobaciones a petición
 
 Diseño para la fase 3, solicitado por la persona durante la validación del diario
-(D-050). En preparación: selección de frases y comprobador numérico implementados
-como núcleo aislado, todavía sin formulario, worker ni entregas conectados. La
+(D-050). Implementados selección de frases, formulario, worker, validación
+y entregas independientes. El formato de exportación se aprobó el 2026-11-15
+con la respuesta «ok» a la consulta concreta registrada en WA-08. La
 fase 2 ya está aprobada; esta función pertenece a la fase 3.
 La persona confirma el formato: **una ampliación centrada en las frases
 solicitadas**, conservando el original, en lugar de otro diario completo.
@@ -53,8 +54,9 @@ registra datos utilizados, sus hashes/IDs de evidencia, fecha, método o versió
 resultado y limitaciones. Los datos que han cambiado se capturan como evidencia
 nueva; no alteran el paquete histórico que respaldaba el informe original.
 
-Ejemplo: auditar las puntuaciones almacenadas y recalcular una correlación con
-un método implementado puede comprobar el valor registrado. No acredita por sí
+Ejemplo de alcance: auditar las puntuaciones y recalcular un estadístico puede
+comprobar el valor registrado. El catálogo actual incluye los resúmenes métricos
+descritos abajo, sin comprobador de correlación. No acredita por sí
 solo calidad predictiva. Si faltan datos, se explica qué falta y queda no verificable;
 eso no demuestra que la afirmación sea falsa.
 
@@ -95,32 +97,31 @@ del mismo formulario no duplica trabajo ni correo. Cada ampliación tiene identi
 de informe propia y Message-ID estable para sus reintentos; una entrega incierta
 no se reintenta sola. No se reutiliza la identidad del correo diario original.
 
-Antes de implementar se concretarán el tipo de trabajo, su persistencia y los
-artefactos versionados. No se modifica ahora el esquema SQLite publicado ni los
-formatos de Obsidian/Drive. Si hace falta una migración o cambiar esos formatos,
-se presentará antes de implementarla, según AGENTS.md.
+La implementación conserva el esquema SQLite publicado. La consulta previa
+requerida por AGENTS.md sobre los archivos nuevos de Obsidian/Drive tiene respuesta
+afirmativa registrada. Las comprobaciones desde un teléfono físico y la firma
+humana de fase 3 siguen pendientes; los tests usan servicios sintéticos.
 
-## Propuesta concreta de persistencia y exportación — pendiente de aprobación
+## Persistencia y exportación aprobadas
 
-La propuesta conserva el esquema SQLite. La solicitud usaría el trabajo existente
-`contrast`, con un subtipo explícito `params.followup`; nunca se trataría como una
-revisión humana ni se insertaría en `review`. Solicitudes, versiones, huellas y
-estados de entrega por canal se guardarían en `meta`: `followup_request:<id>`,
-`followup_submission:<nonce>`, `followup_revision:<id>:rN`, su `followup_hash` y
+La implementación conserva el esquema SQLite. La solicitud usa el trabajo existente
+`contrast`, con un subtipo explícito `params.followup`; nunca se trata como una
+revisión humana ni se inserta en `review`. Solicitudes, versiones, huellas y
+estados de entrega por canal se guardan en `meta`: `followup_request:<id>`,
+`followup_submission:<nonce>`, `followup_revision:<id>:rN`, su clave `:hash` y
 `followup_delivery:<id>:rN:<canal>`, siguiendo el patrón de instantáneas de planes.
-No se crearía ni cerraría un
-intervalo y no se modificaría el registro del diario. El worker fijaría sus modelos
+No se crea ni cierra un intervalo y no se modifica el registro del diario. El worker fija sus modelos
 al empezar, con las preferencias de WA-06.
 
-Cada petición tendría un ID aleatorio `fu_<32 dígitos hexadecimales>` y versiones
-inmutables `r1`, `r2`… Los borradores fallidos quedarían privados; solo una versión
-completa, validada y cotejada podría entregarse. Reenviar el formulario devolvería
-la misma petición. Un correo tendría Message-ID estable formado por el ID completo
+Cada petición tiene un ID aleatorio `fu_<32 dígitos hexadecimales>` y versiones
+inmutables `r1`, `r2`… Los borradores fallidos quedan privados; solo una versión
+completa, validada y cotejada puede entregarse. Reenviar el formulario devuelve
+la misma petición. Un correo tiene Message-ID estable formado por el ID completo
 y la revisión, por ejemplo `<fu_0123456789abcdef0123456789abcdef-r1@daily-digest.local>`,
-distinto del diario. La incertidumbre SMTP se
-registraría antes de DATA, usando el mecanismo existente de envío seguro.
+distinto del diario. La incertidumbre SMTP se registra antes de DATA, usando el
+mecanismo existente de envío seguro.
 
-Archivos nuevos propuestos:
+Archivos nuevos:
 
 | Destino | Ruta |
 | --- | --- |
@@ -128,21 +129,21 @@ Archivos nuevos propuestos:
 | Obsidian | `Ampliaciones/AAAA-MM-DD-<id>-rN.md` |
 | Drive | `followups/<id>/rN/followup.{json,md,pdf}` mediante `rclone copy --immutable` |
 
-La fecha del nombre usaría la zona configurada y las horas del JSON serían UTC.
-Los documentos enlazarían a la revisión original; sus figuras y evidencias se
-abrirían desde ese informe. No se sobrescribirían informes, notas humanas ni
-versiones anteriores. Las entregas fallidas se reintentarían por canal y las
-inciertas no se reenviarían automáticamente.
+La fecha del nombre usa la zona configurada y las horas del JSON son UTC.
+Los documentos enlazan a la revisión original; sus figuras y evidencias se
+abren desde ese informe. No se sobrescriben informes, notas humanas ni
+versiones anteriores. Las entregas fallidas se reintentan por canal y las
+inciertas no se reenvían automáticamente.
 
-El JSON versión `1` conservaría: ID y revisión de ampliación; hora de creación;
+El JSON versión `1` conserva: ID y revisión de ampliación; hora de creación;
 ID, revisión y huella del informe original; selecciones exactas (ID opaco, campo,
 texto y evidencias); pregunta humana saneada y modalidad; ámbito de privacidad;
 explicación y valoración validadas; comprobaciones con método, fecha, hashes,
 valores y límites; evidencias nuevas si cambian los datos; y linaje de modelos,
-prompts y cotejo. Pregunta y selección quedarían separadas de afirmaciones del
-modelo. La ampliación declararía expresamente su cobertura parcial.
+prompts y cotejo. Pregunta y selección quedan separadas de afirmaciones del
+modelo. La ampliación declara expresamente su cobertura parcial.
 
-Ejemplo sintético del contenido de la nota propuesta:
+Ejemplo sintético del contenido de una nota:
 
 ```markdown
 # Ampliación · comprobar una afirmación
@@ -163,15 +164,22 @@ Esto comprueba el cálculo almacenado, no la validez del experimento. [ev_compro
 No se cambia ninguna misión ni estado humano por solicitar esta ampliación.
 ```
 
-Los diarios nuevos añadirían al final el enlace «¿Quieres ampliar o comprobar
-algo?» en web, correo y Markdown de la vault. El enlace fijaría el ID del informe;
-no se reescribirían diarios ya generados solo para incorporarlo.
+Los diarios nuevos añaden al final el enlace «¿Quieres ampliar o comprobar
+algo?» en web, correo y Markdown de la vault. El enlace fija el ID del informe;
+no se reescriben diarios ya generados solo para incorporarlo.
 
-Esta sección hace revisable el formato; todavía no autoriza ni implementa esas
-exportaciones. La consulta se debe a la regla de `AGENTS.md` sobre formatos de
-Obsidian/Drive, no a los commits.
+La petición no ejecuta ninguna tarea en el proceso web. Solo el worker prepara
+y entrega. Cada canal tiene sus propios reintentos: las copias entregadas no se
+repiten para reparar el correo. El wire exacto del correo se conserva con una
+huella ligada a la revisión validada; alterar el cuerpo o redirigir el outbox
+impide enviarlo. La incertidumbre SMTP se conserva aunque se reinicie el worker.
+Los bytes del PDF y del correo se fijan antes de exponer el archivo, ligados al
+documento validado; los pares valor/huella se guardan atómicamente mediante
+SAVEPOINT. Un PDF previo sin esa procedencia no se acepta como salida generada.
+Una interrupción permite recuperar los mismos bytes, aunque el generador de PDF
+no sea determinista.
 
-## Núcleo preparatorio comprobado
+## Selección y comprobaciones implementadas
 
 `followups.selection` enumera campos citados del informe exacto y deriva IDs de
 selección de informe, campo, texto y referencias. El navegador no elige rutas.
@@ -187,7 +195,9 @@ El recibo distingue cálculo reproducido, discrepancia sobre el mismo archivo,
 datos actuales cambiados y ausencia de datos verificables. Conserva hashes
 histórico/actual, método, fecha y filas inválidas omitidas. Un archivo cambiado no
 demuestra que el cálculo histórico sea falso. Los recibos se sanean de secretos;
-su conversión en evidencias nuevas y la generación/entrega quedan para el worker.
+el worker registra sus evidencias nuevas sin modificar las históricas. Los
+recibos se fijan para esa petición: un reintento conserva sus datos y fecha en vez
+de presentarlos como una comprobación recién realizada.
 Con el mismo método y archivo, los valores se comparan exactamente: no se aplica
 un umbral absoluto que pueda ocultar discrepancias en cifras pequeñas.
 
@@ -212,3 +222,25 @@ un umbral absoluto que pueda ocultar discrepancias en cifras pequeñas.
   nodos válidos y respetan el estado incierto del correo.
 - Pruebas con dobles LLM, SMTP y Drive, sin llamar a proveedores reales ni ejecutar
   contenido de los proyectos.
+
+
+## Uso y reanudación
+
+El enlace del diario abre `/reports/<id>/followup`. Se pueden buscar frases y
+paginar de 50 en 50; cada envío admite hasta ocho frases de la página actual y
+una pregunta de hasta 2000 caracteres. Su ID opaco se resuelve contra el informe
+validado, no como ruta de archivo. Las repeticiones del mismo texto con las mismas
+evidencias se muestran una vez. Una pregunta puede mencionar otros proyectos:
+hereda sus políticas configuradas, registradas y ancestrales de forma conservadora.
+Si falta una política, se bloquea antes de llamar al proveedor.
+
+`/followups/<id>` muestra la espera y permite continuar una generación fallida.
+Una vez lista, redirige a `/followups/<id>/rN`, que conserva la revisión exacta,
+recibos, evidencias y entregas. Las rutas de reintento requieren POST y CSRF. La
+recuperación del worker marca trabajos interrumpidos; se pueden continuar desde
+la ficha, reutilizando entradas, modelos y nodos válidos.
+
+La explicación usa `followup` sobre la ruta `conceptual`; el cotejo usa
+`followup_grounding` sobre `contrast`. Ambos tienen presupuesto y fallan sin
+entrega si una pieza no valida. Una ausencia documentada de datos puede producir
+un recibo no verificable; una caída del modelo no se convierte en ese resultado.

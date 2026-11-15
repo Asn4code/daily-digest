@@ -14,6 +14,7 @@ from typing import Any
 
 from jinja2 import Environment, select_autoescape
 
+from digest.collectors.base import content_hash
 from digest.config import Config
 from digest.doctor import _credential
 from digest.llm.validator import validate_report
@@ -22,6 +23,7 @@ from digest.report.completeness import require_complete
 from digest.report.model import Report, ResultEntry
 from digest.report.timeutil import display
 from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
+from digest.util.fs import read_bounded
 
 ENV = Environment(autoescape=select_autoescape(default=True, default_for_string=True))
 TEMPLATE = files("digest.report").joinpath("templates/email.html").read_text(encoding="utf-8")
@@ -189,9 +191,17 @@ def compose(
             cid = f"figure{len(images) + 1}@daily-digest.local"
             images.append({"cid": cid, "caption": figure.caption})
             attachments.append((cid, path))
+    if report.kind == "daily":
+        plain.extend(
+            [
+                "¿Quieres ampliar o comprobar algo?",
+                config.web.public_base_url.rstrip("/") + "/reports/" + report.id + "/followup",
+            ]
+        )
     message.set_content("\n".join(plain) + "\n")
     html = ENV.from_string(TEMPLATE).render(
         report=report,
+        followup_url=config.web.public_base_url.rstrip("/") + "/reports/" + report.id + "/followup",
         view=view,
         confidence=CONFIDENCE,
         priorities=PRIORITIES,
@@ -219,13 +229,21 @@ def compose(
 
 
 def send(
-    config: Config, message: EmailMessage, outbox: Path, update: Callable[[str, str | None], None]
+    config: Config,
+    message: EmailMessage,
+    outbox: Path,
+    update: Callable[[str, str | None], None],
+    *,
+    expected_hash: str | None = None,
 ) -> str:
     if outbox.exists():
-        wire = outbox.read_bytes()
+        wire = read_bounded(outbox.parent, outbox.name, max_bytes=20_000_000)
     else:
         wire = message.as_bytes()
         create(outbox, wire)
+    if expected_hash is not None and content_hash(wire) != expected_hash:
+        update("failed", "smtp_content_changed")
+        return "failed"
     password = _credential(config.email.password_env)
     if password is None:
         update("failed", "smtp_credential_missing")

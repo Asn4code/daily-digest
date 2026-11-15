@@ -17,9 +17,10 @@ ENV.filters["priority"] = lambda value: PRIORITIES[value]
 TEMPLATE = files("digest.report").joinpath("templates/report.html").read_text(encoding="utf-8")
 
 
-def render(report: Report) -> str:
+def render(report: Report, *, base_url: str = "") -> str:
     return ENV.from_string(TEMPLATE).render(
         report=report,
+        followup_url=base_url.rstrip("/") + "/reports/" + report.id + "/followup",
         view=daily_view(report),
         critical=weekly_checks(report),
         critical_highlights=weekly_checks(report, highlighted=True),

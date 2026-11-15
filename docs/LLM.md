@@ -692,3 +692,29 @@ históricos de cada ajuste. Una política ausente deja el plan pendiente antes d
 llamar al proveedor. Los bloqueos siguen excluyendo candidatas y la antigüedad no
 justifica por sí sola sustituir una misión aceptada. Este contexto solo alimenta
 el plan diario, sin cambiar automáticamente estados humanos.
+
+
+## 19. Ampliaciones a petición (WA-08)
+
+La respuesta FollowupAnswer se genera con el prompt `followup` y la ruta
+`conceptual`; `followup_grounding`, por `contrast`, coteja después cada campo
+contra las mismas evidencias. El validador habitual de referencias, cifras,
+unidades y HTML se ejecuta en la generación y al reabrir o entregar la revisión.
+Una pieza inválida, presupuesto agotado o auditoría fallida deja el trabajo
+pendiente; no se publica un resumen mecánico ni se declara «no verificable»
+para ocultar un error del proveedor.
+
+El paquete contiene hasta ocho selecciones de la revisión inmutable, pregunta
+humana saneada, evidencias citadas y recibos deterministas si se pidió comprobar.
+No se envía el resto del diario ni se regenera otro proyecto. Los recibos y
+datos quedan fijados antes de generar; los reintentos conservan su fecha y hashes.
+Los datos cambiados reciben evidencias independientes y no reemplazan el
+respaldo histórico. El paquete y cada prompt tienen un máximo de 128 000
+caracteres o el límite configurado si es menor; no se recortan fuentes a medias.
+
+La privacidad conserva todos los proyectos configurados, registrados y
+ancestrales que la pregunta podría mencionar; si falta una política se bloquea
+antes de llamar al proveedor. Las selecciones y preguntas son datos no fiables,
+no instrucciones. Reproducir una métrica no acredita el experimento y una nota
+de agente no se convierte en verificación independiente. Una consecuencia para
+el foco sigue siendo una propuesta, sin aceptar planes ni cerrar revisiones.

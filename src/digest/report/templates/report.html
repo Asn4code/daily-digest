@@ -70,4 +70,4 @@ summary{cursor:pointer;font-weight:600;padding:.5rem}details{margin-block:.5rem;
 <h2>Cobertura</h2>{% for item in report.coverage %}<section class="coverage"><h3>{{ item.project }} / {{ item.source }}: {{ item.status }}</h3><p>Captura {{ item.snapshot_id }}</p>{% for omitted in item.omitted %}<p>{{ omitted.locator }}: {{ omitted.reason }}</p>{% endfor %}</section>{% endfor %}
 {% for warning in report.warnings %}<p>{{ warning }}</p>{% endfor %}
 <details><summary>Procedencia de la generación</summary>{% for section,model in report.model_info.items() %}<p>{{ section }}: {{ model.provider }} / {{ model.model }} · prompt {{ report.prompt_versions[section] }}</p>{% endfor %}</details>
-</body></html>
+{% if report.kind=="daily" and not report.pending %}<h2>¿Quieres ampliar o comprobar algo?</h2><p><a href="{{ followup_url }}">Pedir una ampliación de este diario</a></p>{% endif %}</body></html>

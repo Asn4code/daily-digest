@@ -91,6 +91,8 @@ diario. La aclaración no debe volver a elegir el foco del informe original.
 
 | D-058 | 2026-11-15 | WA-08 prepara un núcleo de selección exacta y recálculo acotado, separado de la generación y entrega | La selección no admite rutas del navegador. El comprobador solo usa columnas y archivos métricos configurados: 256 KB, 10 000 filas y veinte columnas como máximos. Distingue discrepancia sobre el mismo archivo de datos cambiados; no demuestra validez científica. Sin dependencia ni migración. La propuesta concreta de nuevos archivos en Obsidian/Drive se documenta en ON_DEMAND_FOLLOWUPS.md y requiere consulta antes de conectarla. |
 
+| D-059 | 2026-11-15 | La persona responde «ok» al formato de ampliaciones de ON_DEMAND_FOLLOWUPS.md; WA-08 conecta solicitud, worker y entregas independientes | Notas nuevas en Ampliaciones/fecha-id-rN.md y copias Markdown/JSON/PDF inmutables en Drive followups/id/rN. Subtipo explícito de trabajo contrast y metadatos versionados sin migración. Entradas y recibos fijados, ámbito humano ancestral, validación de referencias/cifras y cotejo específico. PDF y wire SMTP quedan ligados al documento antes de publicar, con valor/huella atómicos; una entrega incierta no se repite. Pedir una ampliación no cierra intervalos, revisiones ni planes. No añade dependencias ni autoriza ejecutar proyectos. |
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

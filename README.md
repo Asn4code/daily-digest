@@ -109,6 +109,12 @@ por antigüedad; los proyectos permanecen en solo lectura. Estas preferencias
 alimentan el siguiente plan diario. Consulta [el cuaderno personal](docs/PERSONAL_NOTEBOOK.md)
 para conocer sus reglas, historial y límites.
 
+Al final del diario, **¿Quieres ampliar o comprobar algo?** permite elegir frases
+de esa revisión y enviar una pregunta. El worker prepara una ampliación validada,
+con sus comprobaciones y límites, y la entrega por correo, Obsidian y Drive sin
+cambiar el original. Los reintentos conservan sus datos y modelos. Alcance de las
+comprobaciones en [ampliaciones a petición](docs/ON_DEMAND_FOLLOWUPS.md).
+
 
 > La generación actual conserva el respaldo mecánico anterior: todavía no cumple
 > el requisito nuevo de D-047. Las pruebas reales están detenidas mientras se

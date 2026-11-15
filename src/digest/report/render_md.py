@@ -29,7 +29,7 @@ def interpretation(value: dict[str, Any]) -> str:
     return "Interpretación (confianza " + CONFIDENCE[value["confidence"]] + "): " + claim(value)
 
 
-def render(report: Report) -> str:
+def render(report: Report, *, base_url: str = "") -> str:
     view = daily_view(report)
     weekly = report.sections.get("weekly")
     label = "Borrador pendiente · informe" if report.pending else "Informe"
@@ -345,5 +345,16 @@ def render(report: Report) -> str:
             + escape(model["model"])
             + " · prompt "
             + escape(report.prompt_versions[section])
+        )
+    if report.kind == "daily" and not report.pending:
+        lines.extend(
+            [
+                "## ¿Quieres ampliar o comprobar algo?",
+                "[Pedir una ampliación de este diario]("
+                + base_url.rstrip("/")
+                + "/reports/"
+                + report.id
+                + "/followup)",
+            ]
         )
     return "\n\n".join(lines) + "\n"

@@ -16,6 +16,10 @@ from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse, Re
 from digest import notebook, planning, queue
 from digest.collectors.base import canonical, content_hash
 from digest.config import Config, LLMTask
+from digest.followups import records as followup_records
+from digest.followups.generate import read_revision as followup_revision
+from digest.followups.publish import STATUS as FOLLOWUP_STATUS
+from digest.followups.selection import catalogue as followup_catalogue
 from digest.llm import settings as model_settings
 from digest.report.model import Report, ResultEntry
 from digest.report.timeutil import display
@@ -23,7 +27,7 @@ from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_check
 from digest.review import records
 from digest.review.select import select as select_review
 from digest.util.fs import ReadError
-from digest.util.redact import known_secrets, redact
+from digest.util.redact import known_secrets, redact, redact_tree
 from digest.web import jobs
 from digest.web.notebook_graph import layout as notebook_layout
 from digest.web.security import Security, form_values
@@ -253,6 +257,181 @@ def create_app(config: Config) -> FastAPI:
             return {k: v[0] for k, v in fields.items() if k != "csrf_token"}
         except (UnicodeError, ValueError):
             raise HTTPException(400) from None
+
+    @app.get("/reports/{report_id}/followup", response_class=HTMLResponse)
+    def followup_form(
+        request: Request, report_id: str, q: str = "", page_number: int = 1
+    ) -> HTMLResponse:
+        if len(q) > 200 or not 1 <= page_number <= 10000:
+            raise HTTPException(400)
+        try:
+            with store.database() as db:
+                document, hashed, revision = followup_records.source(db, config, report_id)
+            if document.kind != "daily":
+                raise ValueError("Daily report required")
+            phrases = []
+            seen = set()
+            for phrase in followup_catalogue(document):
+                key = (phrase.text, phrase.evidence)
+                if key not in seen:
+                    seen.add(key)
+                    phrases.append(phrase)
+            if q:
+                phrases = [p for p in phrases if q.casefold() in p.text.casefold()]
+        except (ValueError, OSError, sqlite3.Error):
+            raise HTTPException(404) from None
+        return page(
+            request,
+            "followup_form.html",
+            title="Ampliar el diario",
+            report=document,
+            revision=revision,
+            phrases=phrases[(page_number - 1) * 50 : page_number * 50],
+            total=len(phrases),
+            q=q,
+            page_number=page_number,
+            more=len(phrases) > page_number * 50,
+            expected=hashed,
+            submission_id=secrets.token_hex(16),
+        )
+
+    @app.post("/reports/{report_id}/followup")
+    async def submit_followup(request: Request, report_id: str) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        try:
+            fields = form_values(await request.body())
+            if set(fields) != {
+                "csrf_token",
+                "selection",
+                "question",
+                "intent",
+                "expected",
+                "submission_id",
+            } or any(len(v) != 1 for k, v in fields.items() if k != "selection"):
+                raise ValueError("Invalid follow-up fields")
+        except (ValueError, UnicodeError):
+            raise HTTPException(400) from None
+
+        def save() -> str:
+            try:
+                with queue.writing(config) as db:
+                    return followup_records.submit(
+                        db,
+                        config,
+                        report_id,
+                        fields["selection"],
+                        fields["question"][0],
+                        fields["intent"][0],
+                        fields["expected"][0],
+                        fields["submission_id"][0],
+                    )
+            except (ValueError, OSError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        ident = await run_in_threadpool(save)
+        return RedirectResponse("/followups/" + ident, status_code=303)
+
+    @app.get("/followups/{ident}", response_class=HTMLResponse)
+    def followup_state(request: Request, ident: str) -> Response:
+        try:
+            with store.database() as db:
+                value, _ = followup_records.request(db, config, ident)
+                ready = followup_records.meta(db, "followup_ready:" + ident)
+                if ready is not None:
+                    followup_revision(db, config, ident, ready)
+                    return RedirectResponse(f"/followups/{ident}/r{ready}", status_code=303)
+                state = db.execute("SELECT state FROM job WHERE id=?", (value["job"],)).fetchone()[
+                    0
+                ]
+            board = jobs.detail(store, config, value["job"])
+        except (ValueError, OSError, sqlite3.Error):
+            raise HTTPException(404) from None
+        return page(
+            request,
+            "followup_pending.html",
+            title="Tu ampliación",
+            value=redact_tree(value, known_secrets(config)),
+            state=state,
+            state_label=jobs.STATES[state],
+            signature=jobs.signature(board),
+            submission_id=secrets.token_hex(16),
+        )
+
+    @app.post("/followups/{ident}/retry")
+    async def retry_followup(request: Request, ident: str) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        if set(fields) != {"submission_id"}:
+            raise HTTPException(400)
+
+        def save() -> None:
+            try:
+                with queue.writing(config) as db:
+                    followup_records.retry(db, config, ident, fields["submission_id"])
+            except (ValueError, OSError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        await run_in_threadpool(save)
+        return RedirectResponse("/followups/" + ident, status_code=303)
+
+    @app.get("/followups/{ident}/r{revision}", response_class=HTMLResponse)
+    def followup_result(request: Request, ident: str, revision: int) -> HTMLResponse:
+        try:
+            with store.database() as db:
+                value = followup_revision(db, config, ident, revision)
+                deliveries = [
+                    {
+                        "channel": channel,
+                        "label": jobs.CHANNELS[channel],
+                        **followup_records.meta(
+                            db,
+                            f"followup_delivery:{ident}:r{revision}:{channel}",
+                            {"state": "pending", "attempts": 0},
+                        ),
+                    }
+                    for channel in ("obsidian", "drive", "email")
+                ]
+        except (ValueError, OSError, sqlite3.Error):
+            raise HTTPException(404) from None
+        return page(
+            request,
+            "followup_result.html",
+            title="Ampliación del diario",
+            value=redact_tree(value, known_secrets(config)),
+            deliveries=deliveries,
+            delivery_states=jobs.DELIVERY_STATES,
+            check_status=FOLLOWUP_STATUS,
+            submission_ids={d["channel"]: secrets.token_hex(16) for d in deliveries},
+        )
+
+    @app.post("/followups/{ident}/r{revision}/deliveries/{channel}/retry")
+    async def retry_followup_delivery(
+        request: Request, ident: str, revision: int, channel: str
+    ) -> Response:
+        from starlette.concurrency import run_in_threadpool
+
+        fields = await form(request)
+        if set(fields) != {"submission_id"}:
+            raise HTTPException(400)
+
+        def save() -> int:
+            try:
+                with queue.writing(config) as db:
+                    return followup_records.retry(
+                        db,
+                        config,
+                        ident,
+                        fields["submission_id"],
+                        revision=revision,
+                        channel=channel,
+                    )
+            except (ValueError, OSError, sqlite3.Error):
+                raise HTTPException(409) from None
+
+        job = await run_in_threadpool(save)
+        return RedirectResponse(f"/jobs/{job}", status_code=303)
 
     @app.get("/settings/models", response_class=HTMLResponse)
     def models_page(request: Request) -> HTMLResponse:

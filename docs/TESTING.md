@@ -380,7 +380,7 @@ proveedor real ni se envían informes en estos tests.
 Capturas sintéticas a 390 y 1440 px: `build/wa06-preview/mobile.png` y
 `desktop.png`. La prueba desde un teléfono físico sigue en la puerta de fase 3.
 
-## Núcleo preparatorio de ampliaciones (WA-08, integración pendiente)
+## Ampliaciones a petición (WA-08)
 
 `tests/unit/test_followup_core.py` cubre selección vinculada a ID de informe,
 campo, texto y evidencias; rechaza rutas, IDs ajenos, duplicados y exceso de
@@ -392,6 +392,23 @@ límites de bytes/filas, columnas no autorizadas, filas inválidas y secretos.
 Una regresión exige detectar discrepancias también en magnitudes muy pequeñas,
 sin una tolerancia absoluta que oculte errores relativos grandes.
 
-Estos 17 casos prueban únicamente el núcleo aislado: todavía no acreditan la
-solicitud web, validación LLM, entrega por correo ni copias de WA-08. El formato
-concreto propuesto para esas copias está en ON_DEMAND_FOLLOWUPS.md.
+Los 17 casos anteriores prueban el núcleo. `tests/e2e/test_followups.py` añade
+25 casos de integración: solicitud web desde una revisión antigua, entrega única
+con SMTP y Drive locales, diarios/intervalos/estados humanos intactos, selección
+acotada, recálculo métrico y evidencias nuevas separadas de las históricas.
+
+Se prueban referencias/cifras inventadas y caída del cotejo sin entrega final;
+reutilización de nodos y comprobaciones tras fallos/interrupciones; políticas de
+proyectos privados no registrados y retirados; secretos, XSS, campos inyectados,
+autorización y CSRF. El correo incierto no se reintenta y reparar un canal no
+repite los demás. Cambiar fuentes, recibos, revisiones o artefactos los invalida.
+
+Regresiones adversariales comprueban que un outbox alterado no llega a SMTP ni
+si conserva cabeceras correctas ni si cambia tras la primera comprobación. El
+wire válido se recupera si falta el archivo. Un PDF previo sin binding no se
+certifica, y una interrupción tras generar el PDF conserva sus bytes exactos.
+Los pares valor/huella se guardan atómicamente incluso en autocommit. No se usa
+SMTP, Drive ni proveedores reales.
+
+Capturas sintéticas: `build/wa08-preview/form-mobile.png`, `result-mobile.png` y
+`result-desktop.png`. La recepción desde un teléfono físico queda para WA-05.

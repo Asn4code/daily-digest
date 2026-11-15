@@ -30,18 +30,23 @@ class RasterFetcher(URLFetcher):  # type: ignore[misc]
         return super().fetch(url, headers)
 
 
+def render_bytes(directory: Path, markup: str) -> bytes:
+    value = HTML(
+        string=markup,
+        base_url=str(directory),
+        url_fetcher=RasterFetcher(directory),
+    ).write_pdf()
+    if not isinstance(value, bytes) or not value.startswith(b"%PDF-"):
+        raise ValueError("Invalid PDF output")
+    return value
+
+
 def generate(directory: Path) -> Path:
     output = directory / "report.pdf"
     if output.is_symlink():
         raise ValueError("Invalid PDF output path")
     if output.is_file():
         return output
-    value = HTML(
-        string=(directory / "report.html").read_text(),
-        base_url=str(directory),
-        url_fetcher=RasterFetcher(directory),
-    ).write_pdf()
-    if not isinstance(value, bytes) or not value.startswith(b"%PDF-"):
-        raise ValueError("Invalid PDF output")
+    value = render_bytes(directory, (directory / "report.html").read_text())
     create(output, value)
     return output
