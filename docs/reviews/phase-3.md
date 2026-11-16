@@ -243,3 +243,14 @@ Después del cambio, `CorpDNS=false` y los tres DNS institucionales de
 NetworkManager siguen intactos. El acceso desde el teléfono o el ordenador
 requiere su conexión a Tailscale. Las comprobaciones de la persona siguen
 pendientes; una respuesta HTTP del constructor no firma esas casillas.
+
+
+### Navegador en el propio servidor
+
+La persona aclara que el navegador del ordenador se usa en el servidor. Con
+`accept-dns=false`, su DNS institucional no resuelve el nombre privado de la
+tailnet. Para el ensayo local está disponible
+`http://127.0.0.1:8091/reports/rep_in11_daily_levels_r24`; el móvil conserva el
+enlace HTTPS privado. Esta alternativa no cambia DNS, hosts ni el bind loopback.
+Debe quedar registrada la ruta realmente comprobada por la persona al validar
+acceso y evidencias; no se infiere el cumplimiento de la casilla completa.

@@ -1108,6 +1108,16 @@
           "at": "2026-11-16T10:41:29Z",
           "by": "codex",
           "text": "Question: La ficha aportada corresponde al servidor cnic-gpu2. En una terminal local del ordenador donde abres el navegador, ¿qué devuelven hostname, cat /etc/os-release, command -v tailscale y tailscale status? Son consultas de solo lectura; permiten distinguir equipo, distribución y cliente antes de tocar DNS."
+        },
+        {
+          "at": "2026-11-16T10:44:27Z",
+          "by": "codex",
+          "text": "La persona aclara que el navegador del ordenador se está usando en el propio servidor. Por tanto, el NXDOMAIN corresponde al entorno con aceptación DNS de Tailscale desactivada deliberadamente. El informe local en 127.0.0.1:8091 devuelve 200; se facilita ese acceso para validar lectura en el servidor, conservando el enlace privado Tailscale para el móvil. No se marca aún la casilla completa de acceso por correo/evidencias."
+        },
+        {
+          "at": "2026-11-16T10:44:28Z",
+          "by": "codex",
+          "text": "Question: Usando el navegador del propio servidor, ¿puedes abrir http://127.0.0.1:8091/reports/rep_in11_daily_levels_r24 y consultar una evidencia? Es acceso loopback a la misma muestra, sin cambiar DNS; en el móvil se conserva la URL HTTPS privada."
         }
       ]
     },
