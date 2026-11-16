@@ -1093,6 +1093,21 @@
           "at": "2026-11-16T10:35:33Z",
           "by": "codex",
           "text": "Question: Con Tailscale activo en tu móvil y ordenador, ¿el enlace del correo abre el informe R24 y puedes abrir una evidencia? Enlace privado: https://cnic-gpu2.tail8c0423.ts.net/reports/rep_in11_daily_levels_r24 . HTTPS ya está verificado y los DNS institucionales siguen intactos; falta tu comprobación desde ambos dispositivos."
+        },
+        {
+          "at": "2026-11-16T10:37:01Z",
+          "by": "codex",
+          "text": "La persona confirma que el informe se abre en el móvil, pero no en el ordenador. Se registra solo esa comprobación parcial; no se marca la casilla que exige ambos dispositivos ni la apertura de evidencias. Se investiga conectividad/resolución del ordenador manteniendo accept-dns=false y DNS institucional intacto."
+        },
+        {
+          "at": "2026-11-16T10:41:29Z",
+          "by": "codex",
+          "text": "La persona precisa que el ordenador es Linux y no conoce el estado de Tailscale; aporta la ficha Connected de cnic-gpu2 (servidor, misma IP ya verificada). El navegador del ordenador devuelve DNS_PROBE_FINISHED_NXDOMAIN. El servidor solo ve otro dispositivo Android de la misma cuenta, por lo que falta comprobar el cliente del PC donde corre el navegador. Se pedirán hostname, distribución y estado del cliente desde la terminal local, sin cambiar DNS ni reinstalar antes de identificar el equipo."
+        },
+        {
+          "at": "2026-11-16T10:41:29Z",
+          "by": "codex",
+          "text": "Question: La ficha aportada corresponde al servidor cnic-gpu2. En una terminal local del ordenador donde abres el navegador, ¿qué devuelven hostname, cat /etc/os-release, command -v tailscale y tailscale status? Son consultas de solo lectura; permiten distinguir equipo, distribución y cliente antes de tocar DNS."
         }
       ]
     },
