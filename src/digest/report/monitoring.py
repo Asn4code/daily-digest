@@ -134,8 +134,12 @@ def build(
     if not report.watchlist:
         report.watchlist = watchlist.freeze(db, config)
     verify_snapshot(report)
+    if not items(report):
+        return
     configured = {p.id for p in config.projects}
     registered = {r[0] for r in db.execute("SELECT id FROM project")}
+    initial = {e.id for e in report.evidence}
+    report.human_context["monitoring_inventory"] = sorted(initial)
     for item in items(report):
         if item["omitted"]:
             continue
@@ -152,7 +156,7 @@ def build(
             report.human_context.setdefault("watch_history", {})[item["id"]] = sorted(prior_ids)
         if not eligible(report, item):
             continue
-        ids = {e.id for e in report.evidence if e.project in item["projects"]}
+        ids = {e.id for e in report.evidence if e.id in initial and e.project in item["projects"]}
         scope.update(prior_scope)
         coverage = [c for c in report.coverage if c.project in item["projects"]]
         complete = (

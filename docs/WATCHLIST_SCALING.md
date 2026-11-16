@@ -71,3 +71,50 @@ Cambiar ese contrato exigiría una decisión separada, fuera de esta propuesta.
 - Comparar con el borrador real conservado, sin entregar hasta validar, y revisar
   el resultado con una sesión independiente. `make check`, puerta automática y
   comprobación humana de móvil/detalle; no se rebajan gates ni validadores.
+
+## Recorrido implementado
+
+El camino directo permanece para preguntas cuyo paquete íntegro cabe. Cuando
+no cabe, `monitoring_tree` prepara un árbol específico de seguimiento. Calcula
+primero las unidades coherentes a nivel de proyecto, con enlaces entre archivos,
+comparaciones y controles, antes de cualquier reparto por resultado. El contexto
+de notas de una tarea acompaña a sus unidades; varias unidades completas pueden
+compartir paquete. Una unidad indivisible que exceda el límite queda pendiente.
+
+Una fuente `source:*` ya cotejada se reutiliza únicamente si es compatible con
+la unidad completa y sus controles. Reutilizar una observación no elimina la
+necesidad de leer un control posterior: en ese caso se prepara la unidad entera.
+Las hojas nuevas son `watchctx:<ficha>:source:<hash>`; las reducciones usan
+`watchctx:<ficha>:reduce:<nivel>:<hash>`. La raíz conserva `watch:<ficha>` y el
+contrato de evaluación y los formatos humanos de WA-10.
+
+`MonitoringContext` contiene observaciones, interpretaciones, controles, límites
+y preguntas, con un máximo de catorce afirmaciones breves: 600 caracteres y ocho
+referencias por afirmación. No declara estado humano ni ausencia global de
+novedades. Cada hoja y reducción exige esquema, validador y cotejo propios.
+Hasta ocho niveles de reducción, mensajes de hasta 64 000 caracteres o el límite
+configurado menor, esquemas de hasta 32 000 y cotejos de hasta 128 000, siempre
+respetando también el límite configurado. No se elevan los topes previos.
+
+Los paquetes derivados contienen las piezas de padres exactas y referencias a
+sus evidencias originales. El cotejo comprueba la fidelidad a esos padres: puede
+citar una frase literal de una afirmación del padre junto con sus IDs originales.
+Eso no autoriza citar preguntas humanas, metadatos o prosa arbitraria como prueba.
+Las hojas se cotejan contra los originales completos; no se reenvía todo el
+histórico en cada nivel. El manifiesto, contrastado de nuevo al publicar,
+comprueba cobertura íntegra, unidad coherente, padres exactos, privacidad,
+ausencia de ciclos y pertenencia de cada nodo. Una pieza pendiente bloquea
+sus descendientes y sigue requerida para completar el informe.
+
+`human_context.monitoring_inventory` fija las entradas preparadas antes de añadir
+historia. `human_context.watch_trees` registra por pregunta su revisión, entradas,
+hojas, padres y raíz. Sus entradas deben coincidir exactamente con el inventario
+preparado del ámbito y la historia de esa pregunta, incluido contexto auxiliar.
+Esos metadatos de control no se envían al plan como contexto científico. Las
+preguntas y el inventario privado del trabajo siguen fijados al reanudar.
+
+Las evidencias se serializan y sanea su contenido, claves y metadatos una sola vez
+por generación antes de reutilizarlas al medir paquetes. La caché continúa
+identificando entradas exactas, modelos, prompts y validadores, e incluye el
+contrato y verificador de seguimiento. Cambiar una pieza invalida sus derivados;
+no borra los artefactos anteriores ni sustituye texto humano.

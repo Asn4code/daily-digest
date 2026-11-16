@@ -164,6 +164,56 @@ def test_whole_coherent_unit_too_large_is_pending_without_cutting_it():
     verify(report)
 
 
+def test_cross_result_comparison_and_control_stay_in_one_indivisible_source_unit():
+    report, item, context = sample(15)
+    for e in report.evidence:
+        e.meta["path"] = "same-experiment/" + e.id + ".pdb"
+    report.evidence[0].excerpt += " Control: same-experiment/ev_1.pdb"
+    report.results = [
+        ResultEntry("result_" + e.id, "p", "Resultado", None, "pending", [e.id])
+        for e in report.evidence
+    ]
+    fake = generate(report, item, context)
+    assert not fake.calls
+    assert any(
+        issues[0]["rule"] == "monitoring_coherent_unit_budget" for issues in report.pending.values()
+    )
+    verify(report)
+
+
+def test_partial_reused_source_never_removes_a_control_from_its_unit():
+    report, item, context = sample(15)
+    for e in report.evidence:
+        e.meta["path"] = "same-experiment/" + e.id + ".pdb"
+    key = "source:result:old"
+    report.sections[key] = {
+        "summary": {"text": "Una observación.", "evidence": [report.evidence[0].id]}
+    }
+    report.sections["check:" + key] = {"approved": True, "issues": []}
+    report.packages[key] = {"evidence": [asdict(report.evidence[0])], "project_ids": ["p"]}
+    fake = generate(report, item, context)
+    assert not fake.calls
+    tree = report.human_context["watch_trees"][item["id"]]
+    assert key not in tree["nodes"]
+    verify(report)
+
+
+def test_prepared_auxiliary_context_is_part_of_the_exact_input_inventory():
+    report, item, context = sample(5)
+    report.evidence[-1].context_only = True
+    generate(report, item, context)
+    tree = report.human_context["watch_trees"][item["id"]]
+    removed = report.evidence[-1].id
+    tree["inputs"].remove(removed)
+    for node in tree["nodes"].values():
+        if removed in node["inputs"]:
+            node["inputs"].remove(removed)
+    for package in report.packages.values():
+        package["evidence"] = [e for e in package["evidence"] if e["id"] != removed]
+    with pytest.raises(ValueError, match="input inventory"):
+        verify(report)
+
+
 @pytest.mark.parametrize(
     "mutation", ["missing_input", "forged_parent", "cycle", "scope", "missing_leaf"]
 )

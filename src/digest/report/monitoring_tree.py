@@ -6,11 +6,49 @@ from typing import Any
 from digest.collectors.base import canonical, content_hash
 from digest.report.daily import Generate, pending, references
 from digest.report.model import Report
-from digest.report.packets import plan as plan_packets
+from digest.report.packets import units as source_units
 
 LIMIT = 64000
 MAX_DEPTH = 8
 Measure = Callable[[str, list[str], set[str], dict[str, Any], list[str], str], int]
+
+
+def coherent_units(report: Report, inputs: set[str]) -> list[tuple[set[str], set[str]]]:
+    """Resolve cross-result artifact/control links before assigning source packets."""
+    entries = {e.id: e for e in report.evidence if e.id in inputs}
+    owners: dict[str, set[str]] = {}
+    for result in report.results:
+        for eid in set(result.evidence) & inputs:
+            owners.setdefault(eid, set()).add(result.id)
+    output = []
+    for project in sorted({e.project for e in entries.values()}):
+        groups, anchor_list = source_units([e for e in entries.values() if e.project == project])
+        anchors = set(anchor_list)
+        task_context = {
+            r.id: set(r.evidence) & anchors for r in report.results if r.project == project
+        }
+        used_anchors: set[str] = set()
+        for core_group in groups:
+            core = set(core_group)
+            related = {owner for eid in core for owner in owners.get(eid, set())}
+            context = {eid for owner in related for eid in task_context.get(owner, set())}
+            used_anchors.update(context)
+            output.append((core, context))
+        remaining = anchors - used_anchors
+        standalone: list[set[str]] = []
+        for candidate in task_context.values():
+            group = candidate & remaining
+            if not group:
+                continue
+            overlapping = [old for old in standalone if old & group]
+            for old in overlapping:
+                group.update(old)
+                standalone.remove(old)
+            standalone.append(group)
+        assigned = {eid for group in standalone for eid in group}
+        standalone.extend({eid} for eid in sorted(remaining - assigned))
+        output.extend((group, set()) for group in standalone)
+    return sorted(output, key=lambda pair: sorted(pair[0]))
 
 
 def build(
@@ -27,6 +65,7 @@ def build(
 ) -> None:
     """Reduce complete evidence units; a missing child never becomes an empty summary."""
     limit = min(LIMIT, limit)
+    report.human_context.setdefault("monitoring_inventory", [e.id for e in report.evidence])
     root = "watch:" + item["id"]
     tree: dict[str, Any] = {
         "version": 1,
@@ -37,7 +76,7 @@ def build(
         "root": root,
     }
     report.human_context.setdefault("watch_trees", {})[item["id"]] = tree
-    entries = {e.id: e for e in report.evidence}
+    units = coherent_units(report, inputs)
     result_ids = [r.id for r in report.results if r.project in item["projects"]]
     question = {
         "id": item["id"],
@@ -55,7 +94,10 @@ def build(
         if not key.startswith("source:") or "check:" + key not in report.sections:
             continue
         reused_ids = {e["id"] for e in report.packages[key]["evidence"]}
-        if reused_ids and reused_ids <= inputs and reused_ids - covered:
+        compatible = all(
+            not (core & reused_ids) or core | extra <= reused_ids for core, extra in units
+        )
+        if reused_ids and reused_ids <= inputs and reused_ids - covered and compatible:
             tree["nodes"][key] = {"kind": "reused", "inputs": sorted(reused_ids), "parents": []}
             leaves.append(key)
             covered.update(reused_ids)
@@ -63,39 +105,42 @@ def build(
     def source_size(ids: list[str]) -> int:
         return measure("monitoring_context", ids, scope, source_context, result_ids, "full")
 
-    remaining = inputs - covered
-    groups = []
-    for result in report.results:
-        selected = set(result.evidence) & remaining
-        if selected:
-            groups.append(selected)
-            remaining.difference_update(selected)
-    for project in sorted({entries[eid].project for eid in remaining}):
-        groups.append({eid for eid in remaining if entries[eid].project == project})
-    for group in groups:
-        packets = plan_packets(
-            [entries[eid] for eid in sorted(group)], size=source_size, limit=limit
+    packets: list[set[str]] = []
+    current_packet: set[str] = set()
+    reused = [set(tree["nodes"][key]["inputs"]) for key in leaves]
+    for core, extra in units:
+        group = core | extra
+        if any(group <= saved for saved in reused):
+            continue
+        if current_packet and source_size(sorted(current_packet | group)) > limit:
+            packets.append(current_packet)
+            current_packet = set()
+        current_packet.update(group)
+        if source_size(sorted(group)) > limit:
+            packets.append(current_packet)
+            current_packet = set()
+    if current_packet:
+        packets.append(current_packet)
+    for packet in packets:
+        ids = sorted(packet)
+        key = "watchctx:" + item["id"] + ":source:" + content_hash(canonical(ids))[:16]
+        leaves.append(key)
+        tree["nodes"][key] = {"kind": "source", "inputs": ids, "parents": []}
+        if source_size(ids) > limit:
+            pending(report, key, "monitoring_coherent_unit_budget", "input")
+            continue
+        generate(
+            "conceptual",
+            key,
+            ids,
+            scope,
+            source_context,
+            result_ids,
+            contract="watchctx",
+            prompt_name="monitoring_context",
+            char_limit=limit,
+            cutoff=deadline,
         )
-        for packet in packets:
-            ids = packet.evidence
-            key = "watchctx:" + item["id"] + ":source:" + content_hash(canonical(ids))[:16]
-            leaves.append(key)
-            tree["nodes"][key] = {"kind": "source", "inputs": ids, "parents": []}
-            if not packet.fits:
-                pending(report, key, "monitoring_coherent_unit_budget", "input")
-                continue
-            generate(
-                "conceptual",
-                key,
-                ids,
-                scope,
-                source_context,
-                result_ids,
-                contract="watchctx",
-                prompt_name="monitoring_context",
-                char_limit=limit,
-                cutoff=deadline,
-            )
     tree["leaves"] = leaves
     if not leaves or any(key not in report.sections for key in leaves):
         pending(report, root, "monitoring_source_pending")
@@ -232,12 +277,18 @@ def verify(report: Report) -> None:
             raise ValueError("Monitoring tree identity changed")
         inputs = set(tree["inputs"])
         all_ids = {e.id for e in report.evidence if e.project in item["projects"]}
-        initial = {
-            e.id for e in report.evidence if e.project in item["projects"] and not e.context_only
-        }
+        prepared = report.human_context.get("monitoring_inventory")
+        if not isinstance(prepared, list) or len(prepared) != len(set(prepared)):
+            raise ValueError("Monitoring input inventory missing")
+        all_report_ids = {e.id for e in report.evidence}
+        if not set(prepared) <= all_report_ids or not {
+            e.id for e in report.evidence if not e.context_only
+        } <= set(prepared):
+            raise ValueError("Monitoring input inventory changed")
+        initial = set(prepared) & all_ids
         historical = set(report.human_context.get("watch_history", {}).get(ident, []))
         if (
-            not initial | historical <= inputs <= all_ids
+            inputs != initial | historical
             or len(inputs) != len(tree["inputs"])
             or not set(item["privacy_projects"]) <= set(tree["scope"])
         ):
@@ -252,6 +303,12 @@ def verify(report: Report) -> None:
             or len(nodes) > len(inputs) * (MAX_DEPTH + 1) + 1
         ):
             raise ValueError("Monitoring source manifest incomplete")
+        raw_inputs = [set(node["inputs"]) for node in nodes.values() if node["kind"] == "source"]
+        reused_inputs = [set(node["inputs"]) for node in nodes.values() if node["kind"] == "reused"]
+        for core, extra in coherent_units(report, inputs):
+            unit = core | extra
+            if not any(unit <= selected for selected in [*raw_inputs, *reused_inputs]):
+                raise ValueError("Monitoring comparison or control split across source pieces")
         colors: dict[str, int] = {}
 
         def walk(

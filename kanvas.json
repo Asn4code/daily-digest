@@ -1775,6 +1775,11 @@
           "at": "2026-11-16T13:52:08Z",
           "by": "codex",
           "text": "Implementado el primer recorrido jerárquico: fuentes coherentes completas, reutilización de source ya cotejadas, reducción acotada y manifiesto que vincula cada pieza a padres exactos y cubre todas las entradas. Auditoría derivada sobre padres validados, sin reenviar fuentes íntegras en cada nivel; originales conservados. Pasan9 tests unitarios y4 de integración, incluida generación completa con2600 evidencias sintéticas, reanudación/caché y captura parcial aún pendiente. Se sanea cada evidencia una vez por generación para evitar coste repetido al planificar paquetes. Ruff y mypy pasan; faltan suite completa, revisión independiente y ensayo real."
+        },
+        {
+          "at": "2026-11-16T14:02:51Z",
+          "by": "codex",
+          "text": "Primer make check:509 tests PASS. Revisión independiente detecta corte de unidad científica por resultados distintos; corregido con unidades globales por proyecto y controles asociados antes de empaquetar, rechazo de reutilización parcial que separe control, y comprobación exacta del inventario preparado (incluido contexto auxiliar). Añadidas3 regresiones;36 tests focalizados pasan. Ensayo real job2 quedó pendiente por cifras/semántica rechazadas y timeouts; originales/verificación conservados. Se repite intervalo histórico en job3 con glm5.3-flash de NaN para extracción, contexto y cotejo, disponibilidad sintética verificada; sin cambiar preguntas ni entregar."
         }
       ]
     }

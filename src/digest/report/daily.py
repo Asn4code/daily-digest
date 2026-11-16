@@ -372,7 +372,11 @@ def build(
             },
             "objectives": {pid: projects[pid].objective for pid in scope},
             "task_candidates": candidates,
-            "human_context": report.human_context,
+            "human_context": {
+                k: v
+                for k, v in report.human_context.items()
+                if k not in {"watch_trees", "watch_history", "monitoring_inventory"}
+            },
             "human_doubts": doubts,
             "notebook_preferences": personal_context,
             "requested_monitoring": {
