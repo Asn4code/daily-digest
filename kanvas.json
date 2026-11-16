@@ -1083,6 +1083,16 @@
           "at": "2026-11-16T10:31:23Z",
           "by": "codex",
           "text": "Question: ¿Puedes ejecutar en tu terminal sudo tailscale serve --bg --https=443 http://127.0.0.1:8091 y avisarme cuando termine? Serve ya está habilitado en la cuenta, pero el daemon exige sudo y esta sesión no tiene esa autenticación. La contraseña se introduce solo en tu terminal, no aquí. El ajuste es de Serve y conserva accept-dns=false; comprobaré DNS y acceso después."
+        },
+        {
+          "at": "2026-11-16T10:35:32Z",
+          "by": "codex",
+          "text": "La persona ejecutó sudo Serve. Verificado: HTTPS 443 de cnic-gpu2.tail8c0423.ts.net apunta a 127.0.0.1:8091. Healthz e informe R24 locales devuelven 200; HTTPS del informe devuelve 200 con certificado validado usando curl --resolve solo para esa petición (resolución institucional del servidor no resuelve el nombre privado). No se modificaron hosts, resolv.conf ni DNS: CorpDNS=false y los tres DNS de CNIC siguen intactos después de configurar Serve. La prueba real desde móvil/ordenador sigue pendiente de la persona."
+        },
+        {
+          "at": "2026-11-16T10:35:33Z",
+          "by": "codex",
+          "text": "Question: Con Tailscale activo en tu móvil y ordenador, ¿el enlace del correo abre el informe R24 y puedes abrir una evidencia? Enlace privado: https://cnic-gpu2.tail8c0423.ts.net/reports/rep_in11_daily_levels_r24 . HTTPS ya está verificado y los DNS institucionales siguen intactos; falta tu comprobación desde ambos dispositivos."
         }
       ]
     },

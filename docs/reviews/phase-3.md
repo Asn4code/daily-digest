@@ -230,3 +230,16 @@ Tailscale devuelve «Serve is not enabled on your tailnet». Falta que la person
 habilite Serve desde su cuenta; después se puede enlazar el servicio privado.
 `CorpDNS=false` sigue activo. El acceso desde móvil y las cuatro casillas de
 firma permanecen pendientes.
+
+
+### Acceso privado preparado (constructor, 2026-11-16)
+
+La persona habilitó Serve en su cuenta y ejecutó la configuración con sudo.
+El proxy privado HTTPS apunta al puerto local 8091. Se verificó respuesta 200
+del informe R24 por HTTPS con certificado válido. En el servidor se usó una
+resolución puntual de la petición, sin cambiar hosts ni DNS del sistema.
+
+Después del cambio, `CorpDNS=false` y los tres DNS institucionales de
+NetworkManager siguen intactos. El acceso desde el teléfono o el ordenador
+requiere su conexión a Tailscale. Las comprobaciones de la persona siguen
+pendientes; una respuesta HTTP del constructor no firma esas casillas.
