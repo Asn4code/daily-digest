@@ -1063,6 +1063,11 @@
           "at": "2026-11-16T09:26:25Z",
           "by": "codex",
           "text": "Question: SMTP aceptó el correo de comprobación a alvaro4sn@gmail.com, asunto «Daily Digest — comprobación de acceso a la webapp». Para abrir su enlace desde móvil falta habilitar Serve en la cuenta de Tailscale mediante el enlace de activación mostrado en el chat. ¿Puedes habilitarlo y decirme si recibes ese correo? Es un requisito de la cuenta Tailscale (Serve is not enabled on your tailnet), no una confirmación para Git; ninguna casilla humana está firmada."
+        },
+        {
+          "at": "2026-11-16T10:07:52Z",
+          "by": "codex",
+          "text": "La persona insiste en conservar el DNS institucional al habilitar el acceso. Restricción confirmada: mantener accept-dns=false; no ejecutar tailscale up/reset ni cambiar NetworkManager/resolv.conf para publicar Serve. Verificar CorpDNS=false antes y después de cualquier ajuste de Serve. Si cambia DNS, detener la validación y coordinar con sistemas, sin dar por reparado Kerberos ni firmar comprobaciones."
         }
       ]
     },
@@ -1084,7 +1089,14 @@
       "deps": ["OP-01"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
-      "desc": "`tailscale serve` hacia 127.0.0.1:8090, `web.public_base_url` configurada y enlaces del correo funcionando desde el móvil.\n\nTerminado cuando: el enlace de un correo real abre la webapp en el móvil con la app de Tailscale; desde un equipo fuera de la tailnet no hay acceso. Requiere Q-09."
+      "desc": "`tailscale serve` hacia 127.0.0.1:8090, `web.public_base_url` configurada y enlaces del correo funcionando desde el móvil.\n\nTerminado cuando: el enlace de un correo real abre la webapp en el móvil con la app de Tailscale; desde un equipo fuera de la tailnet no hay acceso. Requiere Q-09.",
+      "notes": [
+        {
+          "at": "2026-11-16T10:08:22Z",
+          "by": "codex",
+          "text": "Restricción reiterada por la persona el 2026-11-16: conservar DNS institucional e IPA/Kerberos. Comprobación real: CorpDNS=false, Tailscale conectado, resolv.conf de NetworkManager con search cnic.es y resolutores 10.149.80.40/10.149.132.10/10.149.132.11. Mantener accept-dns=false y verificar preferencias/resolutores antes y después de configurar Serve; evitar reconectar/resetear Tailscale innecesariamente y no cambiar NetworkManager ni resolv.conf para el acceso web."
+        }
+      ]
     },
     {
       "id": "OP-03",
