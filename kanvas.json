@@ -1038,6 +1038,16 @@
           "at": "2026-11-15T20:12:37Z",
           "by": "codex",
           "text": "Puerta automática completa: PROVISIONAL (3), sin fallos técnicos. En revisión formal se detectó que un fallo normal de job detenía el worker CLI. Corregido con JobFailure registrado y continuación de la cola, conservando --once con salida 1; dos pruebas nuevas verifican un followup fallido seguido de una captura y el modo de scripts. No cambian estados humanos ni condiciones de aprobación de fase."
+        },
+        {
+          "at": "2026-11-16T08:04:42Z",
+          "by": "codex",
+          "text": "Revisión técnica independiente aprobada por codex-independent-review_phase_three el 2026-11-16, registrada en docs/reviews/phase-3.md; 37 pruebas privadas y capturas Playwright sin hallazgos abiertos. make check completo: 469 tests. Puerta sin manual: PROVISIONAL (3), todo técnico PASS. Puerta completa: código 1 únicamente por las casillas humanas pendientes; revisión independiente y demás capas PASS. Ficha incluye comandos y guía; no se firma ni se inicia fase 4."
+        },
+        {
+          "at": "2026-11-16T08:04:42Z",
+          "by": "codex",
+          "text": "Question: Primera comprobación humana de docs/reviews/phase-3.md: ¿el enlace de un correo abre el informe tanto en el móvil como en el ordenador y permite abrir una evidencia? VALIDATION.md exige comprobaciones y firma de la persona antes de fase 4; los tests y la revisión técnica ya pasan. No es confirmación para commits."
         }
       ]
     },
