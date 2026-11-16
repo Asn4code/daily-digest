@@ -1163,6 +1163,16 @@
           "at": "2026-11-16T13:06:43Z",
           "by": "codex",
           "text": "La persona confirma «hecho y funciona» tras recargar y repetir el formulario. Consulta de solo lectura del perfil temporal: una ficha activa guardada en benchmark, Aumento de semillas por modelo. Se registra entrada y guardado funcionales en su equipo. No se infieren otros temas añadidos, edición de prioridades, utilidad del seguimiento en informe ni firma humana de fase."
+        },
+        {
+          "at": "2026-11-16T13:08:22Z",
+          "by": "codex",
+          "text": "La persona confirma dos temas guardados y pide pasar al siguiente paso. Lectura del perfil temporal: activos en benchmark Aumento de semillas por modelo y Errores frente a cristales. Se generará un avance actual sin entrega, conservando preguntas fijadas y estados humanos, para validar evidencia, límites y presentación antes de cualquier correo."
+        },
+        {
+          "at": "2026-11-16T13:13:44Z",
+          "by": "codex",
+          "text": "El avance actual job1 conserva borrador rep_preview_2026-11-16_r1: 2649 evidencias iniciales, 60 resultados de referencia, ninguno actual; fuentes parciales y dos monitoring_package_budget_exceeded. No hubo llamadas LLM ni entrega. Para validar el flujo sin recortar ni alterar fechas se encola job2 retrospectivo 2026-11-09 05:00–16:00 UTC: consulta previa encuentra 18 evidencias con hora de evento (16021 caracteres) sobre semillas/cosecha y comprobaciones contra cristales. Se conservarán todos los resultados de ese intervalo y se etiquetará como ensayo histórico, no actividad actual. El escalado del contexto inicial queda registrado como bloqueo del avance completo."
         }
       ]
     },
@@ -1740,6 +1750,16 @@
           "text": "Ya puedes añadir una lista propia de temas o preguntas, editar prioridad/estado y conservar su historial sin tarea Kanvas. Diario y semanal usan preguntas fijadas, evaluación con evidencias y cotejo, resumen móvil y detalle completo web/vault; distinguen datos insuficientes y días estables con base comparable. make check pasa (493 tests, 24 nuevos); revisión independiente adicional aprobada, cinco pruebas privadas y pantallas 390px sin overflow. Puerta previa: todo automático PASS salvo tablero por esta tarea aún doing; se repite al cerrarla. Comprueba Seguimiento en la web temporal: añade tus tres temas de benchmark, ajusta prioridad y revisa el historial. La firma de fase y la utilidad de los próximos informes siguen siendo tuyas."
         }
       ]
+    },
+    {
+      "id": "WA-11",
+      "title": "Escalar el seguimiento con contexto histórico jerárquico",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["WA-10", "IN-11"],
+      "at": "2026-11-16T13:16:26Z",
+      "by": "codex",
+      "desc": "Permitir evaluar prioridades humanas cuando la captura inicial supera el paquete por pregunta, reutilizando fuentes coherentes validadas y síntesis jerárquica con manifiestos de dependencias. Mantener inventario íntegro, fechas originales, controles, privacidad ancestral, límites actuales y ausencia de novedades solo con base y cobertura suficientes. Propuesta concreta en docs/WATCHLIST_SCALING.md: no elevar límites ni recortar fuentes silenciosamente, no ejecutar análisis ni añadir DDL/dependencias/formatos humanos nuevos. Terminado con regresión sintética de 2600 evidencias, nodos pendientes/reanudación, controles contradictorios, revisión independiente, make check y ensayo real sin entrega hasta validar. Motivación: job1 de WA-05 bloqueado por monitoring_package_budget_exceeded antes de llamar a modelos."
     }
   ]
 }

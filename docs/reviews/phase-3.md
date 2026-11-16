@@ -322,3 +322,26 @@ guardada para `benchmark`: «Aumento de semillas por modelo». Queda comprobado
 el flujo de entrada y guardado en ese equipo; no se infiere que se hayan añadido
 los otros temas, editado prioridades o validado el seguimiento en un informe.
 La revisión activa, generación/recepción y firma de fase conservan sus pendientes.
+
+### Ensayo con dos preguntas humanas (2026-11-16)
+
+La persona añade también «Errores frente a cristales», conserva activo
+«Aumento de semillas por modelo» en benchmark y pide pasar al informe.
+El avance actual, trabajo 1 del perfil temporal, queda pendiente como
+`rep_preview_2026-11-16_r1`: 2649 evidencias de arranque y sesenta resultados
+históricos, sin resultados actuales, con cobertura parcial. Los paquetes de
+ambas preguntas exceden el límite antes de llamar al modelo; no se envía ni
+se considera completo. El borrador y el inventario se conservan.
+
+Se propone WA-11 en `docs/WATCHLIST_SCALING.md` para abordar esa limitación
+sin elevar límites ni recortar fuentes silenciosamente. Aún requiere aprobación
+y no se ha implementado. La comprobación automática anterior corresponde al
+código revisado; no resuelve este bloqueo descubierto en la validación real.
+
+Para revisar el flujo se inicia además el trabajo 2, un avance retrospectivo
+del 2026-11-09 05:00–16:00 UTC. El intervalo contiene dieciocho evidencias de
+evento sobre cosecha, ampliación de semillas y comprobaciones contra cristales.
+Se mantienen fechas y todos los resultados de ese intervalo; no representa
+actividad del 16 de noviembre. Las preguntas actuales quedan fijadas y no se
+entrega ni cierra el intervalo. Su resultado y revisión independiente se
+registrarán al terminar; esta nota no declara que ya haya un informe completo.
