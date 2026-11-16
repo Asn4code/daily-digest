@@ -5,6 +5,7 @@ from importlib.resources import files
 from jinja2 import Environment, select_autoescape
 
 from digest.report.model import Report
+from digest.report.monitoring import view as monitoring_view
 from digest.report.observations import origin_label
 from digest.report.timeutil import display
 from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
@@ -22,6 +23,7 @@ def render(report: Report, *, base_url: str = "") -> str:
         report=report,
         followup_url=base_url.rstrip("/") + "/reports/" + report.id + "/followup",
         view=daily_view(report),
+        monitoring=monitoring_view(report),
         critical=weekly_checks(report),
         critical_highlights=weekly_checks(report, highlighted=True),
         critical_notices=weekly_notices(report),

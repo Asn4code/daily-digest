@@ -21,9 +21,12 @@ class ValidationError(ValueError):
 
 
 def validate_report(report: Report, allowed_ids: set[str]) -> None:
-    from digest.report.activity import reference_only
+    from digest.report.activity import current_evidence_ids, reference_only
     from digest.report.assembly import assemble
+    from digest.report.monitoring import verify_snapshot
     from digest.report.observations import normalize
+
+    verify_snapshot(report)
 
     ids = {item.id for item in report.evidence}
     if ids != allowed_ids or len(ids) != len(report.evidence):
@@ -65,8 +68,39 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
             raise ValidationError("Section project scope mismatch")
         if not set(scope.evidence) <= ids:
             raise ValidationError("Section evidence outside report")
-        from digest.report.activity import current_evidence_ids
+        if key.startswith("watch:"):
+            from digest.report.monitoring import items
 
+            watched_item = next((s for s in items(report) if key == "watch:" + s["id"]), None)
+            if (
+                watched_item is None
+                or watched_item["omitted"]
+                or package["context"].get("watch_item") != watched_item
+            ):
+                raise ValidationError("Watchlist identity or revision mismatch")
+            if (
+                not set(watched_item["privacy_projects"]) | set(watched_item["projects"])
+                <= scope.project_ids
+            ):
+                raise ValidationError("Watchlist privacy scope narrowed")
+            coverage = [c for c in report.coverage if c.project in watched_item["projects"]]
+            complete = (
+                bool(coverage)
+                and set(watched_item["projects"]) <= {c.project for c in coverage}
+                and all(c.status == "ok" and not c.omitted for c in coverage)
+            )
+            expected_current = {
+                e.id
+                for e in report.evidence
+                if e.project in watched_item["projects"] and e.id in current_evidence_ids(report)
+            }
+            if (
+                package["context"].get("coverage_complete") != complete
+                or set(package["context"].get("current_evidence_ids", [])) != expected_current
+                or package["context"].get("interval")
+                != {"start": report.start_at, "end": report.end_at}
+            ):
+                raise ValidationError("Watchlist coverage or interval changed")
         eligible = set(scope.evidence)
         if package.get("wire_mode") == "references":
             eligible &= current_evidence_ids(report)
@@ -356,6 +390,7 @@ class EvidencePackage:
     weekly_projects: set[str] = field(default_factory=set)
     weekly_balances: dict[str, dict[str, Any]] = field(default_factory=dict)
     has_human_context: bool = False
+    watch_context: dict[str, Any] = field(default_factory=dict)
 
 
 def _numeric_values(value: Any) -> list[float]:
@@ -554,6 +589,7 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
                     "conclusion_id",
                     "critical_ids",
                     "critical_highlights",
+                    "current_evidence",
                 }:
                     continue
                 if (
@@ -585,6 +621,31 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
     if failures:
         failures[0].related = tuple(failures[1:])
         raise failures[0]
+    if isinstance(output, schemas.WatchAssessment):
+        context = package.watch_context
+        current = set(context.get("current_evidence_ids", []))
+        if not set(output.current_evidence) <= current & allowed:
+            raise ValidationError("watchlist_evidence_not_current", ("current_evidence",))
+        if output.status == "news" and not set(output.finding.evidence) & set(
+            output.current_evidence
+        ):
+            raise ValidationError("watchlist_news_without_current_evidence", ("finding",))
+        prior = context.get("previous")
+        if prior:
+            from digest.report.daily import references
+
+            if (
+                prior.get("revision") != context.get("watch_item", {}).get("revision")
+                or prior.get("end_at", "~") > context.get("interval", {}).get("start", "")
+                or not references(prior.get("assessment", {})) <= allowed
+            ):
+                raise ValidationError("watchlist_prior_not_comparable")
+        if output.status == "no_new" and (
+            not prior
+            or prior.get("assessment", {}).get("status") not in {"news", "no_new"}
+            or not context.get("coverage_complete")
+        ):
+            raise ValidationError("watchlist_absence_not_established", ("status",))
     if (
         isinstance(output, schemas.ResultExtraction | schemas.SourceFindings | schemas.ResultFiche)
         and output.result_id not in package.result_ids

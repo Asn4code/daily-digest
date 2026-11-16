@@ -88,6 +88,7 @@ class Report:
     source_units: dict[str, list[str]] = field(default_factory=dict)
     human_context: dict[str, Any] = field(default_factory=dict)
     project_context: dict[str, dict[str, str]] = field(default_factory=dict)
+    watchlist: dict[str, Any] = field(default_factory=dict)
 
     @property
     def kind_label(self) -> str:

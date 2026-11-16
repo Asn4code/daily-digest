@@ -18,7 +18,7 @@ def evidence_schema(
     def constrain(value: Any) -> None:
         if isinstance(value, dict):
             for name, prop in value.get("properties", {}).items():
-                if name in {"evidence", "new_evidence"}:
+                if name in {"evidence", "new_evidence", "current_evidence"}:
                     target = prop.get("items", {}) if prop.get("type") == "array" else prop
                     if target.get("type") == "string":
                         target["enum"] = list(references)

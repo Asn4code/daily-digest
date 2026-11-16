@@ -67,6 +67,7 @@ La persona produce mucho trabajo (propio y de agentes) pero no tiene tiempo de r
 - **FR-34** Una revisión abierta no genera fichas nuevas encima; la webapp vuelve a ofrecerla o deja elegir otra.
 - **FR-35** Los botones de generar encolan trabajos; nunca ejecutan nada en el proceso web.
 - **FR-36** Ampliaciones a petición (fase 3, D-050): al final del diario, un enlace permite señalar frases de su revisión exacta y pedir explicación o comprobaciones acotadas sobre datos disponibles. El worker prepara un informe de ampliación validado y lo entrega por correo, conservando el original, la procedencia, la privacidad y los estados humanos. Distingue una declaración de agente de una comprobación realizada y de una ejecución externa pendiente. Implementación y límites en `ON_DEMAND_FOLLOWUPS.md`; validación humana en la puerta de fase 3.
+- **FR-37** Seguimiento solicitado (fase 3, D-060/D-061): la persona añade una lista de temas o preguntas generales o por proyecto, con prioridad editable e historial, aunque no tengan tarea Kanvas. Diario y semanal evalúan las preguntas fijadas con evidencias de fuentes permitidas, distinguiendo novedades, límites y falta de datos; el semanal añade contraste crítico. El correo resume hasta tres asuntos y la web/vault conserva todos los temas activos y sus pendientes. Detalles y límites en `WATCHLIST.md`; no autoriza ejecutar análisis ni configurar fuentes automáticamente.
 
 ### Obsidian
 

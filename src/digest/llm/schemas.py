@@ -31,6 +31,15 @@ class Interpretation(Claim):
     confidence: Literal["low", "medium", "high"]
 
 
+class WatchAssessment(Output):
+    status: Literal["news", "no_new", "insufficient", "source_pending", "coverage_failure"]
+    finding: Claim
+    meaning: Interpretation
+    limits: list[Claim] = Field(min_length=1, max_length=6)
+    next_check: Claim
+    current_evidence: list[Text] = Field(max_length=100)
+
+
 class ResultExtraction(Output):
     result_id: Text
     summary: Text

@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block content %}<h1>Revisar lista de seguimiento</h1>
+<p>Aún no está guardada. Después podrás editar cada pregunta, proyecto y prioridad.</p>
+{% for v in values %}<article class="panel"><h2>{{ v.title }}</h2><p>{{ v.question }}</p><p>Prioridad {{ v.priority }} · {{ v.projects|join(', ') or 'General' }}</p></article>{% endfor %}
+<form method="post" action="/watchlist/save"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="expected" value="{{ expected }}"><input type="hidden" name="submission_id" value="{{ submission_id }}"><input type="hidden" name="draft" value="{{ draft }}"><button>Guardar estos temas</button></form><p><a href="/watchlist">Volver sin guardar</a></p>{% endblock %}

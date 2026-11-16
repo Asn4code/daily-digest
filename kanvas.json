@@ -1687,12 +1687,24 @@
     {
       "id": "WA-10",
       "title": "Prioridades y preguntas personales de seguimiento",
-      "state": "proposed",
+      "state": "doing",
       "group": "WA",
       "deps": ["WA-09", "IN-12"],
       "at": "2026-11-16T11:06:35Z",
       "by": "codex",
-      "desc": "Permitir añadir una lista de temas generales o por proyecto, editar prioridades y conservar historial sin depender de tareas Kanvas. Evaluar con evidencias y cobertura explícitas en diario y semanal; resumen móvil breve y detalle completo web/vault. Casos piloto: semillas por modelo, dinámicas moleculares y errores frente a cristales de benchmark. Diseño y formato concreto pendientes de aprobación en docs/WATCHLIST.md: sección Seguimiento solicitado en nuevas revisiones de Obsidian/Drive, sin sobreescribir originales, sin DDL ni fuentes nuevas implícitas. Terminado con alta/edición/pausa, revisiones fijadas, límites y privacidad, evaluaciones sin evidencia correctamente pendientes, entregas inmutables, make check, puerta automática y revisión independiente adicional. No ejecutar análisis ni cambiar estados humanos."
+      "desc": "Permitir añadir una lista de temas generales o por proyecto, editar prioridades y conservar historial sin depender de tareas Kanvas. Evaluar con evidencias y cobertura explícitas en diario y semanal; resumen móvil breve y detalle completo web/vault. Casos piloto: semillas por modelo, dinámicas moleculares y errores frente a cristales de benchmark. Diseño y formato concreto pendientes de aprobación en docs/WATCHLIST.md: sección Seguimiento solicitado en nuevas revisiones de Obsidian/Drive, sin sobreescribir originales, sin DDL ni fuentes nuevas implícitas. Terminado con alta/edición/pausa, revisiones fijadas, límites y privacidad, evaluaciones sin evidencia correctamente pendientes, entregas inmutables, make check, puerta automática y revisión independiente adicional. No ejecutar análisis ni cambiar estados humanos.",
+      "notes": [
+        {
+          "at": "2026-11-16T11:14:39Z",
+          "by": "codex",
+          "text": "Plan: implementar fichas versionadas y formulario de lista con revisión previa, evaluación acotada y fijada por informe en diario/semanal, detalle y resumen con evidencias, privacidad conservadora y entregas inmutables; probar escenarios, ejecutar make check y puerta, y solicitar revisión independiente adicional. Aprobación de la persona confirmada en el tablero y en el chat, incluido WATCHLIST.md."
+        },
+        {
+          "at": "2026-11-16T11:30:48Z",
+          "by": "codex",
+          "text": "La lista ya permite revisión previa, alta, edición, pausa e historial. Diario/semanal fijan preguntas por trabajo, evalúan con validador y cotejo y conservan pendientes en todos los canales. Aprobación humana del diseño y formato registrada en D-061. Pasan 24 regresiones nuevas, ruff y mypy; revisión independiente adicional en curso. Corregidos dos casos señalados por el revisor: base anterior en días sin novedades deduplicadas e historial de informes con temas pendientes. La suite completa se repetirá tras estas correcciones."
+        }
+      ]
     }
   ]
 }

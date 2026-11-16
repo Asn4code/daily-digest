@@ -147,6 +147,10 @@ def build(
         pending(report, "weekly", "human_scope_missing", "input")
         return
     states = {pid: {t["id"]: t["state"] for t in items} for pid, items in tasks.items()}
+    watched = {key: value for key, value in report.sections.items() if key.startswith("watch:")}
+    for key in watched:
+        scope.update(report.packages[key]["project_ids"])
+        ids.update(references(watched[key]))
     generate(
         "weekly",
         "weekly",
@@ -159,9 +163,16 @@ def build(
             "pending_reviews": reviews_pending,
             "accepted_plans": accepted,
             "current_human_plan": human_plan,
+            "requested_monitoring": {
+                key: {
+                    "question": report.packages[key]["context"]["watch_item"]["values"],
+                    "assessment": value,
+                }
+                for key, value in watched.items()
+            },
             "_conclusions": all_prior,
             "_critical": critical,
-            "_parents": keys,
+            "_parents": [*keys, *watched],
             "_reference_evidence": sorted(
                 figures - {e["id"] for key in keys for e in report.packages[key]["evidence"]}
             ),

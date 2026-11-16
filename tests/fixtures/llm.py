@@ -28,6 +28,26 @@ def fake_response(request: httpx.Request) -> httpx.Response:
     title = wire["response_format"]["json_schema"]["schema"]["title"]
     if title == "GroundingAudit":
         value = {"approved": True, "issues": []}
+    elif title == "WatchAssessment":
+        current = package["context"]["current_evidence_ids"]
+        if current:
+            claim = {**claim, "evidence": current[:1]}
+        value = {
+            "status": "insufficient",
+            "finding": claim,
+            "meaning": {**claim, "confidence": "low"},
+            "limits": [
+                {
+                    "text": "Faltan datos comparables para responder la pregunta.",
+                    "evidence": claim["evidence"],
+                }
+            ],
+            "next_check": {
+                "text": "Propuesta: comprobar los controles pertinentes.",
+                "evidence": claim["evidence"],
+            },
+            "current_evidence": current[:1],
+        }
     elif title == "FollowupAnswer":
         value = {
             "explanation": [claim],

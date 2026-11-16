@@ -5,6 +5,7 @@ import re
 from typing import Any
 
 from digest.report.model import Report
+from digest.report.monitoring import view as monitoring_view
 from digest.report.observations import normalize, origin_label
 from digest.report.timeutil import display
 from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
@@ -163,6 +164,30 @@ def render(report: Report, *, base_url: str = "") -> str:
                         "Criterio de decisión: " + escape(analysis["decision_criterion"]),
                         "Motivado por: " + ", ".join(analysis["evidence"]),
                         "Propuesta; no ejecutada por el servicio.",
+                    ]
+                )
+    watched = monitoring_view(report)
+    if watched["total"]:
+        lines.append("## Seguimiento solicitado")
+        for item in watched["items"]:
+            lines.extend(
+                [
+                    "### " + escape(item["values"]["title"]),
+                    "Pregunta humana: " + escape(item["values"]["question"]),
+                    "Proyectos: " + escape(", ".join(item["projects"])),
+                    "Prioridad humana: " + str(item["values"]["priority"]),
+                    "Ficha: " + escape(item["id"]) + " · Revisión: " + escape(item["revision"]),
+                    "Evaluación: " + item["label"],
+                ]
+            )
+            value = item["assessment"]
+            if value:
+                lines.extend(
+                    [
+                        claim(value["finding"]),
+                        interpretation(value["meaning"]),
+                        *claims(value["limits"]),
+                        "Pendiente de comprobar: " + claim(value["next_check"]),
                     ]
                 )
     lines.append("## Todo lo hecho y contexto observado")

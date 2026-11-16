@@ -198,6 +198,21 @@ Las preferencias se usan en el siguiente plan diario, respetando privacidad y
 dependencias. No cambian la prioridad de los jobs técnicos. Persistencia, límites
 y fórmula en [PERSONAL_NOTEBOOK.md](PERSONAL_NOTEBOOK.md).
 
+### Seguimiento solicitado (WA-10)
+
+«Seguimiento» abre `/watchlist`, independiente de las tareas de Kanvas. Permite
+pegar una lista o una sola pregunta, revisar antes de guardar y editar después
+prioridad, ámbito y estado activo/pausado/archivado. Hay hasta treinta temas
+activos, con historial de ediciones y enlaces a los informes que los evaluaron.
+Los GET solo consultan el servicio; todos los POST usan CSRF, nonce, huella
+de edición y transacción. No crean jobs ni escriben proyectos.
+
+Cada informe conserva las preguntas exactas que recibió. Su sección
+«Seguimiento solicitado» muestra evidencias, interpretación, límites y siguiente
+comprobación, o la disponibilidad pendiente. Editar la lista afecta a futuras
+generaciones, sin reescribir informes anteriores. Diseño y contrato en
+`WATCHLIST.md`; la comprobación humana de utilidad queda en la puerta de fase 3.
+
 ### Modelos por tarea (WA-06)
 
 Desde Generar se abre «Elegir modelos por tarea». Cada etapa tiene un formulario

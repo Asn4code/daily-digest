@@ -355,6 +355,10 @@ def build(
             pending(report, "plan", "human_scope_missing", "input")
             return
         scope.update(privacy_scope)
+    watched = {key: value for key, value in report.sections.items() if key.startswith("watch:")}
+    for key in watched:
+        scope.update(report.packages[key]["project_ids"])
+        ids.update(references(watched[key]))
     generate(
         "plan",
         "plan",
@@ -371,6 +375,13 @@ def build(
             "human_context": report.human_context,
             "human_doubts": doubts,
             "notebook_preferences": personal_context,
+            "requested_monitoring": {
+                key: {
+                    "question": report.packages[key]["context"]["watch_item"]["values"],
+                    "assessment": value,
+                }
+                for key, value in watched.items()
+            },
             "weekly_focus": critical,
             "planning_for": planning_for,
             "evidence_cutoff": report.end_at,
@@ -382,7 +393,7 @@ def build(
             "_active_plan_id": accepted["id"]
             if accepted and accepted["availability"] == "available"
             else None,
-            "_parents": [*project_keys, "conceptual"],
+            "_parents": [*project_keys, "conceptual", *watched],
             "_auxiliary": sorted(auxiliary),
             "_reference_evidence": sorted(critical_ids),
         },

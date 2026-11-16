@@ -37,6 +37,7 @@ SCHEMAS: dict[str, type[BaseModel]] = {
     "weekly": schemas.WeeklyReport,
     "critical": schemas.WeeklyCritical,
     "check": schemas.GroundingAudit,
+    "watch": schemas.WatchAssessment,
 }
 
 
@@ -96,10 +97,12 @@ def package_scope(payload: dict[str, Any]) -> EvidencePackage:
             payload.get("human_plan_ids")
             or payload.get("context", {}).get("human_doubts")
             or payload.get("context", {}).get("notebook_preferences")
+            or payload.get("context", {}).get("requested_monitoring")
             or payload.get("context", {}).get("accepted_plans")
             or payload.get("context", {}).get("current_human_plan", {}).get("accepted_plan")
             or any(p["author"] == "human" for p in payload.get("conclusions", {}).values())
         ),
+        dict(payload.get("context", {})),
     )
 
 
@@ -285,6 +288,11 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         elif wire_mode == "references":
             if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
                 mark_pending(key, "input", "derived_package_budget_exceeded")
+                return
+        elif contract == "watch":
+            # Monitoring cannot claim absence after silently dropping evidence.
+            if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
+                mark_pending(key, "input", "monitoring_package_budget_exceeded")
                 return
         else:
             items = payload["evidence"]
@@ -540,6 +548,9 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             mark_pending(key, "dependency", "extraction_pending")
         report.mechanical = not bool(report.sections)
         return report
+    from digest.report.monitoring import build as build_monitoring
+
+    build_monitoring(db, config, report, call, deadline=started + duration * 0.8)
     if not active:
         report.mechanical = False
         return report

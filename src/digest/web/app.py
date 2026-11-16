@@ -22,6 +22,7 @@ from digest.followups.publish import STATUS as FOLLOWUP_STATUS
 from digest.followups.selection import catalogue as followup_catalogue
 from digest.llm import settings as model_settings
 from digest.report.model import Report, ResultEntry
+from digest.report.monitoring import view as monitoring_view
 from digest.report.timeutil import display
 from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
 from digest.review import records
@@ -62,6 +63,9 @@ def create_app(config: Config) -> FastAPI:
     app.add_middleware(Security, config=config.web)
 
     def page(request: Request, template: str, **context: Any) -> HTMLResponse:
+        document = context.get("report")
+        if isinstance(document, Report):
+            context["monitoring"] = monitoring_view(document)
         return HTMLResponse(
             ENV.get_template(template).render(
                 request=request,
@@ -257,6 +261,10 @@ def create_app(config: Config) -> FastAPI:
             return {k: v[0] for k, v in fields.items() if k != "csrf_token"}
         except (UnicodeError, ValueError):
             raise HTTPException(400) from None
+
+    from digest.web.watchlist import install as install_watchlist
+
+    install_watchlist(app, config, store, page, form)
 
     @app.get("/reports/{report_id}/followup", response_class=HTMLResponse)
     def followup_form(

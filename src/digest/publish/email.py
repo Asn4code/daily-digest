@@ -21,6 +21,7 @@ from digest.llm.validator import validate_report
 from digest.publish.files import create
 from digest.report.completeness import require_complete
 from digest.report.model import Report, ResultEntry
+from digest.report.monitoring import view as monitoring_view
 from digest.report.timeutil import display
 from digest.report.views import CONFIDENCE, PRIORITIES, daily_view, weekly_checks, weekly_notices
 from digest.util.fs import read_bounded
@@ -69,6 +70,24 @@ def compose(
         return str(value["text"]) + " [" + ", ".join(value["evidence"]) + "]"
 
     plain = ["Daily Digest", display(report.end_at, report.timezone)]
+    monitoring = monitoring_view(report)
+    report_url = config.web.public_base_url.rstrip("/") + "/reports/" + report.id
+    if monitoring["total"]:
+        plain.extend(
+            [
+                "Seguimiento solicitado",
+                str(monitoring["total"])
+                + " temas activos · "
+                + str(monitoring["pending"])
+                + " pendientes de evaluación",
+            ]
+        )
+        for item in monitoring["highlights"]:
+            plain.append(item["values"]["title"] + ": " + item["label"])
+            if item["assessment"]:
+                plain.append(cited(item["assessment"]["finding"]))
+                plain.extend("Límite: " + cited(c) for c in item["assessment"]["limits"])
+        plain.append("Detalle del seguimiento: " + report_url + "#watchlist")
     weekly = report.sections.get("weekly")
     critical = weekly_checks(report, highlighted=True)
     if weekly:
@@ -203,6 +222,8 @@ def compose(
         report=report,
         followup_url=config.web.public_base_url.rstrip("/") + "/reports/" + report.id + "/followup",
         view=view,
+        monitoring=monitoring,
+        report_url=report_url,
         confidence=CONFIDENCE,
         priorities=PRIORITIES,
         date=display(report.end_at, report.timezone),

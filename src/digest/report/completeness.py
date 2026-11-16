@@ -8,6 +8,9 @@ def required_sections(report: Report) -> set[str]:
     active = active_results(report)
     required = {"extract:" + item.id for item in active}
     required.update(key for keys in report.source_units.values() for key in keys)
+    from digest.report.monitoring import eligible, items
+
+    required.update("watch:" + s["id"] for s in items(report) if eligible(report, s))
     if active:
         if report.kind != "weekly":
             required.update("project:" + result.project for result in active)

@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block content %}<h1>{{ item['values'].title }}</h1>
+<p>Creado: {{ item.first_created_at|localtime(timezone) }}. La prioridad no aumenta automáticamente.</p>
+<form method="post" action="/watchlist/{{ item.item_id }}"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="expected" value="{{ expected }}"><input type="hidden" name="submission_id" value="{{ submission_id }}">
+<label>Título<input name="title" required maxlength="160" value="{{ item['values'].title }}"></label>
+<label>Pregunta o criterio<textarea name="question" required maxlength="1000" rows="5">{{ item['values'].question }}</textarea></label>
+<label>Proyectos (IDs separados por comas; vacío = general)<input name="projects" value="{{ item['values'].projects|join(', ') }}"></label><p>{% for p in projects %}{{ p.id }}: {{ p.name }} {% endfor %}</p>
+<label>Prioridad (0–100)<input type="number" name="priority" required min="0" max="100" value="{{ item['values'].priority }}"></label><label>Estado<select name="state">{% for k,v in states.items() %}<option value="{{ k }}" {% if item['values'].state==k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label><button>Guardar nueva versión</button></form>
+<h2>Informes recientes con este tema</h2>{% for r,date in reports %}<p><a href="/reports/{{ r }}#watchlist">{{ date|localtime(timezone) }} · {{ r }}</a></p>{% else %}<p>Todavía sin informes. Se evaluará en la próxima generación.</p>{% endfor %}
+<h2>Historial de ediciones</h2>{% for s in versions %}<details class="panel"><summary>Versión {{ s.generation }} · {{ s.created_at|localtime(timezone) }}</summary><p>{{ s['values'].title }} · {{ states[s['values'].state] }} · {{ s['values'].priority }}</p><p>{{ s['values'].question }}</p><p>{{ s['values'].projects|join(', ') or 'General' }}</p></details>{% endfor %}
+{% if history_page>1 %}<a href="?history_page={{ history_page-1 }}">Más recientes</a>{% endif %} {% if more %}<a href="?history_page={{ history_page+1 }}">Más antiguas</a>{% endif %}<p><a href="/watchlist">Todos los temas</a></p>{% endblock %}

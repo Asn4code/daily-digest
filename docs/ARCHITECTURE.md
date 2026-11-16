@@ -37,6 +37,7 @@ daily-digest/
     intervals.py             # apertura y cierre de intervalos
     planning.py              # elección humana, ajustes e instantáneas inmutables
     notebook.py              # notas personales versionadas y prioridad sobre capturas Kanvas
+    watchlist.py             # preguntas humanas independientes, historial e inventario fijado
     queue.py                 # peticiones transaccionales y reintentos acotados
     followups/               # ampliaciones a petición con identidad independiente
       selection.py           # campos citados de la revisión original

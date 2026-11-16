@@ -24,4 +24,6 @@
 {% if not report.results %}<p>Sin resultados verificables; esto no demuestra que no se haya trabajado.</p>{% endif %}
 {% if selected %}<h2>Resultado para revisar</h2><p>{{ selected.title }}</p>{% endif %}
 {% for image in images %}<img src="cid:{{ image.cid }}" alt="{{ image.caption }}" style="max-width:100%;height:auto">{% endfor %}
+{% if monitoring.total %}<h2>Seguimiento solicitado</h2><p>{{ monitoring.total }} temas activos · {{ monitoring.pending }} pendientes de evaluación.</p>
+{% for item in monitoring.highlights %}<h3>{{ item['values'].title }}</h3><p>{{ item.label }}</p>{% if item.assessment %}<p>{{ claim(item.assessment.finding) }}</p>{% for c in item.assessment.limits %}<p><strong>Límite:</strong> {{ claim(c) }}</p>{% endfor %}{% endif %}{% endfor %}<p><a href="{{ report_url }}#watchlist">Detalle del seguimiento</a></p>{% endif %}
 <h2>Cobertura</h2><p>{{ warning }}</p>{% if report.kind=="daily" %}<h2>¿Quieres ampliar o comprobar algo?</h2><p><a href="{{ followup_url }}">Pedir una ampliación de este diario</a></p>{% endif %}</body></html>

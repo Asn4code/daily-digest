@@ -1,6 +1,7 @@
 # Seguimiento solicitado por la persona
 
-Propuesta WA-10, 2026-11-16. Pendiente de aprobación e implementación. Amplía
+WA-10, aprobada por la persona en el tablero y el chat el 2026-11-16, incluido
+el formato de la sección en Obsidian y Drive. Implementación en validación. Amplía
 el cuaderno de WA-09 con preguntas y prioridades independientes de las tareas
 de Kanvas. La aprobación técnica de fase 3 corresponde al código anterior;
 esta ampliación requiere pruebas y una revisión adicional antes de cerrar WA-05.
@@ -81,13 +82,12 @@ Cambio comprobable: [comparación respaldada, o limitación explícita]
 Pendiente de comprobar: [pregunta concreta, sin darla por resuelta]
 ```
 
-Esta sección se añadiría a nuevas revisiones del diario y semanal en los
+Esta sección se añade a nuevas revisiones del diario y semanal en los
 Markdown de Obsidian y las copias inmutables Markdown/JSON/PDF de Drive ya
 previstas. No añade carpetas ni reescribe informes o notas humanos. El documento
-estructurado identificaría ficha y revisión, evaluación y referencias; no
-presentaría una pregunta humana como afirmación científica. Su contrato exacto
-se documentará y probará durante WA-10. Se solicita aprobación de este cambio
-de formato antes de implementarlo, conforme a AGENTS.md.
+estructurado identifica ficha y revisión, evaluación y referencias; distingue
+la pregunta humana de las afirmaciones científicas. La persona aprobó este
+cambio de formato al aprobar WA-10; se mantienen los originales.
 
 ## Límites, privacidad y persistencia propuestas
 
@@ -97,7 +97,7 @@ y se construye antes de llamar al modelo, por prioridad y orden estable. Una
 ficha que no cabe queda explícitamente pendiente en el detalle; no se recorta ni
 se presenta como evaluada. Las evidencias mantienen además sus propios límites.
 
-Las fichas se almacenarían con revisiones inmutables y huellas en `meta`, sin
+Las fichas se almacenan con revisiones inmutables y huellas en `meta`, sin
 cambiar el esquema SQLite publicado ni añadir dependencias. Cada trabajo fija
 las revisiones utilizadas para que editar durante una generación no cambie su
 entrada. Se hereda el ámbito histórico de privacidad de todos los proyectos
@@ -105,6 +105,55 @@ implicados; el ámbito general se resuelve explícitamente a proyectos permitido
 sin convertirse en acceso global al disco. Retirar un proyecto o reducir el
 ámbito visible no elimina restricciones heredadas. Si falta una política, no se
 envía el contexto humano al proveedor. El respaldo sigue el de SQLite.
+
+## Contrato implementado
+
+`/watchlist` permite pegar una lista o una sola pregunta; el POST
+`/watchlist/preview` prepara la revisión previa sin guardar. Confirmar usa
+`/watchlist/save`. `/watchlist/{id}` edita una ficha y pagina su historial.
+La lista pagina treinta fichas y muestra el número total de activas. El historial
+de la ficha enlaza hasta veinte informes recientes con ese tema. Se conserva
+el texto humano original, sin normalizarlo mediante un modelo. Los secretos
+conocidos se filtran antes de persistir o mostrar el contenido.
+
+Cada ficha tiene ID `wl_…`. Sus revisiones usan el almacén inmutable `nb_revision`
+y `nb_hash` con `kind: watchlist`, puntero `wl_item:<id>` y recibo idempotente
+`wl_submission:<nonce>`. Un lote se guarda entero o se revierte entero; la huella
+del catálogo detecta formularios obsoletos. No se añade migración SQLite.
+
+El documento JSON del informe añade `watchlist`, con versión, lista de fichas
+activas y huella. El inventario privado del trabajo lo fija antes de generar:
+reanudar usa esas mismas preguntas aunque la persona haya editado la lista.
+Los informes anteriores sin este campo siguen siendo legibles.
+
+Cada evaluación validada vive en `sections["watch:<id>"]` y lleva paquete,
+proveedor, modelo y prompt, más su cotejo `check:watch:<id>`. Usa la ruta
+`conceptual`, configurable desde la pantalla de modelos. Incluye `status`,
+`finding`, `meaning` con confianza, `limits`, `next_check` y `current_evidence`.
+Los estados internos son `news`, `no_new`, `insufficient`, `source_pending` y
+`coverage_failure`; la interfaz los traduce al español. La búsqueda de una base
+anterior examina hasta tres informes completos del mismo tipo que terminen antes
+del inicio del intervalo. Solo compara la misma revisión de la pregunta y hasta
+64 evidencias históricas con 48 000 caracteres de extractos; no interpreta una
+versión editada como la pregunta anterior. El semanal añade el modo crítico.
+
+`no_new` exige una evaluación anterior respaldada (`news` o `no_new`) y cobertura
+completa de todos los proyectos implicados. `news` exige citar en el hallazgo
+alguna evidencia actual declarada. Ambos pasan además el validador común y el
+cotejo de fidelidad; estas condiciones necesarias no demuestran validez científica.
+El paquete de evaluación no recorta evidencias para caber: si excede su máximo
+de 64 000 caracteres o el límite configurado, la generación queda pendiente.
+
+Un tema omitido por el presupuesto global de preguntas o por política ausente,
+o sin evidencias disponibles de sus proyectos, aparece explícitamente pendiente
+de evaluación. Es un estado de disponibilidad calculado por el servicio, sin
+conclusión científica mecánica. Si se intenta una evaluación y falla el modelo,
+el validador o el cotejo, el informe queda pendiente y no se entrega.
+
+El plan diario y la orientación semanal reciben las evaluaciones disponibles
+como contexto humano, con sus preguntas y privacidad heredada. No reciben los
+temas omitidos. Los enlaces de la ficha a informes se registran en
+`wl_report:<informe>:<ficha>` y solo se muestran para informes completos.
 
 ## Criterios de aceptación
 

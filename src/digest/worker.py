@@ -251,6 +251,9 @@ def execute(
                 report = inventory.load(config, ident, params["inventory_hash"])
             else:
                 report = build(db, interval, report_id, instant, regenerate=bool(existing))
+                from digest.watchlist import freeze as freeze_watchlist
+
+                report.watchlist = freeze_watchlist(db, config)
                 validate_report(report, {item.id for item in report.evidence})
                 report, frozen_path, frozen_hash = inventory.save(config, ident, report)
                 params.update(inventory_path=frozen_path, inventory_hash=frozen_hash)
@@ -382,6 +385,14 @@ def execute(
                             canonical(report.packages["plan"]["project_ids"]),
                         ),
                     )
+            for watched in report.watchlist.get("items", []):
+                db.execute(
+                    "INSERT OR IGNORE INTO meta(key,value) VALUES (?,?)",
+                    (
+                        "wl_report:" + report_id + ":" + watched["id"],
+                        canonical(watched["revision"]),
+                    ),
+                )
             close_interval(db, interval.id, report_id)
             if kind != "preview" and not params.get("no_send"):
                 from digest.publish.deliveries import deliver_report

@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block content %}
+<h1>Seguimiento solicitado</h1><p>Preguntas y prioridades propias, aunque no tengan tarea en Kanvas. {{ active }} de 30 temas activos.</p>
+<section class="panel"><h2>Añadir temas</h2><p>Escribe un tema por línea, o una sola pregunta. Revisarás la lista antes de guardarla.</p>
+<form method="post" action="/watchlist/preview">
+<input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="expected" value="{{ expected }}"><input type="hidden" name="submission_id" value="{{ submission_id }}">
+<label>Preguntas o temas<textarea required name="text" rows="5" maxlength="33000" placeholder="Aumento de semillas por modelo&#10;Resultados de dinámicas moleculares&#10;Errores frente a cristales"></textarea></label>
+<label>Proyectos (IDs separados por comas; vacío = general)<input name="projects" maxlength="1000" value=""></label><p>{% for p in projects %}{{ p.id }}: {{ p.name }}{% if not loop.last %} · {% endif %}{% endfor %}</p>
+<label>Prioridad inicial (0–100)<input name="priority" type="number" min="0" max="100" value="50" required></label><button>Revisar lista</button></form></section>
+{% for s in items %}<article class="panel"><h2><a href="/watchlist/{{ s.item_id }}">{{ s['values'].title }}</a></h2><p>{{ s['values'].question }}</p><p>{{ states[s['values'].state] }} · Prioridad {{ s['values'].priority }} · {{ s['values'].projects|join(', ') or 'General' }}</p><p>Creado: {{ s.first_created_at|localtime(timezone) }}</p></article>{% else %}<p>No hay temas en esta página. Añadirlos no ejecuta análisis ni configura fuentes nuevas.</p>{% endfor %}
+{% if page_number>1 %}<a href="/watchlist?page_number={{ page_number-1 }}">Anterior</a>{% endif %} {% if more %}<a href="/watchlist?page_number={{ page_number+1 }}">Siguiente</a>{% endif %}
+{% endblock %}
