@@ -1048,6 +1048,21 @@
           "at": "2026-11-16T08:04:42Z",
           "by": "codex",
           "text": "Question: Primera comprobación humana de docs/reviews/phase-3.md: ¿el enlace de un correo abre el informe tanto en el móvil como en el ordenador y permite abrir una evidencia? VALIDATION.md exige comprobaciones y firma de la persona antes de fase 4; los tests y la revisión técnica ya pasan. No es confirmación para commits."
+        },
+        {
+          "at": "2026-11-16T09:15:52Z",
+          "by": "codex",
+          "text": "La persona indica que no ha recibido el correo para validar. Diagnóstico: config.yaml apunta al registro piloto antiguo, sin envíos desde el 5 de noviembre; las pruebas recientes fueron locales/sintéticas. web.public_base_url mantiene HOST.TAILNET.ts.net. Ninguna comprobación humana se da por pasada; revisaré configuración y muestra real antes de solicitar esa validación."
+        },
+        {
+          "at": "2026-11-16T09:24:22Z",
+          "by": "codex",
+          "text": "Incidencia de validación diagnosticada: no se había enviado un correo real reciente; config.yaml aún tiene URL/login web de ejemplo. SMTP autentica al usar CREDENTIALS_DIRECTORY. Se prepara configuración local ignorada build/phase3-live/config.yaml con muestra histórica R24, puerto 8091 y dominio/login reales del propietario, manteniendo CorpDNS=false. Web y worker temporales iniciados para ensayo. Enviado un único correo técnico de acceso a alvaro4sn@gmail.com: SMTP confirma sent; no es un diario nuevo ni firma recepción humana. Tailscale Serve está deshabilitado en la tailnet y exige activación en la cuenta antes de exponer el enlace privado."
+        },
+        {
+          "at": "2026-11-16T09:26:25Z",
+          "by": "codex",
+          "text": "Question: SMTP aceptó el correo de comprobación a alvaro4sn@gmail.com, asunto «Daily Digest — comprobación de acceso a la webapp». Para abrir su enlace desde móvil falta habilitar Serve en la cuenta de Tailscale mediante el enlace de activación mostrado en el chat. ¿Puedes habilitarlo y decirme si recibes ese correo? Es un requisito de la cuenta Tailscale (Serve is not enabled on your tailnet), no una confirmación para Git; ninguna casilla humana está firmada."
         }
       ]
     },

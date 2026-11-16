@@ -205,3 +205,28 @@ por tarea, guarda una elección y vuelve al YAML; comprueba que no pide claves.
 Después marca únicamente las comprobaciones que hayas realizado y «Apruebo la
 fase» si el conjunto te resulta útil. Con una duda o fallo, deja la casilla sin
 marcar y describe qué ocurrió. La fase de operación espera esta aprobación.
+
+
+## Incidencia de acceso durante la validación (constructor, 2026-11-16)
+
+La persona comunicó que no había recibido correo. Se comprobó que las pruebas
+recientes eran sintéticas, el registro piloto no tenía envíos recientes y la
+configuración local conservaba dominio y login de ejemplo. No se dio por pasada
+ninguna comprobación humana.
+
+SMTP autentica con el directorio privado de credenciales. Se envió un único
+correo técnico de acceso a la cuenta configurada: el servidor SMTP lo aceptó
+como `sent`. Su asunto es «Daily Digest — comprobación de acceso a la webapp»;
+es una muestra histórica R24 y no un diario nuevo ni prueba de recepción humana.
+
+Para este ensayo se preparó `build/phase3-live/config.yaml` (ignorado por Git),
+con la base de muestras de IN-11, puerto 8091 y dominio/login del propietario
+de Tailscale. Los procesos temporales de web y worker usan esa configuración,
+sin cambiar el DNS institucional ni desplegar unidades de fase 4. La muestra
+R24 es de tipo avance histórico: sirve para probar lectura y revisión; las
+ampliaciones requieren primero un diario generado desde Generar.
+
+Tailscale devuelve «Serve is not enabled on your tailnet». Falta que la persona
+habilite Serve desde su cuenta; después se puede enlazar el servicio privado.
+`CorpDNS=false` sigue activo. El acceso desde móvil y las cuatro casillas de
+firma permanecen pendientes.
