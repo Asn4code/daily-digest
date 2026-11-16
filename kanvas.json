@@ -1017,9 +1017,9 @@
     {
       "id": "WA-05",
       "title": "Puerta de fase 3",
-      "state": "doing",
+      "state": "todo",
       "group": "WA",
-      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09"],
+      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09", "WA-10"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
       "desc": "Validar que la fase 3 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 3 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-3.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 3` da APROBADA y el informe build/gates/phase-3.md va en la nota de cierre.",
@@ -1128,6 +1128,16 @@
           "at": "2026-11-16T10:50:16Z",
           "by": "codex",
           "text": "Question: Siguiente prueba independiente: desde el móvil abre la revisión breve del resultado VCD (enlace en el chat), explica con tus palabras qué muestra, por qué importa y qué no sabes, y envíala. ¿Aparece el contraste, te ayuda y cuánto has tardado aproximadamente? No marcaré cierre o comprensión: esa decisión se toma en la webapp."
+        },
+        {
+          "at": "2026-11-16T11:06:36Z",
+          "by": "codex",
+          "text": "La persona considera razonable la revisión activa y solicita una lista propia de seguimiento. Aporta ejemplos para benchmark: aumento de semillas por modelo, resultados de dinámicas moleculares y errores frente a cristales. Se concreta WA-10 y WATCHLIST.md; no se interpreta como revisión enviada ni firma humana de fase. La ampliación requiere aprobación y revisión adicional antes de cerrar la puerta."
+        },
+        {
+          "at": "2026-11-16T11:06:42Z",
+          "by": "codex",
+          "text": "La puerta queda pendiente de WA-10, ampliación solicitada por la persona y propuesta con formato concreto en docs/WATCHLIST.md. Se conserva la revisión técnica del código anterior y la validación humana parcial; no se firma ni se abre operación. Tras aprobar e implementar WA-10 se hará revisión adicional y se retomarán las comprobaciones humanas."
         }
       ]
     },
@@ -1673,6 +1683,16 @@
           "text": "Ya puedes organizar tareas de Kanvas en tarjetas y dependencias, guardar notas con historial y ajustar prioridad y aumento por antigüedad. Las notas sobreviven a capturas y tareas retiradas; el plan diario respeta preferencias, bloqueos y privacidad sin escribir los proyectos. Verificado con make check (405 tests), capturas móvil/escritorio y precheck independiente sin bloqueantes (27 tests propios). Para comprobarlo: abre Tareas, edita una ficha y consulta sus dependencias; la validación desde un teléfono físico queda para WA-05."
         }
       ]
+    },
+    {
+      "id": "WA-10",
+      "title": "Prioridades y preguntas personales de seguimiento",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["WA-09", "IN-12"],
+      "at": "2026-11-16T11:06:35Z",
+      "by": "codex",
+      "desc": "Permitir añadir una lista de temas generales o por proyecto, editar prioridades y conservar historial sin depender de tareas Kanvas. Evaluar con evidencias y cobertura explícitas en diario y semanal; resumen móvil breve y detalle completo web/vault. Casos piloto: semillas por modelo, dinámicas moleculares y errores frente a cristales de benchmark. Diseño y formato concreto pendientes de aprobación en docs/WATCHLIST.md: sección Seguimiento solicitado en nuevas revisiones de Obsidian/Drive, sin sobreescribir originales, sin DDL ni fuentes nuevas implícitas. Terminado con alta/edición/pausa, revisiones fijadas, límites y privacidad, evaluaciones sin evidencia correctamente pendientes, entregas inmutables, make check, puerta automática y revisión independiente adicional. No ejecutar análisis ni cambiar estados humanos."
     }
   ]
 }
