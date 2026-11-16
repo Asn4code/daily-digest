@@ -1073,6 +1073,16 @@
           "at": "2026-11-16T10:29:41Z",
           "by": "codex",
           "text": "Question: La web local responde y el correo de prueba tiene estado SMTP sent. Tailscale sigue indicando «Serve is not enabled on your tailnet». Para continuar debes abrir https://login.tailscale.com/f/serve?node=nLwUZVhAM311CNTRL y habilitar Serve en tu cuenta. ¿Puedes hacerlo y avisarme? No se ha activado la aceptación de DNS: CorpDNS=false y los resolutores institucionales siguen intactos antes y después del intento."
+        },
+        {
+          "at": "2026-11-16T10:31:23Z",
+          "by": "codex",
+          "text": "La persona confirma que habilitó Serve en la cuenta. El intento ya alcanza el daemon, que exige sudo para configurar el proxy. La sesión no dispone de autenticación sudo: primero requiretty y después «a password is required» aun con TTY y -n. No se cambió OperatorUser ni se pidió contraseña en el chat. Falta ejecutar desde su terminal sudo tailscale serve --bg --https=443 http://127.0.0.1:8091. CorpDNS=false y DNS de NetworkManager siguen intactos."
+        },
+        {
+          "at": "2026-11-16T10:31:23Z",
+          "by": "codex",
+          "text": "Question: ¿Puedes ejecutar en tu terminal sudo tailscale serve --bg --https=443 http://127.0.0.1:8091 y avisarme cuando termine? Serve ya está habilitado en la cuenta, pero el daemon exige sudo y esta sesión no tiene esa autenticación. La contraseña se introduce solo en tu terminal, no aquí. El ajuste es de Serve y conserva accept-dns=false; comprobaré DNS y acceso después."
         }
       ]
     },
