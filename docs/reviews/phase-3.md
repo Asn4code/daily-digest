@@ -254,3 +254,16 @@ tailnet. Para el ensayo local está disponible
 enlace HTTPS privado. Esta alternativa no cambia DNS, hosts ni el bind loopback.
 Debe quedar registrada la ruta realmente comprobada por la persona al validar
 acceso y evidencias; no se infiere el cumplimiento de la casilla completa.
+
+
+### Confirmación humana de acceso parcial (2026-11-16)
+
+La persona confirmó primero que el informe se abre en el móvil. Después de
+identificar que el navegador del ordenador corre en el servidor, confirmó
+«sí, se abre y puedo consultar una evidencia» por la URL local. Consta acceso
+funcional en ambos contextos y consulta de evidencia en el servidor.
+
+Se mantienen vacías las casillas originales: la apertura del enlace del correo
+en ambos dispositivos y la recepción humana aún no se han confirmado de forma
+literal. No se infieren de SMTP `sent` ni del acceso por enlaces del chat. La
+revisión activa y la generación desde móvil pueden comprobarse a continuación.

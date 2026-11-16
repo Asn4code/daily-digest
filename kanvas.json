@@ -1118,6 +1118,16 @@
           "at": "2026-11-16T10:44:28Z",
           "by": "codex",
           "text": "Question: Usando el navegador del propio servidor, ¿puedes abrir http://127.0.0.1:8091/reports/rep_in11_daily_levels_r24 y consultar una evidencia? Es acceso loopback a la misma muestra, sin cambiar DNS; en el móvil se conserva la URL HTTPS privada."
+        },
+        {
+          "at": "2026-11-16T10:49:24Z",
+          "by": "codex",
+          "text": "La persona confirma «sí, se abre y puedo consultar una evidencia» para el acceso local del navegador del servidor. Consta previamente su confirmación de acceso móvil por HTTPS. Se registra el alcance exacto: móvil por URL privada, navegador del servidor por loopback, evidencia consultada en el servidor; no se afirma que su DNS institucional resuelva MagicDNS. Quedan valoración humana del contraste, generación/recepción desde móvil y aprobación final."
+        },
+        {
+          "at": "2026-11-16T10:50:16Z",
+          "by": "codex",
+          "text": "Question: Siguiente prueba independiente: desde el móvil abre la revisión breve del resultado VCD (enlace en el chat), explica con tus palabras qué muestra, por qué importa y qué no sabes, y envíala. ¿Aparece el contraste, te ayuda y cuánto has tardado aproximadamente? No marcaré cierre o comprensión: esa decisión se toma en la webapp."
         }
       ]
     },
