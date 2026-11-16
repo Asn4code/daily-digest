@@ -11,6 +11,9 @@ def required_sections(report: Report) -> set[str]:
     from digest.report.monitoring import eligible, items
 
     required.update("watch:" + s["id"] for s in items(report) if eligible(report, s))
+    from digest.report.monitoring_tree import required as required_monitoring
+
+    required.update(required_monitoring(report))
     if active:
         if report.kind != "weekly":
             required.update("project:" + result.project for result in active)

@@ -1,7 +1,7 @@
 # Seguimiento con contexto inicial grande
 
-Propuesta WA-11, pendiente de aprobación e implementación. Hallazgo de la
-validación real de WA-05 el 2026-11-16; no modifica todavía el contrato vigente.
+WA-11, aprobada por la persona en el tablero y el chat el 2026-11-16.
+Implementación en curso tras el hallazgo de la validación real de WA-05.
 
 ## Problema observado
 

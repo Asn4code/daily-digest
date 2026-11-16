@@ -41,6 +41,8 @@ STAGES = {
     "critical": "Crítica semanal",
     "weekly": "Síntesis semanal",
     "grounding": "Cotejo de fidelidad",
+    "watchlist": "Seguimiento solicitado",
+    "monitoring_context": "Contexto del seguimiento",
 }
 
 

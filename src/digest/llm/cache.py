@@ -44,6 +44,8 @@ class Nodes:
             files("digest.llm").joinpath(name).read_bytes()
             for name in ("validator.py", "schemas.py", "grounding.py")
         )
+        validators += files("digest.llm").joinpath("monitoring.py").read_bytes()
+        validators += files("digest.report").joinpath("monitoring_tree.py").read_bytes()
         scope = {
             p.id: {"external_allowed": p.external_allowed}
             for p in self.config.projects

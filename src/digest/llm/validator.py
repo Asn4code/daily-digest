@@ -24,9 +24,11 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
     from digest.report.activity import current_evidence_ids, reference_only
     from digest.report.assembly import assemble
     from digest.report.monitoring import verify_snapshot
+    from digest.report.monitoring_tree import verify as verify_monitoring
     from digest.report.observations import normalize
 
     verify_snapshot(report)
+    verify_monitoring(report)
 
     ids = {item.id for item in report.evidence}
     if ids != allowed_ids or len(ids) != len(report.evidence):
@@ -94,6 +96,8 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
                 for e in report.evidence
                 if e.project in watched_item["projects"] and e.id in current_evidence_ids(report)
             }
+            if package["context"].get("derived_monitoring") is True:
+                expected_current.intersection_update(scope.evidence)
             if (
                 package["context"].get("coverage_complete") != complete
                 or set(package["context"].get("current_evidence_ids", [])) != expected_current

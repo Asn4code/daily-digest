@@ -1,6 +1,6 @@
 ---
 name: grounding
-version: 6
+version: 7
 task: contrast
 ---
 Comprueba la fidelidad de candidate frente a las evidencias originales y el contexto
@@ -24,6 +24,15 @@ fuente identificada que permite comprobar el problema. No inventes citas ni
 problemas para llenar la lista. Las recomendaciones futuras pueden proponer
 análisis no ejecutados si se presentan como tales y justifican la decisión.
 Esta comprobación automática no declara comprensión ni aceptación humanas.
+
+Solo si generation_context.derived_monitoring=true, el cotejo es de fidelidad a
+parent_pieces exactas, ya validadas en sus etapas anteriores. Las evidencias
+originales se conservan en el informe, pero esta proyección no vuelve a enviarlas
+íntegras. No añadas hechos desde referencias sin extracto ni pidas reinterpretar
+una fuente que no ves. Detecta omisiones de controles, contradicciones o estados
+entre padres, certeza excesiva y novedades que solo eran históricas. Para un
+problema puedes citar literalmente un texto de afirmación del padre y los IDs
+que lo acompañan; no cites la pregunta humana ni metadatos como prueba científica.
 
 Examina todos los campos y cada pregunta, no solo el resumen. Las preguntas
 pueden contener presuposiciones falsas sobre estados, tareas o resultados. Que

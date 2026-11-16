@@ -13,6 +13,7 @@ from digest.config import Config
 from digest.llm import schemas
 from digest.llm.contracts import evidence_schema
 from digest.llm.grounding import check as check_grounding
+from digest.llm.monitoring import MonitoringContext
 from digest.llm.prompts import Prompt, load, messages
 from digest.llm.router import Router, Task
 from digest.llm.validator import EvidencePackage, validate
@@ -38,6 +39,7 @@ SCHEMAS: dict[str, type[BaseModel]] = {
     "critical": schemas.WeeklyCritical,
     "check": schemas.GroundingAudit,
     "watch": schemas.WatchAssessment,
+    "watchctx": MonitoringContext,
 }
 
 
@@ -148,6 +150,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
     synthesis_deadline = started + duration * 0.85
     source_calls_remaining = 1
     report.observations = {e.id: normalize(e) for e in report.evidence}
+    serialized_evidence: dict[str, dict[str, Any]] = {}
 
     def mark_pending(key: str, category: str, rule: str) -> None:
         report.pending[key] = [
@@ -208,7 +211,11 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             "pending_reviews": context.get("pending_reviews", []),
             "evidence": [],
         }
+        packaged_evidence = []
         for eid in sorted(set(ids)):
+            if eid in serialized_evidence:
+                packaged_evidence.append(serialized_evidence[eid])
+                continue
             item = asdict(evidence[eid])
             item["meta"] = {
                 k: v
@@ -231,8 +238,13 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                     "cell_type",
                 }
             }
-            payload["evidence"].append(item)
+            # Captured entries are immutable during this generation. Sanitize
+            # once before reuse, including keys and metadata; packet planning
+            # must not repeatedly scan the same large excerpts.
+            serialized_evidence[eid] = redact_tree(item, secrets)
+            packaged_evidence.append(serialized_evidence[eid])
         payload = redact_tree(payload, secrets)
+        payload["evidence"] = packaged_evidence
         return payload
 
     def call(
@@ -289,7 +301,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
                 mark_pending(key, "input", "derived_package_budget_exceeded")
                 return
-        elif contract == "watch":
+        elif contract in {"watch", "watchctx"}:
             # Monitoring cannot claim absence after silently dropping evidence.
             if len(json.dumps(messages(prompt, payload), ensure_ascii=False)) > limit:
                 mark_pending(key, "input", "monitoring_package_budget_exceeded")
@@ -414,7 +426,18 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             }
             # The checker sees complete originals, including controls omitted from
             # the compact synthesis projection. It never chooses additional files.
-            audit_messages = messages(grounding_prompt, {**audit_package, "wire_mode": "full"})
+            # Derived monitoring is audited against exact validated parents.
+            # Their raw evidence was checked at the leaves and remains in the
+            # report; repeating it at every level would undo bounded reduction.
+            audit_messages = messages(
+                grounding_prompt,
+                {
+                    **audit_package,
+                    "wire_mode": "references"
+                    if context.get("derived_monitoring") is True
+                    else "full",
+                },
+            )
             if len(json.dumps(audit_messages, ensure_ascii=False)) > min(
                 128_000, config.limits.max_project_package_chars * len(project_ids)
             ):
@@ -542,15 +565,40 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
         report.packages[root] = payload
         report.model_info[root] = {"provider": "assembly", "model": "validated-sources"}
         report.prompt_versions[root] = ASSEMBLY_VERSION
+
+    def monitoring_size(
+        prompt_name: str,
+        ids: list[str],
+        project_ids: set[str],
+        context: dict[str, Any],
+        result_ids: list[str],
+        wire_mode: str,
+    ) -> int:
+        payload = payload_for(ids, project_ids, context, result_ids)
+        payload["wire_mode"] = wire_mode
+        if wire_mode == "references":
+            current = current_evidence_ids(report) & set(ids)
+            payload["current_evidence_ids"] = sorted(current)
+            payload["result_evidence"] = {
+                rid: sorted(set(refs) & current) for rid, refs in payload["result_evidence"].items()
+            }
+        return len(
+            json.dumps(messages(load("conceptual", name=prompt_name), payload), ensure_ascii=False)
+        )
+
+    from digest.report.monitoring import build as build_monitoring
+
+    # Monitoring has its own source lineage. Valid independent pieces may advance
+    # even if a core result extraction is pending; the final report still waits.
+    build_monitoring(
+        db, config, report, call, deadline=started + duration * 0.8, measure=monitoring_size
+    )
     # Downstream synthesis must never turn a partial extraction set into a final story.
     if any("extract:" + item.id not in report.sections for item in active):
         for key in ["weekly"] if report.kind == "weekly" else ["conceptual", "plan"]:
             mark_pending(key, "dependency", "extraction_pending")
         report.mechanical = not bool(report.sections)
         return report
-    from digest.report.monitoring import build as build_monitoring
-
-    build_monitoring(db, config, report, call, deadline=started + duration * 0.8)
     if not active:
         report.mechanical = False
         return report

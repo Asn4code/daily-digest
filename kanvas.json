@@ -1017,9 +1017,9 @@
     {
       "id": "WA-05",
       "title": "Puerta de fase 3",
-      "state": "doing",
+      "state": "todo",
       "group": "WA",
-      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09", "WA-10"],
+      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09", "WA-10", "WA-11"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
       "desc": "Validar que la fase 3 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 3 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-3.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 3` da APROBADA y el informe build/gates/phase-3.md va en la nota de cierre.",
@@ -1173,6 +1173,11 @@
           "at": "2026-11-16T13:13:44Z",
           "by": "codex",
           "text": "El avance actual job1 conserva borrador rep_preview_2026-11-16_r1: 2649 evidencias iniciales, 60 resultados de referencia, ninguno actual; fuentes parciales y dos monitoring_package_budget_exceeded. No hubo llamadas LLM ni entrega. Para validar el flujo sin recortar ni alterar fechas se encola job2 retrospectivo 2026-11-09 05:00–16:00 UTC: consulta previa encuentra 18 evidencias con hora de evento (16021 caracteres) sobre semillas/cosecha y comprobaciones contra cristales. Se conservarán todos los resultados de ese intervalo y se etiquetará como ensayo histórico, no actividad actual. El escalado del contexto inicial queda registrado como bloqueo del avance completo."
+        },
+        {
+          "at": "2026-11-16T13:25:20Z",
+          "by": "codex",
+          "text": "La persona aprueba WA-11 para corregir el bloqueo de contexto inicial detectado al generar sus dos preguntas. Ensayo retrospectivo job2 sigue ejecutándose con inventario fijado y revisión independiente preparatoria de originales. Se implementará la ampliación aprobada y después se retomará la puerta; firmas humanas intactas."
         }
       ]
     },
@@ -1754,12 +1759,24 @@
     {
       "id": "WA-11",
       "title": "Escalar el seguimiento con contexto histórico jerárquico",
-      "state": "proposed",
+      "state": "doing",
       "group": "WA",
       "deps": ["WA-10", "IN-11"],
       "at": "2026-11-16T13:16:26Z",
       "by": "codex",
-      "desc": "Permitir evaluar prioridades humanas cuando la captura inicial supera el paquete por pregunta, reutilizando fuentes coherentes validadas y síntesis jerárquica con manifiestos de dependencias. Mantener inventario íntegro, fechas originales, controles, privacidad ancestral, límites actuales y ausencia de novedades solo con base y cobertura suficientes. Propuesta concreta en docs/WATCHLIST_SCALING.md: no elevar límites ni recortar fuentes silenciosamente, no ejecutar análisis ni añadir DDL/dependencias/formatos humanos nuevos. Terminado con regresión sintética de 2600 evidencias, nodos pendientes/reanudación, controles contradictorios, revisión independiente, make check y ensayo real sin entrega hasta validar. Motivación: job1 de WA-05 bloqueado por monitoring_package_budget_exceeded antes de llamar a modelos."
+      "desc": "Permitir evaluar prioridades humanas cuando la captura inicial supera el paquete por pregunta, reutilizando fuentes coherentes validadas y síntesis jerárquica con manifiestos de dependencias. Mantener inventario íntegro, fechas originales, controles, privacidad ancestral, límites actuales y ausencia de novedades solo con base y cobertura suficientes. Propuesta concreta en docs/WATCHLIST_SCALING.md: no elevar límites ni recortar fuentes silenciosamente, no ejecutar análisis ni añadir DDL/dependencias/formatos humanos nuevos. Terminado con regresión sintética de 2600 evidencias, nodos pendientes/reanudación, controles contradictorios, revisión independiente, make check y ensayo real sin entrega hasta validar. Motivación: job1 de WA-05 bloqueado por monitoring_package_budget_exceeded antes de llamar a modelos.",
+      "notes": [
+        {
+          "at": "2026-11-16T13:25:20Z",
+          "by": "codex",
+          "text": "Plan: reutilizar piezas de fuentes validadas para el contexto histórico del seguimiento, añadir reducción jerárquica acotada con manifiestos y privacidad heredada, mantener inventario completo y criterios de ausencia de novedades, probar captura inicial de2600 evidencias y reanudación, ejecutar make check y revisión independiente. Aprobación humana en tablero y chat confirmada. No se cambia contrato de captura sin actividad y cobertura fallida."
+        },
+        {
+          "at": "2026-11-16T13:52:08Z",
+          "by": "codex",
+          "text": "Implementado el primer recorrido jerárquico: fuentes coherentes completas, reutilización de source ya cotejadas, reducción acotada y manifiesto que vincula cada pieza a padres exactos y cubre todas las entradas. Auditoría derivada sobre padres validados, sin reenviar fuentes íntegras en cada nivel; originales conservados. Pasan9 tests unitarios y4 de integración, incluida generación completa con2600 evidencias sintéticas, reanudación/caché y captura parcial aún pendiente. Se sanea cada evidencia una vez por generación para evitar coste repetido al planificar paquetes. Ruff y mypy pasan; faltan suite completa, revisión independiente y ensayo real."
+        }
+      ]
     }
   ]
 }

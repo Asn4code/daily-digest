@@ -10,6 +10,8 @@ from digest.report.context import attach_context
 from digest.report.daily import Generate, pending, references
 from digest.report.loading import load_ready
 from digest.report.model import Report
+from digest.report.monitoring_tree import Measure
+from digest.report.monitoring_tree import build as build_tree
 
 LABELS = {
     "news": "Novedades respaldadas",
@@ -121,7 +123,13 @@ def previous(
 
 
 def build(
-    db: sqlite3.Connection, config: Config, report: Report, generate: Generate, *, deadline: float
+    db: sqlite3.Connection,
+    config: Config,
+    report: Report,
+    generate: Generate,
+    *,
+    deadline: float,
+    measure: Measure | None = None,
 ) -> None:
     if not report.watchlist:
         report.watchlist = watchlist.freeze(db, config)
@@ -154,24 +162,44 @@ def build(
         )
         from digest.report.activity import current_evidence_ids
 
+        context = {
+            "watch_item": item,
+            "interval": {"start": report.start_at, "end": report.end_at},
+            "mode": "weekly_critical" if report.kind == "weekly" else "daily",
+            "previous": prior,
+            "coverage_complete": complete,
+            "current_evidence_ids": sorted(ids & current_evidence_ids(report)),
+            "_reference_evidence": sorted(prior_ids),
+        }
+        input_ids = ids | prior_ids
+        results = [r.id for r in report.results if r.project in item["projects"]]
+        limit = min(64000, config.limits.max_project_package_chars * len(scope))
+        if (
+            measure
+            and measure("watchlist", sorted(input_ids), scope, context, results, "full") > limit
+        ):
+            build_tree(
+                report,
+                generate,
+                measure,
+                item,
+                input_ids,
+                scope,
+                context,
+                deadline=deadline,
+                limit=limit,
+            )
+            continue
         generate(
             "conceptual",
             key,
-            sorted(ids | prior_ids),
+            sorted(input_ids),
             scope,
-            {
-                "watch_item": item,
-                "interval": {"start": report.start_at, "end": report.end_at},
-                "mode": "weekly_critical" if report.kind == "weekly" else "daily",
-                "previous": prior,
-                "coverage_complete": complete,
-                "current_evidence_ids": sorted(ids & current_evidence_ids(report)),
-                "_reference_evidence": sorted(prior_ids),
-            },
-            [r.id for r in report.results if r.project in item["projects"]],
+            context,
+            results,
             contract="watch",
             prompt_name="watchlist",
-            char_limit=64000,
+            char_limit=limit,
             cutoff=deadline,
         )
 

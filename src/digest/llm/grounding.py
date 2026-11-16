@@ -11,6 +11,8 @@ def check(value: dict[str, Any], package: dict[str, Any]) -> GroundingAudit:
     if audit.approved != (not audit.issues):
         raise ValueError("grounding_inconsistent_verdict")
     entries = {e["id"]: e for e in package["evidence"]}
+    from digest.report.monitoring_tree import quoted_parent
+
     for issue in audit.issues:
         if not set(issue.evidence) <= entries.keys():
             raise ValueError("grounding_unknown_reference")
@@ -18,6 +20,10 @@ def check(value: dict[str, Any], package: dict[str, Any]) -> GroundingAudit:
             issue.source_quote in entries[eid]["excerpt"]
             or issue.source_quote in json.dumps(entries[eid]["meta"], ensure_ascii=False)
             for eid in issue.evidence
+        ) and not quoted_parent(
+            issue.source_quote,
+            issue.evidence,
+            package["context"].get("generation_context", {}),
         ):
             raise ValueError("grounding_quote_missing")
         target = package["context"]["candidate"]
