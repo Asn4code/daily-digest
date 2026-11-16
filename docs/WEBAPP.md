@@ -1,6 +1,6 @@
 # Webapp de revisión (Dojo)
 
-Webapp adaptable a móvil y ordenador, a la que se llega desde el enlace del correo. Reúne el informe completo, la revisión, el plan, el historial y los disparos manuales. No muestra el tablero ni el IDE: una cosa cada vez.
+Webapp adaptable a móvil y ordenador, a la que se llega desde el enlace del correo. Reúne el informe completo, la revisión, el plan, el cuaderno personal de tareas, el historial y los disparos manuales, con vistas separadas para cada actividad.
 
 ## 1. Pantallas y rutas
 

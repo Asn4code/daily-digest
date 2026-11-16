@@ -28,6 +28,10 @@ from digest.report.render_md import render as render_md
 from digest.util.fs import read_bounded
 
 
+class JobFailure(RuntimeError):
+    """A failed job was recorded durably; the worker may process the next job."""
+
+
 def enqueue(
     config: Config, kind: str, *, requested_by: str = "cli", params: dict[str, Any] | None = None
 ) -> int:
@@ -399,7 +403,7 @@ def execute(
                 "UPDATE job SET state='failed',finished_at=?,error='job_failed' WHERE id=?",
                 (utc(datetime.now(UTC)), ident),
             )
-            raise RuntimeError("El trabajo falló; consulta el registro y la cobertura.") from None
+            raise JobFailure("El trabajo falló; consulta el registro y la cobertura.") from None
 
 
 def resume(config: Config, job_id: int, *, no_send: bool = False) -> None:

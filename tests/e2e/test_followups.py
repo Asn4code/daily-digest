@@ -579,3 +579,42 @@ def test_immutable_binding_and_hash_are_atomic_even_on_autocommit(config, report
         assert records.meta(db, "followup_pdf:atomic:hash") is None
         records.immutable(db, "followup_pdf:atomic", {"data": "trusted"})
         assert records.verified(db, "followup_pdf:atomic") == {"data": "trusted"}
+
+
+def test_worker_cli_continues_other_jobs_after_failed_followup(config, report, tmp_path):
+    import typer
+    import yaml
+    from typer.testing import CliRunner
+
+    from digest.cli import app
+
+    ident, job = submit(config, report)
+    with queue.writing(config) as db:
+        capture = queue.insert(db, "capture", {}, "cli")
+    path = tmp_path / "worker.yaml"
+    path.write_text(yaml.safe_dump(config.model_dump(by_alias=True)))
+    with (
+        patch.object(Client, "complete", side_effect=ClientError("provider_down")),
+        patch("digest.cli.time.sleep", side_effect=typer.Exit(0)),
+    ):
+        response = CliRunner().invoke(app, ["--config", str(path), "worker"])
+    assert response.exit_code == 0, response.output
+    assert "necesita atención" in response.output and "provider_down" not in response.output
+    with closing(connect(Path(config.paths.data_dir) / "digest.db")) as db:
+        assert db.execute("SELECT state FROM job WHERE id=?", (job,)).fetchone()[0] == "failed"
+        assert db.execute("SELECT state FROM job WHERE id=?", (capture,)).fetchone()[0] == "done"
+        assert records.meta(db, "followup_ready:" + ident) is None
+
+
+def test_worker_once_returns_failure_for_scripts(config, report, tmp_path):
+    import yaml
+    from typer.testing import CliRunner
+
+    from digest.cli import app
+
+    submit(config, report)
+    path = tmp_path / "once.yaml"
+    path.write_text(yaml.safe_dump(config.model_dump(by_alias=True)))
+    with patch.object(Client, "complete", side_effect=ClientError("provider_down")):
+        response = CliRunner().invoke(app, ["--config", str(path), "worker", "--once"])
+    assert response.exit_code == 1 and "necesita atención" in response.output

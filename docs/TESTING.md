@@ -393,7 +393,7 @@ Una regresión exige detectar discrepancias también en magnitudes muy pequeñas
 sin una tolerancia absoluta que oculte errores relativos grandes.
 
 Los 17 casos anteriores prueban el núcleo. `tests/e2e/test_followups.py` añade
-25 casos de integración: solicitud web desde una revisión antigua, entrega única
+27 casos de integración: solicitud web desde una revisión antigua, entrega única
 con SMTP y Drive locales, diarios/intervalos/estados humanos intactos, selección
 acotada, recálculo métrico y evidencias nuevas separadas de las históricas.
 
@@ -412,3 +412,9 @@ SMTP, Drive ni proveedores reales.
 
 Capturas sintéticas: `build/wa08-preview/form-mobile.png`, `result-mobile.png` y
 `result-desktop.png`. La recepción desde un teléfono físico queda para WA-05.
+
+
+La revisión formal de fase 3 añade la prueba del bucle CLI: tras registrar un
+trabajo fallido de ampliación, el mismo worker procesa la captura siguiente. El
+mensaje omite detalles del proveedor y `worker --once` conserva salida no-cero
+para scripts. Los errores que impiden registrar el fallo no se silencian.

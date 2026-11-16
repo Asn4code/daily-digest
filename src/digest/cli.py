@@ -152,7 +152,13 @@ def worker(ctx: typer.Context, once: Annotated[bool, typer.Option("--once")] = F
     config = configuration(ctx)
     jobs.recover(config)
     while True:
-        result = jobs.execute(config)
+        try:
+            result = jobs.execute(config)
+        except jobs.JobFailure:
+            typer.echo("Un trabajo necesita atención; consulta su ficha en la webapp.", err=True)
+            if once:
+                raise typer.Exit(1) from None
+            continue
         if result:
             show_outcome(result)
         if once:

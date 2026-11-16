@@ -409,3 +409,12 @@ a validar ese mismo archivo y termina el cierre pendiente. Si debía entregarse,
 encola una única entrega del mismo ID; no crea otra revisión ni otro Message-ID.
 Los canales enviados se conservan y el correo incierto sigue sin reintento. Un
 archivo que no supera esta comprobación se marca fallido y requiere intervención.
+
+
+### Fallos de trabajos en el worker
+
+El worker mantiene la cola activa después de un fallo de proveedor o validación
+que ya se haya registrado en el trabajo. Su ficha permite continuar sin repetir
+los canales entregados. `digest worker --once` devuelve código 1 si ese trabajo
+falla, para que los scripts puedan detectarlo. Los fallos que impiden registrar
+el estado no se silencian ni se tratan como una tarea fallida recuperable.

@@ -116,9 +116,10 @@ cambiar el original. Los reintentos conservan sus datos y modelos. Alcance de la
 comprobaciones en [ampliaciones a petición](docs/ON_DEMAND_FOLLOWUPS.md).
 
 
-> La generación actual conserva el respaldo mecánico anterior: todavía no cumple
-> el requisito nuevo de D-047. Las pruebas reales están detenidas mientras se
-> prepara el [flujo jerárquico](docs/HIERARCHICAL_DIGEST.md).
+La generación jerárquica conserva sus piezas válidas cuando una etapa queda
+pendiente y entrega el informe al completar las validaciones. El recorrido de
+[fase 2](docs/reviews/phase-2.md) está aprobado; la webapp de fase 3 espera su
+validación final en [phase-3.md](docs/reviews/phase-3.md).
 
 ## Capturar, generar y entregar
 

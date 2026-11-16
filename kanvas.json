@@ -1017,7 +1017,7 @@
     {
       "id": "WA-05",
       "title": "Puerta de fase 3",
-      "state": "todo",
+      "state": "doing",
       "group": "WA",
       "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09"],
       "at": "2026-11-04T11:20:37Z",
@@ -1028,6 +1028,16 @@
           "at": "2026-11-10T14:17:57Z",
           "by": "codex",
           "text": "La persona dejó aprobadas también WA06 y WA07 en el tablero. Se añaden como dependencias explícitas de la puerta: la validación de fase exige terminar todas las tareas WA, y ambas forman parte del alcance ya solicitado (modelos configurables desde webapp y comillas Markdown). Esto las integra en el YOLO existente de la fase, sin aprobar trabajo nuevo ni cambiar las exigencias de gates.toml."
+        },
+        {
+          "at": "2026-11-15T20:08:20Z",
+          "by": "codex",
+          "text": "Plan: puerta automática completa con regresiones de fases anteriores, ficha de fase 3 y revisión formal por el revisor independiente. Preparar comprobaciones concretas para la persona sin marcar ni firmar estados humanos; no iniciar operación antes de aprobar la puerta."
+        },
+        {
+          "at": "2026-11-15T20:12:37Z",
+          "by": "codex",
+          "text": "Puerta automática completa: PROVISIONAL (3), sin fallos técnicos. En revisión formal se detectó que un fallo normal de job detenía el worker CLI. Corregido con JobFailure registrado y continuación de la cola, conservando --once con salida 1; dos pruebas nuevas verifican un followup fallido seguido de una captura y el modo de scripts. No cambian estados humanos ni condiciones de aprobación de fase."
         }
       ]
     },
