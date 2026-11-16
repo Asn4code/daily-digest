@@ -1068,6 +1068,11 @@
           "at": "2026-11-16T10:07:52Z",
           "by": "codex",
           "text": "La persona insiste en conservar el DNS institucional al habilitar el acceso. Restricción confirmada: mantener accept-dns=false; no ejecutar tailscale up/reset ni cambiar NetworkManager/resolv.conf para publicar Serve. Verificar CorpDNS=false antes y después de cualquier ajuste de Serve. Si cambia DNS, detener la validación y coordinar con sistemas, sin dar por reparado Kerberos ni firmar comprobaciones."
+        },
+        {
+          "at": "2026-11-16T10:29:41Z",
+          "by": "codex",
+          "text": "Question: La web local responde y el correo de prueba tiene estado SMTP sent. Tailscale sigue indicando «Serve is not enabled on your tailnet». Para continuar debes abrir https://login.tailscale.com/f/serve?node=nLwUZVhAM311CNTRL y habilitar Serve en tu cuenta. ¿Puedes hacerlo y avisarme? No se ha activado la aceptación de DNS: CorpDNS=false y los resolutores institucionales siguen intactos antes y después del intento."
         }
       ]
     },
