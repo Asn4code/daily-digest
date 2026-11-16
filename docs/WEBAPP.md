@@ -251,7 +251,16 @@ proveedor interno puede dejar sin proveedor elegible a un proyecto privado.
 - Escucha solo en `127.0.0.1:{web.port}`. El acceso remoto lo da `tailscale serve` (ver `OPERATIONS.md`).
 - Si la petición trae la cabecera de identidad de Tailscale (`Tailscale-User-Login`), debe coincidir con `web.allowed_tailscale_login`; si no coincide, 403. Verificar en la fase 0 que `tailscale serve` añade esa cabecera en la versión instalada.
 - Formularios con token CSRF (doble envío: cookie `SameSite=Strict` + campo oculto).
-- Cabeceras: `Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`.
+- Cabeceras: `Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: same-origin`.
+- La política `same-origin` evita enviar referencias a otros orígenes y conserva
+  el `Origin` exacto en los formularios del navegador. Con `no-referrer`, Chromium
+  enviaba `Origin: null` y el POST legítimo era rechazado. `Origin: null`, otro
+  origen, otro puerto, identidad ajena o token CSRF incorrecto siguen dando 403.
+- La cookie firmada conserva `HttpOnly`, `SameSite=Strict` y `Secure` en HTTPS.
+  Su nombre incorpora una huella de la instancia (bind, puerto y URL pública),
+  porque las cookies del navegador no distinguen puertos. Así la web de
+  validación local no sustituye la sesión de otra instancia. Al actualizar o
+  reiniciar la web hay que volver a cargar la página antes de enviar un formulario.
 - Plantillas Jinja2 con autoescape; Markdown con `markdown-it-py` (HTML desactivado) y `nh3`.
 - Los SVG de los proyectos nunca se sirven: solo sus PNG rasterizados.
 - El proceso web no ejecuta trabajos: inserta filas en `job` y responde. El worker los ejecuta con el mismo bloqueo que los temporizadores.

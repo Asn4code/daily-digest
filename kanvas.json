@@ -1148,6 +1148,11 @@
           "at": "2026-11-16T11:35:37Z",
           "by": "codex",
           "text": "Puerta 3 --no-manual tras WA-10 done: PROVISIONAL (3), todos los archivos, invariantes, lint/formato/tipos, escenarios T01–T21/T25/T26/T30 y tablero PASS. Revisión adicional aprobada en docs/reviews/wa-10.md. Seguimiento verificado HTTP 200 en loopback y HTTPS privado con resolución puntual; DNS institucional intacto. La lista real está vacía para que la persona revise y guarde sus preguntas en el formulario. Pendiente validar utilidad, contraste activo, generación/recepción y firma humana; no se inicia operación."
+        },
+        {
+          "at": "2026-11-16T13:00:21Z",
+          "by": "codex",
+          "text": "Validación humana: Seguimiento abre, pero Revisar lista responde Solicitud no autorizada. Reproducción real con Chromium/Playwright: POST lleva cookie y Sec-Fetch-Site same-origin, pero Origin null bajo Referrer-Policy no-referrer; middleware exige origen exacto y devuelve 403. Cambiar solo la cabecera de la respuesta a same-origin en el navegador produce POST con origen exacto y vista previa 200. Se corregirá la política de referencia conservando validación estricta de Origin y CSRF; añadir regresión real de navegador y revisión independiente de la corrección."
         }
       ]
     },

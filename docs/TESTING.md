@@ -11,6 +11,17 @@ temas pendientes visibles también en su historial e informes antiguos legibles.
 Los ejemplos de semillas, dinámicas y errores con cristales usan fuentes
 sintéticas; no acreditan resultados científicos de los proyectos piloto.
 
+Los formularios se comprueban también con Chromium real mediante
+`scripts/check_browser_forms.cjs`, usando una instalación existente de Playwright
+y Chromium. Es una comprobación opcional de navegador, sin dependencia nueva del
+servicio: `DIGEST_PLAYWRIGHT_MODULE` indica el módulo instalado y
+`DIGEST_CHROMIUM_EXECUTABLE` el ejecutable. Ejemplo: `node
+scripts/check_browser_forms.cjs http://127.0.0.1:8091 http://127.0.0.1:8090/`.
+Solo abre la lista y su vista previa; nunca guarda temas ni genera informes.
+Comprueba el POST nativo con origen exacto y cookie, incluso tras visitar otra
+instancia local. `tests/unit/test_web_security.py` cubre política de referencia,
+orígenes nulos/ajenos, CSRF, identidad HTTPS y aislamiento de cookies entre puertos.
+
 ## 1. Fixtures: proyectos sintéticos
 
 `tests/fixtures/make_projects.py` (invocado por `make fixtures`) crea en un directorio temporal:

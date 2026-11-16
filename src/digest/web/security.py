@@ -48,6 +48,10 @@ class Security:
         self.public_origin = f"{public.scheme}://{public.netloc}"
         self.public_host = public.hostname
         self.hosts = {"127.0.0.1", "localhost", "::1", public.hostname}
+        # Cookies are scoped to hosts, not ports. Separate local validation and
+        # regular instances so a second tab cannot replace another session.
+        instance = f"{config.bind}:{config.port}|{config.public_base_url}"
+        self.cookie_name = SESSION_COOKIE + "_" + hashlib.sha256(instance.encode()).hexdigest()[:12]
 
     def digest(self, value: str) -> str:
         return hmac.new(self.key, value.encode(), hashlib.sha256).hexdigest()
@@ -72,7 +76,10 @@ class Security:
                     for key, value in {
                         "content-security-policy": CSP,
                         "x-content-type-options": "nosniff",
-                        "referrer-policy": "no-referrer",
+                        # Chromium serializes form Origin as null with
+                        # no-referrer. Keep exact-origin CSRF checks and avoid
+                        # disclosing referrers to other origins.
+                        "referrer-policy": "same-origin",
                         "x-frame-options": "DENY",
                         "cache-control": "no-store",
                     }.items()
@@ -115,7 +122,7 @@ class Security:
             await deny(403)
             return
 
-        nonce = self.session(request.cookies.get(SESSION_COOKIE, ""))
+        nonce = self.session(request.cookies.get(self.cookie_name, ""))
         valid_session = nonce is not None
         if nonce is None:
             nonce = secrets.token_urlsafe(32)
@@ -170,7 +177,7 @@ class Security:
             cookie = Response()
             cookie.raw_headers = []
             cookie.set_cookie(
-                SESSION_COOKIE,
+                self.cookie_name,
                 nonce + "." + self.digest(nonce),
                 httponly=True,
                 secure=request.url.scheme == "https"
