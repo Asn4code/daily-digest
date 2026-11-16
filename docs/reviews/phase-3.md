@@ -292,3 +292,24 @@ temas de benchmark, indicar su ID de proyecto y revisar antes de guardar;
 editar una prioridad y consultar el historial. En una próxima generación,
 comprobar que el resumen del móvil y el detalle conservan preguntas, evidencias,
 límites y temas sin respuesta. Los informes anteriores no se modifican.
+
+### Corrección tras la prueba humana del formulario (2026-11-16)
+
+La persona abrió Seguimiento y obtuvo «Solicitud no autorizada o no válida» al
+pulsar «Revisar lista». La prueba con navegador nativo encontró un fallo que las
+pruebas ASGI y las capturas estáticas no detectaban: `no-referrer` producía
+`Origin: null` en Chromium y el middleware rechazaba el formulario legítimo.
+
+`9ecad51` usa `Referrer-Policy: same-origin`, mantiene el origen exacto y el
+token CSRF obligatorios y separa cookies de las dos instancias locales. El
+constructor y el revisor independiente probaron el formulario en Chromium
+contra la web temporal, también después de abrir la otra instancia: vista previa
+200 con cookie y Origin exacto, sin guardar temas. La revisión adicional está
+en [browser-forms.md](browser-forms.md); confirma además rechazo de orígenes,
+tokens e identidades ajenos y ausencia de Referer al navegar a otro origen.
+
+La web temporal 8091 ya carga la corrección; hay que volver a cargar la página
+para renovar la sesión antes de enviar un formulario anterior al reinicio.
+`make check`: 496 pruebas pasan, lint, formato y tipos correctos. Puerta 3
+`--no-manual`: PROVISIONAL (3), todo automático PASS. El DNS institucional sigue
+intacto. La repetición humana del envío y las firmas de fase siguen pendientes.

@@ -1153,6 +1153,11 @@
           "at": "2026-11-16T13:00:21Z",
           "by": "codex",
           "text": "Validación humana: Seguimiento abre, pero Revisar lista responde Solicitud no autorizada. Reproducción real con Chromium/Playwright: POST lleva cookie y Sec-Fetch-Site same-origin, pero Origin null bajo Referrer-Policy no-referrer; middleware exige origen exacto y devuelve 403. Cambiar solo la cabecera de la respuesta a same-origin en el navegador produce POST con origen exacto y vista previa 200. Se corregirá la política de referencia conservando validación estricta de Origin y CSRF; añadir regresión real de navegador y revisión independiente de la corrección."
+        },
+        {
+          "at": "2026-11-16T13:05:12Z",
+          "by": "codex",
+          "text": "Corregido el formulario en 9ecad51 y cargado en web temporal8091: Chromium nativo envía Origin exacto y preview200 con sesión, también tras visitar8090. Sin temas de prueba guardados. Referrer-Policy same-origin, cookies separadas por instancia; Origin nulo/ajeno, CSRF inválido e identidad ajena siguen403. Revisión independiente aprobada en docs/reviews/browser-forms.md (45 pruebas compartidas y2 privadas, navegador y ausencia de Referer externo). make check pasa496 tests con lint/formato/tipos; puerta automática PROVISIONAL(3), todoPASS. DNS intacto. La persona debe recargar Seguimiento y repetir Revisar lista; no se infiere validación humana del resultado técnico."
         }
       ]
     },
