@@ -1,7 +1,8 @@
 # Seguimiento solicitado por la persona
 
 WA-10, aprobada por la persona en el tablero y el chat el 2026-11-16, incluido
-el formato de la sección en Obsidian y Drive. Implementación en validación. Amplía
+el formato de la sección en Obsidian y Drive. Implementada; revisión técnica
+adicional aprobada en `reviews/wa-10.md`; validación humana pendiente. Amplía
 el cuaderno de WA-09 con preguntas y prioridades independientes de las tareas
 de Kanvas. La aprobación técnica de fase 3 corresponde al código anterior;
 esta ampliación requiere pruebas y una revisión adicional antes de cerrar WA-05.

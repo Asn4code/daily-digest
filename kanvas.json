@@ -1017,7 +1017,7 @@
     {
       "id": "WA-05",
       "title": "Puerta de fase 3",
-      "state": "todo",
+      "state": "doing",
       "group": "WA",
       "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09", "WA-10"],
       "at": "2026-11-04T11:20:37Z",
@@ -1138,6 +1138,16 @@
           "at": "2026-11-16T11:06:42Z",
           "by": "codex",
           "text": "La puerta queda pendiente de WA-10, ampliación solicitada por la persona y propuesta con formato concreto en docs/WATCHLIST.md. Se conserva la revisión técnica del código anterior y la validación humana parcial; no se firma ni se abre operación. Tras aprobar e implementar WA-10 se hará revisión adicional y se retomarán las comprobaciones humanas."
+        },
+        {
+          "at": "2026-11-16T11:34:52Z",
+          "by": "codex",
+          "text": "Plan: reejecutar puerta automática tras WA-10 done, enlazar revisión independiente adicional y conservar firmas pendientes. Guiar validación humana del seguimiento y retomar acceso, revisión activa y generación móvil sin inferir comprensión ni reconfigurar DNS."
+        },
+        {
+          "at": "2026-11-16T11:35:37Z",
+          "by": "codex",
+          "text": "Puerta 3 --no-manual tras WA-10 done: PROVISIONAL (3), todos los archivos, invariantes, lint/formato/tipos, escenarios T01–T21/T25/T26/T30 y tablero PASS. Revisión adicional aprobada en docs/reviews/wa-10.md. Seguimiento verificado HTTP 200 en loopback y HTTPS privado con resolución puntual; DNS institucional intacto. La lista real está vacía para que la persona revise y guarde sus preguntas en el formulario. Pendiente validar utilidad, contraste activo, generación/recepción y firma humana; no se inicia operación."
         }
       ]
     },
@@ -1687,7 +1697,7 @@
     {
       "id": "WA-10",
       "title": "Prioridades y preguntas personales de seguimiento",
-      "state": "doing",
+      "state": "done",
       "group": "WA",
       "deps": ["WA-09", "IN-12"],
       "at": "2026-11-16T11:06:35Z",
@@ -1703,6 +1713,16 @@
           "at": "2026-11-16T11:30:48Z",
           "by": "codex",
           "text": "La lista ya permite revisión previa, alta, edición, pausa e historial. Diario/semanal fijan preguntas por trabajo, evalúan con validador y cotejo y conservan pendientes en todos los canales. Aprobación humana del diseño y formato registrada en D-061. Pasan 24 regresiones nuevas, ruff y mypy; revisión independiente adicional en curso. Corregidos dos casos señalados por el revisor: base anterior en días sin novedades deduplicadas e historial de informes con temas pendientes. La suite completa se repetirá tras estas correcciones."
+        },
+        {
+          "at": "2026-11-16T11:34:51Z",
+          "by": "codex",
+          "text": "make check pasa: 493 tests, ruff, formato y mypy. Revisión adicional independiente aprobada sobre df8cdf7 en docs/reviews/wa-10.md: cinco pruebas propias y capturas 390px, sin bloqueantes. Puerta 3 --no-manual previa al finish: todos los archivos/reglas/comandos/escenarios PASS; único FAIL es WA-10 aún doing. Se repetirá tras finish sin cambiar gates.toml. Web y worker temporales actualizados en 8091; Seguimiento responde 200 y DNS institucional intacto. Utilidad humana pendiente en WA-05."
+        },
+        {
+          "at": "2026-11-16T11:34:51Z",
+          "by": "codex",
+          "text": "Ya puedes añadir una lista propia de temas o preguntas, editar prioridad/estado y conservar su historial sin tarea Kanvas. Diario y semanal usan preguntas fijadas, evaluación con evidencias y cotejo, resumen móvil y detalle completo web/vault; distinguen datos insuficientes y días estables con base comparable. make check pasa (493 tests, 24 nuevos); revisión independiente adicional aprobada, cinco pruebas privadas y pantallas 390px sin overflow. Puerta previa: todo automático PASS salvo tablero por esta tarea aún doing; se repite al cerrarla. Comprueba Seguimiento en la web temporal: añade tus tres temas de benchmark, ajusta prioridad y revisa el historial. La firma de fase y la utilidad de los próximos informes siguen siendo tuyas."
         }
       ]
     }

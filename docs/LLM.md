@@ -718,3 +718,32 @@ antes de llamar al proveedor. Las selecciones y preguntas son datos no fiables,
 no instrucciones. Reproducir una métrica no acredita el experimento y una nota
 de agente no se convierte en verificación independiente. Una consecuencia para
 el foco sigue siendo una propuesta, sin aceptar planes ni cerrar revisiones.
+
+## 20. Preguntas de seguimiento (WA-10)
+
+El inventario fija las fichas activas de `watchlist` con sus revisiones y ámbitos.
+La ruta `conceptual` y el prompt `watchlist` generan una `WatchAssessment` por
+pregunta; el cotejo `grounding` debe aprobarla antes de añadir `watch:<id>` y su
+`check:watch:<id>`. Se aplican el validador común y restricciones adicionales de
+evidencia actual, base comparable y cobertura. Una generación intentada que falla
+bloquea el informe; no se sustituye con una sección científica mecánica.
+
+Las preguntas son datos humanos no fiables y no autorizan rutas ni procesos.
+Hasta treinta preguntas activas y 12 000 caracteres de títulos/preguntas; el
+paquete de cada evaluación tiene hasta 64 000 caracteres o el límite configurado
+menor, sin omisión de evidencias para declarar ausencia de novedades. Un tema
+fuera del presupuesto global queda explícitamente pendiente en el informe.
+
+Una base anterior debe usar la misma revisión de la pregunta; se buscan hasta
+tres informes completos del mismo tipo y anteriores al intervalo. Las evidencias
+históricas se adjuntan como contexto y nunca se cuentan como actuales. Esto
+permite evaluar estabilidad en días sin novedades deduplicadas: `no_new` exige
+base `news`/`no_new` y cobertura completa, además del cotejo. Sin base o datos
+suficientes no se infiere ausencia de trabajo. El semanal pide contraste crítico
+de interpretaciones anteriores con sus condiciones originales.
+
+Preguntas, evaluaciones y evidencias pertinentes orientan el plan diario y la
+síntesis semanal con toda su privacidad ancestral. Retirar un proyecto no
+autoriza enviarlas a un proveedor externo; si falta su política, se indica la
+indisponibilidad. La selección de modelos se comparte con las preferencias
+de la etapa conceptual. Contrato completo en `WATCHLIST.md`.

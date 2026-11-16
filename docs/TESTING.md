@@ -2,6 +2,15 @@
 
 Ningún test usa proveedores LLM reales, SMTP real, Drive real ni proyectos reales de la persona. Todo corre contra proyectos sintéticos y dobles deterministas.
 
+WA-10 se comprueba en `tests/e2e/test_watchlist.py`: revisión de lista antes de
+guardar, edición e historial, reenvíos y concurrencia, lotes atómicos, prioridad,
+pausa y límites; ámbito histórico de privacidad; preguntas fijadas al reanudar;
+diario/semanal con cotejo y todos los canales; HTML/CSRF y proyectos intactos;
+evidencias actuales frente a históricas, base comparable para ausencia de novedades,
+temas pendientes visibles también en su historial e informes antiguos legibles.
+Los ejemplos de semillas, dinámicas y errores con cristales usan fuentes
+sintéticas; no acreditan resultados científicos de los proyectos piloto.
+
 ## 1. Fixtures: proyectos sintéticos
 
 `tests/fixtures/make_projects.py` (invocado por `make fixtures`) crea en un directorio temporal:

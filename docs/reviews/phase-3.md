@@ -267,3 +267,28 @@ Se mantienen vacías las casillas originales: la apertura del enlace del correo
 en ambos dispositivos y la recepción humana aún no se han confirmado de forma
 literal. No se infieren de SMTP `sent` ni del acceso por enlaces del chat. La
 revisión activa y la generación desde móvil pueden comprobarse a continuación.
+
+### Ampliación aprobada: seguimiento solicitado (WA-10, 2026-11-16)
+
+La persona aprobó el diseño y formato de `docs/WATCHLIST.md` en el tablero y el
+chat. Se implementó en `df8cdf7`, sin interpretar esa aprobación como firma de
+fase ni cierre de revisión humana. La revisión adicional independiente está en
+[wa-10.md](wa-10.md), aprobada técnicamente por una sesión ajena a la construcción.
+Conserva el alcance histórico del veredicto anterior y registra dos correcciones
+revalidadas: comparación en días estables e historial de temas pendientes.
+
+`make check`: 493 pruebas pasan, incluidos 24 casos de seguimiento. El revisor
+añadió cinco comprobaciones privadas y capturas de lista, ficha e informe a
+390 px, sin desbordamiento. Los ejemplos científicos usan fixtures; no son
+resultados ni conclusiones de los proyectos piloto.
+
+La web y el worker temporales del perfil `build/phase3-live/config.yaml` se
+reiniciaron para cargar el código nuevo en el mismo puerto 8091. No hay jobs
+ejecutándose al comenzar ese reinicio. Se verificó `/watchlist` localmente y
+se mantuvo intacto `/etc/resolv.conf`; no se reconfiguró Tailscale ni el DNS.
+
+Comprobación humana adicional pendiente: abrir «Seguimiento», pegar los tres
+temas de benchmark, indicar su ID de proyecto y revisar antes de guardar;
+editar una prioridad y consultar el historial. En una próxima generación,
+comprobar que el resumen del móvil y el detalle conservan preguntas, evidencias,
+límites y temas sin respuesta. Los informes anteriores no se modifican.
