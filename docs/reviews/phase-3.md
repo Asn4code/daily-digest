@@ -313,3 +313,12 @@ para renovar la sesión antes de enviar un formulario anterior al reinicio.
 `make check`: 496 pruebas pasan, lint, formato y tipos correctos. Puerta 3
 `--no-manual`: PROVISIONAL (3), todo automático PASS. El DNS institucional sigue
 intacto. La repetición humana del envío y las firmas de fase siguen pendientes.
+
+### Confirmación humana del formulario corregido (2026-11-16)
+
+Tras recargar y repetir el formulario, la persona confirma «hecho y funciona».
+La consulta de solo lectura del perfil de validación encuentra una ficha activa
+guardada para `benchmark`: «Aumento de semillas por modelo». Queda comprobado
+el flujo de entrada y guardado en ese equipo; no se infiere que se hayan añadido
+los otros temas, editado prioridades o validado el seguimiento en un informe.
+La revisión activa, generación/recepción y firma de fase conservan sus pendientes.

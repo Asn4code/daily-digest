@@ -1158,6 +1158,11 @@
           "at": "2026-11-16T13:05:12Z",
           "by": "codex",
           "text": "Corregido el formulario en 9ecad51 y cargado en web temporal8091: Chromium nativo envía Origin exacto y preview200 con sesión, también tras visitar8090. Sin temas de prueba guardados. Referrer-Policy same-origin, cookies separadas por instancia; Origin nulo/ajeno, CSRF inválido e identidad ajena siguen403. Revisión independiente aprobada en docs/reviews/browser-forms.md (45 pruebas compartidas y2 privadas, navegador y ausencia de Referer externo). make check pasa496 tests con lint/formato/tipos; puerta automática PROVISIONAL(3), todoPASS. DNS intacto. La persona debe recargar Seguimiento y repetir Revisar lista; no se infiere validación humana del resultado técnico."
+        },
+        {
+          "at": "2026-11-16T13:06:43Z",
+          "by": "codex",
+          "text": "La persona confirma «hecho y funciona» tras recargar y repetir el formulario. Consulta de solo lectura del perfil temporal: una ficha activa guardada en benchmark, Aumento de semillas por modelo. Se registra entrada y guardado funcionales en su equipo. No se infieren otros temas añadidos, edición de prioridades, utilidad del seguimiento en informe ni firma humana de fase."
         }
       ]
     },
