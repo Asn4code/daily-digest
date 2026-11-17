@@ -763,3 +763,20 @@ etiqueta y el hash se validan juntos; no autorizan una cantidad, unidad u
 operación adyacente. Las etiquetas `lote`/`batch` solo se distinguen de medidas
 si constan en la fuente y conservan un contexto de prosa, sin unidades;
 «mencionado/a/s» se admite como continuación gramatical explícita (D-066).
+
+La extracción de fuentes (`source` v10) pide afirmaciones breves sobre estado,
+alcance y decisiones, con fragmentos numéricos mínimos y estructuras en oraciones
+separadas. Esto reduce catálogos repetidos y asociaciones ambiguas entre un
+recuento y un ID; no permite omitir cifras decisivas ni controles. La propuesta
+de eximir estructuras tras una cantidad entre paréntesis se descartó por escapes
+de unidades, documentados en `reviews/structure-parentheses.md`. El validador
+conserva su rechazo; el cambio de redacción no declara válido un informe pendiente.
+
+El límite del mensaje de generación y del cotejo incluye los reintentos: el
+router mide la conversación serializada completa antes de cada envío. Si las
+instrucciones de reparación no caben, no envía ese intento ni recorta fuentes;
+prueba el siguiente proveedor permitido con el paquete original. Si no obtiene
+salida válida, conserva el nodo pendiente. El router registra el diagnóstico de
+presupuesto en su lista de incidencias; algunos consumidores, como el cotejo,
+conservan todavía un motivo genérico de indisponibilidad en el estado persistido
+(D-067). Los límites de mensaje y esquema siguen siendo independientes.

@@ -100,6 +100,7 @@ def execute(db: sqlite3.Connection, config: Config, ident: str, router: Router) 
             validate=lambda v: checked(v, package),
             section="followup:" + ident,
             package=package,
+            max_message_chars=limit,
         )
         if response is None:
             raise ValueError("Follow-up generation unavailable")
@@ -125,6 +126,7 @@ def execute(db: sqlite3.Connection, config: Config, ident: str, router: Router) 
             validate=lambda v: check_grounding(v, audit_package),
             section="followup-check:" + ident,
             package=audit_package,
+            max_message_chars=limit,
         )
         if audit is None or not audit.value.approved:
             raise ValueError("Follow-up source fidelity not established")

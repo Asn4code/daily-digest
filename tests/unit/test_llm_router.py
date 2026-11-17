@@ -510,3 +510,56 @@ def test_timeout_and_input_diagnostics_are_distinct_from_validation(
         assert len(requests) == (3 if failure == "timeout" else 0)
         assert "PRIVATE_TIMEOUT_BODY" not in repr(errors)
     (tmp_path / "projects/proj-fail/no-access").chmod(0o700)
+
+
+@pytest.mark.parametrize("fallback", [True, False])
+def test_repair_respects_the_complete_message_budget(tmp_path, monkeypatch, fallback):
+    config = load_config(build_projects(tmp_path / "projects"))
+    config.projects[0].external_allowed = fallback
+    for provider in config.llm.providers.values():
+        monkeypatch.setenv(provider.api_key_env, "synthetic-key")
+    messages = [{"role": "user", "content": "Fuente íntegra: µ y control pendiente."}]
+    limit = len(json.dumps(messages, ensure_ascii=False))
+    requests = []
+
+    def respond(request):
+        wire = json.loads(request.content)
+        requests.append(wire)
+        value = {"valid": len(requests) > 1}
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
+
+    def validate(value):
+        if not value["valid"]:
+            raise ValueError("unsupported_number")
+        return value
+
+    with closing(connect(tmp_path / "db.sqlite")) as db:
+        router = Router(db, config, client=Client(transport=httpx.MockTransport(respond)))
+        result = router.generate(
+            "extract",
+            project_ids={config.projects[0].id},
+            prompt_name="extract",
+            prompt_version="budget",
+            messages=messages,
+            schema={"type": "object"},
+            validate=validate,
+            max_message_chars=limit,
+        )
+        assert (result is not None) == fallback
+        assert len(requests) == (2 if fallback else 1)
+        assert all(wire["messages"] == messages for wire in requests)
+        assert any(issue["rule"] == "repair_message_budget_exceeded" for issue in router.issues)
+        if fallback:
+            assert result.provider == "nan"
+        requests.clear()
+        result = router.generate(
+            "extract",
+            project_ids={config.projects[0].id},
+            prompt_name="extract",
+            prompt_version="oversized",
+            messages=messages,
+            schema={"type": "object"},
+            validate=validate,
+            max_message_chars=limit - 1,
+        )
+        assert result is None and not requests

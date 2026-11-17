@@ -59,6 +59,7 @@ def execute(db: sqlite3.Connection, config: Config, review_id: str, router: Rout
         validate=checked,
         section="review:" + review_id,
         package=package,
+        max_message_chars=limit,
     )
     if response is None:
         raise ValueError("Contrast unavailable")
@@ -82,6 +83,7 @@ def execute(db: sqlite3.Connection, config: Config, review_id: str, router: Rout
         validate=lambda value: check_grounding(value, audit_package),
         section="review-check:" + review_id,
         package=audit_package,
+        max_message_chars=limit,
     )
     if audit is None or not audit.value.approved:
         raise ValueError("Contrast fidelity not established")

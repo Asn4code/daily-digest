@@ -1017,7 +1017,7 @@
     {
       "id": "WA-05",
       "title": "Puerta de fase 3",
-      "state": "todo",
+      "state": "doing",
       "group": "WA",
       "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09", "WA-10", "WA-11"],
       "at": "2026-11-04T11:20:37Z",
@@ -1178,6 +1178,21 @@
           "at": "2026-11-16T13:25:20Z",
           "by": "codex",
           "text": "La persona aprueba WA-11 para corregir el bloqueo de contexto inicial detectado al generar sus dos preguntas. Ensayo retrospectivo job2 sigue ejecutándose con inventario fijado y revisión independiente preparatoria de originales. Se implementará la ampliación aprobada y después se retomará la puerta; firmas humanas intactas."
+        },
+        {
+          "at": "2026-11-17T08:42:22Z",
+          "by": "codex",
+          "text": "Plan: repetir puerta3 sobre código estable tras WA-11, actualizar evidencia de validación y completar el avance retrospectivo con las dos preguntas humanas sin entrega hasta validar. Mantener revisiones activas y firma humana pendientes; no iniciar fase4 ni cambiar DNS."
+        },
+        {
+          "at": "2026-11-17T08:47:45Z",
+          "by": "codex",
+          "text": "WA-11 terminada con573 tests PASS y revisión técnica independiente. Puerta3 --no-manual da PROVISIONAL: archivos, invariantes, lint, tipos, escenarios T01–T21/T25/T26/T30 y tablero PASS. Fase no firmada; no se inicia fase4. Propuesta de exención PDB tras cantidad retirada por insegura (reviews/structure-parentheses.md); sourcev10 revisado pide afirmaciones breves y conserva cifras decisivas/controles sin tocar validador. Ensayo job3 reanudado con preguntas/inventario/modelos fijados y sin entrega; todas las revisiones previas se conservan. Web temporal8091 actualizada, HTTP200; resolv.conf mantiene exclusivamente DNS institucionales."
+        },
+        {
+          "at": "2026-11-17T08:51:28Z",
+          "by": "codex",
+          "text": "La suite tras sourcev10 detectó3 reparaciones de fuente que excedían24k al añadir instrucciones. Corregido en router: límite explícito sobre conversación completa antes de cada envío, incluidos reintentos; sin recortar fuentes ni aumentar límites, respaldo con paquete original y pendiente si no valida. Generación y cotejo reciben sus límites existentes.21 pruebas focalizadas PASS y suite completa en curso, revisión independiente solicitada. Exención PDB sigue retirada. Prueba sintética de disponibilidad de mimo-v2.5 rechazada; no se cambia selección congelada GLM/Qwen ni se envían evidencias a ese modelo."
         }
       ]
     },
@@ -1759,7 +1774,7 @@
     {
       "id": "WA-11",
       "title": "Escalar el seguimiento con contexto histórico jerárquico",
-      "state": "doing",
+      "state": "done",
       "group": "WA",
       "deps": ["WA-10", "IN-11"],
       "at": "2026-11-16T13:16:26Z",
@@ -1795,6 +1810,11 @@
           "at": "2026-11-17T08:36:36Z",
           "by": "codex",
           "text": "La fuente Git y la etiqueta lote 1 del ensayo real producían falsos rechazos numéricos. Se separan identidades calificadas completas y citadas de medidas, con pruebas adversariales de hashes ajenos/abreviados y unidades pegadas, entre paréntesis u operadores. El primer intento fue rechazado por revisión independiente; corregido y en revalidación. Job3 reanudado con inventario histórico exacto sin recaptura en un arnés privado, sin entrega ni cambio de cobertura. Suite completa en curso; la muestra real sigue pendiente."
+        },
+        {
+          "at": "2026-11-17T08:42:21Z",
+          "by": "codex",
+          "text": "El seguimiento ya construye contexto por niveles con fuentes coherentes completas, reutilización validada y manifiesto de todas las entradas y padres. Verificado con make check:573 pruebas PASS, incluida generación sintética de2600 evidencias, reanudación/caché, controles entre resultados, privacidad y manipulación de manifiestos. Revisiones independientes WA-11, timestamps e identidades aprobadas; correcciones subidas. Puerta3 ejecutada con entorno .venv: archivos, reglas, lint, tipos y todos los escenarios PASS; solo bloqueaba esta tarea todavía doing. Ensayo real conservado sin entrega: captura inicial parcial y unidades indivisibles siguen pendientes; el avance retrospectivo de dos preguntas continúa con rechazos/timeouts de proveedores. No se declara ese informe completo ni se firma la fase. Comprobar en WA-05 las dos preguntas en un informe final validado y su utilidad en móvil/detalle."
         }
       ]
     }

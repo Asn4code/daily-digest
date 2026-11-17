@@ -399,6 +399,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                 section=key,
                 package=payload,
                 deadline=deadline,
+                max_message_chars=limit,
             )
             if response is None:
                 report.pending[key] = router.issues[before:] or [
@@ -460,6 +461,9 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                 section="check:" + key,
                 package=audit_package,
                 deadline=deadline,
+                max_message_chars=min(
+                    128_000, config.limits.max_project_package_chars * len(project_ids)
+                ),
             )
             if audited is None:
                 mark_pending(key, "grounding", "grounding_unavailable")

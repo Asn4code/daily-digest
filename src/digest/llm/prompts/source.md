@@ -1,6 +1,6 @@
 ---
 name: source
-version: 9
+version: 10
 task: extract
 ---
 Ayuda a entender una unidad de evidencia científica. Devuelve en español solo
@@ -26,6 +26,16 @@ etiqueta, unidad y condición juntos. No reformules etiquetas de recuentos ni
 conviertas abreviaturas de artefactos en otras unidades. No calcules equivalencias
 ni duraciones; no escondas cifras escribiéndolas con palabras. Los IDs de tareas
 y pasos no son medidas. Fechas de procedencia en ISO (AAAA-MM-DD) desde metadatos.
+
+Redacta afirmaciones breves centradas en estado, alcance y decisiones, evitando
+transcribir tablas o listas enteras de parámetros. Conserva los controles y
+límites relevantes, incluidos los que cambian la interpretación del resultado.
+Si necesitas mencionar un identificador de estructura junto a un recuento,
+separa ambas afirmaciones en oraciones: el identificador no es una unidad del
+recuento. No insertes listas de IDs entre cantidades u operaciones. Las citas
+numéricas deben ser fragmentos mínimos que conserven valor, unidad/etiqueta y
+condición; el original completo permanece en las evidencias. No omitas una
+cifra decisiva para evitar la validación ni la sustituyas por palabras.
 
 initial_inventory es referencia inicial; historical_reference es un evento anterior
 descubierto ahora: ninguno es trabajo nuevo. observed_change solo acredita cuándo

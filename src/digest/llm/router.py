@@ -62,6 +62,7 @@ class Router:
         section: str | None = None,
         deadline: float | None = None,
         package: dict[str, Any] | None = None,
+        max_message_chars: int | None = None,
     ) -> Routed | None:
         config = for_task(self.config, task)
         projects = {p.id: p for p in config.projects}
@@ -163,6 +164,22 @@ class Router:
                     assert cursor.lastrowid is not None
                     call_ids.append(cursor.lastrowid)
 
+                if (
+                    max_message_chars is not None
+                    and len(json.dumps(conversation, ensure_ascii=False)) > max_message_chars
+                ):
+                    self.issues.append(
+                        {
+                            "stage": task,
+                            "section": section or task,
+                            "category": "input",
+                            "rule": "repair_message_budget_exceeded"
+                            if repair
+                            else "message_budget_exceeded",
+                            "field": "$",
+                        }
+                    )
+                    break
                 try:
                     result = self.client.complete(
                         provider,

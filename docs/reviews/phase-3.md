@@ -345,3 +345,49 @@ Se mantienen fechas y todos los resultados de ese intervalo; no representa
 actividad del 16 de noviembre. Las preguntas actuales quedan fijadas y no se
 entrega ni cierra el intervalo. Su resultado y revisión independiente se
 registrarán al terminar; esta nota no declara que ya haya un informe completo.
+
+
+### Escalado aprobado y correcciones de procedencia (2026-11-17)
+
+La persona aprobó WA-11 en el tablero y en el chat el 16 de noviembre. Se ha
+implementado la propuesta: hojas coherentes acotadas, reutilización de fuentes
+validadas, reducción por niveles y manifiesto de padres e inventario exactos.
+La revisión independiente de [WA-11](wa-11.md) está aprobada técnicamente;
+conserva la cobertura parcial y los casos indivisibles que exceden el presupuesto
+como pendientes, sin recortar fuentes ni elevar límites. La prueba sintética de
+2600 evidencias no acredita completitud de la captura real de arranque.
+
+El ensayo retrospectivo con las dos preguntas continúa en el trabajo 3, con
+`glm5.3-flash` para extracción, contexto y cotejo, conservando su inventario,
+intervalo y preguntas. No se envía ni representa el estado del 17 de noviembre.
+Una revisión anterior obtuvo evaluación y cotejo válidos para cristales, pero no
+completó el informe. El diagnóstico permitió corregir falsos rechazos de fechas
+ISO e identidades Git/etiquetas de lote; sus revisiones independientes están en
+[provenance-timestamps.md](provenance-timestamps.md) y
+[source-identifiers.md](source-identifiers.md). Los hallazgos del primer intento
+se documentan como corregidos, sin borrar las reproducciones.
+
+La validación del informe exacto, la comprobación humana y la firma de fase
+siguen pendientes. Ninguna de estas revisiones técnicas marca comprensión humana
+ni autoriza publicar un informe incompleto.
+
+
+### Presupuesto de reparaciones (2026-11-17)
+
+La primera suite completa estable tras WA-11 pasó 573 pruebas. El prompt
+`source` v10, que pide fuentes más concisas conservando cifras decisivas,
+expuso después tres fallos de presupuesto en reparaciones de extracción:
+las instrucciones adicionales podían hacer superar los 24 000 caracteres.
+El router comprueba ahora el mensaje completo antes de cada intento de fuente,
+síntesis y cotejo; si la reparación no cabe, conserva el paquete original para
+el respaldo o deja el nodo pendiente. No aumenta límites ni elimina evidencias.
+Las pruebas cubren la frontera exacta, Unicode, respaldo permitido/privado y
+un primer mensaje excesivo. La validación final y la revisión independiente
+se registran en sus notas; no se reutiliza el resultado anterior para aprobar
+este cambio.
+
+La web temporal en 8091 está actualizada y responde tanto por localhost como
+por HTTPS privado. Se verificó que `/etc/resolv.conf` mantiene exclusivamente
+los DNS institucionales. La cola temporal atiende nuevas solicitudes sin
+reencolar automáticamente los ensayos históricos fallidos; no sustituye el
+despliegue systemd pendiente de fase 4.
