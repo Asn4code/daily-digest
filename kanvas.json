@@ -1208,6 +1208,11 @@
           "at": "2026-11-17T11:53:17Z",
           "by": "codex",
           "text": "Diagnóstico reproducido con cinco ejemplos sintéticos: ID PDB tras recuento entre paréntesis, etiqueta con Markdown, rango seguido de mediante, condicional si y lote seguido de quedó. Son rechazos de asociaciones/formato y no justifican aceptar 5 semillas desde semillas1–5 ni unidades nuevas. Propuesta WA-12 en docs/NUMERIC_VALIDATION.md para abordar el contraste de forma común y conservadora, con regresiones adversariales y revisión independiente. Se añade como dependencia de la puerta; sigue propuesta hasta aprobación humana. No se ha modificado producción ni se relanzó otro informe completo."
+        },
+        {
+          "at": "2026-11-17T11:56:22Z",
+          "by": "codex",
+          "text": "Question: ¿Puedes aprobar WA-12 en el tablero? Propuesta concreta docs/NUMERIC_VALIDATION.md, commit08df7d1: corregir cinco falsos rechazos numéricos conservando unidades, rangos, originales y controles. Revisión preparatoria independiente sin bloqueantes; implementación no iniciada. Kanvas exige aprobación humana de nuevas propuestas incluso enlazadas al YOLO actual. El ensayo aislado de semillas conserva estado pendiente y no publica ni entrega."
         }
       ]
     },
