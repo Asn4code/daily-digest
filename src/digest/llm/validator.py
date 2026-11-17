@@ -335,6 +335,11 @@ MONTHS = {
 SPANISH_DATE = re.compile(
     r"\b(\d{1,2})\s+de\s+(" + "|".join(MONTHS) + r")\s+de(?:l)?\s+(\d{4})\b", re.I
 )
+ISO_TIMESTAMP = re.compile(r"(?<!\d)\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}[^\s\"'<>()[\]{},;!?“”‘’«»]*")
+ISO_TIMESTAMP_VALUE = re.compile(
+    r"\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?"
+    r"(?:[Zz]|[+-]\d{2}:\d{2})?"
+)
 
 
 COMPOUND_UNIT = re.compile(
@@ -490,6 +495,31 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             return " " if known and not (prefix and prefix[-1].isdigit()) else match.group()
 
         cleaned = REFERENCE_LABEL.sub(label, cleaned)
+
+        def timestamp(match: re.Match[str]) -> str:
+            literal = match.group().rstrip(".…")
+            if not ISO_TIMESTAMP_VALUE.fullmatch(literal):
+                raise ValidationError("unsupported_number")
+
+            def canonical_stamp(stamp: str) -> str:
+                stamp = stamp[:10] + "T" + stamp[11:]
+                return stamp[:-1] + "+00:00" if stamp.endswith(("Z", "z")) else stamp
+
+            utc_literal = canonical_stamp(literal)
+            if not any(
+                literal in entry.excerpt
+                or any(
+                    stamp is not None and canonical_stamp(stamp) == utc_literal
+                    for stamp in (entry.event_at, entry.observed_at)
+                )
+                for entry in cited
+            ):
+                raise ValidationError("unsupported_number")
+            # The offset belongs to this exact timestamp. Do not reinterpret
+            # its 00:00 as another event clock or as a scientific measurement.
+            return " "
+
+        cleaned = ISO_TIMESTAMP.sub(timestamp, cleaned)
 
         def spanish_date(match: re.Match[str]) -> str:
             dated = f"{match[3]}-{MONTHS[match[2].casefold()]}-{int(match[1]):02d}"

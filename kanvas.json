@@ -1780,6 +1780,11 @@
           "at": "2026-11-16T14:02:51Z",
           "by": "codex",
           "text": "Primer make check:509 tests PASS. Revisión independiente detecta corte de unidad científica por resultados distintos; corregido con unidades globales por proyecto y controles asociados antes de empaquetar, rechazo de reutilización parcial que separe control, y comprobación exacta del inventario preparado (incluido contexto auxiliar). Añadidas3 regresiones;36 tests focalizados pasan. Ensayo real job2 quedó pendiente por cifras/semántica rechazadas y timeouts; originales/verificación conservados. Se repite intervalo histórico en job3 con glm5.3-flash de NaN para extracción, contexto y cotejo, disponibilidad sintética verificada; sin cambiar preguntas ni entregar."
+        },
+        {
+          "at": "2026-11-16T14:11:49Z",
+          "by": "codex",
+          "text": "Además del escalado se reprodujo un falso rechazo numérico: un timestamp ISO idéntico a event_at/observed_at se rechazaba al interpretar su zona +00:00 como hora independiente. Corregido para aceptar solo timestamps completos exactos citados (Z equivalente UTC), sin convertir offsets ni aceptar mezclas de fecha/hora.13 nuevas regresiones y110 focalizadas PASS; números/unidades inventados siguen rechazados. Revisión independiente adicional solicitada. Job3 interrumpido de forma controlada y reanudado sin entrega para cargar el validador: inventario, intervalo, preguntas y selección GLM conservados; jobs1/2 no reencolados."
         }
       ]
     }

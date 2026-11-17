@@ -747,3 +747,11 @@ síntesis semanal con toda su privacidad ancestral. Retirar un proyecto no
 autoriza enviarlas a un proveedor externo; si falta su política, se indica la
 indisponibilidad. La selección de modelos se comparte con las preferencias
 de la etapa conceptual. Contrato completo en `WATCHLIST.md`.
+
+Los timestamps ISO se cotejan como una unidad contra la evidencia citada:
+extracto literal o `event_at`/`observed_at`, conservando offset y precisión.
+Solo se normalizan `T`/`t` y `Z`/`z` respecto a `+00:00`. Un offset no es otra
+hora del evento ni una medida científica. Un token con fecha y `T`/`t` no puede
+volver al análisis por componentes para combinar una fecha y una hora de
+procedencias distintas. Las cifras y unidades del resto del texto se siguen
+validando de forma independiente (D-065).
