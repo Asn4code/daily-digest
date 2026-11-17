@@ -8,7 +8,16 @@ from typing import Any
 from pydantic import BaseModel
 
 from digest.llm import schemas
-from digest.llm.quantities import PDB_CHAIN_ID, QUOTES, Quantity, quantities, unit_at, view
+from digest.llm.quantities import (
+    PDB_CHAIN_ID,
+    QUOTES,
+    REFERENCE_LABEL,
+    Quantity,
+    quantities,
+    reference_token,
+    unit_at,
+    view,
+)
 from digest.report.model import EvidenceEntry, Report
 
 
@@ -260,10 +269,6 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
 
 
 # LLM output checks are independent of rendering and run again at publication.
-REFERENCE_LABEL = re.compile(
-    r"\b(?:[A-Z]{2,}[A-Z0-9]*-\d+|(?i:Step|paso|proyecto|intento|lote|batch)\s+\d+)\b"
-    r"(?![.,]\d)"
-)
 GIT_OBJECT_ID = re.compile(r"(?:[a-fA-F0-9]{64}|[a-fA-F0-9]{40})")
 GIT_IDENTITY = re.compile(
     r"\b(?:commit|sha(?:-?(?:1|256))?|hash|identificador|id|revisión)"
@@ -351,7 +356,12 @@ def _present(
                 )
             ):
                 return True
-        for candidate in quantities(view(entry.excerpt)):
+        source = view(entry.excerpt)
+        # Both sides are untrusted at the boundary. A raw project string must
+        # not forge the namespace introduced later by the identity tokenizer.
+        if any(marker in source for marker in ("PDBTOKEN", "SOURCEREFERENCE", "OPAQUEREF")):
+            continue
+        for candidate in quantities(source):
             if not candidate.valid or not math.isclose(
                 number, candidate.value, rel_tol=1e-6, abs_tol=0
             ):
@@ -386,7 +396,7 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             return
         # IDs may contain digits; do not mistake those references for measurements.
         cleaned = view(value)
-        if "PDBTOKEN" in cleaned:
+        if any(marker in cleaned for marker in ("PDBTOKEN", "SOURCEREFERENCE", "OPAQUEREF")):
             raise ValidationError("unsupported_number")
         cited = entries(refs)
         known_structures = {
@@ -423,12 +433,17 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             known = " ".join(match.group().casefold().split()) in known_labels
             prefix = cleaned[: match.start()].rstrip()
             is_batch = bool(re.match(r"(?i)(?:lote|batch)\b", match.group()))
+            if not known and not (prefix and (prefix[-1].isdigit() or prefix[-1] in "/^*·×+-")):
+                raise ValidationError("unsupported_number")
             if is_batch and not identity_position(match.start(), match.end()):
                 raise ValidationError("unsupported_number")
             # A task-like label directly after a number may be a unit.
-            return " " if known and not (prefix and prefix[-1].isdigit()) else match.group()
+            return (
+                reference_token(" ".join(match.group().casefold().split()))
+                if known and not (prefix and prefix[-1].isdigit())
+                else match.group()
+            )
 
-        cleaned = REFERENCE_LABEL.sub(label, cleaned)
         known_commits = {
             entry.locator.split(":", 1)[0].casefold()
             for entry in cited
@@ -441,10 +456,11 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
                 match.start(), match.end()
             ):
                 raise ValidationError("unsupported_number")
-            # Consume the algorithm label too: SHA-256 is an identity qualifier.
-            return " "
+            # The qualifier is not a number; preserve the full identity payload.
+            return reference_token(match[1].casefold())
 
         cleaned = GIT_IDENTITY.sub(commit_id, cleaned)
+        cleaned = REFERENCE_LABEL.sub(label, cleaned)
 
         def timestamp(match: re.Match[str]) -> str:
             literal = match.group().rstrip(".…")

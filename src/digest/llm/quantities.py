@@ -78,6 +78,16 @@ COMPOUND_UNIT = re.compile(
     r"[^\s,;:()\[\]{}<>/]*(?:\s*/\s*[^\s,;:()\[\]{}<>/]+)*)"
 )
 
+REFERENCE_LABEL = re.compile(
+    r"\b(?:[A-Z]{2,}[A-Z0-9]*-\d+|(?i:Step|paso|proyecto|intento|lote|batch)\s+\d+)\b"
+    r"(?![.,]\d)"
+)
+SOURCE_GIT = re.compile(
+    r"\b(?:commit|sha(?:-?(?:1|256))?|hash|identificador|id|revisión)"
+    r"[\s:=#\"'«»“”‘’()\[\]]+([a-fA-F0-9]{64}|[a-fA-F0-9]{40})(?!\w)",
+    re.I,
+)
+
 FILE_LABELS = {"conf", "pdb", "mmcif", "npz", "csv", "json", "png", "pdf", "svg"}
 QUOTES = "\"'«»“”‘’"
 UNIT_PUNCTUATION = ".!?" + QUOTES
@@ -127,7 +137,7 @@ def unit_at(text: str) -> str | None:
 # their literal content, including underscores and operators. Unmatched markers
 # remain text and cannot be used to hide quantities or dimensions.
 MARKDOWN = MarkdownIt("commonmark", {"html": True})
-OPAQUE = re.compile(r"PDBTOKEN[0-9][A-Za-z0-9]{3}_[A-Za-z0-9]+")
+OPAQUE = re.compile(r"OPAQUEREF[a-p]+")
 COUNT_LABELS = {
     "estructuras",
     "pares",
@@ -167,8 +177,24 @@ def view(text: str) -> str:
     return re.sub(r"(?<=\d)(?:\s*\.){2,}\s*(?=[+\-]?\d)", " .. ", plain).replace("−", "-")
 
 
+def reference_token(value: str) -> str:
+    # Unique, lossless identity payload with no digits or punctuation for the
+    # numeric lexer to accidentally reinterpret (including numeric PDB chains).
+    encoded = value.encode().hex().translate(str.maketrans("0123456789abcdef", "abcdefghijklmnop"))
+    return "OPAQUEREF" + encoded
+
+
 def opaque(text: str) -> str:
-    return PDB_CHAIN_ID.sub(lambda m: "PDBTOKEN" + m.group(), text)
+    text = PDB_CHAIN_ID.sub(lambda m: reference_token(m.group()), text)
+
+    def identity(match: re.Match[str]) -> str:
+        prefix = text[: match.start()].rstrip().rstrip(QUOTES).rstrip()
+        if prefix and (prefix[-1].isdigit() or prefix[-1] in "/^*·×+-"):
+            return match.group()
+        return reference_token(" ".join(match.group().casefold().split()))
+
+    text = SOURCE_GIT.sub(lambda m: reference_token(m[1].casefold()), text)
+    return REFERENCE_LABEL.sub(identity, text)
 
 
 def _balanced(text: str) -> tuple[str, int] | None:
@@ -333,12 +359,23 @@ def quantities(text: str) -> tuple[Quantity, ...]:
                 break
             if between.strip() == "y" and re.search(r"\bentre\s*$", text[: kept[start].start()]):
                 op = OPERATOR.fullmatch(" a ")
+            grouped_digits = (
+                not between.strip()
+                and not kept[end + 1].group().startswith(("+", "-"))
+                and re.match(r"\d{3}(?!\d)", kept[end + 1].group()) is not None
+            )
             signed_operator = None
             if not between.strip() and kept[end + 1].group().startswith(("+", "-")):
                 signed_operator = kept[end + 1].group()[0]
-            if not op and signed_operator is None:
+            if not op and signed_operator is None and not grouped_digits:
                 break
-            symbol = signed_operator if signed_operator is not None else op[1] if op else ""
+            symbol = (
+                signed_operator
+                if signed_operator is not None
+                else op[1]
+                if op
+                else "grouped-digits"
+            )
             if (
                 symbol == "/"
                 and result[end].unit in COUNT_LABELS

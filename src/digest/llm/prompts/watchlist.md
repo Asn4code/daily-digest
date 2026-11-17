@@ -1,6 +1,6 @@
 ---
 name: watchlist
-version: 2
+version: 3
 task: conceptual
 ---
 Evalúa exclusivamente la pregunta humana watch_item con evidencias disponibles.
@@ -33,3 +33,13 @@ En modo weekly_critical, contrasta previous con evidencia nueva: qué refuerza,
 matiza o cuestiona sus interpretaciones, qué sigue sin resolverse y qué análisis
 discriminaría las explicaciones. Una limitación antigua no es un descubrimiento.
 Si no existe una base comparable, dilo sin inventar una conclusión previa.
+
+Cada condición y decisión pendiente pertenece a una acción concreta. Una misma
+fuente puede describir comparar resultados existentes y regenerar otros: no
+traslades requisitos de una acción a la otra por compartir documento o evidencias.
+Un plan pendiente se expresa como lo previsto o propuesto, no como certeza futura.
+Un artefacto preparado o pendiente de entrega no acredita su exclusión del plan.
+Si el problema afecta a un subconjunto, conserva qué modelos/casos están afectados;
+no lo extiendas al grupo entero. Con cobertura parcial, escribe «no consta en las
+fuentes disponibles», nunca «no existe» ni «no se ha hecho» de forma exhaustiva.
+Estas reglas se aplican también a meaning, limits y next_check.

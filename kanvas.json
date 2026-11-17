@@ -1872,6 +1872,11 @@
           "at": "2026-11-17T15:26:42Z",
           "by": "codex",
           "text": "Primera implementación con vista común de formato, IDs, cantidades y relaciones; originales intactos. Los cinco ejemplos positivos y negativos de paréntesis pasan. Make check inicial627PASS; revisión adversarial añade casos de signos compactos, operadores Unicode, concatenación por Markdown, guiones bajos, extremos ocultos y anotaciones combinadas. Corregidos y238 focalizadas PASS; revisión en curso. La caché incorpora quantities.py. No se ha publicado ni entregado un informe nuevo."
+        },
+        {
+          "at": "2026-11-17T15:42:02Z",
+          "by": "codex",
+          "text": "Revisión adversarial ampliada:255 focalizadas PASS, incluidas identidades numéricas excluidas en fuente, anotaciones con IDs lossless, cadenas PDB numéricas, agrupaciones de miles y protección frente a marcadores internos en fuentes no fiables. El ensayo aislado obtuvo ambas evaluaciones+cotejos y se revalidó con código nuevo, pero revisión científica independiente encontró R1–R4 semánticos; muestra rechazada e inmutable. Se precisan watchlistv3 y capa grounding_watchlistv1. Dos tests nuevos de reparación/rechazo y revisión aislada de caché de cotejo;26 con e2e PASS. Suite completa y puerta en curso sobre código estable; no entrega ni firma."
         }
       ]
     }

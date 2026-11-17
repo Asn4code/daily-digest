@@ -259,3 +259,56 @@ def test_dimensions_cannot_be_hidden_after_an_existing_dimension(claim):
 def test_a_second_annotation_is_not_ignored():
     with pytest.raises(ValidationError):
         check("RMSD 1.4 Å (control).", "RMSD 1.4 Å (control) (nm).")
+
+
+@pytest.mark.parametrize("separator", [" ", " ", " ", " "])
+def test_spaced_digit_groups_cannot_be_assembled_from_independent_values(separator):
+    with pytest.raises(ValidationError):
+        check(
+            "Control 1. Recuento 999 predicciones.",
+            "Se completaron 1" + separator + "999 predicciones.",
+        )
+
+
+def test_an_explicit_digit_group_stays_bound_without_evaluating_it():
+    check("Se completaron 1 999 predicciones.", "Se completaron 1 999 predicciones.")
+    with pytest.raises(ValidationError):
+        check("Se completaron 1 999 predicciones.", "Se completaron 1999 predicciones.")
+
+
+@pytest.mark.parametrize("label", ["lote", "batch", "Step", "paso", "proyecto", "intento"])
+def test_source_reference_numbers_are_not_counts(label):
+    with pytest.raises(ValidationError):
+        check("El " + label + " 1 quedó archivado.", "El recuento es 1.")
+
+
+def test_a_numeric_hash_in_a_cited_source_is_not_a_measurement():
+    sha = "1" * 40
+    value = package("Commit " + sha + ".")
+    value.evidence["ev_source"].kind = "commit"
+    value.evidence["ev_source"].locator = sha
+    with pytest.raises(ValidationError):
+        validate(Claim(text="Se midió " + sha + ".", evidence=["ev_source"]), value)
+    validate(Claim(text="Commit " + sha + ".", evidence=["ev_source"]), value)
+
+
+@pytest.mark.parametrize("label", ["lote 1", "Step 1"])
+def test_a_literal_reference_annotation_keeps_its_identity(label):
+    check("Se completaron 12 (" + label + ").", "Se completaron 12 (" + label + ").")
+
+
+def test_numeric_pdb_chains_are_part_of_the_whole_identity():
+    check("Estructura 1ABC_1.", "Estructura 1ABC_1.")
+
+
+def test_a_reference_annotation_cannot_be_taken_from_another_count():
+    with pytest.raises(ValidationError):
+        check("Se completaron 12 (lote 1). Se anotaron 10 (lote 2).", "Se completaron 12 (lote 2).")
+
+
+def test_a_raw_source_cannot_forge_an_internal_identity_binding():
+    from digest.llm.quantities import reference_token
+
+    source = "Estructura 1ABC_A. Valor 12 (" + reference_token("1ABC_A") + " terminó)."
+    with pytest.raises(ValidationError):
+        check(source, "Valor 12 (1ABC_A terminó).")

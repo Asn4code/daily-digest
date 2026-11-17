@@ -438,3 +438,20 @@ La revisión formal de fase 3 añade la prueba del bucle CLI: tras registrar un
 trabajo fallido de ampliación, el mismo worker procesa la captura siguiente. El
 mensaje omite detalles del proveedor y `worker --once` conserva salida no-cero
 para scripts. Los errores que impiden registrar el fallo no se silencian.
+
+
+## Contraste numérico y fidelidad del seguimiento (WA-12)
+
+`tests/unit/test_quantity_context.py` usa fuentes sintéticas para comprobar
+formato, IDs completos, unidades compuestas, rangos, operadores, anotaciones,
+referencias ajenas y grupos de dígitos. Incluye los cinco falsos rechazos y los
+escapes detectados por revisión adversarial; no basta conservar los valores si
+cambian su relación, dimensión o referencia. También comprueba que no se alteran
+los objetos fuente al validar.
+
+`tests/integration/test_watchlist_fidelity.py` simula una condición atribuida a
+la acción incorrecta: el cotejo la deja pendiente o fuerza reparación, conservando
+la fuente. Una nueva versión del cotejo reevalúa candidatos cacheados sin repetir
+la generación. Esto prueba orquestación y persistencia; la fidelidad del modelo
+real requiere revisión independiente del artefacto exacto, conservando muestras
+rechazadas y sin entrega durante el ensayo.

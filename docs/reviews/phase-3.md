@@ -429,3 +429,22 @@ inventadas y rangos mal interpretados. Sigue propuesta y requiere aprobación;
 WA-05 depende de ella. Las 575 pruebas y la puerta provisional anteriores no
 validan esta propuesta ni resuelven estos casos nuevos. Producción permanece
 sin cambios respecto a `15e63bc`.
+
+
+### WA-12 aprobada e implementación en revisión (2026-11-17)
+
+La persona aprobó WA-12 en el tablero y confirmó «hecho». La puerta se pausa
+mientras se termina esta corrección. La vista numérica común conserva originales,
+IDs y dimensiones y vincula relaciones/anotaciones en una fuente citada, con
+pruebas adversariales. El primer recorrido completo pasó 627 pruebas; una
+segunda ejecución durante cambios de huella de caché no reutilizó nodos, y la
+reproducción aislada estable pasó. Se ejecuta de nuevo la suite sobre código
+estable; no se rebaja la exigencia de caché ni se omite la prueba.
+
+La muestra privada aislada llegó a tener ambas evaluaciones y cotejos automáticos
+válidos, pero su revisión independiente encontró R1–R4 y la rechazó. Ver
+[watchlist-real-sample.md](watchlist-real-sample.md), que conserva la identidad
+exacta sin publicar datos científicos de los proyectos. Se refinan instrucciones
+y se añade una capa específica de cotejo; los tests simulan rechazo, reparación
+y reauditoría de caché. Una muestra nueva está en generación y debe revisarse de
+nuevo. No se acepta la anterior, no se entrega y no se firman casillas humanas.

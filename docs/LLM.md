@@ -801,3 +801,19 @@ Esta es una vista derivada y acotada en memoria: no cambia extractos, hashes,
 paquetes ni citas literales del cotejo. La validación semántica conserva su función
 para atribuciones, condiciones y controles científicos. Los modelos y formatos
 humanos no cambian. Véase `NUMERIC_VALIDATION.md` y D-068.
+
+
+La separación de IDs se aplica también a las fuentes: un número de lote, paso o
+hash no acredita una medida por aparecer en el extracto. Los tokens internos
+conservan la identidad completa, incluso cadenas PDB numéricas, sin exponer
+cifras al analizador. Una fuente o candidata no puede aportar esos marcadores
+para falsificar una asociación. Las agrupaciones de dígitos separadas por
+espacio se vinculan como una forma completa, sin convertirlas según una localidad.
+
+El cotejo de WatchAssessment combina el prompt general y
+`grounding_watchlist` v1. Comprueba el propietario de cada requisito, el alcance
+de fallos, la condición de los planes y los límites de cobertura en todos los
+campos. Una conclusión categórica no queda compensada por otra frase prudente.
+La generación `watchlist` v3 mantiene las mismas condiciones. Véase D-069 y
+`reviews/watchlist-real-sample.md`: una aprobación automática no sustituye el
+cotejo independiente de la muestra exacta.

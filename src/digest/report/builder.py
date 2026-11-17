@@ -377,6 +377,8 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
             if schema is schemas.DailyOverview
             else "grounding_critical"
             if schema is schemas.WeeklyCritical
+            else "grounding_watchlist"
+            if schema is schemas.WatchAssessment
             else None
         )
         if layer_name is not None:
