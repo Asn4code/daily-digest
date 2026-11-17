@@ -406,3 +406,26 @@ WA-11 está terminada en Kanvas y WA-05 vuelve a estar en curso. El trabajo real
 3 mantiene sus evidencias y preguntas fijadas y continúa sin entrega. No se
 marca como informe completo mientras haya fuentes sin validar ni se firma la
 fase. La cola temporal conserva fallidos los trabajos 1/2 sin reencolarlos.
+
+
+### Resultado del ensayo y bloqueo numérico (2026-11-17)
+
+El trabajo 3 terminó pendiente en `rep_preview_2026-11-09_r7`. Conserva
+la evaluación de cristales y su cotejo válidos; varias extracciones se rechazaron
+por comprobación numérica y el respaldo agotó tiempos de espera. La evaluación
+de semillas no terminó antes del límite global. No hubo entrega ni informe
+final nuevo. Las referencias previas a «sigue ejecutándose» describen el estado
+anterior y no su resultado final.
+
+Se inicia una comprobación privada de las evaluaciones de seguimiento por
+separado, con el mismo inventario, intervalo, preguntas y modelos congelados.
+Las otras etapas quedan expresamente pendientes; el artefacto no se registra
+como informe completo ni se entrega.
+
+El diagnóstico sintético de `NUMERIC_VALIDATION.md` reproduce cinco rechazos
+indebidos de prosa respaldada. WA-12 propone corregirlos mediante tratamiento
+común de formato, IDs y cantidades, conservando pruebas adversariales de unidades
+inventadas y rangos mal interpretados. Sigue propuesta y requiere aprobación;
+WA-05 depende de ella. Las 575 pruebas y la puerta provisional anteriores no
+validan esta propuesta ni resuelven estos casos nuevos. Producción permanece
+sin cambios respecto a `15e63bc`.

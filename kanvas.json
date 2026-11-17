@@ -1019,7 +1019,7 @@
       "title": "Puerta de fase 3",
       "state": "doing",
       "group": "WA",
-      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09", "WA-10", "WA-11"],
+      "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09", "WA-10", "WA-11", "WA-12"],
       "at": "2026-11-04T11:20:37Z",
       "by": "codex",
       "desc": "Validar que la fase 3 está bien construida antes de empezar la siguiente (docs/VALIDATION.md).\n\n1. Constructor: `python scripts/phase_gate.py 3 --no-manual` da PROVISIONAL y `--init-review` crea docs/reviews/phase-3.md.\n2. Revisor independiente (otra herramienta o sesión nueva): prompt de VALIDATION.md §4, hallazgos y veredicto.\n3. Persona: comprobaciones manuales y «Apruebo la fase».\n\nTerminado cuando: `python scripts/phase_gate.py 3` da APROBADA y el informe build/gates/phase-3.md va en la nota de cierre.",
@@ -1198,6 +1198,16 @@
           "at": "2026-11-17T09:00:09Z",
           "by": "codex",
           "text": "Verificación final sobre db0921e: make check575PASS (228,51s), lint/formato/mypy correctos. Puerta3 --no-manual PROVISIONAL con todo automático PASS. Revisión adicional repair-message-budget.md aprobada:88 focalizadas, seis llamadas de producción. Commit db0921e subido. Ensayo job3 sigue ejecutándose con rechazos numéricos y timeouts; sin entrega ni informe nuevo completo. Web local/HTTPS200, DNS institucionales intactos. Cola temporal disponible para solicitudes nuevas, conserva jobs1/2 fallidos sin recuperarlos automáticamente. Se mantienen pendientes el informe exacto, utilidad humana y firma de fase."
+        },
+        {
+          "at": "2026-11-17T11:48:02Z",
+          "by": "codex",
+          "text": "Job3 terminó pendiente como rep_preview_2026-11-09_r7: cristales tiene evaluación+cotejo válidos; semillas agotó plazo tras extracciones rechazadas/timeouts. No hubo entrega. Se comprueba seguimiento de forma aislada en arnés privado: mismo inventario/hash, intervalo, preguntas y selección congelada; se omiten llamadas de otras etapas como pendientes explícitos, sin cambiar producción ni catálogo. No se finaliza informe ni se cierran estados. Además se diagnostican falsas asociaciones de cifras/unidades frente a afirmaciones nuevas; no se repetirá otra generación completa sin identificar la causa."
+        },
+        {
+          "at": "2026-11-17T11:53:17Z",
+          "by": "codex",
+          "text": "Diagnóstico reproducido con cinco ejemplos sintéticos: ID PDB tras recuento entre paréntesis, etiqueta con Markdown, rango seguido de mediante, condicional si y lote seguido de quedó. Son rechazos de asociaciones/formato y no justifican aceptar 5 semillas desde semillas1–5 ni unidades nuevas. Propuesta WA-12 en docs/NUMERIC_VALIDATION.md para abordar el contraste de forma común y conservadora, con regresiones adversariales y revisión independiente. Se añade como dependencia de la puerta; sigue propuesta hasta aprobación humana. No se ha modificado producción ni se relanzó otro informe completo."
         }
       ]
     },
@@ -1820,6 +1830,23 @@
           "at": "2026-11-17T08:42:21Z",
           "by": "codex",
           "text": "El seguimiento ya construye contexto por niveles con fuentes coherentes completas, reutilización validada y manifiesto de todas las entradas y padres. Verificado con make check:573 pruebas PASS, incluida generación sintética de2600 evidencias, reanudación/caché, controles entre resultados, privacidad y manipulación de manifiestos. Revisiones independientes WA-11, timestamps e identidades aprobadas; correcciones subidas. Puerta3 ejecutada con entorno .venv: archivos, reglas, lint, tipos y todos los escenarios PASS; solo bloqueaba esta tarea todavía doing. Ensayo real conservado sin entrega: captura inicial parcial y unidades indivisibles siguen pendientes; el avance retrospectivo de dos preguntas continúa con rechazos/timeouts de proveedores. No se declara ese informe completo ni se firma la fase. Comprobar en WA-05 las dos preguntas en un informe final validado y su utilidad en móvil/detalle."
+        }
+      ]
+    },
+    {
+      "id": "WA-12",
+      "title": "Corregir el contraste numérico de prosa científica",
+      "state": "proposed",
+      "group": "WA",
+      "deps": ["WA-11"],
+      "at": "2026-11-17T11:52:34Z",
+      "by": "codex",
+      "desc": "Evitar que citas respaldadas se rechacen por formato o gramática, sin aceptar cifras, unidades o asociaciones inventadas. Propuesta concreta y cinco reproducciones sintéticas en docs/NUMERIC_VALIDATION.md: representación común de formato/IDs, cantidades y dimensiones, con control de rangos y operadores. Sin dependencias/DDL/formatos humanos nuevos ni relajar privacidad, cobertura o publicación. Terminado con regresiones positivas y negativas, make check, puerta3, revisión independiente y ensayo real sin entrega hasta validar. Las excepciones inseguras de paréntesis siguen retiradas.",
+      "notes": [
+        {
+          "at": "2026-11-17T11:55:33Z",
+          "by": "codex",
+          "text": "Revisión preparatoria independiente:5/5 reproducciones sintéticas rechazadas;3 citas literales y2 paráfrasis conservan cifras/rango/condición. Cinco escapes inseguros de paréntesis siguen rechazados. Propuesta sin bloqueantes para presentar, no implementación aprobada. Se precisa que normalización será vista derivada, conservando originales/hash/citas literales del cotejo; aceptación con pytest+aserciones y pruebas de unidades/operadores partidos por formato y asociaciones dentro de la misma fuente. Los errores reales y timeouts no se consideran todos falsos positivos."
         }
       ]
     }
