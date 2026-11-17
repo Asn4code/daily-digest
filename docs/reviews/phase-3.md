@@ -391,3 +391,18 @@ por HTTPS privado. Se verificó que `/etc/resolv.conf` mantiene exclusivamente
 los DNS institucionales. La cola temporal atiende nuevas solicitudes sin
 reencolar automáticamente los ensayos históricos fallidos; no sustituye el
 despliegue systemd pendiente de fase 4.
+
+
+### Resultado automático actualizado (2026-11-17)
+
+Sobre `db0921e`, `make check` pasa: lint, formato, mypy estricto y **575 tests**
+(228,51 s), sin omisiones. La puerta `phase_gate.py 3 --no-manual`, ejecutada
+con `.venv/bin` en PATH, da **PROVISIONAL (3)**: archivos, reglas, herramientas,
+escenarios y tablero pasan. La revisión adicional de
+[repair-message-budget.md](repair-message-budget.md) aprueba técnicamente las
+seis invocaciones de generación/cotejo, con 88 pruebas focalizadas.
+
+WA-11 está terminada en Kanvas y WA-05 vuelve a estar en curso. El trabajo real
+3 mantiene sus evidencias y preguntas fijadas y continúa sin entrega. No se
+marca como informe completo mientras haya fuentes sin validar ni se firma la
+fase. La cola temporal conserva fallidos los trabajos 1/2 sin reencolarlos.

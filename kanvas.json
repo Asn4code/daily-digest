@@ -1193,6 +1193,11 @@
           "at": "2026-11-17T08:51:28Z",
           "by": "codex",
           "text": "La suite tras sourcev10 detectó3 reparaciones de fuente que excedían24k al añadir instrucciones. Corregido en router: límite explícito sobre conversación completa antes de cada envío, incluidos reintentos; sin recortar fuentes ni aumentar límites, respaldo con paquete original y pendiente si no valida. Generación y cotejo reciben sus límites existentes.21 pruebas focalizadas PASS y suite completa en curso, revisión independiente solicitada. Exención PDB sigue retirada. Prueba sintética de disponibilidad de mimo-v2.5 rechazada; no se cambia selección congelada GLM/Qwen ni se envían evidencias a ese modelo."
+        },
+        {
+          "at": "2026-11-17T09:00:09Z",
+          "by": "codex",
+          "text": "Verificación final sobre db0921e: make check575PASS (228,51s), lint/formato/mypy correctos. Puerta3 --no-manual PROVISIONAL con todo automático PASS. Revisión adicional repair-message-budget.md aprobada:88 focalizadas, seis llamadas de producción. Commit db0921e subido. Ensayo job3 sigue ejecutándose con rechazos numéricos y timeouts; sin entrega ni informe nuevo completo. Web local/HTTPS200, DNS institucionales intactos. Cola temporal disponible para solicitudes nuevas, conserva jobs1/2 fallidos sin recuperarlos automáticamente. Se mantienen pendientes el informe exacto, utilidad humana y firma de fase."
         }
       ]
     },
