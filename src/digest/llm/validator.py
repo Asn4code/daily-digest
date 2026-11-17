@@ -309,9 +309,16 @@ CONNECTORS = {
     "sugieren",
 }
 REFERENCE_LABEL = re.compile(
-    r"\b(?:[A-Z]{2,}[A-Z0-9]*-\d+|(?i:Step|paso|proyecto|intento)\s+\d+)\b"
+    r"\b(?:[A-Z]{2,}[A-Z0-9]*-\d+|(?i:Step|paso|proyecto|intento|lote|batch)\s+\d+)\b"
     r"(?![.,]\d)"
 )
+GIT_OBJECT_ID = re.compile(r"(?:[a-fA-F0-9]{64}|[a-fA-F0-9]{40})")
+GIT_IDENTITY = re.compile(
+    r"\b(?:commit|sha(?:-?(?:1|256))?|hash|identificador|id|revisión)"
+    r"[\s:=#\"'«»“”‘’()\[\]]+([a-fA-F0-9]{4,})(?!\w)",
+    re.I,
+)
+IDENTITY_GRAMMAR = {"mencionado", "mencionados", "mencionada", "mencionadas"}
 MONTHS = {
     month: f"{number:02d}"
     for number, month in enumerate(
@@ -487,14 +494,46 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             for match in REFERENCE_LABEL.finditer(entry.excerpt + " " + entry.locator)
         }
 
+        def identity_position(start: int, end: int) -> bool:
+            prefix = cleaned[:start].rstrip().rstrip(QUOTES).rstrip()
+            suffix = cleaned[end:].lstrip(QUOTES + ")]")
+            # Opaque names cannot stand in for quantities or their units.
+            if prefix and (prefix[-1].isdigit() or prefix[-1] in "/^*·×+-"):
+                return False
+            tail = suffix.lstrip()
+            # Only prose may follow an identity. Measurement notation can
+            # start with punctuation, brackets, operators or superscripts.
+            if tail and not re.match(r"^(?:[^\W\d_]|[.,;:!?](?=\s|$))", tail):
+                return False
+            unit = unit_at(suffix)
+            return unit is None or unit in IDENTITY_GRAMMAR
+
         def label(match: re.Match[str]) -> str:
             known = " ".join(match.group().casefold().split()) in known_labels
             prefix = cleaned[: match.start()].rstrip()
-            # A task-like label directly after a number may be a unit. Do not
-            # remove it there and accidentally permit an unsupported unit.
+            is_batch = bool(re.match(r"(?i)(?:lote|batch)\b", match.group()))
+            if is_batch and not identity_position(match.start(), match.end()):
+                raise ValidationError("unsupported_number")
+            # A task-like label directly after a number may be a unit.
             return " " if known and not (prefix and prefix[-1].isdigit()) else match.group()
 
         cleaned = REFERENCE_LABEL.sub(label, cleaned)
+        known_commits = {
+            entry.locator.split(":", 1)[0].casefold()
+            for entry in cited
+            if entry.kind in {"commit", "diff"}
+            and GIT_OBJECT_ID.fullmatch(entry.locator.split(":", 1)[0])
+        }
+
+        def commit_id(match: re.Match[str]) -> str:
+            if match[1].casefold() not in known_commits or not identity_position(
+                match.start(), match.end()
+            ):
+                raise ValidationError("unsupported_number")
+            # Consume the algorithm label too: SHA-256 is an identity qualifier.
+            return " "
+
+        cleaned = GIT_IDENTITY.sub(commit_id, cleaned)
 
         def timestamp(match: re.Match[str]) -> str:
             literal = match.group().rstrip(".…")

@@ -1785,6 +1785,16 @@
           "at": "2026-11-16T14:11:49Z",
           "by": "codex",
           "text": "Además del escalado se reprodujo un falso rechazo numérico: un timestamp ISO idéntico a event_at/observed_at se rechazaba al interpretar su zona +00:00 como hora independiente. Corregido para aceptar solo timestamps completos exactos citados (Z equivalente UTC), sin convertir offsets ni aceptar mezclas de fecha/hora.13 nuevas regresiones y110 focalizadas PASS; números/unidades inventados siguen rechazados. Revisión independiente adicional solicitada. Job3 interrumpido de forma controlada y reanudado sin entrega para cargar el validador: inventario, intervalo, preguntas y selección GLM conservados; jobs1/2 no reencolados."
+        },
+        {
+          "at": "2026-11-17T08:12:40Z",
+          "by": "codex",
+          "text": "Se retoma el17Nov. Job3 terminó pendiente como rep_preview_2026-11-09_r3: cristales tuvo evaluación+cotejo válidos, semillas sin cotejo por timeout y una fuente rechazada por cifras. No entrega ni firma. Corrección de timestamps completos revisada independientemente y subida en8995f75 (18 regresiones;91 focalizadas PASS); suite530 en curso. Se reanuda job3 con mismo inventario/intervalo/preguntas/modelos, sin entrega; diagnóstico privado saneado de candidatas para distinguir falsos rechazos de afirmaciones sin respaldo."
+        },
+        {
+          "at": "2026-11-17T08:36:36Z",
+          "by": "codex",
+          "text": "La fuente Git y la etiqueta lote 1 del ensayo real producían falsos rechazos numéricos. Se separan identidades calificadas completas y citadas de medidas, con pruebas adversariales de hashes ajenos/abreviados y unidades pegadas, entre paréntesis u operadores. El primer intento fue rechazado por revisión independiente; corregido y en revalidación. Job3 reanudado con inventario histórico exacto sin recaptura en un arnés privado, sin entrega ni cambio de cobertura. Suite completa en curso; la muestra real sigue pendiente."
         }
       ]
     }

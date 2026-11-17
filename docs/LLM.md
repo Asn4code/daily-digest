@@ -755,3 +755,11 @@ hora del evento ni una medida científica. Un token con fecha y `T`/`t` no puede
 volver al análisis por componentes para combinar una fecha y una hora de
 procedencias distintas. Las cifras y unidades del resto del texto se siguen
 validando de forma independiente (D-065).
+
+Las identidades Git calificadas (`commit`, `hash`, `SHA-1`/`SHA-256`, etc.) se
+comprueban completas contra el localizador de una evidencia `commit` o `diff`
+citada. Una abreviación o un hash ajeno no se acepta por carecer de cifras. La
+etiqueta y el hash se validan juntos; no autorizan una cantidad, unidad u
+operación adyacente. Las etiquetas `lote`/`batch` solo se distinguen de medidas
+si constan en la fuente y conservan un contexto de prosa, sin unidades;
+«mencionado/a/s» se admite como continuación gramatical explícita (D-066).
