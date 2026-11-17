@@ -1017,7 +1017,7 @@
     {
       "id": "WA-05",
       "title": "Puerta de fase 3",
-      "state": "doing",
+      "state": "todo",
       "group": "WA",
       "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09", "WA-10", "WA-11", "WA-12"],
       "at": "2026-11-04T11:20:37Z",
@@ -1213,6 +1213,16 @@
           "at": "2026-11-17T11:56:22Z",
           "by": "codex",
           "text": "Question: ¿Puedes aprobar WA-12 en el tablero? Propuesta concreta docs/NUMERIC_VALIDATION.md, commit08df7d1: corregir cinco falsos rechazos numéricos conservando unidades, rangos, originales y controles. Revisión preparatoria independiente sin bloqueantes; implementación no iniciada. Kanvas exige aprobación humana de nuevas propuestas incluso enlazadas al YOLO actual. El ensayo aislado de semillas conserva estado pendiente y no publica ni entrega."
+        },
+        {
+          "at": "2026-11-17T14:54:40Z",
+          "by": "codex",
+          "text": "La persona confirma hecho; WA-12 aparece aprobada y lista en el tablero. Se termina la espera y se aborda la corrección aprobada antes de retomar la puerta."
+        },
+        {
+          "at": "2026-11-17T14:54:40Z",
+          "by": "codex",
+          "text": "WA-12 aprobada: se corrige el contraste numérico antes de continuar la puerta. Informes pendientes y firmas conservados."
         }
       ]
     },
@@ -1841,7 +1851,7 @@
     {
       "id": "WA-12",
       "title": "Corregir el contraste numérico de prosa científica",
-      "state": "proposed",
+      "state": "doing",
       "group": "WA",
       "deps": ["WA-11"],
       "at": "2026-11-17T11:52:34Z",
@@ -1852,6 +1862,16 @@
           "at": "2026-11-17T11:55:33Z",
           "by": "codex",
           "text": "Revisión preparatoria independiente:5/5 reproducciones sintéticas rechazadas;3 citas literales y2 paráfrasis conservan cifras/rango/condición. Cinco escapes inseguros de paréntesis siguen rechazados. Propuesta sin bloqueantes para presentar, no implementación aprobada. Se precisa que normalización será vista derivada, conservando originales/hash/citas literales del cotejo; aceptación con pytest+aserciones y pruebas de unidades/operadores partidos por formato y asociaciones dentro de la misma fuente. Los errores reales y timeouts no se consideran todos falsos positivos."
+        },
+        {
+          "at": "2026-11-17T14:54:40Z",
+          "by": "codex",
+          "text": "Plan: convertir reproducciones en pytest, separar formato e identidades del contraste de cantidades mediante una vista común de fuente/salida, conservar dimensiones/rangos/operadores y originales, comprobar negativos de paréntesis y Markdown, revisar independientemente, make check y ensayo real acotado sin entrega."
+        },
+        {
+          "at": "2026-11-17T15:26:42Z",
+          "by": "codex",
+          "text": "Primera implementación con vista común de formato, IDs, cantidades y relaciones; originales intactos. Los cinco ejemplos positivos y negativos de paréntesis pasan. Make check inicial627PASS; revisión adversarial añade casos de signos compactos, operadores Unicode, concatenación por Markdown, guiones bajos, extremos ocultos y anotaciones combinadas. Corregidos y238 focalizadas PASS; revisión en curso. La caché incorpora quantities.py. No se ha publicado ni entregado un informe nuevo."
         }
       ]
     }

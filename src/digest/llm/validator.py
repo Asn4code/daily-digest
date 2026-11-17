@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from digest.llm import schemas
+from digest.llm.quantities import PDB_CHAIN_ID, QUOTES, Quantity, quantities, unit_at, view
 from digest.report.model import EvidenceEntry, Report
 
 
@@ -259,55 +260,6 @@ def validate_report(report: Report, allowed_ids: set[str]) -> None:
 
 
 # LLM output checks are independent of rendering and run again at publication.
-TOKEN = re.compile(r"(?<![\w.])[-+]?(?>\d+(?:[.,]\d+)?|\.\d+)(?:[eE][-+]?\d+)?(?!\d)")
-PDB_CHAIN_ID = re.compile(r"\b[0-9][A-Za-z0-9]{3}_[A-Za-z0-9]+\b")
-UNIT = re.compile(
-    r"^\s*((?:[%°]?(?:[^\W\d_][^\s,;:()\[\]{}<>/]*)|%)"
-    r"(?:\s*/\s*[^\s,;:()\[\]{}<>/]+)*)"
-)
-CONNECTORS = {
-    "en",
-    "de",
-    "con",
-    "y",
-    "a",
-    "para",
-    "del",
-    "al",
-    "el",
-    "la",
-    "los",
-    "las",
-    "que",
-    "o",
-    "ni",
-    "por",
-    "según",
-    "donde",
-    "frente",
-    "vs",
-    "es",
-    "son",
-    "se",
-    "usado",
-    "usados",
-    "usada",
-    "usadas",
-    "entre",
-    "sobre",
-    "hasta",
-    "desde",
-    "tras",
-    "durante",
-    "sin",
-    "aunque",
-    "pese",
-    "mientras",
-    "podría",
-    "podrían",
-    "sugiere",
-    "sugieren",
-}
 REFERENCE_LABEL = re.compile(
     r"\b(?:[A-Z]{2,}[A-Z0-9]*-\d+|(?i:Step|paso|proyecto|intento|lote|batch)\s+\d+)\b"
     r"(?![.,]\d)"
@@ -349,44 +301,6 @@ ISO_TIMESTAMP_VALUE = re.compile(
 )
 
 
-COMPOUND_UNIT = re.compile(
-    r"^\s+((?:(?:[YZEPTGMkhdcmuµμnpfa]?|[KMGTPEZY]i)"
-    r"(?:mol|kg|byte|bit|cal|eV|cd|rad|sr|Hz|Pa|Da|m|s|g|K|A|B|L|l|J|W|N|C|V|Å)"
-    r"(?:\^?[-−+]?\d+|[⁻⁺⁰¹²³⁴⁵⁶⁷⁸⁹]+)?(?=$|[\W\d_])|%|°C|°F)"
-    r"[^\s,;:()\[\]{}<>/]*(?:\s*/\s*[^\s,;:()\[\]{}<>/]+)*)"
-)
-
-FILE_LABELS = {"conf", "pdb", "mmcif", "npz", "csv", "json", "png", "pdf", "svg"}
-QUOTES = "\"'«»“”‘’"
-UNIT_PUNCTUATION = ".!?" + QUOTES
-
-
-def unit_at(text: str) -> str | None:
-    text = text.lstrip().lstrip(QUOTES)
-    text = re.sub(r"^de\s+(?:esas|esos|estas|estos|las|los)\s+", "", text)
-    classifier = re.match(r"^(?:ficheros|archivos)\s+([^\W\d_][^\s,;:()\[\]{}<>]*)", text)
-    if classifier and classifier[1].rstrip(UNIT_PUNCTUATION).casefold() in FILE_LABELS:
-        # File classifiers do not change the following artifact's count label:
-        # "14 ficheros conf" and "14 conf" retain the same label. Keep physical
-        # suffixes and reject a different artifact or an intervening connector.
-        text = text[classifier.start(1) :]
-    matched = UNIT.match(text)
-    if not matched or matched.group(1).rstrip(UNIT_PUNCTUATION) in CONNECTORS:
-        return None
-    # A slash followed by another quantity separates counts (51 structures/30
-    # pairs); it is not part of a compound unit such as kcal/mol.
-    parts = [re.split(r"\s*/\s*(?=\d)", matched.group(1).rstrip(UNIT_PUNCTUATION))[0]]
-    if matched.group(1).rstrip(QUOTES).endswith((".", "!", "?")):
-        return " ".join(parts[0].split())
-    tail = text[matched.end() :]
-    while (suffix := COMPOUND_UNIT.match(tail)) is not None:
-        parts.append(suffix.group(1).rstrip(UNIT_PUNCTUATION))
-        if suffix.group(1).rstrip(QUOTES).endswith((".", "!", "?")):
-            break
-        tail = tail[suffix.end() :]
-    return " ".join(" ".join(parts).split())
-
-
 @dataclass
 class EvidencePackage:
     evidence: dict[str, EvidenceEntry]
@@ -419,11 +333,17 @@ def _numeric_values(value: Any) -> list[float]:
     return []
 
 
-def _present(number: float, unit: str | None, entries: list[EvidenceEntry]) -> bool:
+def _present(
+    number: float, unit: str | None, entries: list[EvidenceEntry], *, role: Quantity | None = None
+) -> bool:
     if not math.isfinite(number):
         return False
     for entry in entries:
-        if unit is None and entry.kind == "metric":
+        if (
+            unit is None
+            and entry.kind == "metric"
+            and (role is None or (not role.relation and role.annotation is None))
+        ):
             if any(
                 math.isclose(number, n, rel_tol=1e-6, abs_tol=0)
                 for n in _numeric_values(
@@ -431,15 +351,20 @@ def _present(number: float, unit: str | None, entries: list[EvidenceEntry]) -> b
                 )
             ):
                 return True
-        excerpt = PDB_CHAIN_ID.sub(" ", entry.excerpt.replace("−", "-"))
-        for match in TOKEN.finditer(excerpt):
-            value = float(match.group().replace(",", "."))
-            if not math.isclose(number, value, rel_tol=1e-6, abs_tol=0):
+        for candidate in quantities(view(entry.excerpt)):
+            if not candidate.valid or not math.isclose(
+                number, candidate.value, rel_tol=1e-6, abs_tol=0
+            ):
                 continue
-            if unit is None:
-                return True
-            tail = excerpt[match.end() :].lstrip()
-            if unit_at(tail) == " ".join(unit.split()):
+            if role is None and (candidate.relation or candidate.annotation is not None):
+                continue
+            if role is not None and (
+                role.relation != candidate.relation
+                or role.operators != candidate.operators
+                or role.annotation != candidate.annotation
+            ):
+                continue
+            if unit == candidate.unit or (role is None and unit is None):
                 return True
     return False
 
@@ -460,30 +385,16 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
         if not measurements:
             return
         # IDs may contain digits; do not mistake those references for measurements.
-        cleaned = value.replace("−", "-")
+        cleaned = view(value)
+        if "PDBTOKEN" in cleaned:
+            raise ValidationError("unsupported_number")
         cited = entries(refs)
         known_structures = {
-            match.group() for entry in cited for match in PDB_CHAIN_ID.finditer(entry.excerpt)
+            match.group() for entry in cited for match in PDB_CHAIN_ID.finditer(view(entry.excerpt))
         }
 
-        def structure(match: re.Match[str]) -> str:
-            prefix = cleaned[: match.start()].rstrip()
-            suffix = cleaned[match.end() :]
-            for marker in ("**", "`", "*"):
-                if prefix.endswith(marker) and suffix.startswith(marker):
-                    prefix = prefix[: -len(marker)].rstrip()
-                    suffix = suffix[len(marker) :]
-            prefix = prefix.rstrip("([ \t")
-            return (
-                " "
-                if match.group() in known_structures
-                and not (prefix and (prefix[-1].isdigit() or prefix[-1] in "/^*·×+-"))
-                else match.group()
-            )
-
-        cleaned = PDB_CHAIN_ID.sub(structure, cleaned)
-        cleaned = re.sub(r"[`*]", "", cleaned)
-        cleaned = cleaned.replace("_", "")
+        if any(match.group() not in known_structures for match in PDB_CHAIN_ID.finditer(cleaned)):
+            raise ValidationError("unsupported_number")
         for ident in sorted(
             allowed | package.result_ids | set(package.task_states), key=len, reverse=True
         ):
@@ -491,7 +402,7 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
         known_labels = {
             " ".join(match.group().casefold().split())
             for entry in cited
-            for match in REFERENCE_LABEL.finditer(entry.excerpt + " " + entry.locator)
+            for match in REFERENCE_LABEL.finditer(view(entry.excerpt) + " " + entry.locator)
         }
 
         def identity_position(start: int, end: int) -> bool:
@@ -602,12 +513,9 @@ def validate(output: BaseModel, package: EvidencePackage) -> None:
             ):
                 raise ValidationError("unsupported_number")
             cleaned = cleaned.replace(clock, "")
-        for match in TOKEN.finditer(cleaned):
-            unit = unit_at(cleaned[match.end() :])
-            if not _present(
-                float(match.group().replace(",", ".")),
-                unit,
-                entries(refs),
+        for quantity in quantities(cleaned):
+            if not quantity.valid or not _present(
+                quantity.value, quantity.unit, entries(refs), role=quantity
             ):
                 raise ValidationError("unsupported_number")
 

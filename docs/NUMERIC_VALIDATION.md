@@ -1,6 +1,6 @@
 # Contraste numérico: diagnóstico y propuesta
 
-Estado: propuesta para completar la validación real de fase 3. No implementada.
+Estado: WA-12 aprobada por la persona el 17 de noviembre; implementación y revisión adversarial en curso.
 
 El avance retrospectivo de las dos preguntas quedó pendiente. La evaluación de
 cristales tuvo generación y cotejo válidos; la de semillas agotó el tiempo tras
@@ -14,7 +14,7 @@ El validador actual reconoce cantidades y su siguiente palabra mediante reglas
 léxicas. Algunas citas correctas se rechazan por confundir texto con unidades.
 Ejemplos sintéticos, sin datos de los proyectos reales:
 
-| Fuente citada | Afirmación | Resultado actual |
+| Fuente citada | Afirmación | Resultado antes de WA-12 |
 | --- | --- | --- |
 | `Completo, 12 de 12 (1ABC_A terminó).` | La misma frase literal | Rechazada: parte del ID se interpreta como cantidad |
 | ``Se registraron 3 `partial`.`` | La misma frase literal | Rechazada: el formato se elimina de forma distinta en fuente y salida |
@@ -88,3 +88,22 @@ esto no aprueba una implementación ni una salida real. La aceptación exigirá
 aserciones y casos adversariales, manteniendo originales y cotejo semántico.
 Los rechazos numéricos reales deben examinarse individualmente: algunos son
 correctos, y los timeouts constituyen otra causa independiente.
+
+## Implementación en revisión
+
+`digest.llm.quantities` construye una vista léxica común sin modificar originales.
+Distingue formato de operaciones ambiguas, conserva guiones bajos y dimensiones,
+reconoce IDs PDB íntegros y enlaza operandos, unidades y anotaciones completas.
+Los rangos y relaciones necesitan respaldo conjunto en una fuente citada; sus
+extremos no se reutilizan como recuentos independientes. No calcula resultados.
+
+Las anotaciones no son una exención: se contrastan como parte de la cantidad y
+se inspeccionan también sus números y unidades dentro/después. Las agrupaciones
+con precedencia o símbolos matemáticos no soportados quedan pendientes. La
+caché incluye el código de esta capa y revalida al reutilizar una pieza.
+
+La revisión adversarial ha añadido casos de signos compactos, operaciones
+Unicode, formato que concatena cifras, extremos ocultos tras puntos, dimensiones
+entre paréntesis y anotaciones tomadas de fuentes diferentes. Las correcciones
+se comprueban con pruebas de aceptación y rechazo; no aprueban por sí mismas el
+informe real ni la firma humana de fase.

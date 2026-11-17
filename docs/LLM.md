@@ -780,3 +780,24 @@ salida válida, conserva el nodo pendiente. El router registra el diagnóstico d
 presupuesto en su lista de incidencias; algunos consumidores, como el cotejo,
 conservan todavía un motivo genérico de indisponibilidad en el estado persistido
 (D-067). Los límites de mensaje y esquema siguen siendo independientes.
+
+
+### Vista numérica común (WA-12)
+
+El contraste aplica `digest.llm.quantities` tanto a fuente como a afirmación.
+El formato inequívoco no cambia cifras ni dimensiones; los guiones bajos se
+conservan. Una forma ambigua que pudiera concatenar cifras u ocultar una
+operación queda literal y se rechaza si no tiene respaldo. Los IDs PDB se
+reconocen íntegros, con pertenencia exacta a las fuentes citadas.
+
+Las cantidades conservan unidades, operadores, extremos de rangos y anotaciones
+parentéticas. Una relación exige el mismo conjunto en una fuente citada; no se
+compone con valores o notas dispersos ni se calculan equivalencias o resultados.
+Las anotaciones se enlazan completas y sus cantidades internas se validan
+además de las unidades exteriores. Sintaxis matemática o agrupaciones no
+soportadas quedan pendientes; los extremos de un rango no acreditan un recuento.
+
+Esta es una vista derivada y acotada en memoria: no cambia extractos, hashes,
+paquetes ni citas literales del cotejo. La validación semántica conserva su función
+para atribuciones, condiciones y controles científicos. Los modelos y formatos
+humanos no cambian. Véase `NUMERIC_VALIDATION.md` y D-068.

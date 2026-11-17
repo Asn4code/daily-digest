@@ -42,7 +42,7 @@ class Nodes:
     ) -> str:
         validators = b"".join(
             files("digest.llm").joinpath(name).read_bytes()
-            for name in ("validator.py", "schemas.py", "grounding.py")
+            for name in ("validator.py", "schemas.py", "grounding.py", "quantities.py")
         )
         validators += files("digest.llm").joinpath("monitoring.py").read_bytes()
         validators += files("digest.report").joinpath("monitoring_tree.py").read_bytes()
