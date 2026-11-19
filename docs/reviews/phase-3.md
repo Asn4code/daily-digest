@@ -486,3 +486,14 @@ Se prepara una comparación independiente con ese modelo, el mismo inventario
 histórico y las mismas preguntas, sin entrega ni cambios de preferencias
 globales. Su resultado se registrará cuando termine. El trabajador temporal de
 cola se detuvo para evitar que recapture el inventario de esa comparación.
+
+El trabajo 4 terminó pendiente en `rep_preview_2026-11-09_r9`; ninguna de las
+dos evaluaciones de seguimiento quedó completa. Se inició el trabajo 5 con una
+selección congelada independiente de DeepSeek y se comprobó que su hash de
+inventario coincide exactamente con el original. Su primer arranque no recibió
+`CREDENTIALS_DIRECTORY` y quedó pendiente sin llamar a proveedores; se reanudó
+con la ruta habitual de credenciales, sin copiar secretos a la configuración.
+La primera extracción y su cotejo automático pasaron en unos 27 segundos en
+total. Las restantes fuentes y evaluaciones siguen en ejecución; esto no aprueba
+el informe. Se restauró la cola temporal después de que el ensayo adquiriera
+su bloqueo, manteniendo fallidos los ensayos anteriores.

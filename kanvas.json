@@ -1238,6 +1238,11 @@
           "at": "2026-11-19T08:57:18Z",
           "by": "codex",
           "text": "El ajuste numérico pasa make check (724 pruebas) y revisión independiente anclada a 3b98404; la puerta automática sigue PROVISIONAL, sin firma humana. El ensayo real Qwen sigue pendiente por rechazos y tiempos de espera. Se prepara una comparación separada con DeepSeek de NaN, mismas evidencias y preguntas, sin entrega ni cambios globales de modelos."
+        },
+        {
+          "at": "2026-11-19T08:59:09Z",
+          "by": "codex",
+          "text": "El ensayo Qwen 4 terminó pendiente (r9). Se está ejecutando la comparación DeepSeek 5 con hash de inventario idéntico al original, sin entrega; su primera extracción y cotejo pasaron. El ensayo se reanudó tras corregir la ruta de credenciales en su entorno. Webapp /jobs/5 disponible y cola temporal restaurada; no cambian DNS ni preferencias globales."
         }
       ]
     },
