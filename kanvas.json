@@ -1243,6 +1243,21 @@
           "at": "2026-11-19T08:59:09Z",
           "by": "codex",
           "text": "El ensayo Qwen 4 terminó pendiente (r9). Se está ejecutando la comparación DeepSeek 5 con hash de inventario idéntico al original, sin entrega; su primera extracción y cotejo pasaron. El ensayo se reanudó tras corregir la ruta de credenciales en su entorno. Webapp /jobs/5 disponible y cola temporal restaurada; no cambian DNS ni preferencias globales."
+        },
+        {
+          "at": "2026-11-19T09:05:28Z",
+          "by": "codex",
+          "text": "Revisión científica independiente rechaza candidata SourceFindings del ensayo5: convierte decidir si se aceptan cambios en aceptación obligatoria para toda recuperación (SF1), aunque el cotejo automático la aprobó. Ensayo y cola temporal detenidos sin entrega. Conforme a VALIDATION.md §1 se corrige dentro de la puerta: sourcev11 y groundingv8 conservan decisión, acción y subconjunto; 8 pruebas focalizadas PASS. Suite completa y revisión independiente en curso; la candidata anterior permanece rechazada."
+        },
+        {
+          "at": "2026-11-19T09:11:23Z",
+          "by": "codex",
+          "text": "La primera suite del ajuste SF1 detectó7 fallos semanales por coherent_unit_budget_exceeded al crecer source. Se compactó el prompt de4436 a3607caracteres (v10:3816), conservando controles y sin aumentar presupuestos ni recortar fuentes. Las15 pruebas focalizadas de semanal y fidelidad pasan. Se repiten suite completa, puerta y revisión de la compactación antes de reanudar el ensayo real."
+        },
+        {
+          "at": "2026-11-19T09:16:31Z",
+          "by": "codex",
+          "text": "Corrección SF1 definitiva: make check730PASS (213,66s), lint/formato/mypy correctos y puerta3PROVISIONAL con todo automático PASS. Revisión independiente confirma equivalencia del source compacto (3652caracteres) y mitigación, ficha source-decision-scope.md. Se comprueban de forma privada las fuentes de la candidata rechazada con inventario/modelos congelados del trabajo5; resto explícitamente pendiente, sin entrega ni aprobación humana."
         }
       ]
     },

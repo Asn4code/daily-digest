@@ -1,6 +1,6 @@
 ---
 name: grounding
-version: 7
+version: 8
 task: contrast
 ---
 Comprueba la fidelidad de candidate frente a las evidencias originales y el contexto
@@ -70,3 +70,13 @@ No confundas la unidad comparada con otro nivel de análisis, sensibilidad con
 causalidad ni falta de datos con refutación. El criterio se fija antes del análisis;
 un caso no evaluable por falta de insumos no favorece ninguna alternativa.
 No conviertas un límite ya reconocido en la base en una conclusión nueva.
+
+Comprueba a qué acción y subconjunto pertenece cada requisito. Si la fuente
+describe distintas causas o vías de recuperación, no apruebes una causa o
+condición común que no establece para todas. Localizar archivos existentes o
+entregar un paquete no hereda por proximidad una condición de regeneración con
+otro protocolo. «Decidir si se aceptan cambios» no equivale a exigir aceptarlos:
+rechaza la eliminación de esa elección pendiente, también en controls,
+limitations o interpretations. Un campo que conserva la elección no compensa
+otro que la convierte en obligatoria. No exijas repetir mecánicamente la misma
+condición si su alcance ya es claro y no hay contradicciones.

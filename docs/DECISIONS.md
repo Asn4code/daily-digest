@@ -106,6 +106,19 @@ diario. La aclaración no debe volver a elegir el foco del informe original.
 | D-069 | 2026-11-17 | Precisar generación y cotejo del seguimiento tras una muestra semánticamente rechazada | La revisión independiente detecta requisitos trasladados entre acciones, ausencia convertida en inexistencia, planes futuros categóricos y generalización de un subconjunto. Watchlist v3 y una capa grounding_watchlist v1 conservan el cotejo general y comprueban cada campo; revisar esa capa permite reauditar candidatos cacheados. La muestra anterior permanece rechazada; tests con dobles prueban bloqueo/reparación y caché, no la capacidad científica de un proveedor real. No cambia formato, privacidad, estados humanos ni requisitos de publicación. |
 | D-070 | 2026-11-19 | Corregir el rechazo de fragmentos numéricos que no repiten una nota simple de procedencia | El ensayo reproduce un ratio literal rechazado solo por omitir una nota. La omisión es direccional: valores, unidades y operadores permanecen; cualquier nota afirmada coincide completa en una fuente. Notas anidadas, símbolos o calificadores dimensionales ambiguos no se pueden omitir. Se preservan operandos inválidos y originales; revisión adversarial adicional, sin nuevos formatos ni autorización para eliminar condiciones científicas decisivas. |
 
+### Fidelidad de decisiones y alcance durante WA-05 (2026-11-19)
+
+La revisión independiente del ensayo DeepSeek detectó una extracción que pasó
+el cotejo automático, pero transformó una decisión de si aceptar cambios en una
+aceptación obligatoria para toda recuperación. La candidata se conserva
+rechazada; el ensayo se interrumpe sin entrega. Conforme a VALIDATION.md §1,
+se corrige el hallazgo de la puerta con source v11 y grounding v8: cada condición
+conserva su acción y subconjunto, las causas heterogéneas no se homogeneizan y
+decidir si aceptar no equivale a aceptar. No es una funcionalidad nueva ni cambia
+formatos, rutas, reintentos, límites, privacidad o estados humanos. Las pruebas
+con dobles comprueban bloqueo o reparación en controls, limitations e
+interpretations; la eficacia del modelo requiere una nueva revisión exacta.
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

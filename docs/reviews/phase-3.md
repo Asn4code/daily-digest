@@ -497,3 +497,39 @@ La primera extracción y su cotejo automático pasaron en unos 27 segundos en
 total. Las restantes fuentes y evaluaciones siguen en ejecución; esto no aprueba
 el informe. Se restauró la cola temporal después de que el ensayo adquiriera
 su bloqueo, manteniendo fallidos los ensayos anteriores.
+
+### Hallazgo de alcance en la extracción y corrección (2026-11-19)
+
+La revisión independiente de una extracción del trabajo 5 encontró SF1 pese al
+cotejo automático positivo: una decisión de si aceptar cambios de protocolo se
+transformó en una aceptación obligatoria para acciones heterogéneas. La candidata
+queda rechazada e identificada en
+[source-decision-scope.md](source-decision-scope.md); el detalle científico
+permanece privado. Se interrumpieron ensayo y cola temporal sin entrega, dejando
+el trabajo con error técnico `worker_interrupted`, sin modificar estados humanos.
+
+Conforme a VALIDATION.md §1 se corrige el hallazgo antes de continuar la puerta:
+source v11 y grounding v8 conservan la elección pendiente, la acción y el
+subconjunto al que corresponde cada requisito. Ocho pruebas de fidelidad pasan,
+incluido bloqueo o reparación en tres campos de extracción; la revisión
+independiente considera pertinente la mitigación. La nueva puerta automática
+sigue PROVISIONAL con todas sus comprobaciones técnicas aprobadas. Falta la
+suite completa y, separadamente, comprobar la eficacia en una candidata real
+nueva. No se acepta retrospectivamente la muestra rechazada ni se firma la fase.
+
+La primera suite del ajuste terminó con 723 pruebas aprobadas y siete fallos del
+semanal: al crecer el prompt de fuente, una unidad completa dejó de caber en
+24 000 caracteres (`coherent_unit_budget_exceeded`). Se compactó source v11
+conservando sus controles, hasta 3652 caracteres frente a los 3816 de v10;
+no se elevaron presupuestos ni se dividieron fuentes coherentes. La reproducción
+focalizada del semanal y fidelidad pasa sus 15 pruebas. Se repiten suite y puerta
+sobre el texto estable; ese primer resultado no se presenta como aprobación.
+
+Verificación final del ajuste compacto: `make check` pasa **730 pruebas**
+(213,66 s), lint, formato y tipado. La puerta de fase 3 vuelve a dar PROVISIONAL
+(3), con todas las comprobaciones automáticas aprobadas. La revisión independiente
+confirma equivalencia de los controles previos y mitigación de SF1 en
+`source-decision-scope.md`, con la huella exacta del prompt. Se inicia una
+comprobación privada centrada en las fuentes de la candidata rechazada, con
+inventario y selección de modelos del trabajo 5; las demás etapas se mantienen
+expresamente pendientes y el artefacto no se cataloga ni entrega como informe.

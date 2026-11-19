@@ -107,3 +107,84 @@ def test_scoped_condition_audit_blocks_or_repairs_a_cached_monitoring_candidate(
         assert frozen.model_info[key]["reused"] == "true"
         assert frozen.model_info["check:" + key]["reused"] == "false"
         assert frozen.evidence[0].excerpt == SOURCE
+
+
+@pytest.mark.parametrize("repair", [False, True])
+@pytest.mark.parametrize("field", ["controls", "limitations", "interpretations"])
+def test_source_decision_is_not_a_mandatory_condition_for_every_recovery(
+    config, monkeypatch, repair, field
+):
+    source = (
+        "Para regenerar con otro protocolo, decidir antes si se aceptan los cambios. "
+        "Otras vías son localizar archivos existentes o entregar el paquete externo."
+    )
+    bad = "Toda recuperación exige aceptar cambios de protocolo."
+    good = (
+        "Solo regenerar con otro protocolo requiere decidir antes si se aceptan los cambios; "
+        "localizar archivos o entregar el paquete son vías distintas."
+    )
+    calls = []
+
+    def respond(request):
+        wire = json.loads(request.content)
+        title = wire["response_format"]["json_schema"]["schema"]["title"]
+        calls.append(title)
+        package = json.loads(
+            html.unescape(
+                re.search(r"<context>(.*?)</context>", wire["messages"][1]["content"], re.S).group(
+                    1
+                )
+            )
+        )
+        value = json.loads(fake_response(request).json()["choices"][0]["message"]["content"])
+        if title == "SourceFindings":
+            refs = value["summary"]["evidence"]
+            fixed = repair and package["context"].get("validation_feedback")
+            claim = {"text": good if fixed else bad, "evidence": refs}
+            if field == "interpretations":
+                claim["confidence"] = "low"
+            value[field] = [claim]
+        candidate = package["context"].get("candidate", {})
+        claims = candidate.get(field, [])
+        if title == "GroundingAudit" and claims and claims[0].get("text") == bad:
+            value = {
+                "approved": False,
+                "issues": [
+                    {
+                        "rule": "unsupported_claim",
+                        "field": [field, 0, "text"],
+                        "evidence": candidate[field][0]["evidence"],
+                        "source_quote": "decidir antes si se aceptan los cambios",
+                    }
+                ],
+            }
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
+
+    generate = Router.generate
+
+    def controlled(self, *args, **kwargs):
+        self.client = Client(transport=httpx.MockTransport(respond))
+        return generate(self, *args, **kwargs)
+
+    monkeypatch.setattr(Router, "generate", controlled)
+    with queue.writing(config) as db:
+        report = inventory(config, db, count=1)
+        report.evidence[0].excerpt = source
+        report.evidence[0].kind = "doc_change"
+        report.evidence[0].event_at = report.end_at
+        report.evidence[0].meta["capture_origin"] = "dated_event"
+        enrich(db, config, report, Router(db, config))
+        key = report.source_units[report.results[0].id][0]
+        validate_report(report, {e.id for e in report.evidence})
+        assert calls.count("SourceFindings") == 2
+        assert report.evidence[0].excerpt == source
+        assert report.results[0].review_state == "pending"
+        if repair:
+            require_complete(report)
+            assert report.sections[key][field][0]["text"] == good
+            assert report.sections["check:" + key]["approved"]
+        else:
+            assert key in report.pending and key not in report.sections
+            assert "extract:" + report.results[0].id not in report.sections
+            with pytest.raises(ValueError):
+                require_complete(report)

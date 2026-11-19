@@ -455,3 +455,10 @@ la fuente. Una nueva versión del cotejo reevalúa candidatos cacheados sin repe
 la generación. Esto prueba orquestación y persistencia; la fidelidad del modelo
 real requiere revisión independiente del artefacto exacto, conservando muestras
 rechazadas y sin entrega durante el ensayo.
+
+La misma prueba integra extracción por fuente con decisiones pendientes: un
+doble introduce una aceptación obligatoria para toda recuperación en controls,
+limitations o interpretations. El cotejo la rechaza y la pieza queda pendiente,
+o la reparación conserva la elección de si aceptar y su acción concreta antes
+del ensamblado. La fuente y el estado humano permanecen intactos. No es una
+evaluación de la capacidad semántica de un proveedor real.
