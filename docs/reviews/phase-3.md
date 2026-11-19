@@ -469,3 +469,20 @@ ajuste revisado en `annotation-omission.md`. Mantiene dimensiones y asociaciones
 y conserva como pendientes las notas que no puede interpretar con seguridad.
 La suite final y la nueva revisión exacta del informe se registrarán por separado;
 no se considera completo por tener una extracción o evaluación válida.
+
+### Verificación del ajuste y comparación de modelos (2026-11-19)
+
+El código estable de `3b98404` pasa `make check`: **724 pruebas**, lint, formato
+y tipado estricto. La revisión independiente del ajuste queda anclada a ese
+commit en `annotation-omission.md`: 429 pruebas focalizadas, incluidos ataques
+privados. La nueva puerta automática de fase 3 pasa sus comprobaciones y sigue
+**PROVISIONAL (salida 3)**; no sustituye la validación real ni la firma humana.
+
+El trabajo 4 acumula tiempos de espera y rechazos de cantidades o asociaciones
+no respaldadas. No se rebaja el validador para completarlo. Una extracción
+sintética con `deepseek-v4-flash` de NaN produjo JSON conforme al esquema en
+unos 18 segundos; esto solo comprueba esquema y latencia, no fidelidad científica.
+Se prepara una comparación independiente con ese modelo, el mismo inventario
+histórico y las mismas preguntas, sin entrega ni cambios de preferencias
+globales. Su resultado se registrará cuando termine. El trabajador temporal de
+cola se detuvo para evitar que recapture el inventario de esa comparación.

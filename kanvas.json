@@ -1233,6 +1233,11 @@
           "at": "2026-11-19T08:08:27Z",
           "by": "codex",
           "text": "Se retoma19Nov. No quedan procesos del ensayo; job4 conserva estado running huérfano en r8, sin entrega. Se ejecuta suite del ajuste de anotaciones y se solicita revisión independiente del delta pendiente. La reanudación conservará inventario/hash, preguntas, selección congelada Qwen de NaN e intervalo histórico; no se recaptura ni mejora cobertura. Jobs1–3 se mantienen preservados."
+        },
+        {
+          "at": "2026-11-19T08:57:18Z",
+          "by": "codex",
+          "text": "El ajuste numérico pasa make check (724 pruebas) y revisión independiente anclada a 3b98404; la puerta automática sigue PROVISIONAL, sin firma humana. El ensayo real Qwen sigue pendiente por rechazos y tiempos de espera. Se prepara una comparación separada con DeepSeek de NaN, mismas evidencias y preguntas, sin entrega ni cambios globales de modelos."
         }
       ]
     },

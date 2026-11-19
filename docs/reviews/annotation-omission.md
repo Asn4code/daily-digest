@@ -2,7 +2,7 @@
 
 reviewer: codex, sesión independiente (`review_watchlist_hierarchy`)
 date: 2026-11-19
-scope: delta de `quantities.py` y `validator.py` posterior a `3617f4f`
+scope: commit `3b98404`, delta de `quantities.py` y `validator.py` posterior a `3617f4f`
 
 Esta ficha complementa `wa-12.md` sin modificar su aprobación anterior. No
 aprueba una candidata o informe real, el estado del trabajo 4 ni firmas humanas.
