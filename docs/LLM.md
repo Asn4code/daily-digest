@@ -791,8 +791,8 @@ operación queda literal y se rechaza si no tiene respaldo. Los IDs PDB se
 reconocen íntegros, con pertenencia exacta a las fuentes citadas.
 
 Las cantidades conservan unidades, operadores, extremos de rangos y anotaciones
-parentéticas. Una relación exige el mismo conjunto en una fuente citada; no se
-compone con valores o notas dispersos ni se calculan equivalencias o resultados.
+parentéticas. Una relación exige los mismos operandos, unidades y operadores en una fuente
+citada; las anotaciones afirmadas deben coincidir completas. No se compone con valores o notas dispersos ni se calculan equivalencias o resultados.
 Las anotaciones se enlazan completas y sus cantidades internas se validan
 además de las unidades exteriores. Sintaxis matemática o agrupaciones no
 soportadas quedan pendientes; los extremos de un rango no acreditan un recuento.
@@ -817,3 +817,18 @@ campos. Una conclusión categórica no queda compensada por otra frase prudente.
 La generación `watchlist` v3 mantiene las mismas condiciones. Véase D-069 y
 `reviews/watchlist-real-sample.md`: una aprobación automática no sustituye el
 cotejo independiente de la muestra exacta.
+
+
+### Fragmentos sin repetir una nota de procedencia (2026-11-19)
+
+Una afirmación puede citar el fragmento numérico respaldado sin repetir una nota
+simple de procedencia. Esto no permite retirar una dimensión: siguen coincidiendo
+unidades, operandos y operadores. Si afirma una nota, debe conservarla completa
+y en la misma fuente. Notas anidadas, cualificaciones dimensionales o notación
+no soportada no se consideran omisibles; la proyección conserva el rechazo de
+unidades interiores y exteriores y de operandos con sintaxis inválida.
+
+Las anotaciones se mantienen como tuplas internas, sin cambiar informes ni
+archivos humanos. No se autoriza omitir condiciones científicas decisivas:
+el cotejo semántico y la revisión independiente siguen siendo obligatorios.
+Revisión adicional en `reviews/annotation-omission.md` (D-070).

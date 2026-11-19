@@ -13,6 +13,7 @@ from digest.llm.quantities import (
     QUOTES,
     REFERENCE_LABEL,
     Quantity,
+    annotation_may_be_omitted,
     quantities,
     reference_token,
     unit_at,
@@ -338,6 +339,16 @@ def _numeric_values(value: Any) -> list[float]:
     return []
 
 
+def _annotation_supported(
+    asserted: tuple[str, ...] | None, original: tuple[str, ...] | None
+) -> bool:
+    if asserted is not None:
+        return asserted == original
+    # Nested or ambiguous notes are not eligible for omission: the lexical
+    # projection does not claim to interpret every nested dimensional qualifier.
+    return all(annotation_may_be_omitted(note) for note in original or ())
+
+
 def _present(
     number: float, unit: str | None, entries: list[EvidenceEntry], *, role: Quantity | None = None
 ) -> bool:
@@ -368,12 +379,24 @@ def _present(
                 continue
             if role is None and (candidate.relation or candidate.annotation is not None):
                 continue
-            if role is not None and (
-                role.relation != candidate.relation
-                or role.operators != candidate.operators
-                or role.annotation != candidate.annotation
-            ):
-                continue
+            if role is not None:
+                if role.operators != candidate.operators or len(role.relation) != len(
+                    candidate.relation
+                ):
+                    continue
+                if any(
+                    value != original_value
+                    or dimension != original_dimension
+                    or not _annotation_supported(note, original_note)
+                    for (value, dimension, note), (
+                        original_value,
+                        original_dimension,
+                        original_note,
+                    ) in zip(role.relation, candidate.relation, strict=True)
+                ):
+                    continue
+                if not _annotation_supported(role.annotation, candidate.annotation):
+                    continue
             if unit == candidate.unit or (role is None and unit is None):
                 return True
     return False

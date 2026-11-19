@@ -448,3 +448,24 @@ exacta sin publicar datos científicos de los proyectos. Se refinan instruccione
 y se añade una capa específica de cotejo; los tests simulan rechazo, reparación
 y reauditoría de caché. Una muestra nueva está en generación y debe revisarse de
 nuevo. No se acepta la anterior, no se entrega y no se firman casillas humanas.
+
+
+### Estado técnico y reanudación (2026-11-19)
+
+WA-12 terminó técnicamente con `make check`: **698 pruebas** y revisión
+independiente en `wa-12.md`. La puerta automática tras su cierre dio
+**PROVISIONAL (3)**; firmas humanas intactas. La evaluación histórica de cristales
+se aceptó en una segunda muestra exacta, con alcance limitado y sin aprobar el
+resto: su identidad y veredicto constan en `watchlist-real-sample.md`.
+
+El ensayo comparativo 4 usa una selección independiente y congelada de modelos,
+con inventario/hash, preguntas y ventana idénticos a los anteriores; no modifica
+los modelos de los trabajos 1–3 ni las preferencias globales. Se retoma tras una
+interrupción de sesión, sin captura nueva ni entrega. La configuración privada
+se reserializó con sus alias publicados; sus valores y modelos no cambiaron.
+
+El rechazo de un fragmento numérico por omitir una nota de procedencia motivó el
+ajuste revisado en `annotation-omission.md`. Mantiene dimensiones y asociaciones,
+y conserva como pendientes las notas que no puede interpretar con seguridad.
+La suite final y la nueva revisión exacta del informe se registrarán por separado;
+no se considera completo por tener una extracción o evaluación válida.

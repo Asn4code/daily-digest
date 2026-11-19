@@ -216,6 +216,10 @@ def _balanced(text: str) -> tuple[str, int] | None:
 def _unit(text: str) -> str | None:
     """Project adjacent annotations without discarding units inside or after them."""
     tail = text.lstrip().lstrip(QUOTES).lstrip()
+    if tail and category(tail[0]) in {"Ps", "Pe"} and tail[0] not in "()[]":
+        return "<unsupported-symbol>"
+    if tail.startswith((")", "]")) and unit_at(tail.lstrip(")] ").lstrip(QUOTES)):
+        return "<unsupported-symbol>"
     parts: list[str] = []
     head, used = _direct_unit(tail)
     if head:
@@ -268,14 +272,42 @@ def _unit(text: str) -> str | None:
     return " ".join(parts) or None
 
 
+def annotation_may_be_omitted(note: str) -> bool:
+    """Prove a simple note has no unbound dimension; ambiguity stays pending."""
+    if any(category(c) in {"Ps", "Pe", "Sc", "Sk", "So"} or c in "`_" for c in note):
+        return False
+    # Unary approximation of a secondary numeric fact (e.g. elapsed ~6 h)
+    # is supported. Unknown mathematical qualification is not dimensionless.
+    symbolic = re.sub(r"~(?=\s*[+\-]?(?:\d|\.\d))", "", note)
+    if any(category(c) == "Sm" for c in symbolic):
+        return False
+    qualification = OPAQUE.sub("", note, count=1).lstrip()
+    if re.search(r"\bunidades?\b", note) or re.match(
+        r"(?:en|con|sin|de|por|para|según|sobre|bajo|a)\s+(?!~?\s*[+\-]?(?:\d|\.\d))\S",
+        qualification,
+    ):
+        return False
+    bound_units = []
+    for number in TOKEN.finditer(note):
+        _, consumed = _direct_unit(note[number.end() :])
+        if consumed:
+            bound_units.append((number.end(), number.end() + consumed))
+    for word in re.finditer(r"[^\W\d_]+(?:[⁻⁺⁰¹²³⁴⁵⁶⁷⁸⁹]+)?", note):
+        if COMPOUND_UNIT.fullmatch(" " + word.group()) and not any(
+            start <= word.start() and word.end() <= end for start, end in bound_units
+        ):
+            return False
+    return True
+
+
 @dataclass(frozen=True)
 class Quantity:
     value: float
     unit: str | None
-    relation: tuple[tuple[float, str | None, str | None], ...] = ()
+    relation: tuple[tuple[float, str | None, tuple[str, ...] | None], ...] = ()
     operators: tuple[str, ...] = ()
     valid: bool = True
-    annotation: str | None = None
+    annotation: tuple[str, ...] | None = None
 
 
 @lru_cache(maxsize=512)
@@ -323,7 +355,7 @@ def quantities(text: str) -> tuple[Quantity, ...]:
         else:
             valid = False
         if notes:
-            annotation = repr(tuple(notes))
+            annotation = tuple(notes)
         kept.append(match)
         operand_ends.append(unit_end)
         result.append(
@@ -403,7 +435,15 @@ def quantities(text: str) -> tuple[Quantity, ...]:
             relation = tuple((q.value, q.unit, q.annotation) for q in values)
             for i, q in enumerate(values, start):
                 result[i] = replace(
-                    q, relation=relation, operators=tuple(ops), valid=values[0].valid
+                    q,
+                    relation=relation,
+                    operators=tuple(ops),
+                    valid=values[0].valid
+                    and all(
+                        value.unit not in {"<unbalanced>", "<nested>", "<unsupported-symbol>"}
+                        and not (value.unit and value.unit.startswith("<literal>"))
+                        for value in values
+                    ),
                 )
         start = end + 1
     return tuple(result)

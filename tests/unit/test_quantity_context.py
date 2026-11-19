@@ -312,3 +312,78 @@ def test_a_raw_source_cannot_forge_an_internal_identity_binding():
     source = "Estructura 1ABC_A. Valor 12 (" + reference_token("1ABC_A") + " terminó)."
     with pytest.raises(ValidationError):
         check(source, "Valor 12 (1ABC_A terminó).")
+
+
+@pytest.mark.parametrize(
+    "source,claim",
+    [
+        ("Se completaron 12 de 12 (1ABC_A terminó tras 6 h de CPU).", "Se completaron 12 de 12."),
+        ("Se completaron 12 (lote 1).", "Se completaron 12."),
+    ],
+)
+def test_a_literal_fragment_need_not_repeat_a_non_dimensional_annotation(source, claim):
+    check(source, claim)
+
+
+@pytest.mark.parametrize(
+    "source,claim",
+    [
+        ("Valor 12 (nm).", "Valor 12."),
+        ("Valor 12 (1ABC_A) nm.", "Valor 12."),
+        ("Valor 12 de 12 (nm).", "Valor 12 de 12."),
+    ],
+)
+def test_omitting_an_annotation_cannot_drop_a_dimension(source, claim):
+    with pytest.raises(ValidationError):
+        check(source, claim)
+
+
+@pytest.mark.parametrize("annotation", ["((nm))", "([nm])", "((/ nm))", "(1ABC_A (nm))"])
+def test_nested_dimensional_annotations_cannot_be_omitted(annotation):
+    with pytest.raises(ValidationError):
+        check("RMSD 1.4 " + annotation + ".", "RMSD 1.4.")
+
+
+@pytest.mark.parametrize("annotation", ["(（nm）)", "(【nm】)", "（nm）", "【nm】"])
+def test_unicode_dimensional_wrappers_cannot_be_omitted(annotation):
+    with pytest.raises(ValidationError):
+        check("RMSD 1.4 " + annotation + ".", "RMSD 1.4.")
+
+
+def test_an_invalid_operand_does_not_become_valid_when_bound():
+    with pytest.raises(ValidationError):
+        check("Valor 1+2(nm", "Valor 1+2(kg")
+
+
+def test_a_dimension_after_a_grouped_scalar_is_not_lost():
+    with pytest.raises(ValidationError):
+        check("RMSD (1.4) nm.", "RMSD 1.4.")
+
+
+@pytest.mark.parametrize(
+    "annotation",
+    [
+        "(|nm|)",
+        "(≡ nm)",
+        "(1ABC_A |nm|)",
+        "(en nm)",
+        "(1ABC_A en nm)",
+        "(con unidades desconocidas)",
+    ],
+)
+def test_ambiguous_or_unbound_dimensional_notes_are_not_omittable(annotation):
+    with pytest.raises(ValidationError):
+        check("RMSD 1.4 " + annotation + ".", "RMSD 1.4.")
+
+
+def test_ordinary_provenance_may_include_a_secondary_approximate_duration():
+    check(
+        "Se completaron 12 de 12 (1ABC_A terminó tras ~6 h de CPU; 48 residuos CA verificados).",
+        "Se completaron 12 de 12.",
+    )
+
+
+@pytest.mark.parametrize("annotation", ["(con F)", "(1ABC_A con F)", "(📏 F)", "(1ABC_A `_F_`)"])
+def test_unknown_qualifications_are_not_proven_nondimensional(annotation):
+    with pytest.raises(ValidationError):
+        check("Valor 1.4 " + annotation + ".", "Valor 1.4.")

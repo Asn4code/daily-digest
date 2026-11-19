@@ -1,6 +1,6 @@
 # Contraste numérico: diagnóstico y propuesta
 
-Estado: WA-12 aprobada por la persona el 17 de noviembre; implementación y revisión adversarial en curso.
+Estado: WA-12 terminada técnicamente, con revisión independiente; el ensayo real y la firma de fase siguen pendientes.
 
 El avance retrospectivo de las dos preguntas quedó pendiente. La evaluación de
 cristales tuvo generación y cotejo válidos; la de semillas agotó el tiempo tras
@@ -107,3 +107,16 @@ Unicode, formato que concatena cifras, extremos ocultos tras puntos, dimensiones
 entre paréntesis y anotaciones tomadas de fuentes diferentes. Las correcciones
 se comprueban con pruebas de aceptación y rechazo; no aprueban por sí mismas el
 informe real ni la firma humana de fase.
+
+
+## Refinamiento del ensayo real (19 de noviembre)
+
+Una cita literal de un ratio quedaba rechazada por no repetir la nota de
+procedencia. Se admite el fragmento sin añadir etiquetas, dimensiones o notas
+nuevas. Las notas que sí se afirman siguen vinculadas completas a su operando y
+a una misma fuente; notas ambiguas o dimensionales no se pueden omitir. El otro
+intento que añadía una etiqueta de recuento sin respaldo continúa rechazado.
+
+La revisión adicional de `reviews/annotation-omission.md` conserva los negativos
+ASCII/Unicode, calificadores dimensionales y sintaxis malformada. No acepta el
+informe real ni sustituye controles científicos o firmas humanas.

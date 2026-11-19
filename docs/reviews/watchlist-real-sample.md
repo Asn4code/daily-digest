@@ -115,3 +115,40 @@ La mitigación resulta pertinente como instrucción y conserva el bloqueo por
 cotejo negativo. **La candidata con la huella anterior continúa rechazada.**
 Solo una muestra nueva e identificada puede demostrar si la corrección funciona
 en las evaluaciones reales; deberá cotejarse de nuevo contra los originales.
+
+## Revisión limitada de una candidata nueva, 17 de noviembre
+
+Artefacto privado
+`build/phase3-live/watch-only-03d6255b4c524dcdb83e253052905a6b.json`,
+SHA-256 `9f4262211208ae85f2c8a2deb43e01dac213fb76a96525eeb77c6f2052c2d2bb`.
+Se revisó exclusivamente la evaluación completada en esta candidata, generada
+con `watchlist` versión 3 y cotejada con la capa `grounding_watchlist` versión 1
+(versión compuesta de cotejo `7.1`). Las restantes evaluaciones y el informe
+completo quedan fuera de esta aprobación.
+
+Se cotejaron `finding`, `meaning`, `limits` y `next_check` contra las fuentes
+originales. En esta evaluación no quedan hallazgos materiales abiertos:
+
+- R1: la comparación de resultados existentes ya no recibe requisitos de
+  regeneración o cambios de protocolo pertenecientes a otra acción.
+- R2: las afirmaciones se limitan a lo que consta en las fuentes disponibles;
+  se conserva la cobertura incompleta sin afirmar inexistencia de resultados.
+- R4: el alcance se ciñe al subconjunto pertinente, sin mezclar otros fallos
+  ni extender la conclusión al grupo completo.
+- El siguiente paso conserva la comprobación documentada como propuesta
+  pendiente: no declara ejecución, aceptación humana ni una métrica obtenida.
+
+Las evidencias y preguntas fijadas son idénticas a las ya cotejadas. La ventana
+continúa siendo la histórica indicada arriba; no se extrapola al estado actual.
+Con el código de `3617f4f`, `validate_report` pasa y `require_complete` rechaza
+el artefacto, como corresponde a un informe todavía incompleto.
+
+**Veredicto limitado: aprobada la evaluación completada de esta candidata.**
+No se aprueban las evaluaciones pendientes, el informe completo, la fase ni la
+comprensión humana. La candidata anterior, identificada por su propia huella
+en esta ficha, **permanece rechazada**.
+
+El cotejo exacto, con los campos y fuentes científicos, queda en
+`build/review-watchlist-real/review-03d6255b4c524dcdb83e253052905a6b.json`,
+fuera del repositorio público. No se modifica el artefacto revisado ni ninguna
+firma humana.

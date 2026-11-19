@@ -1017,7 +1017,7 @@
     {
       "id": "WA-05",
       "title": "Puerta de fase 3",
-      "state": "todo",
+      "state": "doing",
       "group": "WA",
       "deps": ["WA-01", "WA-02", "WA-03", "WA-04", "WA-08", "WA-06", "WA-07", "WA-09", "WA-10", "WA-11", "WA-12"],
       "at": "2026-11-04T11:20:37Z",
@@ -1223,6 +1223,16 @@
           "at": "2026-11-17T14:54:40Z",
           "by": "codex",
           "text": "WA-12 aprobada: se corrige el contraste numérico antes de continuar la puerta. Informes pendientes y firmas conservados."
+        },
+        {
+          "at": "2026-11-17T15:51:01Z",
+          "by": "codex",
+          "text": "Plan: repetir puerta automática tras WA-12, revisar muestra nueva con condiciones y alcance conservados, y reanudar informe completo solo con diagnóstico concreto. Mantener rechazo de la muestra anterior, firma humana pendiente y cero entregas de pruebas incompletas; DNS intactos."
+        },
+        {
+          "at": "2026-11-19T08:08:27Z",
+          "by": "codex",
+          "text": "Se retoma19Nov. No quedan procesos del ensayo; job4 conserva estado running huérfano en r8, sin entrega. Se ejecuta suite del ajuste de anotaciones y se solicita revisión independiente del delta pendiente. La reanudación conservará inventario/hash, preguntas, selección congelada Qwen de NaN e intervalo histórico; no se recaptura ni mejora cobertura. Jobs1–3 se mantienen preservados."
         }
       ]
     },
@@ -1851,7 +1861,7 @@
     {
       "id": "WA-12",
       "title": "Corregir el contraste numérico de prosa científica",
-      "state": "doing",
+      "state": "done",
       "group": "WA",
       "deps": ["WA-11"],
       "at": "2026-11-17T11:52:34Z",
@@ -1877,6 +1887,11 @@
           "at": "2026-11-17T15:42:02Z",
           "by": "codex",
           "text": "Revisión adversarial ampliada:255 focalizadas PASS, incluidas identidades numéricas excluidas en fuente, anotaciones con IDs lossless, cadenas PDB numéricas, agrupaciones de miles y protección frente a marcadores internos en fuentes no fiables. El ensayo aislado obtuvo ambas evaluaciones+cotejos y se revalidó con código nuevo, pero revisión científica independiente encontró R1–R4 semánticos; muestra rechazada e inmutable. Se precisan watchlistv3 y capa grounding_watchlistv1. Dos tests nuevos de reparación/rechazo y revisión aislada de caché de cotejo;26 con e2e PASS. Suite completa y puerta en curso sobre código estable; no entrega ni firma."
+        },
+        {
+          "at": "2026-11-17T15:51:01Z",
+          "by": "codex",
+          "text": "Las citas respaldadas de los cinco casos reproducidos ya validan sin convertir IDs, rangos u operaciones en cantidades nuevas. Fuente y afirmación comparten vista léxica con identidades completas, dimensiones y anotaciones vinculadas; originales y citas intactos. Make check698PASS (229,36s),390 focalizadas independientes y revisión técnica aprobada para2619df0+3617f4f. Puerta3 ejecutada: todo código/escenarios PASS; solo faltaba cerrar esta tarea. Ensayo real: ambas evaluaciones pasaron validadores/cotejo, pero revisión científica rechazó R1–R4; se conserva la muestra y se precisan generación/cotejo con tests de bloqueo y reparación. Nueva muestra en curso, sin entrega. No se declara informe completo ni se firma fase. En WA-05 falta cotejar la revisión nueva, completar informe y validar utilidad humana."
         }
       ]
     }
