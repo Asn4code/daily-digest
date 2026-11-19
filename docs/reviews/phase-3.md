@@ -533,3 +533,10 @@ confirma equivalencia de los controles previos y mitigación de SF1 en
 comprobación privada centrada en las fuentes de la candidata rechazada, con
 inventario y selección de modelos del trabajo 5; las demás etapas se mantienen
 expresamente pendientes y el artefacto no se cataloga ni entrega como informe.
+
+El ajuste y la revisión se publicaron en `ce1b1b7`. En la comprobación privada,
+la primera respuesta de NaN se rechazó por `unsupported_number` en una observación
+y la reparación agotó su plazo; se está probando el respaldo configurado.
+La mitigación de SF1 todavía no tiene una candidata real nueva aprobada.
+La cola temporal está de nuevo disponible y no recupera los ensayos fallidos;
+la web responde en 8091 y se verificaron intactos los DNS institucionales.

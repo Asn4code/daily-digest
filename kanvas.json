@@ -1258,6 +1258,11 @@
           "at": "2026-11-19T09:16:31Z",
           "by": "codex",
           "text": "Corrección SF1 definitiva: make check730PASS (213,66s), lint/formato/mypy correctos y puerta3PROVISIONAL con todo automático PASS. Revisión independiente confirma equivalencia del source compacto (3652caracteres) y mitigación, ficha source-decision-scope.md. Se comprueban de forma privada las fuentes de la candidata rechazada con inventario/modelos congelados del trabajo5; resto explícitamente pendiente, sin entrega ni aprobación humana."
+        },
+        {
+          "at": "2026-11-19T09:20:01Z",
+          "by": "codex",
+          "text": "Commit ce1b1b7 subido: ajuste SF1, 730 pruebas y revisión independiente. Comprobación privada de fuentes sigue en curso: primera salida NaN rechazada por unsupported_number y reparación fuera de plazo; respaldo configurado pendiente. Sin nueva candidata científica aprobada ni informe completo/entrega. Cola temporal restaurada sin reencolar fallidos, web8091HTTP200 y DNS institucionales intactos."
         }
       ]
     },
