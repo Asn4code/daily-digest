@@ -119,6 +119,20 @@ formatos, rutas, reintentos, límites, privacidad o estados humanos. Las pruebas
 con dobles comprueban bloqueo o reparación en controls, limitations e
 interpretations; la eficacia del modelo requiere una nueva revisión exacta.
 
+### Modalidad y citas numéricas en la validación de WA-05 (2026-11-19)
+
+La comprobación aislada de source v11 no completó fuentes válidas. Un diagnóstico
+posterior conservó respuestas privadas: una cambió la etiqueta de recuento y
+otra omitió anotaciones numéricas, mientras la reparación semántica promovía
+alternativas y condiciones de una rama a requisitos generales. La revisión
+independiente rechaza la candidata; no se afloja el validador ni se publica.
+Source v12 y grounding v9 precisan modalidad, alcance y cierre: producir un informe
+o paquete no acredita terminar el trabajo. Las cifras citadas mantienen su
+anotación completa y etiqueta original. El prompt de fuente queda por debajo
+del tamaño anterior; no cambian límites, contratos, rutas, formatos humanos ni
+estados. Las nuevas regresiones con dobles no demuestran eficacia de un proveedor
+real: otra candidata exacta debe superar el cotejo independiente.
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

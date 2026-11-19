@@ -355,7 +355,7 @@ Cada paquete mantiene IDs, tiempos, metadatos, cobertura, objetivo y ámbito de
 privacidad. El router recibe el proyecto real; abstraer una fuente privada no
 permite enviarla al proveedor externo.
 
-Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v11.
+Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v12.
 Una limitación antigua se conserva con su fecha, sin presentarla como vigente
 cuando una nota posterior documenta su resolución. Las capacidades sin actualización
 siguen separadas; las comprobaciones solo se atribuyen a las notas que las declaran.
@@ -363,9 +363,13 @@ Las pruebas de software no acreditan por sí solas calidad científica.
 Los requisitos se vinculan a su acción y subconjunto: una condición para
 regenerar no se extiende a localizar archivos o entregar un paquete. La decisión
 de si aceptar un cambio sigue abierta; no se transforma en aceptación obligatoria.
-El cotejo común v8 comprueba esa distinción en todos los campos y no exige repetir
+El cotejo común v9 comprueba esa distinción en todos los campos y no exige repetir
 condiciones que ya estén claras. Una aprobación del modelo sigue necesitando
 la revisión independiente de la muestra real.
+Las posibles vías de recuperación y las condiciones de una rama no se promueven
+a requisitos generales; producir un informe o paquete no acredita cierre. Las
+citas de cifras conservan sus anotaciones entre paréntesis y las etiquetas de
+recuento originales, sin sustituir secuencias por predicciones.
 Las piezas válidas se guardan en `sections[source:...]` y se enumeran en
 `source_units`. El ensamblado v3 conserva las piezas completas en `ResultFiche`,
 sin concatenar sus resúmenes en un campo limitado ni generar conclusiones nuevas.

@@ -1,6 +1,6 @@
 ---
 name: source
-version: 11
+version: 12
 task: extract
 ---
 Devuelve solo SourceFindings en español: result_id intacto; summary (text y
@@ -22,6 +22,7 @@ los rehagas, transcribas listas de números ni calcules equivalencias o duracion
 Para cifras usa fragmentos
 literales breves entre comillas con valor, etiqueta, unidad y condición juntos;
 no reformules recuentos ni conviertas abreviaturas de artefactos en unidades.
+Copia íntegra la anotación entre paréntesis de una cifra, no solo su valor.
 No ocultes cifras con palabras. IDs de tareas y pasos no son medidas. Fechas de
 procedencia en ISO (AAAA-MM-DD) desde metadatos.
 
@@ -50,11 +51,10 @@ ambiguos y pregunta cómo comprobarlos sin imponer un estado categórico. Revisa
 todos los campos, incluido open_questions. Esta capa conserva procedencia;
 los balances sintetizan.
 
-Vincula cada requisito a la acción y al subconjunto para los que la fuente lo
-establece. Recuperar resultados puede incluir acciones distintas, como localizar
-archivos existentes, entregar un paquete o regenerar con otro protocolo: una
-condición de regeneración no se extiende a las demás por compartir documento.
-No atribuyas una causa única a faltantes con causas diferentes. «Decidir si se
-aceptan cambios» conserva una elección humana pendiente; no significa «hay que
-aceptar los cambios» ni que ya estén autorizados. Conserva esta distinción en
-todos los campos, incluidos controls, limitations e interpretations.
+Vincula requisitos a su acción y subconjunto: regenerar con otro protocolo no
+impone por sí solo condiciones a localizar archivos o entregar paquetes. Conserva causas
+distintas. «Decidir si se aceptan cambios» es una elección pendiente, no aceptación
+obligatoria ni autorización. Una vía posible no es un requisito; una condición
+de una rama no se exige fuera de ella. Producir un informe o paquete no acredita
+cierre. Conserva estas distinciones en todos los campos, también controls,
+limitations e interpretations.

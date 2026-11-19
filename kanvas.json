@@ -1263,6 +1263,16 @@
           "at": "2026-11-19T09:20:01Z",
           "by": "codex",
           "text": "Commit ce1b1b7 subido: ajuste SF1, 730 pruebas y revisión independiente. Comprobación privada de fuentes sigue en curso: primera salida NaN rechazada por unsupported_number y reparación fuera de plazo; respaldo configurado pendiente. Sin nueva candidata científica aprobada ni informe completo/entrega. Cola temporal restaurada sin reencolar fallidos, web8091HTTP200 y DNS institucionales intactos."
+        },
+        {
+          "at": "2026-11-19T12:42:48Z",
+          "by": "codex",
+          "text": "La comprobación source-only v11 terminó sin fuentes válidas. Diagnóstico aislado conserva salidas privadas y reproduce rechazo de etiqueta cambiada (secuencias/predicciones) y anotación omitida: el fragmento literal completo valida sin tocar el validador. Revisión científica rechaza además promover vías posibles/condiciones de rama a requisitos y declarar cierre desde un informe/paquete. Corrección sourcev12+groundingv9 en revisión, sin elevar límites; 169 pruebas focalizadas PASS. No se repite el informe completo ni se entrega."
+        },
+        {
+          "at": "2026-11-19T12:48:01Z",
+          "by": "codex",
+          "text": "Sourcev12/groundingv9 verificados sobre texto estable: make check737PASS (228,85s), lint/formato/mypy correctos, puerta3PROVISIONAL y revisión independiente de mitigación con14pruebas propias PASS. La candidata anterior sigue rechazada. Se comprueba una sola pieza con salidas retenidas, sin entrega ni informe final; se esperan resultado y revisión científica exacta."
         }
       ]
     },

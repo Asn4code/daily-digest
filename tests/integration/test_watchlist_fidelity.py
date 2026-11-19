@@ -110,19 +110,47 @@ def test_scoped_condition_audit_blocks_or_repairs_a_cached_monitoring_candidate(
 
 
 @pytest.mark.parametrize("repair", [False, True])
-@pytest.mark.parametrize("field", ["controls", "limitations", "interpretations"])
-def test_source_decision_is_not_a_mandatory_condition_for_every_recovery(
-    config, monkeypatch, repair, field
+@pytest.mark.parametrize(
+    "field,source,bad,good,quote",
+    [
+        *[
+            (
+                field,
+                "Para regenerar con otro protocolo, decidir antes si se aceptan los cambios. "
+                "Otras vías son localizar archivos existentes o entregar el paquete externo.",
+                "Toda recuperación exige aceptar cambios de protocolo.",
+                "Solo regenerar con otro protocolo requiere decidir antes si se aceptan los "
+                "cambios; localizar archivos o entregar el paquete son vías distintas.",
+                "decidir antes si se aceptan los cambios",
+            )
+            for field in ["controls", "limitations", "interpretations"]
+        ],
+        (
+            "controls",
+            "Una posible vía de recuperación es usar otro alineamiento.",
+            "Recuperar exige usar otro alineamiento.",
+            "Usar otro alineamiento es una posible vía de recuperación.",
+            "Una posible vía de recuperación",
+        ),
+        (
+            "limitations",
+            "Si el cristal carece del tramo, la predicción podría ser comparable tras alinear.",
+            "Todas las predicciones requieren alinear para comprobarlas.",
+            "La comparabilidad tras alinear se plantea solo si el cristal carece del tramo.",
+            "Si el cristal carece del tramo",
+        ),
+        (
+            "summary",
+            "Se produjo un informe y un paquete. Quedan comprobaciones pendientes.",
+            "El informe y el paquete acreditan el cierre del trabajo.",
+            "Hay un informe y un paquete; las comprobaciones siguen pendientes.",
+            "Quedan comprobaciones pendientes.",
+        ),
+    ],
+)
+def test_source_modality_errors_stay_pending_or_are_repaired(
+    config, monkeypatch, repair, field, source, bad, good, quote
 ):
-    source = (
-        "Para regenerar con otro protocolo, decidir antes si se aceptan los cambios. "
-        "Otras vías son localizar archivos existentes o entregar el paquete externo."
-    )
-    bad = "Toda recuperación exige aceptar cambios de protocolo."
-    good = (
-        "Solo regenerar con otro protocolo requiere decidir antes si se aceptan los cambios; "
-        "localizar archivos o entregar el paquete son vías distintas."
-    )
     calls = []
 
     def respond(request):
@@ -143,18 +171,20 @@ def test_source_decision_is_not_a_mandatory_condition_for_every_recovery(
             claim = {"text": good if fixed else bad, "evidence": refs}
             if field == "interpretations":
                 claim["confidence"] = "low"
-            value[field] = [claim]
+            value[field] = claim if field == "summary" else [claim]
         candidate = package["context"].get("candidate", {})
         claims = candidate.get(field, [])
+        if isinstance(claims, dict):
+            claims = [claims]
         if title == "GroundingAudit" and claims and claims[0].get("text") == bad:
             value = {
                 "approved": False,
                 "issues": [
                     {
                         "rule": "unsupported_claim",
-                        "field": [field, 0, "text"],
-                        "evidence": candidate[field][0]["evidence"],
-                        "source_quote": "decidir antes si se aceptan los cambios",
+                        "field": [field, "text"] if field == "summary" else [field, 0, "text"],
+                        "evidence": claims[0]["evidence"],
+                        "source_quote": quote,
                     }
                 ],
             }
@@ -181,7 +211,8 @@ def test_source_decision_is_not_a_mandatory_condition_for_every_recovery(
         assert report.results[0].review_state == "pending"
         if repair:
             require_complete(report)
-            assert report.sections[key][field][0]["text"] == good
+            kept = report.sections[key][field]
+            assert (kept["text"] if field == "summary" else kept[0]["text"]) == good
             assert report.sections["check:" + key]["approved"]
         else:
             assert key in report.pending and key not in report.sections

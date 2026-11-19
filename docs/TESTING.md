@@ -462,3 +462,10 @@ limitations o interpretations. El cotejo la rechaza y la pieza queda pendiente,
 o la reparación conserva la elección de si aceptar y su acción concreta antes
 del ensamblado. La fuente y el estado humano permanecen intactos. No es una
 evaluación de la capacidad semántica de un proveedor real.
+
+La regresión cubre también una vía posible presentada como requisito, una
+condición de una rama extendida a todos los casos y un informe/paquete confundido
+con cierre. El mismo doble comprueba bloqueo o reparación antes del ensamblado,
+sin sustituir el cotejo real. La prueba numérica de una tabla sintética acepta
+la cifra con su anotación literal completa y la etiqueta original, y rechaza la
+omisión ambigua y el cambio de secuencias a predicciones.

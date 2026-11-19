@@ -1,6 +1,6 @@
 ---
 name: grounding
-version: 8
+version: 9
 task: contrast
 ---
 Comprueba la fidelidad de candidate frente a las evidencias originales y el contexto
@@ -80,3 +80,9 @@ rechaza la eliminación de esa elección pendiente, también en controls,
 limitations o interpretations. Un campo que conserva la elección no compensa
 otro que la convierte en obligatoria. No exijas repetir mecánicamente la misma
 condición si su alcance ya es claro y no hay contradicciones.
+
+Verifica primero si la fuente establece un requisito: una vía posible de
+recuperación no es una condición obligatoria. Una condición de una rama («si…»)
+no se extiende a las otras. Rechaza ambas promociones incluso en controls y
+limitations. Un informe o paquete producido no acredita por sí solo cierre;
+una pregunta que duda del cierre no compensa afirmarlo sin respaldo en summary.

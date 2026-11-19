@@ -31,6 +31,19 @@ def check(source, claim):
     assert value == before
 
 
+def test_numeric_table_fragment_keeps_its_attached_annotation_and_count_unit():
+    source = (
+        "| Modelo | Secuencias |\n| demo | 12 (las 8 del control + 1ABC_A) |\n"
+        "Predicciones marcadas BAD (demo, 4 secuencias)."
+    )
+    check(source, "El fragmento es «12 (las 8 del control + 1ABC_A)».")
+    check(source, "La fuente indica «4 secuencias».")
+    with pytest.raises(ValidationError):
+        check(source, "El fragmento es «12».")
+    with pytest.raises(ValidationError):
+        check(source, "La fuente indica «4 predicciones».")
+
+
 @pytest.mark.parametrize(
     "source,claim",
     [

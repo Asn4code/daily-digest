@@ -540,3 +540,31 @@ y la reparación agotó su plazo; se está probando el respaldo configurado.
 La mitigación de SF1 todavía no tiene una candidata real nueva aprobada.
 La cola temporal está de nuevo disponible y no recupera los ensayos fallidos;
 la web responde en 8091 y se verificaron intactos los DNS institucionales.
+
+### Diagnóstico de la prueba aislada y modalidad (2026-11-19)
+
+La prueba anterior terminó en el artefacto privado
+`build/phase3-live/source-only-4d5dc4306514496982ef3fce934d0546.json`, sin fuentes
+completas. Una comprobación posterior de una sola pieza conservó respuestas
+exactas y terminó también pendiente. El diagnóstico reproduce dos rechazos:
+cambiar una etiqueta de recuento y omitir una anotación numérica de la fuente.
+El fragmento literal completo valida con el código actual; no se modifica el
+validador para aceptar la versión abreviada o la etiqueta sustituida.
+
+La revisión científica rechaza además la candidata de reparación: convierte vías
+posibles y una condición de una rama en requisitos generales, y afirma cierre
+desde artefactos sin respaldo suficiente. Se precisan source v12 y grounding v9
+para conservar modalidad, decisiones y alcance; la cita numérica mantiene su
+anotación íntegra. Source sigue por debajo del tamaño de las versiones anteriores.
+Las regresiones focalizadas pasan 169 pruebas, incluido el semanal; se ejecutan
+suite completa y puerta sobre el texto definitivo. Falta comprobar otra salida
+real, sin entregar ni alterar las firmas humanas.
+
+Verificación final de source v12 y grounding v9: `make check` pasa **737 pruebas**
+(228,85 s), lint, formato y tipado estricto. La puerta automática de fase 3 da
+PROVISIONAL (3), con todas las comprobaciones técnicas aprobadas. La revisión
+independiente de `source-decision-scope.md` registra hashes y conserva el rechazo
+de la candidata anterior; sus 14 pruebas específicas pasan. Una nueva
+comprobación aislada está en marcha y conserva las respuestas para diagnóstico.
+Estos resultados técnicos todavía no aprueban otra candidata científica ni el
+informe completo.

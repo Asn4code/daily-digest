@@ -85,3 +85,65 @@ compactación. Esta es una revisión de equivalencia de instrucciones; no prueba
 su eficacia en una salida real. Las comprobaciones automáticas finales y la
 puerta se ejecutan sobre el estado cerrado por el constructor. La candidata
 anterior continúa rechazada y no se aprueban informe, fase ni entrega.
+
+## Nueva candidata privada rechazada, 19 de noviembre
+
+Artefacto
+`build/phase3-live/diagnostics/cb2c1067df8d4931ba457d7d5a1b653b.json`,
+SHA-256 `e67c7bc1268ec89ad1eb861ec1a0d5882e0d96bb6fefd883399f031a91dbdeda`.
+Se revisaron semánticamente todos sus campos; el rechazo numérico previo sigue
+vigente. La candidata no es aceptable mediante una reparación solo de cifras:
+
+- SF2: el resumen afirma cierre sin que sus citas lo establezcan, mientras otra
+  pregunta todavía consulta si los hitos documentados constituyen cierre. La
+  producción de documentación o preparación de un paquete no acredita ese cierre.
+- SF3: un campo `controls` convierte vías de recuperación propuestas como
+  posibles en condiciones obligatorias.
+- SF4: un campo `limitations` transforma la condición de una rama de decisión
+  en un requisito universal, perdiendo el supuesto para el que la fuente la exige.
+
+La elección humana de si aceptar cambios se conserva mejor en esta candidata;
+eso no compensa las nuevas transposiciones de modalidad y alcance. El veredicto
+es **Cambios** para esta pieza exacta, sin aprobación del informe ni de la fase.
+La revisión íntegra privada está en
+`build/review-watchlist-real/review-source-cb2c1067df8d4931ba457d7d5a1b653b.json`,
+SHA-256 `4b20f442a4180c167ef3eae47a5e86877f887ae4a2ad11c66c196d403e89c799`.
+Los datos científicos y las referencias concretas permanecen fuera del
+repositorio público. El original no se modifica; la eficacia de la mitigación
+sigue pendiente de una nueva candidata exacta.
+
+## Mitigación ampliada: `source` v12 y `grounding` v9
+
+Se revisaron los textos definitivos posteriores al rechazo anterior:
+
+- `source.md`, SHA-256
+  `5a2bd478696706093b485dd754f40940d7f853d61d3c59cca9a43c7f11799031`.
+- `grounding.md`, SHA-256
+  `102e9276560ffc9cf0d447d618050a89bedee4ea7a78e6623590b34541b34d7c`.
+
+La generación y el cotejo distinguen ahora explícitamente vías posibles de
+requisitos, condiciones de una rama de condiciones universales, y documentación
+producida de cierre acreditado. La regla SF1 conserva la elección humana y el
+alcance de cada acción; la expresión «por sí solo» evita negar dependencias que
+la fuente sí establezca explícitamente. Una pregunta cauta no compensa una
+afirmación de cierre sin respaldo en el resumen.
+
+Se mantienen los controles previos de procedencia, instrucciones no fiables,
+estados humanos, observación frente a evento, resolución por notas posteriores,
+referencias históricas y restricciones numéricas. La indicación de copiar íntegra
+la anotación asociada a una cifra conserva condiciones; no relaja el validador.
+El archivo `source` tiene 3626 caracteres, por debajo de las versiones anteriores
+revisadas, sin aumentar límites ni recortar evidencias.
+
+Ejecución independiente de `tests/integration/test_watchlist_fidelity.py`:
+**14 pruebas pasan**. La extensión comprueba rechazo y reparación de alternativas
+convertidas en requisitos, condiciones de rama generalizadas y cierre sin
+respaldo en `summary`, además de los casos SF1. Sigue siendo una prueba con
+transporte determinista de la orquestación; no una demostración de detección
+semántica por un proveedor real.
+
+**Dictamen técnico de mitigación: pertinente para nueva validación.** La
+candidata privada anterior conserva su rechazo numérico y semántico. Hace falta
+otra salida exacta y su revisión independiente para demostrar eficacia. Esta
+ficha no aprueba el ensayo completo, el informe, la fase ni una entrega y no
+modifica firmas humanas.

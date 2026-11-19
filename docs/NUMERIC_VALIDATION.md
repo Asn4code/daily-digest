@@ -120,3 +120,12 @@ intento que añadía una etiqueta de recuento sin respaldo continúa rechazado.
 La revisión adicional de `reviews/annotation-omission.md` conserva los negativos
 ASCII/Unicode, calificadores dimensionales y sintaxis malformada. No acepta el
 informe real ni sustituye controles científicos o firmas humanas.
+
+El diagnóstico posterior de una fuente tabulada distingue dos rechazos que no
+se corrigen relajando el código: cambiar la etiqueta de secuencias a predicciones
+y omitir una anotación numérica ambigua. Una reproducción de solo lectura acepta
+el fragmento literal completo y rechaza ambas variantes. La regresión sintética
+queda en `test_numeric_table_fragment_keeps_its_attached_annotation_and_count_unit`.
+Source v12 pide copiar la anotación íntegra. Las respuestas exactas permanecen
+privadas y su fidelidad científica se revisa por separado: reparar las cifras
+no autoriza promover alternativas o condiciones parciales a requisitos generales.
