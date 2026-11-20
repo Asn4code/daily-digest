@@ -129,3 +129,12 @@ queda en `test_numeric_table_fragment_keeps_its_attached_annotation_and_count_un
 Source v12 pide copiar la anotación íntegra. Las respuestas exactas permanecen
 privadas y su fidelidad científica se revisa por separado: reparar las cifras
 no autoriza promover alternativas o condiciones parciales a requisitos generales.
+
+La revisión del caso `12 filas: modelo, id, estado` concluye que no basta que el
+texto posterior a `:` empiece por una palabra para clasificarlo como explicación:
+la misma sintaxis puede expresar una dimensión o ratio. Se conserva el rechazo
+del prefijo y la aceptación del literal completo. Source v13 pide citar completo
+el contexto entre paréntesis y tras dos puntos, manteniendo el validador intacto.
+Doce casos pytest comprueban literales y rechazan pérdida de dimensiones,
+operandos o etiquetas; una futura representación de cabeceras tipadas requeriría
+diseño propio, no una excepción para esta frase.

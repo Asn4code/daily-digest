@@ -469,3 +469,9 @@ con cierre. El mismo doble comprueba bloqueo o reparación antes del ensamblado,
 sin sustituir el cotejo real. La prueba numérica de una tabla sintética acepta
 la cifra con su anotación literal completa y la etiqueta original, y rechaza la
 omisión ambigua y el cambio de secuencias a predicciones.
+
+`test_colon_fragment_does_not_drop_ambiguous_labels_dimensions_or_operands`
+conserva doce casos de la revisión técnica: fragmento explicativo completo,
+dimensiones separadas por dos puntos, ratios, operandos tras etiqueta y cambios
+de valor/unidad. No se autoriza eliminar globalmente `:` ni podar cualquier
+palabra que lo siga.

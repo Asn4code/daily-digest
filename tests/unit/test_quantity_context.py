@@ -45,6 +45,33 @@ def test_numeric_table_fragment_keeps_its_attached_annotation_and_count_unit():
 
 
 @pytest.mark.parametrize(
+    "source,claim,accepted",
+    [
+        ("Lista (12 filas: modelo, id, estado).", "12 filas: modelo, id, estado", True),
+        ("Lista (12 filas: modelo, id, estado).", "12 filas", False),
+        ("Valor 1.4 Å: nm.", "Valor 1.4 Å: nm.", True),
+        ("Valor 1.4 Å: nm.", "Valor 1.4 Å.", False),
+        ("Relación 12:20.", "Relación 12:20.", True),
+        ("Relación 12:20.", "Valor 12.", False),
+        ("Cobertura 12 filas:20 muestras.", "Cobertura 12 filas.", False),
+        ("Valor 1.4 Å:2 nm.", "Valor 1.4 Å.", False),
+        ("Lista (12 filas: nm, modelo, estado).", "12 filas", False),
+        ("Lista (12 filas: modelo, id, estado).", "13 filas", False),
+        ("Lista (12 filas: modelo, id, estado).", "12 columnas", False),
+        ("Lista (12 filas: modelo, id, estado).", "12 filas: nm", False),
+    ],
+)
+def test_colon_fragment_does_not_drop_ambiguous_labels_dimensions_or_operands(
+    source, claim, accepted
+):
+    if accepted:
+        check(source, claim)
+    else:
+        with pytest.raises(ValidationError):
+            check(source, claim)
+
+
+@pytest.mark.parametrize(
     "source,claim",
     [
         ("Completo, 12 de 12 (1ABC_A terminó).", "Completo, 12 de 12 (1ABC_A terminó)."),

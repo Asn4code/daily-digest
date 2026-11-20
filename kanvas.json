@@ -1273,6 +1273,16 @@
           "at": "2026-11-19T12:48:01Z",
           "by": "codex",
           "text": "Sourcev12/groundingv9 verificados sobre texto estable: make check737PASS (228,85s), lint/formato/mypy correctos, puerta3PROVISIONAL y revisión independiente de mitigación con14pruebas propias PASS. La candidata anterior sigue rechazada. Se comprueba una sola pieza con salidas retenidas, sin entrega ni informe final; se esperan resultado y revisión científica exacta."
+        },
+        {
+          "at": "2026-11-20T09:13:50Z",
+          "by": "codex",
+          "text": "20Nov: ensayo aislado v12 terminó pendiente (source-only-99b5...), sin fuente válida ni entrega. Revisión técnica de dos puntos confirma que no procede quitar el operador ni asumir explicación desde palabras; literal completo valida y prefijo ambiguo sigue pendiente. Sourcev13 pide conservar contexto completo, validador intacto; 181 focalizadas PASS y suite749/puerta en curso. El próximo arnés usará el plazo60min configurado; el anterior20min daba plazos por pieza más cortos y no prueba indisponibilidad en producción."
+        },
+        {
+          "at": "2026-11-20T09:17:22Z",
+          "by": "codex",
+          "text": "Sourcev13 y12regresiones verificadas: make check749PASS(211,83s), lint/formato/mypy correctos y puerta3PROVISIONAL. Revisión independiente colon-literal-scope.md aprueba técnicamente con41focalizadas; validador/router sin cambios. Ensayo real con plazo configurado sigue: primera salida conserva literal con dos puntos, reparación lo abrevia al corregir otros campos y rechaza; respaldo en curso. Sin informe completo, entrega ni firmas."
         }
       ]
     },

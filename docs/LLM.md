@@ -355,7 +355,7 @@ Cada paquete mantiene IDs, tiempos, metadatos, cobertura, objetivo y ámbito de
 privacidad. El router recibe el proyecto real; abstraer una fuente privada no
 permite enviarla al proveedor externo.
 
-Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v12.
+Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v13.
 Una limitación antigua se conserva con su fecha, sin presentarla como vigente
 cuando una nota posterior documenta su resolución. Las capacidades sin actualización
 siguen separadas; las comprobaciones solo se atribuyen a las notas que las declaran.
@@ -370,6 +370,9 @@ Las posibles vías de recuperación y las condiciones de una rama no se promueve
 a requisitos generales; producir un informe o paquete no acredita cierre. Las
 citas de cifras conservan sus anotaciones entre paréntesis y las etiquetas de
 recuento originales, sin sustituir secuencias por predicciones.
+Si el contexto numérico incluye paréntesis o dos puntos explicativos, se cita
+el fragmento completo: el validador no supone que esos signos carezcan de función
+dimensional o de relación. Una lista de palabras no basta para autorizar su poda.
 Las piezas válidas se guardan en `sections[source:...]` y se enumeran en
 `source_units`. El ensamblado v3 conserva las piezas completas en `ResultFiche`,
 sin concatenar sus resúmenes en un campo limitado ni generar conclusiones nuevas.

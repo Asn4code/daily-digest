@@ -568,3 +568,24 @@ de la candidata anterior; sus 14 pruebas específicas pasan. Una nueva
 comprobación aislada está en marcha y conserva las respuestas para diagnóstico.
 Estos resultados técnicos todavía no aprueban otra candidata científica ni el
 informe completo.
+
+### Citas completas y plazo del ensayo (2026-11-20)
+
+La comprobación v12 terminó pendiente sin fuentes válidas. La revisión técnica
+de los dos puntos recomienda conservar el literal completo: una lista de palabras
+no demuestra que el signo no represente una dimensión o relación. Source v13
+pide mantener completo el contexto entre paréntesis y tras dos puntos; el
+validador, router, límites y formatos permanecen intactos. Doce regresiones
+conservan el rechazo de pérdida de unidades, operandos o etiquetas.
+
+`make check` pasa **749 pruebas** (211,83 s), lint, formato y tipado. La puerta
+automática de fase 3 da PROVISIONAL (3), con todas sus comprobaciones técnicas
+aprobadas. La revisión independiente en `colon-literal-scope.md` aprueba el
+ajuste técnicamente y ejecuta 41 pruebas focalizadas; no aprueba la salida real.
+
+El nuevo arnés privado usa los 60 minutos configurados, frente a los veinte del
+ensayo anterior, sin elevar el límite del servicio. La primera salida conservó
+el fragmento completo, pero al reparar otros campos lo volvió a abreviar y quedó
+rechazada; se prueba el respaldo configurado. No hubo entrega, nueva captura ni
+cambios de comprensión humana. El inventario y los modelos congelados siguen
+siendo los del trabajo 5.

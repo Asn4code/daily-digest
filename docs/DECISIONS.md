@@ -133,6 +133,22 @@ del tamaño anterior; no cambian límites, contratos, rutas, formatos humanos ni
 estados. Las nuevas regresiones con dobles no demuestran eficacia de un proveedor
 real: otra candidata exacta debe superar el cotejo independiente.
 
+### Dos puntos ambiguos y alcance del arnés de prueba (2026-11-20)
+
+La revisión técnica de `12 filas: modelo, id, estado` desaconseja eliminar el
+operador o asumir que una lista de palabras no es dimensional. Se conserva el
+validador: el prefijo sigue pendiente y el literal completo valida. Source v13
+pide conservar paréntesis y texto tras dos puntos, con pruebas adversariales de
+dimensiones y ratios. No se tipan cabeceras ni se introduce una nueva regla de
+unidades para este caso.
+
+El arnés privado anterior disponía de veinte minutos y, por tanto, plazos por
+pieza más cortos que la configuración del servicio. La nueva comprobación aislada
+usa `schedule.max_generation_minutes` configurado, manteniendo inventario,
+preguntas y selección congelada; no aumenta el límite del servicio ni recaptura.
+El resultado anterior continúa pendiente y no demuestra indisponibilidad del
+proveedor con el plazo de producción. No hay entregas ni firmas inferidas.
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

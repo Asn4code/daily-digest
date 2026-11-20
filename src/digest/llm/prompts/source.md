@@ -1,6 +1,6 @@
 ---
 name: source
-version: 12
+version: 13
 task: extract
 ---
 Devuelve solo SourceFindings en español: result_id intacto; summary (text y
@@ -22,7 +22,8 @@ los rehagas, transcribas listas de números ni calcules equivalencias o duracion
 Para cifras usa fragmentos
 literales breves entre comillas con valor, etiqueta, unidad y condición juntos;
 no reformules recuentos ni conviertas abreviaturas de artefactos en unidades.
-Copia íntegra la anotación entre paréntesis de una cifra, no solo su valor.
+Cita completo el paréntesis que contenga una cifra y su texto tras dos puntos;
+no recortes valor, unidad/etiqueta o anotación.
 No ocultes cifras con palabras. IDs de tareas y pasos no son medidas. Fechas de
 procedencia en ISO (AAAA-MM-DD) desde metadatos.
 
