@@ -373,6 +373,11 @@ recuento originales, sin sustituir secuencias por predicciones.
 Si el contexto numérico incluye paréntesis o dos puntos explicativos, se cita
 el fragmento completo: el validador no supone que esos signos carezcan de función
 dimensional o de relación. Una lista de palabras no basta para autorizar su poda.
+Los delimitadores ambiguos dentro de código literal no desactivan por sí solos
+la normalización del resto de la fuente. La cobertura debe ser completa; si
+quedan delimitadores externos o entidades que alteran el código al decodificar,
+se conserva el respaldo literal. Los controles inválidos se preservan para su
+rechazo antes de que Markdown pueda sustituirlos.
 Las piezas válidas se guardan en `sections[source:...]` y se enumeran en
 `source_units`. El ensamblado v3 conserva las piezas completas en `ResultFiche`,
 sin concatenar sus resúmenes en un campo limitado ni generar conclusiones nuevas.

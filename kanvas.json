@@ -1283,6 +1283,21 @@
           "at": "2026-11-20T09:17:22Z",
           "by": "codex",
           "text": "Sourcev13 y12regresiones verificadas: make check749PASS(211,83s), lint/formato/mypy correctos y puerta3PROVISIONAL. Revisión independiente colon-literal-scope.md aprueba técnicamente con41focalizadas; validador/router sin cambios. Ensayo real con plazo configurado sigue: primera salida conserva literal con dos puntos, reparación lo abrevia al corregir otros campos y rechaza; respaldo en curso. Sin informe completo, entrega ni firmas."
+        },
+        {
+          "at": "2026-11-20T09:31:46Z",
+          "by": "codex",
+          "text": "Se aisló un fallo general de formato: ID numérico dentro de código activa fallbackraw para toda fuente y rechaza otra cita correcta (3partial). Corrección quantities.view permite normalizar resto solo si triggers están íntegramente cubiertos por code_inline literal; entidades que cambian código conservan fallback, tras ataque de revisión que descartó variante inicial. Controles inválidos se preservan antes de Markdown.247focalizadasPASS, revisión adversarial y suite/puerta en curso. Ensayo real detenido antes del cambio para no mezclar huellas."
+        },
+        {
+          "at": "2026-11-20T09:35:47Z",
+          "by": "codex",
+          "text": "Corrección de normalización local estable: make check775PASS(212,78s),lint/formato/mypy correctos y puerta3PROVISIONAL. Diez positivos reproducían el fallo antes;26nuevos tests cubren código literal, triggers externos, entidades, unidades y controles. Revisión adversarial final en curso. No fuente real aprobada ni entrega; se actualizarán procesos temporales antes de reanudar para cargar módulo/huella coherentes."
+        },
+        {
+          "at": "2026-11-20T09:38:30Z",
+          "by": "codex",
+          "text": "Revisión independiente numeric-code-spans.md aprobada para delta con protección de entidades y controles:365focalizadasPASS, sin hallazgos abiertos. Suite775PASS y puertaPROVISIONAL. Recargadas solo web8091 y cola temporal; HTTP200 y DNS institucional intacto. Comprobación real de una pieza reanudada con módulo nuevo e inventario/modelos/plazo congelados; sin recaptura, publicación ni entrega."
         }
       ]
     },

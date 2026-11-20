@@ -1,6 +1,7 @@
 """Derived lexical views of cited prose; originals and grounding quotes stay intact."""
 
 import re
+from collections import Counter
 from dataclasses import dataclass, replace
 from functools import lru_cache
 from html import unescape
@@ -137,6 +138,7 @@ def unit_at(text: str) -> str | None:
 # their literal content, including underscores and operators. Unmatched markers
 # remain text and cannot be used to hide quantities or dimensions.
 MARKDOWN = MarkdownIt("commonmark", {"html": True})
+AMBIGUOUS_NUMERIC_FORMAT = re.compile(r"\d\s*[*_]{1,2}\s*[+\-]?(?:\d|\.\d)")
 OPAQUE = re.compile(r"OPAQUEREF[a-p]+")
 COUNT_LABELS = {
     "estructuras",
@@ -167,10 +169,25 @@ def view(text: str) -> str:
     # boundary rule silently ignore the endpoint after a decimal dot.
     text = re.sub(r"(?<=\d)(?:\s*\.){2,}\s*(?=[+\-]?\d)", " .. ", text)
     decoded = unescape(text)
-    if re.search(r"\d\s*[*_]{1,2}\s*[+\-]?(?:\d|\.\d)", decoded):
-        return re.sub(r"(?<=\d)(?:\s*\.){2,}\s*(?=[+\-]?\d)", " .. ", decoded).replace("−", "-")
+    # The numeric lexer rejects controls. Preserve them before Markdown can
+    # replace a NUL and hide an otherwise invalid quantity or dimension.
+    if any(category(c) == "Cf" or (category(c) == "Cc" and c not in "\n\r\t") for c in decoded):
+        return decoded.replace("−", "-")
     tokens = MARKDOWN.parseInline(text)
     children = tokens[0].children or [] if tokens else []
+    ambiguous = Counter(AMBIGUOUS_NUMERIC_FORMAT.findall(decoded))
+    if ambiguous:
+        literal_code = [token.content for token in children if token.type == "code_inline"]
+        # Code spans retain delimiters literally. They must not disable normal
+        # formatting elsewhere, but every ambiguous occurrence must be covered.
+        # Decoding entities can remove a trigger inside code and let an equal
+        # outside trigger impersonate it; keep the original fallback in that case.
+        unchanged = all(unescape(content) == content for content in literal_code)
+        code_occurrences = Counter(
+            match for content in literal_code for match in AMBIGUOUS_NUMERIC_FORMAT.findall(content)
+        )
+        if not unchanged or ambiguous != code_occurrences:
+            return re.sub(r"(?<=\d)(?:\s*\.){2,}\s*(?=[+\-]?\d)", " .. ", decoded).replace("−", "-")
     # Joining token contents drops only formatting delimiters. No rendering or
     # HTML decoding is used, and nested code remains unexecuted literal text.
     plain = "".join("\n" if t.type in {"softbreak", "hardbreak"} else t.content for t in children)

@@ -138,3 +138,19 @@ el contexto entre paréntesis y tras dos puntos, manteniendo el validador intact
 Doce casos pytest comprueban literales y rechazan pérdida de dimensiones,
 operandos o etiquetas; una futura representación de cabeceras tipadas requeriría
 diseño propio, no una excepción para esta frase.
+
+## Normalización local de código literal (20 de noviembre)
+
+El ensayo aisló otro rechazo: un identificador como `SRR123_456` dentro de código
+activaba el respaldo literal para toda la fuente. Una afirmación separada sobre
+`3 partial` quedaba sin la misma normalización de Markdown en ambos lados.
+La corrección mantiene literales los bloques de código y permite normalizar el
+resto solo si todas las ocurrencias ambiguas están cubiertas por esos tokens.
+
+No basta contar coincidencias: la revisión encontró entidades malformadas que
+eliminan una coincidencia al decodificar y permiten suplantarla con otra externa.
+Si la decodificación cambia cualquier fragmento de código, se conserva el
+respaldo anterior. Tampoco se permite que Markdown sustituya un carácter de
+control antes del rechazo numérico existente. Las pruebas cubren código con
+uno/dos backticks, entidades y uniones fuera de código, unidades/recuentos ajenos
+y controles. Se conservan originales, evidencias, citas y huella de caché.

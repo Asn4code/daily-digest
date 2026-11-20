@@ -589,3 +589,31 @@ el fragmento completo, pero al reparar otros campos lo volvió a abreviar y qued
 rechazada; se prueba el respaldo configurado. No hubo entrega, nueva captura ni
 cambios de comprensión humana. El inventario y los modelos congelados siguen
 siendo los del trabajo 5.
+
+### Código literal y normalización del resto de la fuente (2026-11-20)
+
+Una reproducción equivalente con un identificador numérico dentro de código y
+una cantidad correcta fuera de él aisló un fallo de normalización: el código
+activaba el respaldo literal para el documento completo. La corrección en
+`quantities.view` mantiene la protección de uniones numéricas externas y permite
+normalizar el resto solo si las ocurrencias ambiguas están cubiertas por tokens
+de código literal. Si cualquier código cambia al decodificar entidades, conserva
+el respaldo anterior; el primer diseño sin esa condición se descartó tras un
+ataque privado. Los controles inválidos se preservan antes de Markdown para no
+perder su rechazo al sustituirse un NUL.
+
+Diez pruebas reprodujeron el rechazo antes del cambio. La suite definitiva pasa
+**775 pruebas** (212,78 s), lint, formato y tipado; la puerta automática sigue
+PROVISIONAL (3), con todos sus requisitos técnicos aprobados. La revisión
+adversarial final del delta se registra separadamente. El ensayo real se detuvo
+antes de cambiar este módulo para evitar mezclar código y huellas de caché; no
+se publica una fuente ni un informe por este éxito automático.
+
+La revisión final [numeric-code-spans.md](numeric-code-spans.md) aprueba
+técnicamente la variante con ambas protecciones: **365 pruebas independientes**,
+sin hallazgos bloqueantes o importantes abiertos. Se recargaron únicamente la
+web temporal de 8091 y su cola para cargar el módulo nuevo; Seguimiento responde
+HTTP 200 y los DNS institucionales permanecen intactos. La comprobación de una
+fuente está en marcha con entradas/modelos fijados y el plazo configurado, sin
+recaptura, publicación ni entrega. La eficacia real sigue pendiente de su salida
+exacta y revisión científica.

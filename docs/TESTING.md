@@ -475,3 +475,10 @@ conserva doce casos de la revisión técnica: fragmento explicativo completo,
 dimensiones separadas por dos puntos, ratios, operandos tras etiqueta y cambios
 de valor/unidad. No se autoriza eliminar globalmente `:` ni podar cualquier
 palabra que lo siga.
+
+`tests/unit/test_numeric_code_spans.py` reproduce el respaldo literal global
+activado por un identificador dentro de código y exige validar otra cantidad
+correcta con Markdown en esa fuente. Los negativos impiden que el código cubra
+uniones numéricas externas, incluidas entidades malformadas que alteran el número
+de coincidencias. También conservan rechazo de unidades/recuentos ajenos y de
+caracteres de control que Markdown podría sustituir antes del validador.

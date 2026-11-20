@@ -149,6 +149,23 @@ preguntas y selección congelada; no aumenta el límite del servicio ni recaptur
 El resultado anterior continúa pendiente y no demuestra indisponibilidad del
 proveedor con el plazo de producción. No hay entregas ni firmas inferidas.
 
+### Cobertura de delimitadores numéricos en código literal (2026-11-20)
+
+La comparación de fuente/salida reprodujo un fallo general de WA-12: un ID
+numérico con guion bajo dentro de código dejaba sin normalizar toda la fuente.
+Se limita ese efecto: el resto se normaliza solo si los delimitadores ambiguos
+están cubiertos íntegramente por tokens de código literal. La variante inicial
+de conteos se descartó antes de producción tras un ataque con entidades que
+alteraba las coincidencias. La implementación conserva el respaldo si cualquier
+código cambia al decodificarse; los controles inválidos se conservan antes de
+parsear Markdown para mantener su rechazo.
+
+Es una corrección del contraste aprobado, sin nueva regla de unidades ni
+exención general de citas. No modifica originales, DDL, modelos, límites,
+formatos humanos o estados. La huella del validador incluye este módulo; los
+nodos se revalidan. Requiere suite, puerta y revisión adversarial antes de
+retomar la comprobación real.
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma
