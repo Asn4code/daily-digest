@@ -87,6 +87,16 @@ def fake_response(request: httpx.Request) -> httpx.Response:
             "limitations": [],
             "open_questions": [],
         }
+    elif title == "SourceClaimRepair":
+        props = wire["response_format"]["json_schema"]["schema"]["properties"]
+        value = {
+            tid: (
+                {**claim, "confidence": "medium"}
+                if "Interpretation" in str(prop.get("$ref", ""))
+                else claim
+            )
+            for tid, prop in props.items()
+        }
     elif title == "ResultExtraction":
         value = {
             "result_id": package["context"]["result_id"],

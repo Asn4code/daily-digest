@@ -617,3 +617,84 @@ HTTP 200 y los DNS institucionales permanecen intactos. La comprobación de una
 fuente está en marcha con entradas/modelos fijados y el plazo configurado, sin
 recaptura, publicación ni entrega. La eficacia real sigue pendiente de su salida
 exacta y revisión científica.
+
+### Reparación acotada por afirmación (`SourceClaimRepair`) y ensayo real (2026-11-20)
+
+Implementada la propuesta de [SCOPED_SOURCE_REPAIRS.md](../SCOPED_SOURCE_REPAIRS.md)
+(D-071): `src/digest/llm/source_repair.py`, `_unique_object` en
+`src/digest/llm/client.py`, integración en `src/digest/llm/router.py` y propagación
+de `max_schema_chars` en `src/digest/report/builder.py`, junto con 23 pruebas en
+`tests/unit/test_scoped_source_repairs.py` y soporte `SourceClaimRepair` en
+`tests/fixtures/llm.py`.
+
+Un primer ensayo aislado (`build/phase3-live/source-only-c1c2ba79b1434c27a8826e73f68d18b6.json`)
+excedió el límite de 24 000 caracteres al reenviar la candidata completa en
+`assistant` (`repair_message_budget_exceeded`). Tras compactar el contexto de
+reparación a solo las afirmaciones objetivo (`wire_targets`) y revalidar
+técnicamente sin hallazgos abiertos en
+[scoped-source-repairs.md](scoped-source-repairs.md), el ensayo aislado
+`build/phase3-live/source-only-d1e7546c7fce45dabc4a92e0be2c4697.json` completó
+`SourceFindings` (`24f41d79...json`) → `SourceClaimRepair` (`14e6e9d1...json`) →
+validación determinista → `GroundingAudit` (`a05567ec...json`, `approved: true`) en
+`deepseek-v4-flash`, modificando exclusivamente los 4 campos objetivo y
+conservando idénticos los 23 restantes.
+
+La auditoría científica independiente sobre esa candidata exacta emitió veredicto
+**`rechazada`**: el parche acotado eludió `unsupported_number` suprimiendo
+recuentos por grupo, recuento afectado y diferencias de longitud (hallazgo
+bloqueante B1), y la candidata presentó además cuatro hallazgos importantes
+(respaldo/atribución temporal, alcance sin acotar, horas UTC sin etiqueta junto a
+hora local y modalidad/ramas) que el cotejo automático no detectó. La muestra
+permanece rechazada y privada.
+
+Tras el rechazo, se añadió la guardia determinista contra la supresión de cifras
+respaldadas en `src/digest/llm/source_repair.py` (`_source_numbers` acotado por
+objetivo a sus IDs citados en `evidence`, comprobación de metadatos `metric`
+antes que marcadores opacos del extracto, `required_values` /
+`requires_quantity`, `preserve_numbers` y rechazo en `SourceRepairPlan.apply()`)
+junto con `source` v14 y `grounding` v10, revalidados técnicamente sin hallazgos
+bloqueantes ni importantes en [scoped-source-repairs.md](scoped-source-repairs.md).
+Un tercer intento (`source-only-2ba8fb60...json`) confirmó el bloqueo activo de
+la guardia ante omisiones; tras ajustar dos líneas del prompt y el orden de
+lectura de metadatos, el ensayo aislado
+`build/phase3-live/source-only-7c83984d37c545619052ecb398f0688b.json` (SHA-256
+`05900f4ffcb5946067c60fcc691559ab9fcda49e5e34d5039de249006020856e`) completó en
+`deepseek-v4-flash`:
+
+- Inicial (`build/phase3-live/diagnostics/b1e9c4b6a1f4424d8940d65fbdc8f747.json`,
+  SHA-256 `4c2fb0a2e9e983910b1757d1d39c7a72f0683dd870f9ec60d1857fdb29409fdc`):
+  6 fallos locales `unsupported_number` en 6 afirmaciones.
+- Parche (`build/phase3-live/diagnostics/f8561eb0306d41c3a0c971e368e7c7aa.json`,
+  SHA-256 `5d0507f4abefc70d78d25e2326fd6e4d215a272df2aac09f1d450001cb196a4e`):
+  devolvió exactamente los 6 IDs cerrados conservando cifras, longitudes, filas
+  `0`/`—` e intactas las 27 afirmaciones restantes.
+- Cotejo (`build/phase3-live/diagnostics/5b2563ff795f402aa8bea9e9657a8214.json`,
+  SHA-256 `418557d36aa62022ae3bb676c03724bd2e56a36633a3789de24fcabaa6b1b460`):
+  `approved: true`, `issues: []`.
+
+La auditoría científica independiente sobre esa candidata exacta emitió veredicto
+**`aprobada`** (**0 bloqueantes, 0 importantes, 5 menores** sin impacto material:
+redacción ligeramente forzada en una limitación al emparejar por valor numérico dos
+cifras homónimas de contexto y fuente, pérdida menor de un identificador repetido
+en otra observación del resumen, «nota» por `diff`, omisión de una cita
+complementaria ya presente en el paquete y reparto del desglose completo entre
+observaciones y limitaciones). Sigue referida únicamente a esa unidad aislada;
+quedan levantados la web local de validación (`127.0.0.1:8091`, `/healthz` HTTP
+200 tras retirar procesos duplicados anteriores) y `build/phase3-live/queue_worker.py`
+con `/etc/resolv.conf` intacto (`search cnic.es`), manteniendo sin marcar las
+casillas humanas (`Firma de la persona`) hasta generar y revisar el informe
+completo y la entrega real por correo.
+
+### Verificación y continuación del informe completo (2026-11-23)
+
+Se verificó de nuevo el árbol con la reparación acotada y la guardia de
+conservación numérica: `make check` pasa **798 pruebas** (223,69 s), lint, formato
+y tipado estricto de 93 módulos. La puerta 3 `--no-manual` da PROVISIONAL (3),
+con todas sus comprobaciones automáticas aprobadas. Se comprobó la huella exacta
+de la unidad aprobada (`05900f4f…0856e`) y su cotejo positivo; no se amplía su
+veredicto al informe completo.
+
+Se prepara la reanudación del trabajo histórico 5 con inventario, preguntas,
+ventana y modelos congelados, sin captura nueva ni entrega. El diario real del
+20 de noviembre (trabajo 6) permanece pendiente y no se confunde con esta prueba
+histórica. Las firmas humanas permanecen intactas.

@@ -1,6 +1,6 @@
 ---
 name: grounding
-version: 9
+version: 10
 task: contrast
 ---
 Comprueba la fidelidad de candidate frente a las evidencias originales y el contexto
@@ -86,3 +86,14 @@ recuperación no es una condición obligatoria. Una condición de una rama («si
 no se extiende a las otras. Rechaza ambas promociones incluso en controls y
 limitations. Un informe o paquete producido no acredita por sí solo cierre;
 una pregunta que duda del cierre no compensa afirmarlo sin respaldo en summary.
+
+En SourceFindings, rechaza también si una afirmación suprime recuentos decisivos
+por grupo/modelo o diferencias de longitud presentes en la fuente citada
+(missing_condition), o si atribuye una causa o vía a una fila con «0» o «—»
+(unsupported_claim). Rechaza si combina datos de fuentes distintas citando solo
+una, si clasifica un evento del intervalo sobre un hallazgo en otra tarea como
+no nuevo (unsupported_claim), o si omite qué modelos y secuencias están
+afectados en una limitación de cobertura (missing_condition). Rechaza horas de
+metadatos en UTC escritas sin «UTC» junto a horas locales (unsupported_claim),
+así como calificar vías posibles de «previstas» o mezclar ramas distintas
+(p. ej. MISSING y BAD) en open_questions (certainty_overstated o unsupported_claim).

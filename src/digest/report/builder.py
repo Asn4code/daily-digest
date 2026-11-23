@@ -402,6 +402,7 @@ def enrich(db: sqlite3.Connection, config: Config, report: Report, router: Route
                 package=payload,
                 deadline=deadline,
                 max_message_chars=limit,
+                max_schema_chars=schema_limit,
             )
             if response is None:
                 report.pending[key] = router.issues[before:] or [

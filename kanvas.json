@@ -1298,6 +1298,21 @@
           "at": "2026-11-20T09:38:30Z",
           "by": "codex",
           "text": "Revisión independiente numeric-code-spans.md aprobada para delta con protección de entidades y controles:365focalizadasPASS, sin hallazgos abiertos. Suite775PASS y puertaPROVISIONAL. Recargadas solo web8091 y cola temporal; HTTP200 y DNS institucional intacto. Comprobación real de una pieza reanudada con módulo nuevo e inventario/modelos/plazo congelados; sin recaptura, publicación ni entrega."
+        },
+        {
+          "at": "2026-11-20T14:17:09Z",
+          "by": "antigravity",
+          "text": "Implementada la reparación acotada por afirmación (SCOPED_SOURCE_REPAIRS.md, D-071) y revalidada técnicamente sin hallazgos abiertos en docs/reviews/scoped-source-repairs.md (43 pruebas focalizadas, 96 de regresión, ruff y mypy limpios).\n\nEn el ensayo aislado sobre la fuente real (build/phase3-live/source-only-d1e7546c7fce45dabc4a92e0be2c4697.json, tras compactar wire_targets para caber en 24 000 caracteres), deepseek-v4-flash completó SourceFindings -> SourceClaimRepair -> validación determinista -> GroundingAudit (approved=true), reparando exactamente los 4 campos objetivo y manteniendo intactos los 23 restantes. Sin embargo, la auditoría científica independiente rechazó esa candidata exacta (B1: el parche suprimió recuentos por grupo, recuento afectado y diferencias de longitud para evitar el rechazo; más I1-I4 en respaldo/temporalidad, alcance sin acotar, horas UTC sin etiquetar y modalidad). La muestra permanece rechazada y privada; sin entregas, cambios de estados humanos ni firma de fase."
+        },
+        {
+          "at": "2026-11-20T15:55:59Z",
+          "by": "antigravity",
+          "text": "Corregido hallazgo bloqueante B1 e incidencias I1-I4 en reparación acotada (`SourceClaimRepair`) y prompts `source` v14 / `grounding` v10: guardia determinista `_source_numbers`/`required_values`/`preserve_numbers` por objetivo y cita en `src/digest/llm/source_repair.py` (23 pruebas en `tests/unit/test_scoped_source_repairs.py`). Revalidación técnica independiente aprobada (`docs/reviews/scoped-source-repairs.md`). En ensayo real aislado `build/phase3-live/source-only-7c83984d37c545619052ecb398f0688b.json`, `SourceClaimRepair` corrigió 6 afirmaciones con `unsupported_number` conservando cifras y 27 afirmaciones intactas, pasó `validate()` y `GroundingAudit`, y la auditoría científica independiente emitió veredicto `aprobada` (0 bloqueantes, 0 importantes, 5 menores; alcance limitado a esa unidad aislada). Levantados `web` (`127.0.0.1:8091`, `/healthz` 200 tras retirar procesos duplicados previos) y `build/phase3-live/queue_worker.py` con `build/phase3-live/config.yaml` y `/etc/resolv.conf` intacto para que la persona pueda generar y revisar el informe completo por correo desde `/generate` (`https://cnic-gpu2.tail8c0423.ts.net/generate`); firma humana pendiente en `docs/reviews/phase-3.md`."
+        },
+        {
+          "at": "2026-11-23T16:48:26Z",
+          "by": "codex",
+          "text": "23Nov: revalidación del árbol con SourceClaimRepair y conservación numérica: make check798PASS(223,69s),lint/formato/mypy93módulos; puerta3PROVISIONALtodoautomáticoPASS. Huella de unidad científica aprobada verificada y cotejopositivo, sin extender aprobación al informe. Se retoma histórico5 con entradas/modelos fijados sin captura ni envío; diario20Nov(job6) sigue pendiente y separado. Firmas intactas."
         }
       ]
     },

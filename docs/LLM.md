@@ -355,7 +355,7 @@ Cada paquete mantiene IDs, tiempos, metadatos, cobertura, objetivo y ámbito de
 privacidad. El router recibe el proyecto real; abstraer una fuente privada no
 permite enviarla al proveedor externo.
 
-Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v13.
+Cada llamada usa el contrato pequeño `SourceFindings` y el prompt `source` v14.
 Una limitación antigua se conserva con su fecha, sin presentarla como vigente
 cuando una nota posterior documenta su resolución. Las capacidades sin actualización
 siguen separadas; las comprobaciones solo se atribuyen a las notas que las declaran.
@@ -363,9 +363,13 @@ Las pruebas de software no acreditan por sí solas calidad científica.
 Los requisitos se vinculan a su acción y subconjunto: una condición para
 regenerar no se extiende a localizar archivos o entregar un paquete. La decisión
 de si aceptar un cambio sigue abierta; no se transforma en aceptación obligatoria.
-El cotejo común v9 comprueba esa distinción en todos los campos y no exige repetir
-condiciones que ya estén claras. Una aprobación del modelo sigue necesitando
-la revisión independiente de la muestra real.
+La extracción conserva además distribuciones de recuentos por grupo o modelo,
+diferencias de longitud, filas `0`/`—` sin causa inventada, alcance exacto de
+cobertura incompleta y marcas horarias UTC con segundos cuando proceden de
+metadatos. El cotejo común v10 comprueba esa distinción y la preservación de
+cifras y cobertura en todos los campos y no exige repetir condiciones que ya
+estén claras. Una aprobación del modelo sigue necesitando la revisión
+independiente de la muestra real.
 Las posibles vías de recuperación y las condiciones de una rama no se promueven
 a requisitos generales; producir un informe o paquete no acredita cierre. Las
 citas de cifras conservan sus anotaciones entre paréntesis y las etiquetas de
@@ -850,3 +854,35 @@ Las anotaciones se mantienen como tuplas internas, sin cambiar informes ni
 archivos humanos. No se autoriza omitir condiciones científicas decisivas:
 el cotejo semántico y la revisión independiente siguen siendo obligatorios.
 Revisión adicional en `reviews/annotation-omission.md` (D-070).
+
+
+### Reparación acotada por afirmación (`SourceClaimRepair`)
+
+Cuando una primera respuesta de `SourceFindings` cumple el esquema Pydantic pero
+falla la validación determinista únicamente en rutas localizables dentro de
+afirmaciones (`summary` o elementos existentes de `observations`,
+`interpretations`, `controls`, `limitations` o `open_questions`), el router
+construye un contrato cerrado `SourceClaimRepair` (`src/digest/llm/source_repair.py`)
+que agrupa las incidencias por afirmación y asigna IDs vinculados a la huella de
+la candidata y a su ruta exacta.
+
+El esquema de reparación conserva la restricción de `evidence` y el límite
+`max_schema_chars` configurado, sanea con `redact_tree` y `_blank_html` solo las
+afirmaciones objetivo enviadas como contexto (`assistant`, `wire_targets`) para no
+desbordar `max_message_chars`, y exige que el proveedor devuelva exclusivamente
+los IDs solicitados con su tipo (`Claim` o `Interpretation`). Cuando una
+afirmación falla por `unsupported_number` pero contenía valores respaldados por
+las evidencias que cita (`_source_numbers` acotado por objetivo a los IDs citados y
+comprobando metadatos `metric` con independencia de marcadores en el extracto), el
+plan exige conservarlos (`required_values` / `preserve_numbers`) y
+`SourceRepairPlan.apply()` rechaza los parches que supriman esas cifras para eludir
+la validación numérica (con la salvedad menor observada si un número ajeno del
+contexto coincide solo por valor numérico con una cifra homónima de la evidencia
+citada). El parseo JSON rechaza claves duplicadas en cualquier nivel
+(`_unique_object` en `src/digest/llm/client.py`). El parche se sustituye únicamente
+sobre esos objetivos en una copia de la candidata original y la pieza reconstruida
+vuelve a pasar el esquema completo, `validator.validate` y el cotejo `GroundingAudit`
+obligatorio antes de persistirse en `nodes/`. Errores de esquema, JSON inválido,
+incidencias globales o excesos de presupuesto de esquema/mensaje conservan la
+reparación completa o pasan al respaldo sin alterar `validator.py`, límites ni
+formatos humanos (D-071; `SCOPED_SOURCE_REPAIRS.md`, `reviews/scoped-source-repairs.md`).

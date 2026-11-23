@@ -131,21 +131,25 @@ def test_one_repair_can_fix_multiple_independent_rejected_claims(tmp_path, monke
         requests.append(wire)
         repair = wire["messages"][-1]["content"] if wire["messages"] else ""
         fixed = all(field in repair for field in ("observations.0.text", "controls.0.text"))
-        value = {
-            "result_id": "res_test",
-            "summary": good,
-            "observations": [
-                good if fixed else {"text": "RMSD 987654321 nm", "evidence": ["ev_test"]}
-            ],
-            "controls": [
-                good
-                if fixed
-                else {"text": "<script>PRIVATE_PAYLOAD</script>", "evidence": ["ev_test"]}
-            ],
-            "interpretations": [],
-            "limitations": [],
-            "open_questions": [],
-        }
+        schema_info = wire["response_format"]["json_schema"]["schema"]
+        if schema_info["title"] == "SourceClaimRepair":
+            value = {tid: good for tid in schema_info["properties"]}
+        else:
+            value = {
+                "result_id": "res_test",
+                "summary": good,
+                "observations": [
+                    good if fixed else {"text": "RMSD 987654321 nm", "evidence": ["ev_test"]}
+                ],
+                "controls": [
+                    good
+                    if fixed
+                    else {"text": "<script>PRIVATE_PAYLOAD</script>", "evidence": ["ev_test"]}
+                ],
+                "interpretations": [],
+                "limitations": [],
+                "open_questions": [],
+            }
         return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
 
     def check(value):

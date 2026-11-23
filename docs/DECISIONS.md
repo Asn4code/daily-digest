@@ -105,6 +105,7 @@ diario. La aclaración no debe volver a elegir el foco del informe original.
 | D-068 | 2026-11-17 | La persona aprueba WA-12: contraste numérico con una vista léxica común de fuente y afirmación | Cinco falsos rechazos se reprodujeron y revisaron independientemente. Se preservan formato literal relevante, dimensiones, identidades y relaciones con operandos y anotaciones vinculados en una fuente citada; no se calculan resultados ni se combinan extremos. La normalización conserva originales/hash/citas, y sintaxis ambigua permanece pendiente. La revisión adversarial y el ensayo real siguen siendo requisitos separados; sin dependencias, DDL ni formatos humanos nuevos. |
 | D-069 | 2026-11-17 | Precisar generación y cotejo del seguimiento tras una muestra semánticamente rechazada | La revisión independiente detecta requisitos trasladados entre acciones, ausencia convertida en inexistencia, planes futuros categóricos y generalización de un subconjunto. Watchlist v3 y una capa grounding_watchlist v1 conservan el cotejo general y comprueban cada campo; revisar esa capa permite reauditar candidatos cacheados. La muestra anterior permanece rechazada; tests con dobles prueban bloqueo/reparación y caché, no la capacidad científica de un proveedor real. No cambia formato, privacidad, estados humanos ni requisitos de publicación. |
 | D-070 | 2026-11-19 | Corregir el rechazo de fragmentos numéricos que no repiten una nota simple de procedencia | El ensayo reproduce un ratio literal rechazado solo por omitir una nota. La omisión es direccional: valores, unidades y operadores permanecen; cualquier nota afirmada coincide completa en una fuente. Notas anidadas, símbolos o calificadores dimensionales ambiguos no se pueden omitir. Se preservan operandos inválidos y originales; revisión adversarial adicional, sin nuevos formatos ni autorización para eliminar condiciones científicas decisivas. |
+| D-071 | 2026-11-20 | Reparación acotada por afirmación (`SourceClaimRepair`) dentro de `SourceFindings` sin alterar el presupuesto ni la validación | Evita que una reparación completa rehaga afirmaciones válidas. Rechaza claves duplicadas JSON (`_unique_object`), asigna IDs ligados a ruta y huella de candidata, exige esquema cerrado `SourceClaimRepair` con solo los objetivos rechazados (`wire_targets`, para caber bajo 24 000 caracteres sin podar fuentes), impide suprimir cifras respaldadas por las evidencias citadas en cada objetivo (`required_values` / `preserve_numbers` comprobando metadatos `metric`), sanea secretos/HTML y revalida el `SourceFindings` reconstruido más `GroundingAudit` completo antes de persistir en `nodes/`. Tras el rechazo científico de la primera candidata (`source-only-d1e7546c7fce45dabc4a92e0be2c4697.json`), el endurecimiento (`B1` + `source` v14 + `grounding` v10) obtuvo aprobación técnica independiente y veredicto científico **`aprobada`** (0 bloqueantes, 0 importantes, 5 menores) sobre la candidata aislada `source-only-7c83984d37c545619052ecb398f0688b.json`, quedando pendientes el informe completo, envío por correo y firma humana de fase 3. |
 
 ### Fidelidad de decisiones y alcance durante WA-05 (2026-11-19)
 
@@ -165,6 +166,52 @@ exención general de citas. No modifica originales, DDL, modelos, límites,
 formatos humanos o estados. La huella del validador incluye este módulo; los
 nodos se revalidan. Requiere suite, puerta y revisión adversarial antes de
 retomar la comprobación real.
+
+### Reparación acotada por afirmación y ensayo real en WA-05 (2026-11-20)
+
+Se implementa `SCOPED_SOURCE_REPAIRS.md` (`SourceClaimRepair` en
+`src/digest/llm/source_repair.py`, parseo estricto sin claves duplicadas en
+`src/digest/llm/client.py`, integración en `router.py` y `max_schema_chars` desde
+`builder.py`). Un primer ensayo aislado (`source-only-c1c2ba79b1434c27a8826e73f68d18b6.json`)
+reprodujo `repair_message_budget_exceeded` (25 151 > 24 000 caracteres) al
+incluir toda la candidata en `assistant`; compactar el contexto enviado a solo
+las afirmaciones objetivo (`wire_targets`, 17 866 caracteres totales en la muestra)
+permitió ejecutar `SourceClaimRepair` dentro del presupuesto sin elevar límites ni
+podar fuentes, con aprobación técnica independiente en
+`docs/reviews/scoped-source-repairs.md`.
+
+El segundo ensayo aislado (`build/phase3-live/source-only-d1e7546c7fce45dabc4a92e0be2c4697.json`)
+completó la cadena en `deepseek-v4-flash`: la inicial (`24f41d79...json`) falló
+únicamente en 4 afirmaciones (`unsupported_number`), el parche (`14e6e9d1...json`)
+devolvió exclusivamente los 4 IDs cerrados conservando idénticas bit a bit las 23
+afirmaciones restantes, y `GroundingAudit` (`a05567ec...json`) devolvió
+`approved=true`. No obstante, la auditoría científica independiente **rechazó la
+candidata reconstruida**: el parche eliminó cifras decisivas de distribución por
+grupo y longitudes para sortear la validación numérica (hallazgo bloqueante B1) y
+el texto mantuvo cuatro fallos importantes de respaldo/temporalidad, alcance no
+acotado, horas UTC sin etiqueta mezcladas con hora local y modalidad/ramas (I1–I4).
+El falso positivo del cotejo automático no autorizó publicar ni validar aquella
+muestra, que se conserva rechazada.
+
+Para resolver B1 e I1–I4 se añadió en `src/digest/llm/source_repair.py` una
+guardia determinista de conservación numérica (`_source_numbers` acotado por
+afirmación a sus IDs citados en `evidence`, leyendo metadatos `metric` antes que
+marcadores opacos del extracto; `required_values` / `requires_quantity`; aviso
+`preserve_numbers` en `wire_targets` y bloqueo en `SourceRepairPlan.apply()` ante
+omisiones) y se actualizaron `source.md` (v14) y `grounding.md` (v10). Tras
+resolver los casos límite señalados en la primera revisión técnica y obtener
+aprobación técnica en sesión revalidatora independiente (`reviews/scoped-source-repairs.md`),
+el nuevo ensayo aislado `build/phase3-live/source-only-7c83984d37c545619052ecb398f0688b.json`
+completó en `deepseek-v4-flash` `SourceFindings` (`b1e9c4b6...json`, 6 objetivos
+con `unsupported_number`) → `SourceClaimRepair` (`f8561eb0...json`, conservando
+todas las cifras respaldadas e idénticas las 27 afirmaciones restantes) →
+`validate()` → `GroundingAudit` (`5b2563ff...json`, `approved=true`). La
+auditoría científica independiente sobre esa candidata exacta emitió veredicto
+**`aprobada`** (0 bloqueantes, 0 importantes y 5 menores documentados en la
+auditoría privada, incluida una salvedad menor cuando un número del título de
+contexto coincide solo por valor numérico con otra cifra en la evidencia citada).
+El ensayo aprueba únicamente esa unidad aislada; la generación/entrega completa y
+la firma humana de fase 3 siguen pendientes.
 
 ## Preguntas abiertas
 

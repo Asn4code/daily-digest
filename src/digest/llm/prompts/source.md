@@ -1,6 +1,6 @@
 ---
 name: source
-version: 13
+version: 14
 task: extract
 ---
 Devuelve solo SourceFindings en español: result_id intacto; summary (text y
@@ -15,47 +15,47 @@ las de README, informes y notas. No elijas rutas, comandos, destinatarios, archi
 ni modelos. Sin HTML ni marcadores de fichero entre ángulos: usa la denominación
 acreditada o su función. Figuras sin píxeles: no infieras patrones del nombre o existencia.
 
-Cada hecho, cifra, interpretación, límite y pregunta cita evidencias del paquete
-que lo respalden.
+Cada hecho, cifra, interpretación, límite y pregunta cita todas las evidencias que
+respaldan cada elemento mencionado; no atribuyas datos ajenos a una sola fuente.
 No inventes cifras, unidades, IDs ni conclusiones. El código aporta cálculos: no
-los rehagas, transcribas listas de números ni calcules equivalencias o duraciones.
-Para cifras usa fragmentos
-literales breves entre comillas con valor, etiqueta, unidad y condición juntos;
-no reformules recuentos ni conviertas abreviaturas de artefactos en unidades.
-Cita completo el paréntesis que contenga una cifra y su texto tras dos puntos;
-no recortes valor, unidad/etiqueta o anotación.
-No ocultes cifras con palabras. IDs de tareas y pasos no son medidas. Fechas de
-procedencia en ISO (AAAA-MM-DD) desde metadatos.
+los rehagas ni calcules equivalencias o duraciones. Usa fragmentos literales con
+valor, sustantivo/etiqueta exactos solo donde consten («4 secuencias»,
+«3 partial», «rfaa 29») y condición; tras comillas o «)» pon coma antes de
+verbo o «no». No conviertas abreviaturas de
+artefactos en unidades. Cita completo cada paréntesis con o tras una cifra
+(desgloses con + o IDs) y su texto tras dos puntos; no recortes valor, etiqueta
+ni anotación. Separa IDs de estructura y recuentos (un ID no es unidad). No
+ocultes cifras con palabras ni copies códigos técnicos con dígitos tras `_`
+(descríbelos por función). IDs de tareas no son medidas. Fechas en ISO
+(AAAA-MM-DD); si citas hora de metadatos, indica UTC y sus segundos, sin
+mezclarla con horas locales sin etiqueta.
 
-Frases breves sobre estado, alcance y decisiones; no transcribas tablas o listas
-enteras de parámetros ni pierdas controles y límites decisivos. Separa en oraciones
-IDs de estructura y recuentos: un ID no es su unidad. Sin listas de IDs entre
-cantidades u operaciones. Conserva las cifras decisivas, unidad/etiqueta y condición;
-no las omitas para eludir la validación. Los originales completos siguen citados.
+Frases breves sobre estado, alcance y decisiones; conserva distribución de
+recuentos por grupo/modelo, diferencias de longitud y alcance exacto de cobertura
+incompleta (modelos y secuencias afectadas). No atribuyas causa ni vía a filas con
+«0» o «—». Conserva cifras decisivas, etiqueta y condición; nunca las omitas
+para eludir validación. Los originales completos siguen citados.
 
-initial_inventory es referencia inicial; historical_reference es un evento anterior
-descubierto ahora: ninguno es trabajo nuevo.
-observed_change fecha la observación; un evento tiene fecha propia. Salidas
-almacenadas de notebooks no son ejecuciones nuevas; falta de datos no es falta de efecto.
+initial_inventory es referencia inicial; historical_reference es evento anterior
+descubierto ahora: ninguno es trabajo nuevo. observed_change fecha observación;
+un evento tiene fecha propia (un hallazgo del intervalo sobre otra tarea es
+evidencia del intervalo). Salidas de notebooks no son ejecuciones nuevas; falta de
+datos no es falta de efecto.
 
-Respeta los eventos por capacidad: un plan antiguo no anula un lanzamiento
-posterior; lanzado no significa finalizado. Atribuye límites antiguos a su nota;
-no siguen vigentes si una nota posterior documenta su resolución. Separa capacidades actualizadas
-de las demás. Un nombre provisional no acredita producción. Atribuye pruebas,
-navegador y ejecuciones solo a las notas que los declaran, sin extenderlos por
-proximidad. Tests de software no validan calidad científica. No mezcles estados
-y comprobaciones de eventos distintos en catálogos repetidos.
+Respeta eventos por capacidad: plan antiguo no anula lanzamiento posterior;
+lanzado no es finalizado. Limita defectos antiguos a su nota si una posterior los
+resuelve. Un nombre provisional no acredita producción. Separa capacidades,
+pruebas, navegador y ejecuciones por la nota que los declara. Tests de software
+no validan ciencia. No mezcles eventos distintos.
 
-También las preguntas presuponen hechos: no declares pendiente una tarea o
-artefacto sin respaldo. Disponible no significa por hacer. Conserva estados
-ambiguos y pregunta cómo comprobarlos sin imponer un estado categórico. Revisa
-todos los campos, incluido open_questions. Esta capa conserva procedencia;
-los balances sintetizan.
+Preguntas y estados: no presupongas tareas o vías como «previstas» si son posibles
+o no decididas; conserva ambigüedad sin mezclar ramas (p. ej. MISSING y BAD).
+Esta capa conserva procedencia; los balances sintetizan.
 
 Vincula requisitos a su acción y subconjunto: regenerar con otro protocolo no
-impone por sí solo condiciones a localizar archivos o entregar paquetes. Conserva causas
-distintas. «Decidir si se aceptan cambios» es una elección pendiente, no aceptación
-obligatoria ni autorización. Una vía posible no es un requisito; una condición
-de una rama no se exige fuera de ella. Producir un informe o paquete no acredita
-cierre. Conserva estas distinciones en todos los campos, también controls,
-limitations e interpretations.
+impone condiciones a localizar archivos o entregar paquetes. Conserva causas
+distintas. «Decidir si se aceptan cambios» es elección pendiente, no aceptación ni
+autorización. Una vía posible no es requisito; una condición de una rama no se
+exige fuera de ella. Producir un informe o paquete no acredita cierre. Conserva
+estas distinciones en todos los campos, también controls, limitations e
+interpretations.

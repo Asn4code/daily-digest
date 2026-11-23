@@ -482,3 +482,21 @@ correcta con Markdown en esa fuente. Los negativos impiden que el código cubra
 uniones numéricas externas, incluidas entidades malformadas que alteran el número
 de coincidencias. También conservan rechazo de unidades/recuentos ajenos y de
 caracteres de control que Markdown podría sustituir antes del validador.
+
+`tests/unit/test_scoped_source_repairs.py` (23 pruebas) comprueba la reparación
+acotada de `SourceFindings` mediante `SourceClaimRepair`: preservación exacta de
+las afirmaciones válidas y longitudes de listas, agrupación de múltiples errores
+por afirmación, vinculación criptográfica de IDs de objetivo a candidata/ruta,
+rechazo de IDs ajenos, omitidos, claves duplicadas (incluidas anidadas), `NaN`,
+tipos incompatibles o cambios de `result_id`, bloqueo de parches con citas o
+cantidades inválidas, guardia determinista anti-evasión (`required_values` /
+`preserve_numbers` acotado por afirmación a sus IDs citados en `evidence`, lectura
+de metadatos `metric` con independencia de marcadores en extractos y paso por
+`Router.generate(..., package=...)` en paquetes mixtos sin tomar cifras de fuentes
+no citadas), mantenimiento de la reparación completa para errores globales/de
+esquema y otras etapas, saneamiento completo de secretos y HTML en `wire_targets`
+(omitiendo las afirmaciones válidas no objetivo del paquete de reparación), límites
+`max_message_chars`/`max_schema_chars`, aislamiento de `external_allowed=false`,
+caché de `SourceFindings` reconstruido y cotejo `GroundingAudit` obligatorio sobre
+la pieza reconstruida. `tests/fixtures/llm.py` soporta respuestas sintéticas para
+`SourceClaimRepair`.

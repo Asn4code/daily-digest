@@ -27,11 +27,22 @@ class Completion:
 Observer = Callable[[Completion | None, str | None, int], None]
 
 
+def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate_key")
+        result[key] = value
+    return result
+
+
 def json_object(content: str) -> dict[str, Any]:
     start = content.find("{")
     if start >= 0:
         try:
-            value, _ = json.JSONDecoder().raw_decode(content[start:])
+            value, _ = json.JSONDecoder(object_pairs_hook=_unique_object).raw_decode(
+                content[start:]
+            )
             if isinstance(value, dict):
                 return value
         except (ValueError, RecursionError):

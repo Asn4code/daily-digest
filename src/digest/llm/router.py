@@ -14,6 +14,7 @@ from digest.llm.cache import Nodes
 from digest.llm.client import Client, ClientError, Completion
 from digest.llm.diagnostics import error_category, repair_issues, validation_issue
 from digest.llm.settings import for_task
+from digest.llm.source_repair import SourceRepairPlan, plan_source_repair
 from digest.util.redact import known_secrets, redact_tree
 
 Task = Literal["extract", "conceptual", "plan", "weekly", "contrast"]
@@ -63,6 +64,7 @@ class Router:
         deadline: float | None = None,
         package: dict[str, Any] | None = None,
         max_message_chars: int | None = None,
+        max_schema_chars: int | None = None,
     ) -> Routed | None:
         config = for_task(self.config, task)
         projects = {p.id: p for p in config.projects}
@@ -119,9 +121,13 @@ class Router:
                 call_deadline, time.monotonic() + remaining / (len(eligible) - index)
             )
             conversation = list(messages)
+            repair_plan: SourceRepairPlan | None = None
             for repair in range(2):
                 log_ids: list[int] = []
                 rejected_fields: list[dict[str, str]] = []
+                active_schema = (
+                    repair_plan.schema if (repair and repair_plan is not None) else schema
+                )
 
                 def observe(
                     result: Completion | None,
@@ -184,12 +190,14 @@ class Router:
                     result = self.client.complete(
                         provider,
                         conversation,
-                        schema,
+                        active_schema,
                         deadline=provider_deadline,
                         observer=observe,
                     )
                     try:
                         sanitized = redact_tree(result.value, known_secrets(config))
+                        if repair and repair_plan is not None:
+                            sanitized = repair_plan.apply(sanitized)
                         value = validate(sanitized)
                     except ValueError as invalid:
                         rejected_fields = repair_issues(invalid, schema)
@@ -198,6 +206,14 @@ class Router:
                             "section": section or task,
                             **validation_issue(invalid, schema),
                         }
+                        if repair == 0:
+                            repair_plan = plan_source_repair(
+                                sanitized,
+                                invalid,
+                                schema,
+                                package=clean_package,
+                                max_schema_chars=max_schema_chars,
+                            )
                         self.issues.append(detail)
                         if log_ids:
                             self.db.execute(
@@ -233,71 +249,77 @@ class Router:
                     if code not in {"invalid_json", "response_invalid", "output_invalid"}:
                         break
                     if repair == 0:
-                        # Do not echo untrusted output, exceptions or secret-bearing bodies.
-                        conversation += [
-                            {
-                                "role": "user",
-                                "content": (
-                                    "Repara solo la salida: devuelve JSON que cumpla el esquema. "
-                                    "Usa referencias y cifras de las evidencias originales. "
-                                    "Revisa la salida completa sin introducir otros errores: "
-                                    "sin HTML ni marcadores de nombre entre ángulos; "
-                                    "describe su función sin inventar un archivo. "
-                                    + "Error de validación: "
-                                    + detail["rule"]
-                                    + "; campo: "
-                                    + detail["field"]
-                                    + (
-                                        ". origin=review indica procedencia humana explícita "
-                                        "en el contexto, no una actividad de revisión. Una "
-                                        "revisión propuesta por el modelo usa origin=model."
-                                        if detail["rule"] == "human_review_origin_missing"
-                                        else ""
-                                    )
-                                    + (
-                                        ". En el cotejo, source_quote es una cita breve y "
-                                        "contigua de una única fuente: no unas fragmentos "
-                                        "ni normalices espacios o saltos de línea. field "
-                                        "debe ser una ruta existente de candidate. "
-                                        "Los índices de listas son enteros JSON. No antepongas "
-                                        "checks a un campo situado en la raíz de candidate. "
-                                        "approved=true exige issues vacía."
-                                        if schema and schema.get("title") == "GroundingAudit"
-                                        else ""
-                                    )
-                                    + (
-                                        ". Revisa todos estos campos en la misma reparación: "
-                                        + canonical(rejected_fields)
-                                        if len(rejected_fields) > 1
-                                        else ""
-                                    )
-                                    + (
-                                        ". Cada cifra se comprueba solo contra los IDs citados "
-                                        "en ese campo. Si procede de otra evidencia del paquete, "
-                                        "cita su ID exacto; no cambies el valor. Conserva unidades "
-                                        "y etiquetas literales. Puedes separar la prosa con "
-                                        "puntuación, después de la unidad si existe. No ocultes "
-                                        "unidades ni escribas cifras con palabras para eludir "
-                                        "la comprobación."
-                                        if detail["rule"] == "unsupported_number"
-                                        or any(
-                                            i["rule"] == "unsupported_number"
-                                            for i in rejected_fields
+                        if repair_plan is not None:
+                            conversation = [*messages, *repair_plan.messages]
+                        else:
+                            # Do not echo untrusted output, exceptions or secret-bearing bodies.
+                            conversation += [
+                                {
+                                    "role": "user",
+                                    "content": (
+                                        "Repara solo la salida: devuelve JSON que cumpla el "
+                                        "esquema. "
+                                        "Usa referencias y cifras de las evidencias originales. "
+                                        "Revisa la salida completa sin introducir otros errores: "
+                                        "sin HTML ni marcadores de nombre entre ángulos; "
+                                        "describe su función sin inventar un archivo. "
+                                        + "Error de validación: "
+                                        + detail["rule"]
+                                        + "; campo: "
+                                        + detail["field"]
+                                        + (
+                                            ". origin=review indica procedencia humana explícita "
+                                            "en el contexto, no una actividad de revisión. Una "
+                                            "revisión propuesta por el modelo usa origin=model."
+                                            if detail["rule"] == "human_review_origin_missing"
+                                            else ""
                                         )
-                                        else ""
-                                    )
-                                    + (
-                                        ". No uses etiquetas HTML ni marcadores de nombre "
-                                        "entre ángulos. Si la fuente contiene un nombre "
-                                        "provisional con ese marcador, describe su función "
-                                        "sin reproducirlo; no inventes otro archivo."
-                                        if detail["rule"] == "html_forbidden"
-                                        or any(
-                                            i["rule"] == "html_forbidden" for i in rejected_fields
+                                        + (
+                                            ". En el cotejo, source_quote es una cita breve y "
+                                            "contigua de una única fuente: no unas fragmentos "
+                                            "ni normalices espacios o saltos de línea. field "
+                                            "debe ser una ruta existente de candidate. "
+                                            "Los índices de listas son enteros JSON. No antepongas "
+                                            "checks a un campo situado en la raíz de candidate. "
+                                            "approved=true exige issues vacía."
+                                            if schema and schema.get("title") == "GroundingAudit"
+                                            else ""
                                         )
-                                        else ""
-                                    )
-                                ),
-                            }
-                        ]
+                                        + (
+                                            ". Revisa todos estos campos en la misma reparación: "
+                                            + canonical(rejected_fields)
+                                            if len(rejected_fields) > 1
+                                            else ""
+                                        )
+                                        + (
+                                            ". Cada cifra se comprueba solo contra los IDs citados "
+                                            "en ese campo. Si procede de otra evidencia del "
+                                            "paquete, cita su ID exacto; no cambies el valor. "
+                                            "Conserva unidades y etiquetas literales. Puedes "
+                                            "separar la prosa con puntuación, después de la "
+                                            "unidad si existe. No ocultes "
+                                            "unidades ni escribas cifras con palabras para eludir "
+                                            "la comprobación."
+                                            if detail["rule"] == "unsupported_number"
+                                            or any(
+                                                i["rule"] == "unsupported_number"
+                                                for i in rejected_fields
+                                            )
+                                            else ""
+                                        )
+                                        + (
+                                            ". No uses etiquetas HTML ni marcadores de nombre "
+                                            "entre ángulos. Si la fuente contiene un nombre "
+                                            "provisional con ese marcador, describe su función "
+                                            "sin reproducirlo; no inventes otro archivo."
+                                            if detail["rule"] == "html_forbidden"
+                                            or any(
+                                                i["rule"] == "html_forbidden"
+                                                for i in rejected_fields
+                                            )
+                                            else ""
+                                        )
+                                    ),
+                                }
+                            ]
         return None
