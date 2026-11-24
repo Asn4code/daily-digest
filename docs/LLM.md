@@ -886,3 +886,15 @@ obligatorio antes de persistirse en `nodes/`. Errores de esquema, JSON inválido
 incidencias globales o excesos de presupuesto de esquema/mensaje conservan la
 reparación completa o pasan al respaldo sin alterar `validator.py`, límites ni
 formatos humanos (D-071; `SCOPED_SOURCE_REPAIRS.md`, `reviews/scoped-source-repairs.md`).
+
+Si una reparación acotada no cabe, puede compactarse sin cambiar datos: JSON
+minificado, escape de contenido separado del escape estricto de atributos y
+diagnósticos repetidos factorizados. Solo se permite con un prefijo completo
+idéntico al render original de ese paquete Source; el límite final y todos los
+validadores siguen aplicándose. Las peticiones que ya caben y sus claves de
+caché no cambian. Detalles en `SCOPED_SOURCE_REPAIRS.md`.
+
+El cotejo del seguimiento v2 exige también conservar excepciones explícitas de
+un plan por modelo, caso o secuencia. La aprobación pendiente no sustituye esas
+condiciones. Se reaudita la generación conservada, sin regenerar por defecto las
+evaluaciones que ya eran fieles; una salida nueva requiere revisión propia.

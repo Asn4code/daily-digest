@@ -1313,6 +1313,16 @@
           "at": "2026-11-23T16:48:26Z",
           "by": "codex",
           "text": "23Nov: revalidación del árbol con SourceClaimRepair y conservación numérica: make check798PASS(223,69s),lint/formato/mypy93módulos; puerta3PROVISIONALtodoautomáticoPASS. Huella de unidad científica aprobada verificada y cotejopositivo, sin extender aprobación al informe. Se retoma histórico5 con entradas/modelos fijados sin captura ni envío; diario20Nov(job6) sigue pendiente y separado. Firmas intactas."
+        },
+        {
+          "at": "2026-11-24T13:12:01Z",
+          "by": "codex",
+          "text": "24Nov r12terminópendiente:2fuentes+2seguimientos con checks automáticos; cienciaaprueba solo cristales, semillasomiteexclusiones W12-S1. Compactación pérdidaCEROde fuente0777:29773→23724<=24000con82focalizadasindependientes. Cotejowatchv2revisaexcepciones sinregenerarpor defecto aprobados. Makecheck811PASS(234,09s),mypy93,puertaPROVISIONAL. Seaislará fuente0777 sinrepetir informe ni enviar; otra fuente/semillas/síntesis/plan siguenpendientes. Firmasintactas."
+        },
+        {
+          "at": "2026-11-24T13:13:34Z",
+          "by": "codex",
+          "text": "El informe r12 sigue pendiente: dos fuentes están completas y cristales cuenta con aprobación científica histórica. Semillas requiere conservar exclusiones del plan (W12-S1). La compactación mantiene todos los datos y baja el caso de 29 773 a 23 724 caracteres, sin elevar el límite de 24 000; tiene revisión técnica independiente. Make check pasa 811 pruebas y la puerta automática sigue provisional. Se probará solo la fuente bloqueada por tamaño, sin recaptura ni envío."
         }
       ]
     },

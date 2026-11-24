@@ -10,6 +10,28 @@ fue **aprobada científicamente** en auditoría independiente sobre esa unidad
 y firma humana de fase. Complementa la reparación acotada de `SourceFindings` dentro
 de la validación de fase 3.
 
+## Conversaciones cercanas al límite (2026-11-24)
+
+Si la reparación habitual cabe, conserva exactamente su representación anterior.
+Si excede el presupuesto, puede usarse una representación compacta únicamente
+cuando el prefijo completo coincide con el render original del mismo paquete
+Source. Se minifica el JSON y se conservan `&`, `<` y `>` escapados en el texto;
+los atributos mantienen también el escape de comillas. Todos los valores del
+contexto y de las evidencias permanecen idénticos al decodificar.
+
+El contexto alternativo `source_claim_repair_compact_v1` reúne por ID la
+afirmación original saneada, sus incidencias y `preserve_numbers`; los nombres
+repetidos de reglas se factoran con alias cerrados y reversibles. El esquema de
+salida, la reconstrucción, la conservación numérica y la validación completa no
+cambian. La conversación final se vuelve a medir: si todavía no cabe, continúa
+el respaldo o el estado pendiente, sin recortar fuentes ni ampliar límites.
+
+La reproducción privada sin llamadas al proveedor pasa de **29 773** a **23 724**
+caracteres con límite de **24 000**, comprobando equivalencia de cada bloque,
+objetivo, incidencia y valor requerido. No demuestra por sí sola que el modelo
+produzca una reparación válida. Los nodos válidos mantienen su clave original;
+la compactación no cambia las entradas de generación ya aprobadas.
+
 ## Problema comprobado
 
 La reparación actual vuelve a pedir una pieza completa. En el ensayo real,

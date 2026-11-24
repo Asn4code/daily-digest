@@ -698,3 +698,25 @@ Se prepara la reanudación del trabajo histórico 5 con inventario, preguntas,
 ventana y modelos congelados, sin captura nueva ni entrega. El diario real del
 20 de noviembre (trabajo 6) permanece pendiente y no se confunde con esta prueba
 histórica. Las firmas humanas permanecen intactas.
+
+### Resultado r12 y correcciones acotadas (2026-11-24)
+
+El ensayo histórico 5 terminó pendiente en r12. Completó dos unidades de fuente
+y las dos evaluaciones de seguimiento con cotejos automáticos positivos. La
+revisión científica independiente de `watchlist-real-r12.md` aprueba solo
+cristales en su alcance histórico; semillas debe conservar las excepciones del
+plan por modelo y caso. Siguen pendientes otras dos fuentes, y por dependencia
+el balance, la orientación y el plan. No hubo entrega.
+
+Se corrigió el exceso de conversación de una fuente sin cambiar datos ni límites:
+el caso retenido pasa de 29 773 a 23 724 caracteres frente a 24 000. La revisión
+`compact-source-repairs.md` aprueba técnicamente la compactación reversible con
+82 pruebas focalizadas. El cotejo de seguimiento v2 conserva la generación y
+añade la comprobación de exclusiones, revisada en `watchlist-real-r12.md`.
+
+`make check` pasa **811 pruebas** (234,09 s), lint, formato y tipado de 93 módulos;
+la puerta 3 `--no-manual` da PROVISIONAL (3), con todo lo automático aprobado.
+La comprobación real se centrará en la fuente bloqueada por tamaño, manteniendo
+inventario, preguntas y modelos congelados y sin entrega. Quedan pendientes su
+salida exacta, la otra fuente, semillas y el informe completo. Ningún resultado
+automático se convierte en firma humana.

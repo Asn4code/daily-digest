@@ -26,8 +26,24 @@ GOOD = "Comparar usa los resultados existentes; la aceptación corresponde solo 
 
 
 @pytest.mark.parametrize("repair", [False, True])
+@pytest.mark.parametrize(
+    "source,bad,good,quote,omission",
+    [
+        (SOURCE, BAD, GOOD, "Solo regenerar exige aceptar otro protocolo.", False),
+        (
+            "Plan pendiente: ampliar semillas por modelo, excluyendo por modelo y secuencia "
+            "los casos sin alineamiento válido y los casos con error.",
+            "La aprobación del plan sigue pendiente.",
+            "El plan pendiente excluye por modelo y secuencia los casos sin alineamiento "
+            "válido y los casos con error.",
+            "excluyendo por modelo y secuencia los casos sin alineamiento válido "
+            "y los casos con error.",
+            True,
+        ),
+    ],
+)
 def test_scoped_condition_audit_blocks_or_repairs_a_cached_monitoring_candidate(
-    config, monkeypatch, repair
+    config, monkeypatch, repair, source, bad, good, quote, omission
 ):
     calls = []
 
@@ -45,19 +61,19 @@ def test_scoped_condition_audit_blocks_or_repairs_a_cached_monitoring_candidate(
         value = json.loads(fake_response(request).json()["choices"][0]["message"]["content"])
         if title == "WatchAssessment":
             feedback = package["context"].get("validation_feedback")
-            value["limits"][0]["text"] = GOOD if repair and feedback else BAD
+            value["limits"][0]["text"] = good if repair and feedback else bad
         if (
             title == "GroundingAudit"
-            and package["context"]["candidate"]["limits"][0]["text"] == BAD
+            and package["context"]["candidate"]["limits"][0]["text"] == bad
         ):
             value = {
                 "approved": False,
                 "issues": [
                     {
-                        "rule": "unsupported_claim",
-                        "field": ["limits", 0, "text"],
+                        "rule": "missing_condition" if omission else "unsupported_claim",
+                        "field": [] if omission else ["limits", 0, "text"],
                         "evidence": package["context"]["candidate"]["limits"][0]["evidence"],
-                        "source_quote": "Solo regenerar exige aceptar otro protocolo.",
+                        "source_quote": quote,
                     }
                 ],
             }
@@ -72,7 +88,7 @@ def test_scoped_condition_audit_blocks_or_repairs_a_cached_monitoring_candidate(
     monkeypatch.setattr(Router, "generate", controlled)
     with queue.writing(config) as db:
         report = inventory(config, db, count=1)
-        report.evidence[0].excerpt = SOURCE
+        report.evidence[0].excerpt = source
         frozen = copy.deepcopy(report)
         enrich(db, config, report, Router(db, config))
         key = "watch:" + report.watchlist["items"][0]["id"]
@@ -84,7 +100,7 @@ def test_scoped_condition_audit_blocks_or_repairs_a_cached_monitoring_candidate(
                 require_complete(report)
             return
         require_complete(report)
-        assert report.sections[key]["limits"][0]["text"] == GOOD
+        assert report.sections[key]["limits"][0]["text"] == good
         assert report.sections["check:" + key]["approved"]
         # An audit revision rechecks cached candidates without another generation.
         original_load = builder.load
@@ -103,10 +119,10 @@ def test_scoped_condition_audit_blocks_or_repairs_a_cached_monitoring_candidate(
         require_complete(frozen)
         validate_report(frozen, {e.id for e in frozen.evidence})
         assert calls and set(calls) == {"GroundingAudit"}
-        assert frozen.sections[key]["limits"][0]["text"] == GOOD
+        assert frozen.sections[key]["limits"][0]["text"] == good
         assert frozen.model_info[key]["reused"] == "true"
         assert frozen.model_info["check:" + key]["reused"] == "false"
-        assert frozen.evidence[0].excerpt == SOURCE
+        assert frozen.evidence[0].excerpt == source
 
 
 @pytest.mark.parametrize("repair", [False, True])

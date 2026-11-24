@@ -52,6 +52,50 @@ class SourceRepairPlan:
     schema: dict[str, Any]
     messages: list[dict[str, str]]
 
+    def compact_messages(self) -> list[dict[str, str]]:
+        """Factor repeated diagnostics without dropping target claims or numbers."""
+        rules = sorted(
+            {issue["rule"] for target in self.targets.values() for issue in target.issues}
+        )
+        codes = {rule: chr(ord("a") + index) for index, rule in enumerate(rules)}
+        targets: dict[str, Any] = {}
+        for tid, target in self.targets.items():
+            claim = (
+                self.candidate["summary"]
+                if len(target.path) == 1
+                else self.candidate[target.path[0]][target.path[1]]
+            )
+            targets[tid] = {
+                "original": _blank_html(deepcopy(claim)),
+                "issues": [[codes[i["rule"]], i["field"]] for i in target.issues],
+                **(
+                    {
+                        "preserve_numbers": [
+                            int(v) if v.is_integer() else v for v in target.required_values
+                        ]
+                    }
+                    if target.required_values
+                    else {}
+                ),
+            }
+        context = {
+            "format": "source_claim_repair_compact_v1",
+            "rules": {code: rule for rule, code in codes.items()},
+            "targets": targets,
+        }
+        return [
+            {"role": "assistant", "content": canonical(context)},
+            {
+                "role": "user",
+                "content": (
+                    "Devuelve solo SourceClaimRepair: objeto con exactamente los IDs de targets; "
+                    "cada valor es original corregido conforme a issues (código en rules). "
+                    "Mantén preserve_numbers y las reglas de fuente del sistema. "
+                    "No modifiques otras afirmaciones."
+                ),
+            },
+        ]
+
     def apply(self, patch: Any) -> dict[str, Any]:
         """Validate a scoped patch and substitute only its bound targets."""
         payload = json_object(patch) if isinstance(patch, str) else patch

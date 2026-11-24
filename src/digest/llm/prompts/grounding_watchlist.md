@@ -1,6 +1,6 @@
 ---
 name: grounding_watchlist
-version: 1
+version: 2
 task: contrast
 ---
 En WatchAssessment, examina por separado finding, meaning, limits y next_check.
@@ -19,3 +19,9 @@ una cautela en limits no compensa una conclusión categórica en meaning.
 Aplica el mismo rigor a las preguntas y al siguiente paso: no inventes permisos,
 prerrequisitos ni análisis ya realizados. No exijas repetir cada detalle en todos
 los campos si no hay contradicción y el alcance decisivo está conservado.
+
+Al resumir un plan, conserva las excepciones explícitas por modelo, caso o
+secuencia. Una aprobación todavía pendiente no sustituye exclusiones por falta
+de insumos o errores. Rechaza una formulación global del alcance que las omita,
+aunque describa correctamente un objetivo propuesto y no afirme ejecución o
+cobertura obtenida. Antes de marcar omisión, comprueba todos los campos.

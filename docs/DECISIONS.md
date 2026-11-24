@@ -213,6 +213,30 @@ contexto coincide solo por valor numérico con otra cifra en la evidencia citada
 El ensayo aprueba únicamente esa unidad aislada; la generación/entrega completa y
 la firma humana de fase 3 siguen pendientes.
 
+### D-072 — Compactación reversible de reparaciones (2026-11-24)
+
+El ensayo r12 completó dos fuentes y ambos cotejos de seguimiento, pero dos
+fuentes siguen pendientes. Una reparación de doce afirmaciones ocupaba 29 773
+caracteres frente al límite de 24 000. Se permite una alternativa exclusivamente
+si la representación habitual no cabe y el prefijo coincide entero con el render
+original del paquete Source. JSON minificado y escape de texto sin redundancia,
+manteniendo `&<>` y atributos estrictos, conservan exactamente los mismos datos.
+Los objetivos reúnen original, incidencias y valores requeridos con alias de
+reglas reversibles. El caso retenido ocupa 23 724 caracteres; el presupuesto
+final, esquema, conservación numérica, validación y cotejo permanecen intactos.
+Sin DDL, formatos humanos, llamadas extra o cambio de modelos/límites. La
+revisión técnica está en `reviews/compact-source-repairs.md`; falta eficacia real.
+
+### D-073 — Alcance de planes en el seguimiento (2026-11-24)
+
+La revisión científica de r12 aprueba solo la evaluación histórica de cristales;
+la de semillas omite exclusiones explícitas del plan por modelo y caso (W12-S1).
+`grounding_watchlist` v2 conserva ese alcance aunque el objetivo sea propuesto y
+la aprobación esté pendiente. La generación v3 no cambia: se reaudita la caché y
+una omisión activa la reparación existente. La revisión y el caso con doble de
+omisión implícita no aprueban otra candidata ni el informe completo; r12 conserva
+su veredicto por sección en `reviews/watchlist-real-r12.md`.
+
 ## Preguntas abiertas
 
 Las preguntas Q-01 a Q-14 tienen respuesta registrada en las decisiones. La fase 0 tiene revisión independiente y firma

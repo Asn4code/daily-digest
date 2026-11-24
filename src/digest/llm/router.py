@@ -251,6 +251,17 @@ class Router:
                     if repair == 0:
                         if repair_plan is not None:
                             conversation = [*messages, *repair_plan.messages]
+                            if (
+                                prompt_name == "source"
+                                and max_message_chars is not None
+                                and len(json.dumps(conversation, ensure_ascii=False))
+                                > max_message_chars
+                            ):
+                                from digest.llm.prompts import compact_source_messages
+
+                                prefix = compact_source_messages(messages, clean_package)
+                                if prefix is not None:
+                                    conversation = [*prefix, *repair_plan.compact_messages()]
                         else:
                             # Do not echo untrusted output, exceptions or secret-bearing bodies.
                             conversation += [

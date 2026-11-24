@@ -69,16 +69,25 @@ def test_large_result_splits_into_small_validated_packets_without_losing_invento
         requests.append(wire)
         response = fake_response(request)
         value = json.loads(response.json()["choices"][0]["message"]["content"])
+
+        def corrupt(claim):
+            if invalid == "number":
+                claim["text"] = "Efecto 987654321 Å"
+            elif invalid == "reference":
+                claim["evidence"] = ["ev_invented"]
+            elif invalid == "decorated":
+                assert bad_reference is not None
+                claim["evidence"] = [bad_reference + " (locator)"]
+
         if title == "SourceFindings":
             if bad_reference is None:
                 bad_reference = value["observations"][0]["evidence"][0]
             if value["observations"][0]["evidence"][0] == bad_reference:
-                if invalid == "number":
-                    value["observations"][0]["text"] = "Efecto 987654321 Å"
-                elif invalid == "reference":
-                    value["observations"][0]["evidence"] = ["ev_invented"]
-                elif invalid == "decorated":
-                    value["observations"][0]["evidence"] = [bad_reference + " (locator)"]
+                corrupt(value["observations"][0])
+        elif title == "SourceClaimRepair" and invalid:
+            # This scenario models a provider that keeps inventing after repair.
+            for claim in value.values():
+                corrupt(claim)
         return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(value)}}]})
 
     with closing(connect(tmp_path / "db")) as db:
@@ -128,7 +137,11 @@ def test_large_result_splits_into_small_validated_packets_without_losing_invento
         assert report.sections, "Successful independent source pieces remain available"
         assert all(
             w["response_format"]["json_schema"]["schema"]["title"]
-            in {"SourceFindings", "GroundingAudit"}
+            in {"SourceFindings", "SourceClaimRepair", "GroundingAudit"}
+            for w in requests
+        )
+        assert any(
+            w["response_format"]["json_schema"]["schema"]["title"] == "SourceClaimRepair"
             for w in requests
         )
         with pytest.raises(ValueError):

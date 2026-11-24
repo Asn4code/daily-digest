@@ -32,7 +32,24 @@ def load(task: Task, *, name: str | None = None) -> Prompt:
     return Prompt(meta["name"], str(meta["version"]), task, body.strip())
 
 
-def messages(prompt: Prompt, package: dict[str, Any]) -> list[dict[str, str]]:
+def messages(
+    prompt: Prompt, package: dict[str, Any], *, compact: bool = False
+) -> list[dict[str, str]]:
+    compact = compact and prompt.name == "source"
+
+    def data(value: Any) -> str:
+        # Quotes are structural only in attributes, whose escaping stays strict.
+        # Element text still escapes &, < and >, including project delimiters.
+        return html.escape(
+            json.dumps(
+                value,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":") if compact else None,
+            ),
+            quote=not compact,
+        )
+
     evidence = package.get("evidence", [])
     context = {key: value for key, value in package.items() if key != "evidence"}
     if prompt.name == "source":
@@ -53,11 +70,7 @@ def messages(prompt: Prompt, package: dict[str, Any]) -> list[dict[str, str]]:
             "current_evidence_ids",
         ):
             context.pop(key, None)
-    blocks = [
-        "<context>"
-        + html.escape(json.dumps(context, ensure_ascii=False, sort_keys=True))
-        + "</context>"
-    ]
+    blocks = ["<context>" + data(context) + "</context>"]
     for item in evidence:
         if package.get("wire_mode") == "references":
             original = item
@@ -77,10 +90,27 @@ def messages(prompt: Prompt, package: dict[str, Any]) -> list[dict[str, str]]:
             '<evidence id="'
             + html.escape(item["id"], quote=True)
             + '">'
-            + html.escape(json.dumps(item, ensure_ascii=False, sort_keys=True))
+            + data(item)
             + "</evidence>"
         )
     return [
         {"role": "system", "content": prompt.body},
         {"role": "user", "content": "\n".join(blocks)},
     ]
+
+
+def compact_source_messages(
+    original: list[dict[str, str]], package: dict[str, Any] | None
+) -> list[dict[str, str]] | None:
+    """Compact only a prefix exactly bound to the original source wire package."""
+    if (
+        package is None
+        or len(original) != 2
+        or original[0].get("role") != "system"
+        or original[1].get("role") != "user"
+    ):
+        return None
+    prompt = Prompt("source", "", "extract", original[0]["content"])
+    if messages(prompt, package) != original:
+        return None
+    return messages(prompt, package, compact=True)

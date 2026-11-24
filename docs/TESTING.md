@@ -500,3 +500,16 @@ esquema y otras etapas, saneamiento completo de secretos y HTML en `wire_targets
 caché de `SourceFindings` reconstruido y cotejo `GroundingAudit` obligatorio sobre
 la pieza reconstruida. `tests/fixtures/llm.py` soporta respuestas sintéticas para
 `SourceClaimRepair`.
+
+`tests/unit/test_compact_source_repair.py` verifica equivalencia completa del
+contexto, evidencias, objetivos, incidencias y números al compactar, protección
+de delimitadores/atributos, prefijos no vinculados, privacidad, caché y el límite
+real de 24 000 caracteres. Un parche que omite cantidades continúa rechazado y
+si ni la conversación compacta cabe no se envía. El doble negativo de fuentes
+extensas mantiene su defecto también durante `SourceClaimRepair`: ahora puede
+intentarse reparar, pero una cifra o referencia inventada sigue bloqueada.
+
+La regresión de seguimiento usa una omisión implícita: mencionar una aprobación
+pendiente sin conservar exclusiones. El doble devuelve `missing_condition` con
+ruta global; se prueban rechazo, reparación y reauditoría de caché. Esto prueba
+orquestación, no la detección semántica de un proveedor real.
